@@ -1,0 +1,33 @@
+{% extends 'events/_layouts' %}
+
+{% set crumbs = [
+    { label: craft.events.getPluginName | t, url: url('events') },
+    { label: "Settings" | t, url: url('events/settings') },
+] %}
+
+{% set navItems = {
+    'license': { title: "License" | t },
+    'general-heading': { heading: "Settings" | t },
+    'general': { title: "General Settings" | t },
+} %}
+
+{% set selectedTab = 'settings' %}
+{% set selectedSubnavItem = "settings" %}
+{% set selectedItem = craft.request.getSegment(3) %}
+
+{% set title = craft.events.getPluginName() ~ " Settings" | t %}
+{% set docTitle = navItems[selectedItem].title ~ ' - ' ~ title %}
+
+{% block sidebar %}
+    <nav>
+        <ul>
+            {% for id, item in navItems %}
+                {% if item.heading is defined %}
+                    <li class="heading"><span>{{ item.heading }}</span></li>
+                {% else %}
+                    <li><a href="{{ url('events/settings/' ~ id) }}"{% if id == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+{% endblock %}

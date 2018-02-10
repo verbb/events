@@ -1,0 +1,66 @@
+{% extends "events/_layouts" %}
+{% hook 'events.prepCpTemplate' %}
+
+{% set title = "Ticket Types" | t %}
+{% set selectedSubnavItem = "ticketTypes" %}
+{% set docTitle = title ~ ' - ' ~ craft.events.getPluginName %}
+
+{% set ticketTypes = craft.events.getAllticketTypes() %}
+
+{% set extraPageHeaderHtml %}
+    {% if craft.events.isLicensed %}
+		<div id="newTicketType" class="buttons">
+			<a href="{{ url('events/tickettypes/new') }}" class="btn submit add icon">{{ "New ticket type" | t }}</a>
+		</div>
+    {% else %}
+		<div id="newTicketType" class="buttons">
+			<a href="#" class="btn submit add icon disabled">{{ "New ticket type" | t }}</a>
+			<span class="license-error">{{ "Please enter your license key first" | t }}</span>
+		</div>
+    {% endif %}
+{% endset %}
+
+{% block blockContent %}
+	<div id="noTicketTypes"{% if ticketTypes %} class="hidden"{% endif %}>
+		<p>{{ "No ticket types exist yet." | t }}</p>
+	</div>
+
+	{% if ticketTypes | length %}
+		<table id="ticketTypes" class="data fullwidth collapsible">
+			<thead>
+				<th scope="col">{{ "Name" | t }}</th>
+				<th scope="col">{{ "Handle" | t }}</th>
+				<td class="thin"></td>
+			</thead>
+			<tbody>
+				{% for ticketType in ticketTypes %}
+					<tr data-id="{{ ticketType.id }}" data-title="{{ ticketType.title | t }}">
+						<th scope="row" data-title="{{ 'Name' | t }}">
+							<a href="{{ url('events/tickettypes/' ~ ticketType.id) }}">{{ ticketType.title | t }}</a>
+						</th>
+						
+						<td data-title="{{ 'Handle' | t }}">
+							<code>{{ ticketType.handle }}</code>
+						</td>
+						
+						<td class="thin">
+							<a class="delete icon" title="{{ 'Delete' | t }}" role="button"></a>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	{% endif %}
+
+{% endblock %}
+
+{% set js %}
+	var adminTable = new Craft.AdminTable({
+		tableSelector: '#ticketTypes',
+		noObjectsSelector: '#noTicketTypes',
+		newObjectBtnSelector: '#newTicketType',
+		deleteAction: 'events/ticketTypes/delete',
+		confirmDeleteMessage: '{{ "Are you sure you want to delete this ticket type and all its tickets?" | t }}'
+	});
+{% endset %}
+{% includeJs js %}

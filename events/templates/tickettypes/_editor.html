@@ -1,0 +1,15 @@
+{% from "_includes/forms" import textField %}
+{% set static = static is defined ? static : false %}
+
+{{ textField({
+	label: 'Title' | t,
+	id: 'title',
+	name: 'title',
+	value: element.title,
+	errors: (not static ? element.getErrors('title')),
+	first: true,
+	autofocus: true,
+	required: (not static),
+	disabled: static,
+	maxlength: 255
+}) }}

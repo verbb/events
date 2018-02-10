@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 593.3 595.5"
+	 style="enable-background:new 0 0 593.3 595.5;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:url(#Oval-1_2_);}
+	.st1{fill:#FFFFFF;}
+</style>
+<title>registered-icon</title>
+<desc>Created with Sketch.</desc>
+<g id="Page-1_1_" sketch:type="MSPage">
+	<g id="registered-icon" sketch:type="MSLayerGroup">
+		<g id="Page-1" sketch:type="MSShapeGroup">
+			<g id="icon_1_" transform="translate(197.098824, 200.000000)">
+				
+					<linearGradient id="Oval-1_2_" gradientUnits="userSpaceOnUse" x1="-1145.9916" y1="494.9471" x2="-1146.6611" y2="494.229" gradientTransform="matrix(-197.3517 0 0 -199.7584 -225936.4531 99091.2422)">
+					<stop  offset="0" style="stop-color:#B4ED50"/>
+					<stop  offset="0.5185" style="stop-color:#79BE38"/>
+					<stop  offset="1" style="stop-color:#429321"/>
+				</linearGradient>
+				<ellipse id="Oval-1_1_" class="st0" cx="295.3" cy="295.6" rx="98.7" ry="99.9"/>
+				<path id="Shape" class="st1" d="M329.9,262l-55.3,55.3h12L259,289.7c-3.4-3.4-8.8-3.4-12,0c-3.4,3.4-3.4,8.8,0,12l27.6,27.6
+					c3.4,3.4,8.8,3.4,12,0l55.3-55.3c3.4-3.4,3.4-8.8,0-12C338.7,258.8,333.3,258.8,329.9,262L329.9,262z"/>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>

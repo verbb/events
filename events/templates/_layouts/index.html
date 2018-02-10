@@ -1,0 +1,43 @@
+{% extends parentLayout | default("_layouts/cp") %}
+{% hook 'events.prepCpTemplate' %}
+
+{% import "_includes/forms" as forms %}
+
+{% set title = (title is defined) ? title : craft.events.getPluginName %}
+
+{% set content %}
+    {% block blockContent %}
+
+    {% endblock %}
+
+    <hr>
+    
+    <div id="plugin-footer">
+        <div class="footer-left">
+            {% switch craft.events.getEdition() %}
+                {% case -1 %}
+                    {% set edition = '(Trial)' %}
+                {% case 1 %}
+                    {% set edition = '(Licensed)' %}
+                {% default %}
+                    {% set edition = '' %}
+            {% endswitch %}
+
+            <p class="plugin-text">{{ craft.events.getPluginName }} {{ craft.events.getPluginVersion }} {{ edition }}</p>
+        </div>
+
+        <div class="footer-right">
+            <a class="plugin-credit" href="https://verbb.io" target="_blank">
+                <span class="credit-love">Made with <span style="color: #e25555;">&#9829;</span> by</span>
+
+                <div class="credit-pill">
+                    <div class="credit-mask">
+                        <div class="credit-wrap">
+                            {% include 'events/_svg/verbb-logo.svg' %}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+{% endset %}

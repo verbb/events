@@ -1,0 +1,14 @@
+{% set parentLayout = '_layouts/elementindex' %}
+{% extends "events/_layouts" %}
+
+{% hook 'events.prepCpTemplate' %}
+
+{% set title = "Events" | t %}
+{% set selectedSubnavItem = "events" %}
+
+{% set docTitle = title ~ ' - ' ~ craft.events.getPluginName %}
+{% set elementType = 'Events_Event' %}
+
+{% if eventTypeHandle is defined %}
+	{% includejs 'window.defaultEventTypeHandle = "'~eventTypeHandle~'";' %}
+{% endif %}

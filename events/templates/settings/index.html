@@ -1,0 +1,5 @@
+{% if craft.events.isLicensed %}
+    {% redirect 'events/settings/general' %}
+{% else %}
+    {% redirect 'events/settings/license' %}
+{% endif %}

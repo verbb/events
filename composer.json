@@ -1,0 +1,22 @@
+{
+  "name": "verbb/Events",
+  "description": "Events is a full-featured Craft CMS Plugin for event management and ticketing. Events integrates with Craft Commerce so you can easily sell tickets to your events.",
+  "type": "craft-plugin",
+  "authors": [
+    {
+      "name": "Verbb",
+      "homepage": "http://verbb.io/"
+    }
+  ],
+  "require": {
+    "endroid/qrcode": "^1.5"
+  },
+  "config": {
+    "vendor-dir": "events/vendor"
+  },
+  "autoload": {
+    "psr-4": {
+      "Events\\": "events/Events"
+    }
+  }
+}

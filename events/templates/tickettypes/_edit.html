@@ -1,0 +1,206 @@
+{% extends "events/_layouts" %}
+{% hook 'events.prepCpTemplate' %}
+
+{% set selectedSubnavItem = "ticketTypes" %}
+{% set docTitle = title ~ ' - ' ~ craft.events.getPluginName %}
+
+{% set tabs = {
+	ticketTypeSettings: { label: "Settings" | t, url: '#ticket-type-settings' },
+	ticketFields: { label: "Ticket Fields" | t, url: '#ticket-fields' },
+} %}
+
+{% set crumbs = [
+	{ label: "Tickets" | t, url: url('events/index') },
+	{ label: "Ticket Types" | t, url: url('events/tickettypes/index') }
+] %}
+
+{% set fullPageForm = true %}
+
+{% block saveButton %}
+    {% if not craft.events.isLicensed %}
+		<div class="buttons">
+			<input type="button" class="btn submit disabled" value="{{ 'Save' | t }}">
+			<span class="license-error">{{ "Please enter your license key first" | t }}</span>
+		</div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% set selectedTab = 'settings' %}
+
+{% block blockContent %}
+
+    {% if craft.events.isLicensed %}
+		<input type="hidden" name="action" value="events/ticketTypes/save">
+    {% endif %}
+	<input type="hidden" name="redirect" value="events/tickettypes">
+	{% if ticketType.id %}<input type="hidden" name="ticketTypeId" value="{{ ticketType.id }}">{% endif %}
+
+	<div id="ticket-type-settings">
+		{{ forms.textField({
+			first: true,
+			label: "Name" | t,
+			instructions: "What this ticket type will be called in the CP." | t,
+			id: 'name',
+			name: 'title',
+			value: ticketType.title,
+			errors: ticketType.getErrors('title'),
+			autofocus: true,
+			required: true,
+			translatable: true
+		}) }}
+
+		{{ forms.textField({
+			label: "Handle" | t,
+			instructions: "How you’ll refer to this ticket type in the templates." | t,
+			id: 'handle',
+			class: 'code',
+			name: 'handle',
+			value: ticketType.handle,
+			errors: ticketType.getErrors('handle'),
+			required: true
+		}) }}
+
+		{#{{ forms.textField({#}
+			{#label: "Automatic SKU Format" | t,#}
+			{#instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}" | t({ ex1: '<code>{slug}</code>', ex2: '<code>{myCustomField}</code>' }),#}
+			{#id: 'skuFormat',#}
+			{#class: 'ltr',#}
+			{#name: 'skuFormat',#}
+			{#value: ticketType.skuFormat,#}
+			{#errors: ticketType.getErrors('skuFormat')#}
+		{#}) }}#}
+
+        {{ forms.selectField({
+            label: 'Tax Category' | t,
+            name: 'taxCategoryId',
+            value: ticketType.taxCategoryId,
+            options: craft.commerce.getTaxCategories(true)
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Shipping Category' | t,
+            name: 'shippingCategoryId',
+            value: ticketType.shippingCategoryId,
+            options: craft.commerce.getShippingCategories(true)
+        }) }}
+
+		{#{% macro hasUrlsField(ticketType) %}#}
+			{#{% from "_includes/forms" import checkboxField %}#}
+
+			{#{{ checkboxField({#}
+				{#label: "Tickets of this type have their own URLs" | t,#}
+				{#id: 'hasUrls',#}
+				{#name: 'hasUrls',#}
+				{#checked: ticketType.hasUrls,#}
+				{#toggle: 'url-settings'#}
+			{#}) }}#}
+		{#{% endmacro %}#}
+
+		{#{% macro templateField(ticketType) %}#}
+			{#{% from "_includes/forms" import textField %}#}
+
+			{#{{ textField({#}
+				{#label: "Ticket Template" | t,#}
+				{#instructions: "The template to use when a ticket’s URL is requested." | t,#}
+				{#id: 'template',#}
+				{#class: 'ltr',#}
+				{#name: 'template',#}
+				{#value: ticketType.template,#}
+				{#errors: ticketType.getErrors('template')#}
+			{#}) }}#}
+		{#{% endmacro %}#}
+
+		{#{% from _self import hasUrlsField, templateField %}#}
+
+		{#{{ hasUrlsField(ticketType) }}#}
+
+		{#<div id="url-settings" class="nested-fields{% if not ticketType.hasUrls %} hidden{% endif %}">#}
+
+			{#{% macro urlFormatText(locale, ticketType, name, value) %}#}
+				{#{% from "_includes/forms" import text, errorList %}#}
+				{#{% set errors = ticketType.getErrors(name~'-'~locale.id) %}#}
+
+				{#<div class="input{% if errors %} errors{% endif %}">#}
+					{#{{ text({#}
+						{#id: name~'-'~locale.id,#}
+						{#class: 'code ltr',#}
+						{#name: name~'['~locale.id~']',#}
+						{#value: (value != '__home__' ? value : null),#}
+						{#errors: errors#}
+					{#}) }}#}
+				{#</div>#}
+
+				{#{{ errorList(errors) }}#}
+			{#{% endmacro %}#}
+
+			{#{% set urlFormatInput %}#}
+				{#{% if craft.isLocalized() %}#}
+					{#<table class="data fullwidth">#}
+						{#<tbody>#}
+							{#{% for locale in craft.i18n.getSiteLocales() %}#}
+								{#<tr>#}
+									{#{% if craft.isLocalized() %}#}
+										{#<th class="thin nowrap">{{ locale.id }}</th>#}
+									{#{% endif %}#}
+									{#<td class="topalign">#}
+										{#{% set value = (ticketType.locales[locale.id] is defined ? ticketType.locales[locale.id].urlFormat : null) %}#}
+										{#{{ _self.urlFormatText(locale, ticketType, 'urlFormat', value) }}#}
+									{#</td>#}
+								{#</tr>#}
+							{#{% endfor %}#}
+						{#</tbody>#}
+					{#</table>#}
+				{#{% else %}#}
+					{#{% set locale = craft.i18n.getPrimarySiteLocale() %}#}
+					{#{% set value = (ticketType.locales[locale.id] is defined ? ticketType.locales[locale.id].urlFormat : null) %}#}
+					{#{{ _self.urlFormatText(locale, ticketType, 'urlFormat', value) }}#}
+				{#{% endif %}#}
+			{#{% endset %}#}
+
+			{#{{ forms.field({#}
+				{#label: "Ticket URL Format" | t,#}
+				{#instructions: "What the ticket URLs should look like. You can include tags that output event properties, such as such as {ex1} or {ex2}." | t({ ex1: '<code>{slug}</code>', ex2: '<code>{publishDate|date(\"Y\")}</code>' }),#}
+			{#}, urlFormatInput) }}#}
+
+			{#{{ forms.textField({#}
+				{#label: "Ticket Template" | t,#}
+				{#instructions: "The template to use when a ticket’s URL is requested." | t,#}
+				{#id: 'template',#}
+				{#class: 'ltr',#}
+				{#name: 'template',#}
+				{#value: ticketType.template,#}
+				{#errors: ticketType.getErrors('template')#}
+			{#}) }}#}
+		{#</div>#}
+
+	</div>
+
+	<div id="ticket-fields" class="hidden">
+
+		{% include "_includes/fieldlayoutdesigner" with {
+			fieldLayout: ticketType.asa('ticketFieldLayout').getFieldLayout(),
+		} only %}
+
+	</div>
+
+{% endblock %}
+
+{% includejs %}
+    {% if not ticketType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+
+    {% for locale in craft.i18n.getSiteLocales() %}
+		{% if ticketType.locales[locale.id] is not defined or not ticketType.locales[locale.id].urlFormat %}
+			new Craft.EntryUrlFormatGenerator('#name', '#urlFormat-{{ locale.id }}', { suffix: '/{slug}' });
+		{% endif %}
+	{% endfor %}
+
+	$('#hasVariants').on('change', function() {
+		if ($(this).prop('checked')) {
+			$('#tab-variantFields').removeClass('hidden');
+		} else {
+			$('#tab-variantFields').addClass('hidden');
+		}
+	});
+{% endincludejs %}
