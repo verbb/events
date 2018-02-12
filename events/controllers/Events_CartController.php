@@ -72,13 +72,16 @@ class Events_CartController extends BaseController
             // Do some cart-adding!
             if (!$errors) {
                 foreach ($items as $key => $item) {
-                    $purchasableId   = $key;
-                    $qty             = isset($item['qty']) ? (int)$item['qty'] : 0;
+                    $purchasableId = $key;
+                    $note = isset($item['note']) ? $item['note'] : '';
+                    $options = isset($item['options']) ? $item['options'] : [];
+                    $qty = isset($item['qty']) ? (int)$item['qty'] : 0;
+
                     $cart->setContentFromPost('fields');
 
                     if ($qty != 0) {
                         $error = null;
-                        if (!craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, '', array(), $error)) {
+                        if (!craft()->commerce_cart->addToCart($cart, $purchasableId, $qty, $note, $options, $error)) {
                             $errors[] = $error;
                         }
                     }
