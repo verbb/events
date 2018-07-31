@@ -29,8 +29,9 @@
             {{ forms.textField({
                 id: 'price',
                 name: 'price',
+                value: (ticketPrice == '0' ? '0' | number : (ticketPrice ? ticketPrice | number ?: '')),
                 placeholder: 'eg. 10.00',
-                value: ticketPrice,
+                unit: craft.commerce.primaryPaymentCurrency.iso,
             }) }}
         </div>
 
