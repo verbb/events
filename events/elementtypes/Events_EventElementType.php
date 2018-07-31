@@ -184,7 +184,7 @@ class Events_EventElementType extends BaseElementType
             'startDate' => AttributeType::DateTime,
             'endDate' => AttributeType::DateTime,
             'after' => AttributeType::Mixed,
-            'order' => [AttributeType::String, 'default' => 'events.startDate desc'],
+            'order' => [AttributeType::String, 'default' => 'events.startDate asc'],
             'before' => AttributeType::Mixed,
             'status' => [
                 AttributeType::String,
