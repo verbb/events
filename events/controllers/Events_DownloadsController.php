@@ -71,13 +71,13 @@ class Events_DownloadsController extends BaseController
 
         // Set the config options
         $pathService = craft()->path;
-        $dompdfTempDir = $pathService->getTempPath() . 'gift_voucher_dompdf';
-        $dompdfFontCache = $pathService->getCachePath() . 'gift_voucher_dompdf';
-        $dompdfLogFile = $pathService->getLogPath() . 'gift_voucher_dompdf.htm';
+        $dompdfTempDir = $pathService->getTempPath() . 'events_dompdf';
+        $dompdfFontCache = $pathService->getCachePath() . 'events_dompdf';
+        $dompdfLogFile = $pathService->getLogPath() . 'events_dompdf.htm';
         IOHelper::ensureFolderExists($dompdfTempDir);
         IOHelper::ensureFolderExists($dompdfFontCache);
 
-        $isRemoteEnabled = craft()->config->get('pdfAllowRemoteImages', 'giftvoucher');
+        $isRemoteEnabled = craft()->config->get('pdfAllowRemoteImages', 'events');
 
         $options = new Options([
             'tempDir'         => $dompdfTempDir,
@@ -92,8 +92,8 @@ class Events_DownloadsController extends BaseController
         $dompdf->loadHtml($html);
 
         // Set the paper size/orientation
-        $size = craft()->config->get('pdfPaperSize', 'giftvoucher');
-        $orientation = craft()->config->get('pdfPaperOrientation', 'giftvoucher');
+        $size = craft()->config->get('pdfPaperSize', 'events');
+        $orientation = craft()->config->get('pdfPaperOrientation', 'events');
         $dompdf->setPaper($size, $orientation);
 
         $streamOptions = array();
