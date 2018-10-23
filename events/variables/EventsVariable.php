@@ -171,6 +171,8 @@ class EventsVariable
      */
     public function isTicket($lineItem)
     {
-        return ($lineItem->purchasable->elementType == 'Events_Ticket');
+        if ($lineItem->purchasable) {
+            return (bool)($lineItem->purchasable->elementType == 'Events_Ticket');
+        }
     }
 }
