@@ -1,5 +1,13 @@
 [
     {
+        "version": "0.1.2",
+        "downloadUrl": "https://github.com/verbb/events/archive/0.1.2.zip",
+        "date": "2018-10-24T00:00:00+10:00",
+        "notes": [
+            "[Fixed] Add check for `isTicket()`, ensuring there’s a purchasable linked to a line item."
+        ]
+    },
+    {
         "version": "0.1.1",
         "downloadUrl": "https://github.com/verbb/events/archive/0.1.1.zip",
         "date": "2018-08-01T00:00:00+10:00",
