@@ -1,0 +1,48 @@
+[
+    {
+        "title": "Get Started",
+        "collapsable": false,
+        "children": [
+            "get-started/installation-setup",
+            "get-started/requirements",
+            "get-started/configuration"
+        ]
+    },
+    {
+        "title": "Feature Tour",
+        "collapsable": false,
+        "children": [
+            "feature-tour/custom-fields",
+            "feature-tour/event-types",
+            "feature-tour/ticket-types",
+            "feature-tour/pdf-ticket",
+            "feature-tour/ticket-check-in"
+        ]
+    },
+    {
+        "title": "Models",
+        "collapsable": false,
+        "children": [
+            "models/event-model",
+            "models/ticket-model",
+            "models/purchased-ticket-model"
+        ]
+    },
+    {
+        "title": "Template Guide",
+        "collapsable": false,
+        "children": [
+            "template-guide/fetching-events",
+            "template-guide/single-event",
+            "template-guide/ticket-list",
+            "template-guide/pdf-ticket"
+        ]
+    },
+    {
+        "title": "Support",
+        "collapsable": false,
+        "children": [
+            "support/get-support"
+        ]
+    }
+]
