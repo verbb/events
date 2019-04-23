@@ -1,0 +1,282 @@
+{% extends 'events/_layouts' %}
+{% set selectedSubnavItem = 'events' %}
+
+{% set crumbs = [
+    { label: craft.events.getPluginName() | t('events'), url: url('events') },
+    { label: eventType.name | t('events'), url: url('events/events/' ~ eventType.handle) },
+] %}
+
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = continueEditingUrl %}
+
+{% import '_includes/forms' as forms %}
+
+{% block header %}
+    {{ block('pageTitle') }}
+    {{ block('contextMenu') }}
+    <div class="flex-grow"></div>
+
+    {% if showPreviewBtn or shareUrl is defined %}
+        {% if showPreviewBtn %}
+            <div class="btn livepreviewbtn">{{ 'Live Preview' | t('app') }}</div>
+        {% endif %}
+
+        {% if shareUrl is defined %}
+            <a href="{{ shareUrl }}" class="btn sharebtn" target="_blank">{{ 'Share' | t('app') }}</a>
+        {% endif %}
+
+        <div class="flex-grow"></div>
+    {% endif %}
+
+    {{ block('actionButton') }}
+{% endblock %}
+
+{% block actionButton %}
+    <div class="btngroup">
+        <input type="submit" class="btn submit" value="{{ 'Save' | t('app') }}">
+        <div class="btn submit menubtn"></div>
+        <div class="menu">
+            <ul>
+                <li>
+                    <a class="formsubmit" data-redirect="{{ continueEditingUrl | hash }}">
+                        {{ 'Save and continue editing' | t('app') }}
+                        {{ forms.optionShortcutLabel('S') }}
+                    </a>
+                </li>
+
+                {% if event.id %}
+                    <li>
+                        <a class="formsubmit" data-param="eventId" data-value="" data-redirect="{{ continueEditingUrl | hash }}">
+                            {{ 'Save as a new event' | t('events') }}
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            {% if event.id %}
+                <hr>
+                <ul>
+                    <li>
+                        <a class="formsubmit error" data-action="events/events/delete" data-confirm="{{ 'Are you sure you want to delete this event?' | t('events') }}" data-redirect="{{ 'events/events' | hash }}">
+                            {{ 'Delete' | t('app') }}
+                        </a>
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block contextMenu %}
+    {% if craft.app.getIsMultiSite() %}
+        <div class="btn menubtn" data-icon="world">{{ event.site.name | t('site') }}</div>
+        <div class="menu">
+            <ul class="padded">
+                {% for siteId in siteIds %}
+                    {% set site = craft.app.sites.getSiteById(siteId) %}
+                    {% set status = siteId in enabledSiteIds ? 'enabled' : 'disabled' %}
+
+                    <li>
+                        {% if siteId == event.siteId %}
+                            <a class="sel">
+                                <div class="status {{ status }}"></div>{{ site.name | t('site') }}
+                            </a>
+                        {% else %}
+                            {% set url = url('events/events/#{eventTypeHandle}/#{craft.app.request.getSegment(4)}/#{site.handle}') %}
+
+                            <a href="{{ url }}">
+                                <div class="status {{ status }}"></div>{{ site.name | t('site') }}
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <input type="hidden" name="action" value="events/events/save">
+    {{ redirectInput('events/events') }}
+    <input type="hidden" name="typeId" value="{{ eventType.id }}">
+    {% if event.id %}<input type="hidden" name="eventId" value="{{ event.id }}">{% endif %}
+
+    <div id="fields">
+        {{ forms.textField({
+            label: 'Title' | t('app'),
+            site: event.site,
+            id: 'title',
+            name: 'title',
+            value: event.title,
+            placeholder: 'Enter title' | t('app'),
+            errors: event.getErrors('title'),
+            first: true,
+            autofocus: true,
+            required: true,
+            maxlength: 255,
+        }) }}
+
+        <div>
+            {% set allEventTab = eventType.getFieldLayout().getTabs() %}
+
+            {% for tab in eventType.getFieldLayout().getTabs() %}
+                <div id="{{ tab.getHtmlId() }}" {% if not loop.first %} class="hidden" {% endif %}>
+                    {% include '_includes/fields' with {
+                        fields: tab.getFields(),
+                        element: event,
+                    } only %}
+                </div>
+            {% endfor %}
+
+            <div id="tab-dates-container"{% if allEventTab | length > 0 %} class="hidden"{% endif %}>
+                {{ forms.dateTimeField({
+                    label: 'Start Date' | t('events'),
+                    instructions: 'The start date/time for your event.' | t('events'),
+                    id: 'startDate',
+                    name: 'startDate',
+                    value: event.startDate,
+                    errors: event.getErrors('startDate'),
+                }) }}
+
+                {{ forms.dateTimeField({
+                    label: 'End Date' | t('events'),
+                    instructions: 'The end date/time for your event.' | t('events'),
+                    id: 'endDate',
+                    name: 'endDate',
+                    value: event.endDate,
+                    errors: event.getErrors('endDate'),
+                }) }}
+
+                {{ forms.lightswitchField({
+                    label: 'All Day Event' | t('events'),
+                    instructions: 'Does this event run for the entire day?' | t('events'),
+                    id: 'allDay',
+                    name: 'allDay',
+                    on: event.allDay,
+                    errors: event.getErrors('allDay'),
+                }) }}
+            </div>
+
+            <div id="tab-tickets-container" class="hidden">
+                {{ forms.textField({
+                    label: 'Total Capacity' | t('events'),
+                    instructions: 'Set a capacity limit for the event, regardless of ticket type.' | t('events'),
+                    id: 'capacity',
+                    name: 'capacity',
+                    value: event.capacity,
+                    size: '6',
+                }) }}
+
+                <hr />
+
+                <div id="ticketsTable" class="tickets-table data fullwidth collapsible">
+                    <div class="tickets-table-header table-row">
+                        <div class="table-cell table-cell-md-5">
+                            <span class="required">{{ 'Ticket Type' | t('events') }}</span>
+                        </div>
+
+                        <div class="table-cell table-cell-md-2">
+                            <span class="required">{{ 'Quantity' | t('events') }}</span>
+                        </div>
+
+                        <div class="table-cell table-cell-md-3">
+                            <span class="required">{{ 'Price' | t('events') }}</span>
+                        </div>
+
+                        <div class="table-cell table-cell-md-2 action">
+                            <span>{{ 'Actions' | t('events') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="create-tickets-container">
+                        {% for ticket in tickets %}
+                            {% set ticketId = ticket.id ?? '0' %}
+                            
+                            {% namespace 'tickets[' ~ ticketId ~ ']' %}
+                                {% include 'events/_includes/ticket-row' %}
+                            {% endnamespace %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <a class="btn add add-ticket icon dashed" tabindex="0">{{ 'Add ticket' | t('events') }}</a>
+            </div>  
+        </div>
+    </div>
+{% endblock %}
+
+{% js %}
+    {% if not event.slug %}
+        window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
+    {% endif %}
+
+    new Craft.Events.EventEdit('tab-dates-container');
+
+    new Craft.Events.TicketEdit(
+        'tab-tickets-container',
+        {{ ticketRowHtml | json_encode | raw }}
+    );
+{% endjs %}
+
+{% block details %}
+    <div class="meta">
+        {{ forms.textField({
+            label: 'Slug' | t('app'),
+            id: 'slug',
+            name: 'slug',
+            value: event.slug,
+            placeholder: 'Enter slug' | t('app'),
+            errors: event.getErrors('slug') | merge(event.getErrors('uri')),
+        }) }}
+
+        {{ forms.dateTimeField({
+            label: 'Post Date' | t('app'),
+            id: 'postDate',
+            name: 'postDate',
+            value: event.postDate,
+            errors: event.getErrors('postDate'),
+        }) }}
+
+        {{ forms.dateTimeField({
+            label: 'Expiry Date' | t('app'),
+            id: 'expiryDate',
+            name: 'expiryDate',
+            value: event.expiryDate,
+            errors: event.getErrors('expiryDate'),
+        }) }}
+
+        {{ forms.lightswitchField({
+            label: 'Enabled' | t('app'),
+            id: 'enabled',
+            name: 'enabled',
+            on: event.enabled,
+        }) }}
+
+        {% if craft.app.getIsMultiSite() %}
+            {{ forms.lightswitchField({
+                label: 'Enabled for site' | t('app'),
+                id: 'enabledForSite',
+                name: 'enabledForSite',
+                on: event.enabledForSite,
+            }) }}
+        {% endif %}
+    </div>
+
+    <hr>
+
+    {% if event.id %}
+        <hr>
+
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ 'Date Created' | t('app') }}</h5>
+                <div class="value">{{ event.dateCreated | date('short') }} {{ event.dateCreated | time('short') }}</div>
+            </div>
+
+            <div class="data">
+                <h5 class="heading">{{ 'Date Updated' | t('app') }}</h5>
+                <div class="value">{{ event.dateUpdated | date('short') }} {{ event.dateUpdated | time('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

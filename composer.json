@@ -1,22 +1,42 @@
 {
-  "name": "verbb/Events",
-  "description": "Events is a full-featured Craft CMS Plugin for event management and ticketing. Events integrates with Craft Commerce so you can easily sell tickets to your events.",
-  "type": "craft-plugin",
-  "authors": [
-    {
-      "name": "Verbb",
-      "homepage": "http://verbb.io/"
+    "name": "verbb/events",
+    "description": "Events is a full-featured Craft CMS Plugin for event management and ticketing. Events integrates with Craft Commerce so you can easily sell tickets to your events.",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "events"
+    ],
+    "support": {
+        "email": "support@verbb.io",
+        "issues": "https://github.com/verbb/events/issues?state=open",
+        "source": "https://github.com/verbb/events",
+        "docs": "https://github.com/verbb/events",
+        "rss": "https://github.com/verbb/events/commits/v2.atom"
+    },
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Verbb",
+            "homepage": "https://verbb.io"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.1.0",
+        "endroid/qrcode": "^1.5"
+    },
+    "autoload": {
+        "psr-4": {
+          "verbb\\events\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Events",
+        "handle": "events",
+        "changelogUrl": "https://raw.githubusercontent.com/verbb/events/craft-3/CHANGELOG.md",
+        "class": "verbb\\events\\Events"
     }
-  ],
-  "require": {
-    "endroid/qrcode": "^1.5"
-  },
-  "config": {
-    "vendor-dir": "events/vendor"
-  },
-  "autoload": {
-    "psr-4": {
-      "Events\\": "events/Events"
-    }
-  }
 }

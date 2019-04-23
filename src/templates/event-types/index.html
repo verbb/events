@@ -1,0 +1,58 @@
+{% extends 'events/_layouts' %}
+
+{% set title = 'Event Types' | t('events') %}
+{% set selectedSubnavItem = 'eventTypes' %}
+
+{% set crumbs = [
+    { label: craft.events.getPluginName() | t('events'), url: url('events') },
+    { label: 'Event Types' | t('events'), url: url('events/event-types') },
+] %}
+
+{% set eventTypes = craft.events.getEventTypes() %}
+
+{% block blockContent %}
+    <div id="noEventTypes"{% if eventTypes %} class="hidden"{% endif %}>
+        <p>{{ 'No event types exist yet.' | t('events') }}</p>
+    </div>
+
+    {% if eventTypes | length %}
+        <table id="eventTypes" class="data fullwidth collapsible">
+            <thead>
+                <th scope="col">{{ 'Name' | t('app') }}</th>
+                <th scope="col">{{ 'Handle' | t('app') }}</th>
+                <td class="thin"></td>
+            </thead>
+            <tbody>
+                {% for eventType in eventTypes %}
+                    <tr data-id="{{ eventType.id }}" data-title="{{ eventType.name | t('events') }}">
+                        <th scope="row" data-title="{{ 'Name' | t('app') }}">
+                            <a href="{{ url('events/event-types/' ~ eventType.id) }}">{{ eventType.name | t('events') }}</a>
+                        </th>
+                        
+                        <td data-title="{{ 'Handle' | t('app') }}">
+                            <code>{{ eventType.handle }}</code>
+                        </td>
+                        
+                        <td class="thin">
+                            <a class="delete icon" title="{{ 'Delete' | t('app') }}" role="button"></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div id="newEventType" class="buttons">
+        <a href="{{ url('events/event-types/new') }}" class="btn submit add icon">{{ 'New event type' | t('events') }}</a>
+    </div>
+{% endblock %}
+
+{% js %}
+    var adminTable = new Craft.AdminTable({
+        tableSelector: '#eventTypes',
+        noObjectsSelector: '#noEventTypes',
+        newObjectBtnSelector: '#newEventType',
+        deleteAction: 'events/event-types/delete',
+        confirmDeleteMessage: '{{ 'Are you sure you want to delete this event type and all its events?' | t('events') }}'
+    });
+{% endjs %}

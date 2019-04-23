@@ -1,0 +1,38 @@
+// ==========================================================================
+// Welcome Screen
+// ==========================================================================
+
+.verbb-welcome {
+    text-align: center;
+    margin: 0 auto;
+}
+
+.verbb-welcome h1 {
+    font-size: 28px;
+}
+
+.verbb-welcome .verbb-welcome-plugin-icon {
+    margin: 20px 0 30px;
+
+    svg {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+.verbb-welcome .btn-start {
+    font-size: 15px;
+    padding: 14px 28px;
+    height: auto;
+    margin-top: 20px;
+}
+
+.verbb-welcome .or {
+    display: block;
+    padding: 10px;
+    font-style: italic;
+}
+
+.verbb-welcome .btn .fa {
+    margin-left: 5px;
+}

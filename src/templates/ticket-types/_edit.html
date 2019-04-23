@@ -1,0 +1,83 @@
+{% extends 'events/_layouts' %}
+{% set selectedSubnavItem = 'ticketTypes' %}
+
+{% set crumbs = [
+    { label: craft.events.getPluginName() | t('events'), url: url('events') },
+    { label: 'Ticket Types' | t('events'), url: url('events/ticket-types') },
+] %}
+
+{% set fullPageForm = true %}
+
+{% set selectedTab = 'ticketTypeSettings' %}
+{% import '_includes/forms' as forms %}
+
+{% set tabs = {
+	ticketTypeSettings: { label: 'Settings' | t('events'), url: '#ticket-type-settings' },
+	ticketFields: { label: 'Ticket Fields' | t('events'), url: '#ticket-fields' },
+} %}
+
+{% block blockContent %}
+    <input type="hidden" name="action" value="events/ticket-types/save">
+    {{ redirectInput('events/ticket-types') }}
+    {% if ticketType.id %}<input type="hidden" name="ticketTypeId" value="{{ ticketType.id }}">{% endif %}
+
+	<div id="ticket-type-settings">
+		{{ forms.textField({
+            first: true,
+            label: 'Name' | t('app'),
+            instructions: 'What this ticket type will be called in the CP.' | t('events'),
+            id: 'name',
+            name: 'name',
+            value: ticketType.name,
+            errors: ticketType.getErrors('title'),
+            autofocus: true,
+            required: true,
+            translatable: true,
+        }) }}
+
+        {{ forms.textField({
+            label: 'Handle' | t('app'),
+            instructions: 'How you’ll refer to this ticket type in the templates.' | t('events'),
+            id: 'handle',
+            class: 'code',
+            name: 'handle',
+            value: ticketType.handle,
+            errors: ticketType.getErrors('handle'),
+            required: true,
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Tax Category' | t('commerce'),
+            name: 'taxCategoryId',
+            value: ticketType.taxCategoryId,
+            required: true,
+            options: craft.commerce.taxCategories.getAllTaxCategoriesAsList(),
+        }) }}
+
+        {% set shippingCategories = [] %}
+        {% for shippingCategory in craft.commerce.shippingCategories.getAllShippingCategories() %}
+            {% set shippingCategories = shippingCategories|merge([{ value: shippingCategory.id, label: shippingCategory.name }]) %}
+        {% endfor %}
+
+        {{ forms.selectField({
+            label: 'Shipping Category' | t('commerce'),
+            name: 'shippingCategoryId',
+            value: ticketType.shippingCategoryId,
+            required: true,
+            options: shippingCategories,
+        }) }}
+	</div>
+
+	<div id="ticket-fields" class="hidden">
+        {% include '_includes/fieldlayoutdesigner' with {
+            fieldLayout: ticketType.getFieldLayout(),
+        } only %}
+	</div>
+
+{% endblock %}
+
+{% if brandNewTicketType %}
+    {% js %}
+        new Craft.HandleGenerator('#name', '#handle');
+    {% endjs %}
+{% endif %}

@@ -1,0 +1,58 @@
+{% extends 'events/_layouts' %}
+
+{% set title = 'Ticket Types' | t('events') %}
+{% set selectedSubnavItem = 'ticketTypes' %}
+
+{% set crumbs = [
+    { label: craft.events.getPluginName() | t('events'), url: url('events') },
+    { label: 'Ticket Types' | t('events'), url: url('events/ticket-types') },
+] %}
+
+{% set ticketTypes = craft.events.getTicketTypes() %}
+
+{% block blockContent %}
+	<div id="noTicketTypes"{% if ticketTypes %} class="hidden"{% endif %}>
+        <p>{{ 'No ticket types exist yet.' | t('events') }}</p>
+	</div>
+
+	{% if ticketTypes | length %}
+		<table id="ticketTypes" class="data fullwidth collapsible">
+			<thead>
+				<th scope="col">{{ 'Name' | t('app') }}</th>
+				<th scope="col">{{ 'Handle' | t('app') }}</th>
+				<td class="thin"></td>
+			</thead>
+			<tbody>
+				{% for ticketType in ticketTypes %}
+					<tr data-id="{{ ticketType.id }}" data-name="{{ ticketType.title | t('events') }}">
+						<th scope="row" data-title="{{ 'Name' | t('app') }}">
+							<a href="{{ url('events/ticket-types/' ~ ticketType.id) }}">{{ ticketType.title | t('events') }}</a>
+						</th>
+						
+						<td data-title="{{ 'Handle' | t('app') }}">
+							<code>{{ ticketType.handle }}</code>
+						</td>
+						
+						<td class="thin">
+							<a class="delete icon" title="{{ 'Delete' | t('app') }}" role="button"></a>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	{% endif %}
+
+    <div id="newTicketType" class="buttons">
+        <a href="{{ url('events/ticket-types/new') }}" class="btn submit add icon">{{ 'New ticket type' | t('events') }}</a>
+    </div>
+{% endblock %}
+
+{% js %}
+	var adminTable = new Craft.AdminTable({
+		tableSelector: '#ticketTypes',
+		noObjectsSelector: '#noTicketTypes',
+		newObjectBtnSelector: '#newTicketType',
+		deleteAction: 'events/ticket-types/delete',
+		confirmDeleteMessage: '{{ 'Are you sure you want to delete this ticket type?' | t('events') }}'
+	});
+{% endjs %}

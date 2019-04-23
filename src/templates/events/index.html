@@ -1,0 +1,30 @@
+{% extends '_layouts/elementindex' %}
+
+{% set title = craft.events.getPluginName() | t('events') %}
+{% set docTitle = title ~ ' - ' ~ craft.events.getPluginName() %}
+{% set elementType = 'verbb\\events\\elements\\Event' %}
+{% set selectedSubnavItem = 'events' %}
+
+{% js %}
+    if (typeof Craft.Events === 'undefined') {
+        Craft.Events = {};
+    }
+
+    {% set eventTypes = [] %}
+
+    {% for eventType in craft.events.getEditableEventTypes() %}
+        {% set eventTypes = eventTypes | merge([{
+            id: eventType.id,
+            name: eventType.name,
+            handle: eventType.handle,
+        }]) %}
+    {% endfor %}
+
+    Craft.Events.editableEventTypes = {{ eventTypes | json_encode | raw }};
+
+    {% if eventTypeHandle is defined %}
+        window.defaultEventTypeHandle = '{{ eventTypeHandle }}';
+    {% endif %}
+{% endjs %}
+
+{% do view.registerAssetBundle('verbb\\events\\assetbundles\\EventsAsset') -%}

@@ -1,0 +1,164 @@
+// ==========================================================================
+
+// Events for Craft CMS
+// Author: Verbb - https://verbb.io/
+
+// ==========================================================================
+
+@import "base";
+@import "welcome";
+
+
+
+// ==========================================================================
+// Event Edit - Tickets
+// ==========================================================================
+
+.tickets-table {
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-shadow: 0 1px 5px -1px rgba(0, 0, 0, 0.1);
+}
+
+//
+// Header
+//
+
+.tickets-table .tickets-table-header {
+    color: #8f98a3;
+    font-weight: normal;
+    background: #f1f5f8;
+    padding: 5px;
+    margin: 0;
+    border-bottom: 1px solid #dedede;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.tickets-table .tickets-table-header span {
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+//
+// Body
+//
+
+.create-tickets {
+    padding: 0 5px 0 10px;
+    border-bottom: 1px solid #dedede;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.create-tickets-row {
+    padding: 10px 0;
+}
+
+.fields-tickets-price-field .flex {
+    flex-wrap: nowrap;
+
+    > * {
+        margin-bottom: 0;
+    }
+}
+
+.table-cell.action {
+    text-align: right;
+}
+
+.table-cell.action .icon {
+    padding: 6px;
+
+    &.settings:before {
+        color: rgba(0, 0, 0, 0.2);
+    }
+
+    &.settings.active:before,
+    &.settings:hover:before {
+        color: #0d78f2;
+    }
+}
+
+.create-tickets-settings {
+    display: none;
+    margin: 0px -5px 0px -10px;
+    background: #fbfcfd;
+    border-top: 1px solid #dedede;
+    box-shadow: inset 0px 2px 3px rgba(0, 0, 0, 0.05);
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.create-tickets-settings-wrap {
+    padding: 15px;
+}
+
+.add-ticket {
+    margin-top: 10px;
+    outline: none;
+}
+
+//
+// Responsive Table
+//
+
+$columns: 12;
+$gutter: 10px;
+
+$breakpoints: (
+    xs: 320px,
+    ms: 480px,
+    sm: 768px,
+    md: 992px,
+    lg: 1200px,
+    xl: 1600px
+);
+
+.table-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: ($gutter / -2);
+    margin-left: ($gutter / -2);
+}
+
+.tickets-table *,
+.tickets-table :after,
+.tickets-table :before {
+    box-sizing: border-box;
+}
+
+.table-cell {
+    position: relative;
+    width: 100%;
+    min-height: 1px; // Prevent collapsing
+    padding-right: ($gutter / 2);
+    padding-left: ($gutter / 2);
+}
+
+@each $breakpoint in map-keys($breakpoints) {
+    @media (min-width: map-get($breakpoints, $breakpoint)) {
+        @for $i from 1 through $columns {
+            .table-cell-#{$breakpoint}-#{$i} {
+                flex: 0 0 percentage($i / $columns);
+                max-width: percentage($i / $columns);
+            }
+        }
+    }
+}
+
+
+
+
+// ==========================================================================
+// Plugin Settings
+// ==========================================================================
+
+.events-settings-tabs li {
+    width: 100%;
+    max-width: 100% !important;
+}
+

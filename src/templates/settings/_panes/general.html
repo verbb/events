@@ -1,0 +1,13 @@
+{% import '_includes/forms' as forms %}
+{% import 'events/_macros' as macros %}
+
+{{ forms.textField({
+    label: 'Plugin Name' | t('app'),
+    instructions: 'Plugin name for the end user.' | t('events'),
+    id: 'pluginName',
+    name: 'pluginName',
+    value: settings.pluginName,
+    first: true,
+    autofocus: true,
+    warning: macros.configWarning('pluginName', 'events'),
+}) }}

@@ -1,0 +1,58 @@
+[
+    {
+        "title": "Get Started",
+        "collapsable": false,
+        "children": [
+            "get-started/installation-setup",
+            "get-started/requirements",
+            "get-started/configuration"
+        ]
+    },
+    {
+        "title": "Feature Tour",
+        "collapsable": false,
+        "children": [
+            "feature-tour/events",
+            "feature-tour/event-types",
+            "feature-tour/ticket-types",
+            "feature-tour/pdf-ticket",
+            "feature-tour/ticket-check-in"
+        ]
+    },
+    {
+        "title": "Template Guides",
+        "collapsable": false,
+        "children": [
+            "template-guides/available-variables",
+            "template-guides/event-index",
+            "template-guides/single-event",
+            "template-guides/cart-order",
+            "template-guides/pdf-ticket"
+        ]
+    },
+    {
+        "title": "Getting Elements",
+        "collapsable": false,
+        "children": [
+            "getting-elements/event-queries",
+            "getting-elements/ticket-queries"
+        ]
+    },
+    {
+        "title": "Developers",
+        "collapsable": false,
+        "children": [
+            "developers/event",
+            "developers/ticket",
+            "developers/purchased-ticket",
+            "developers/events"
+        ]
+    },
+    {
+        "title": "Support",
+        "collapsable": false,
+        "children": [
+            "support/get-support"
+        ]
+    }
+]

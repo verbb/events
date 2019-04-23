@@ -1,0 +1,36 @@
+{% import '_includes/forms' as forms %}
+{% import 'events/_macros' as macros %}
+
+{{ forms.textField({
+    label: 'Ticket SKU Length' | t('events'),
+    instructions: 'Length of the generated ticket SKU.' | t('events'),
+    name: 'ticketSKULength',
+    value: settings.ticketSKULength,
+    warning: macros.configWarning('ticketSKULength', 'events'),
+}) }}
+
+{{ forms.textField({
+    label: 'Ticket PDF Template' | t('events'),
+    instructions: 'The path to the template used for generating purchased ticket PDFs.' | t('events'),
+    id: 'ticketPdfPath',
+    name: 'ticketPdfPath',
+    value: settings.ticketPdfPath,
+    errors: settings.getErrors('ticketPdfPath'),
+    required: true,
+    warning: macros.configWarning('ticketPdfPath', 'events'),
+}) }}
+
+{{ forms.textField({
+    label: 'Ticket PDF Filename Format' | t('events'),
+    instructions: 'What the purchased ticket PDF filenames should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}.' | t('events', {
+        ex1: '<code>{number}</code>',
+        ex2: '<code>{myOrderCustomField}</code>'
+    }),
+    id: 'ticketPdfFilenameFormat',
+    name: 'ticketPdfFilenameFormat',
+    value: settings.ticketPdfFilenameFormat,
+    class: 'code ltr',
+    errors: settings.getErrors('ticketPdfFilenameFormat'),
+    required: true,
+    warning: macros.configWarning('ticketPdfFilenameFormat', 'events'),
+}) }}

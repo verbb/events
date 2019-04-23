@@ -1,0 +1,155 @@
+{% extends 'events/_layouts' %}
+{% set selectedSubnavItem = 'eventTypes' %}
+
+{% set crumbs = [
+    { label: craft.events.getPluginName() | t('events'), url: url('events') },
+    { label: 'Event Types' | t('events'), url: url('events/event-types') },
+] %}
+
+{% set fullPageForm = true %}
+
+{% set selectedTab = 'eventTypeSettings' %}
+{% import '_includes/forms' as forms %}
+
+{% set tabs = {
+    eventTypeSettings: { label: 'Settings' | t('app'), url: '#event-type-settings' },
+    eventFields: { label: 'Event Fields' | t('events'), url: '#event-fields' },
+} %}
+
+{% block blockContent %}
+    <input type="hidden" name="action" value="events/event-types/save">
+    {{ redirectInput('events/event-types') }}
+    {% if eventType.id %}<input type="hidden" name="eventTypeId" value="{{ eventType.id }}">{% endif %}
+
+    <div id="event-type-settings">
+        {{ forms.textField({
+            first: true,
+            label: 'Name' | t('app'),
+            instructions: 'What this event type will be called in the CP.' | t('events'),
+            id: 'name',
+            name: 'name',
+            value: eventType.name,
+            errors: eventType.getErrors('name'),
+            autofocus: true,
+            required: true,
+            translatable: true,
+        }) }}
+
+        {{ forms.textField({
+            label: 'Handle' | t('app'),
+            instructions: 'How you’ll refer to this event type in the templates.' | t('events'),
+            id: 'handle',
+            class: 'code',
+            name: 'handle',
+            value: eventType.handle,
+            errors: eventType.getErrors('handle'),
+            required: true,
+        }) }}
+
+        {% macro hasUrlsField(eventType) %}
+            {% from '_includes/forms' import checkboxField %}
+
+            {{ checkboxField({
+                label: 'Events of this type have their own URLs' | t('events'),
+                id: 'hasUrls',
+                name: 'hasUrls',
+                checked: eventType.hasUrls,
+                toggle: 'url-settings'
+            }) }}
+        {% endmacro %}
+
+        {% macro templateField(eventType) %}
+            {% from "_includes/forms" import textField %}
+
+            {{ textField({
+                label: 'Event Template' | t('events'),
+                instructions: 'The template to use when a event’s URL is requested.' | t('events'),
+                id: 'template',
+                class: 'ltr',
+                name: 'template',
+                value: eventType.template,
+                errors: eventType.getErrors('template')
+            }) }}
+        {% endmacro %}
+
+        {% from _self import hasUrlsField, templateField %}
+
+        <hr>
+
+        {% set siteRows = [] %}
+        {% set siteErrors = eventType.getErrors('siteSettings') %}
+
+        {% for site in craft.app.sites.getAllSites() %}
+            {% set siteSettings = eventType.siteSettings[site.id] ?? null %}
+            
+            {% if siteSettings %}
+                {% for attribute, errors in siteSettings.getErrors() %}
+                    {% set siteErrors = siteErrors | merge(errors) %}
+                {% endfor %}
+            {% endif %}
+
+            {% set siteRows = siteRows | merge({
+                (site.handle): {
+                    heading: site.name | t('site'),
+                    uriFormat: {
+                        value: siteSettings.uriFormat ?? null,
+                        hasErrors: siteSettings.hasErrors('uriFormat') ?? false
+                    },
+                    template: {
+                        value: siteSettings.template ?? null,
+                        hasErrors: siteSettings.hasErrors('template') ?? false,
+                    }
+                }
+            }) %}
+        {% endfor %}
+
+        {{ forms.editableTableField({
+            label: 'Site Settings' | t('app'),
+            instructions: 'Configure the event types’s site-specific settings.' | t('app'),
+            id: 'sites',
+            name: 'sites',
+            cols: {
+                heading: {
+                    type: 'heading',
+                    heading: 'Site' | t('app'),
+                    class: 'thin'
+                },
+                uriFormat: {
+                    type: 'singleline',
+                    heading: 'Event Type URI Format' | t('app'),
+                    info: 'What event type URIs should look like for the site.' | t('app'),
+                    placeholder: 'Leave blank if events don’t have URLs' | t('app'),
+                    code: true
+                },
+                template: {
+                    type: 'singleline',
+                    heading: 'Template' | t('app'),
+                    info: 'Which template should be loaded when an event’s URL is requested.' | t('app'),
+                    code: true
+                },
+            },
+            rows: siteRows,
+            staticRows: true,
+            errors: siteErrors | unique
+        }) }}
+    </div>
+
+    <div id="event-fields" class="hidden">
+        {% include '_includes/fieldlayoutdesigner' with {
+            fieldLayout: eventType.getEventFieldLayout(),
+        } only %}
+    </div>
+
+{% endblock %}
+
+{% if brandNewEventType %}
+    {% js %}
+        new Craft.HandleGenerator('#name', '#handle');
+
+        {% for site in craft.app.sites.getAllSites() %}
+            new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[uriFormat]"]', { suffix: '/{slug}' });
+            new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[template]"]', { suffix: '/_event' });
+        {% endfor %}
+
+    {% endjs %}
+{% endif %}
