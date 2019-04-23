@@ -24,7 +24,7 @@
         "collapsable": false,
         "children": [
             "template-guides/available-variables",
-            "template-guides/event-index",
+            "template-guides/events-index",
             "template-guides/single-event",
             "template-guides/cart-order",
             "template-guides/pdf-ticket"
