@@ -381,6 +381,17 @@
 		"oT": 1,
 		"q": 100
 		},
+	"/docs/screenshots/ticket-demo.png": {
+		"ft": 32768,
+		"iS": 67939,
+		"oA": 0,
+		"oAP": "/docs/screenshots/ticket-demo.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 0,
+		"oT": 1,
+		"q": 100
+		},
 	"/docs/screenshots/ticket-types-edit.png": {
 		"ft": 32768,
 		"iS": 48991,
@@ -441,7 +452,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"/docs/template-guides/cart.md": {
+	"/docs/template-guides/cart-order.md": {
 		"cB": 0,
 		"cS": 0,
 		"eF": 1,
@@ -451,7 +462,7 @@
 		"ft": 4096,
 		"hM": 0,
 		"oA": 1,
-		"oAP": "/docs/template-guides/cart.html",
+		"oAP": "/docs/template-guides/cart-order.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
