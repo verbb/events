@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1 - 2019-04-24
+
+### Fixed
+- Ensure Commerce 2.1 is required.
+- Update `endroid/qrcode` to `endroid/qr-code`.
+- Fixed some issues during install.
+
 ## 1.0.0 - 2019-04-23
 
 ### Added
