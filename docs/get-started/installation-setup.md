@@ -2,7 +2,7 @@
 You can install Events via the plugin store, or through Composer.
 
 ### Craft Plugin Store
-To install **v**, navigate to the _Plugin Store_ section of your Craft control panel, search for `Events`, and click the _Try_ button.
+To install **Events**, navigate to the _Plugin Store_ section of your Craft control panel, search for `Events`, and click the _Try_ button.
 
 ### Composer
 You can also add the package to your project using Composer.
