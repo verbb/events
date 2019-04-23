@@ -4,7 +4,7 @@
 
 A full-featured event management and ticketing plugin for Craft Commerce. Sell tickets to events, create tickets, manage attendees and more.
 
-![](https://verbb.io/uploads/plugins/events/event-tickets-2.png)
+![](https://verbb.io/uploads/plugins/events/event-tickets-2_190423_042555.png)
 
 ## Features
 
