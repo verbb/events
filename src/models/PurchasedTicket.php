@@ -15,6 +15,7 @@ use craft\validators\UniqueValidator;
 use craft\commerce\Plugin as Commerce;
 
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\ErrorCorrectionLevel;
 
 class PurchasedTicket extends Model
 {
@@ -132,11 +133,11 @@ class PurchasedTicket extends Model
         $qrCode
             ->setText($url)
             ->setSize(300)
-            ->setErrorCorrection('high')
+            ->setErrorCorrectionLevel(ErrorCorrectionLevel::HIGH)
             ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0])
             ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0]);
 
-        return $qrCode->getDataUri();
+        return $qrCode->writeDataUri();
     }
 
 }
