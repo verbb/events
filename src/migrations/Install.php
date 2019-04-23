@@ -137,7 +137,7 @@ class Install extends Migration
         
         $this->createIndex(null, '{{%events_tickets}}', 'sku', true);
         $this->createIndex(null, '{{%events_tickets}}', 'eventId', false);
-        $this->createIndex(null, '{{%events_tickets}}', 'ticketTypeId', false);
+        $this->createIndex(null, '{{%events_tickets}}', 'typeId', false);
         
         $this->createIndex(null, '{{%events_tickettypes}}', 'handle', true);
         $this->createIndex(null, '{{%events_tickettypes}}', 'taxCategoryId', false);
@@ -162,7 +162,7 @@ class Install extends Migration
         
         $this->addForeignKey(null, '{{%events_tickets}}', 'eventId', '{{%events_events}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_tickets}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
-        $this->addForeignKey(null, '{{%events_tickets}}', 'ticketTypeId', '{{%events_tickettypes}}', 'id', 'CASCADE', null);
+        $this->addForeignKey(null, '{{%events_tickets}}', 'typeId', '{{%events_tickettypes}}', 'id', 'CASCADE', null);
         
         $this->addForeignKey(null, '{{%events_tickettypes}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_tickettypes}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
