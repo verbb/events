@@ -151,7 +151,7 @@ class Ticket extends Purchasable
         $rules = parent::rules();
 
         $rules[] = [['sku'], 'string'];
-        $rules[] = [['sku', 'price', 'typeId', 'quantity'], 'required'];
+        $rules[] = [['sku', 'price', 'typeId'], 'required'];
         $rules[] = [['price'], 'number'];
 
         return $rules;
