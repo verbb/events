@@ -43,7 +43,7 @@
                 name: 'price',
                 value: price,
                 placeholder: 'eg. 10.00',
-                unit: craft.commerce.primaryPaymentCurrency.iso,
+                unit: craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,
                 errors: ticket ? ticket.getErrors('price'),
             }) }}
         </div>
