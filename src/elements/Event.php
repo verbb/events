@@ -108,7 +108,7 @@ class Event extends Element
             'label' => Craft::t('events', 'All events'),
             'criteria' => [
                 'typeId' => $eventTypeIds,
-                'editable' => $editable
+                'editable' => $editable,
             ],
             'defaultSort' => ['postDate', 'desc'],
         ]];
@@ -116,19 +116,19 @@ class Event extends Element
         $sources[] = ['heading' => Craft::t('events', 'Event Types')];
 
         foreach ($eventTypes as $eventType) {
-            $key = 'eventType:' . $eventType->id;
-            $canEditEvents = Craft::$app->getUser()->checkPermission('events:eventType:' . $eventType->id);
+            $key = 'eventType:' . $eventType->uid;
+            $canEditEvents = Craft::$app->getUser()->checkPermission('events-eventType:' . $eventType->id);
 
             $sources[] = [
                 'key' => $key,
                 'label' => $eventType->name,
                 'data' => [
                     'handle' => $eventType->handle,
-                    'editable' => $canEditEvents
+                    'editable' => $canEditEvents,
                 ],
                 'criteria' => [
                     'typeId' => $eventType->id,
-                    'editable' => $editable
+                    'editable' => $editable,
                 ]
             ];
         }
