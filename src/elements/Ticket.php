@@ -77,38 +77,73 @@ class Ticket extends Purchasable
 
     protected static function defineSources(string $context = null): array
     {
-        $eventTypes = Events::$plugin->getEventTypes()->getEventTypes();
-
-        $eventTypeIds = [];
-
-        foreach ($eventTypes as $eventType) {
-            $eventTypeIds[] = $eventType->id;
-        }
-
         $sources = [[
             'key' => '*',
-            'label' => Craft::t('events', 'All event types'),
-            'criteria' => ['ticketIssueDate' => $eventTypeIds],
-            'defaultSort' => ['dateCreated', 'desc']
+            'label' => Craft::t('events', 'All events'),
+            'defaultSort' => ['postDate', 'desc'],
         ]];
 
-        $sources[] = ['heading' => Craft::t('events', 'Event Types')];
+        $sources[] = ['heading' => Craft::t('events', 'Events')];
 
-        foreach ($eventTypes as $eventType) {
-            $key = 'eventType:' . $eventType->id;
+        $events = Event::find()->all();
+
+        foreach ($events as $event) {
+            $key = 'event:' . $event->id;
 
             $sources[] = [
                 'key' => $key,
-                'label' => $eventType->name,
-                'data' => [
-                    'handle' => $eventType->handle
-                ],
-                'criteria' => ['typeId' => $eventType->id]
+                'label' => $event->title,
+                'criteria' => [
+                    'eventId' => $event->id,
+                ]
             ];
         }
 
         return $sources;
     }
+
+    protected static function defineSearchableAttributes(): array
+    {
+        return ['sku', 'price'];
+    }
+
+
+    // Element index methods
+    // -------------------------------------------------------------------------
+
+    protected static function defineSortOptions(): array
+    {
+        return [
+            'title' => Craft::t('app', 'Title'),
+        ];
+    }
+
+    protected static function defineTableAttributes(): array
+    {
+        return [
+            'title' => ['label' => Craft::t('app', 'Title')],
+            'event' => ['label' => Craft::t('events', 'Event')],
+            'sku' => ['label' => Craft::t('commerce', 'SKU')],
+            'price' => ['label' => Craft::t('commerce', 'Price')],
+            'quantity' => ['label' => Craft::t('events', 'Quantity')],
+        ];
+    }
+
+    protected static function defineDefaultTableAttributes(string $source): array
+    {
+        $attributes = [];
+
+        if ($source === '*') {
+            $attributes[] = 'event';
+        }
+
+        $attributes[] = 'title';
+        $attributes[] = 'sku';
+        $attributes[] = 'price';
+
+        return $attributes;
+    }
+
 
     // Properties
     // =========================================================================
