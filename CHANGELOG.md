@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2.1 - 2019-04-30
+
+### Fixed
+- Fix incorrect casing of `events.js`. (thanks @johnnynotsolucky).  
+
 ## 1.0.2 - 2019-04-30
 
 ### Changed
