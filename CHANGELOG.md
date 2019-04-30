@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.2 - 2019-04-30
+
+### Changed
+- Quantity for tickets is no longer required.
+
+### Fixed
+- Fix deprecation error. 
+- Fix filtering events by event type.
+- Fix errors when trying to view tickets in an element select interface.
+- Fix being unable to add new events in some instances.
+
 ## 1.0.1 - 2019-04-24
 
 ### Fixed
