@@ -23,7 +23,7 @@ class EventsAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/Events.js',
+            'js/events.js',
         ];
 
         parent::init();
