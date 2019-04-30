@@ -14,7 +14,7 @@
 
     {% for eventType in craft.events.getEditableEventTypes() %}
         {% set eventTypes = eventTypes | merge([{
-            id: eventType.id,
+            id: eventType.uid,
             name: eventType.name,
             handle: eventType.handle,
         }]) %}

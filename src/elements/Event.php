@@ -117,7 +117,7 @@ class Event extends Element
 
         foreach ($eventTypes as $eventType) {
             $key = 'eventType:' . $eventType->uid;
-            $canEditEvents = Craft::$app->getUser()->checkPermission('events-eventType:' . $eventType->id);
+            $canEditEvents = Craft::$app->getUser()->checkPermission('events-manageEventType:' . $eventType->uid);
 
             $sources[] = [
                 'key' => $key,
@@ -261,9 +261,9 @@ class Event extends Element
     public function getIsEditable(): bool
     {
         if ($this->getType()) {
-            $id = $this->getType()->id;
+            $uid = $this->getType()->uid;
 
-            return Craft::$app->getUser()->checkPermission('events-manageEventType:' . $id);
+            return Craft::$app->getUser()->checkPermission('events-manageEventType:' . $uid);
         }
 
         return false;
