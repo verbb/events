@@ -258,7 +258,7 @@ class Ticket extends Purchasable
 
         $ticketType = Events::getInstance()->getTicketTypes()->getTicketTypeById($this->typeId);
 
-        if (null === $ticketType) {
+        if ($ticketType === null) {
             throw new InvalidConfigException('Invalid ticket type ID: ' . $this->typeId);
         }
 

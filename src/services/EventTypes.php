@@ -67,7 +67,7 @@ class EventTypes extends Component
 
     public function getEditableEventTypeIds(): array
     {
-        if (null === $this->_editableEventTypeIds) {
+        if ($this->_editableEventTypeIds === null) {
             $this->_editableEventTypeIds = [];
             $allEventTypeIds = $this->getAllEventTypeIds();
 
@@ -83,7 +83,7 @@ class EventTypes extends Component
 
     public function getAllEventTypeIds(): array
     {
-        if (null === $this->_allEventTypeIds) {
+        if ($this->_allEventTypeIds === null) {
             $this->_allEventTypeIds = [];
             $eventTypes = $this->getAllEventTypes();
 

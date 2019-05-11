@@ -210,7 +210,7 @@ class Event extends Element
     public $expiryDate;
 
     private $_eventType;
-    private $_tickets;
+    private $_tickets = [];
     private $_defaultTicket;
 
 
@@ -362,16 +362,9 @@ class Event extends Element
 
     public function getTickets(): array
     {
-        if (null === $this->_tickets) {
+        if (!$this->_tickets) {
             if ($this->id) {
                 $this->setTickets(Events::getInstance()->getTickets()->getAllTicketsByEventId($this->id, $this->siteId));
-            }
-
-            // Must have at least one
-            if (null === $this->_tickets) {
-                $ticket = new Ticket();
-                // $ticket->isDefault = true;
-                $this->setTickets([$ticket]);
             }
         }
 
@@ -380,7 +373,6 @@ class Event extends Element
 
     public function setTickets(array $tickets)
     {
-        $this->_tickets = [];
         $count = 1;
         $this->_defaultTicket = null;
 

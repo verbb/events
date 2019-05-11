@@ -356,7 +356,7 @@ class EventsController extends Controller
                 $variables['tickets'] = Events::getInstance()->getTickets()->getAllTicketsByEventId($variables['event']->id);
             } else {
                 // Always have at least one row for new events
-                $variables['tickets'] = [new Ticket()];
+                $variables['tickets'] = [];
             }
         }
     }
