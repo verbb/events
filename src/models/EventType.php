@@ -23,6 +23,9 @@ class EventType extends Model
     public $name;
     public $handle;
     public $fieldLayoutId;
+    public $hasTitleField = true;
+    public $titleLabel = 'Title';
+    public $titleFormat;
     public $uid;
 
     private $_siteSettings;
@@ -36,15 +39,56 @@ class EventType extends Model
         return $this->handle;
     }
 
-    public function rules()
+    public function behaviors()
     {
         return [
-            [['id', 'fieldLayoutId'], 'number', 'integerOnly' => true],
-            [['name', 'handle'], 'required'],
-            [['name', 'handle'], 'string', 'max' => 255],
-            [['handle'], UniqueValidator::class, 'targetClass' => EventTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
-            [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
+            'eventFieldLayout' => [
+                'class' => FieldLayoutBehavior::class,
+                'elementType' => Event::class,
+                'idAttribute' => 'fieldLayoutId'
+            ]
         ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'handle' => Craft::t('app', 'Handle'),
+            'name' => Craft::t('app', 'Name'),
+            'titleFormat' => Craft::t('app', 'Title Format'),
+            'titleLabel' => Craft::t('app', 'Title Field Label'),
+        ];
+    }
+
+    public function rules()
+    {
+        $rules = parent::rules();
+
+        $rules[] = [['id', 'fieldLayoutId'], 'number', 'integerOnly' => true];
+        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [['name', 'handle'], 'string', 'max' => 255];
+
+        $rules[] = [
+            ['handle'],
+            UniqueValidator::class,
+            'targetClass' => EventTypeRecord::class,
+            'targetAttribute' => ['handle'],
+            'message' => 'Not Unique',
+        ];
+
+        $rules[] = [
+            ['handle'],
+            HandleValidator::class,
+            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title'],
+        ];
+
+        if ($this->hasTitleField) {
+            $rules[] = [['titleLabel'], 'required'];
+        } else {
+            $rules[] = [['titleFormat'], 'required'];
+        }
+
+        return $rules;
     }
 
     public function getCpEditUrl(): string
@@ -80,16 +124,5 @@ class EventType extends Model
     {
         $behavior = $this->getBehavior('eventFieldLayout');
         return $behavior->getFieldLayout();
-    }
-
-    public function behaviors(): array
-    {
-        return [
-            'eventFieldLayout' => [
-                'class' => FieldLayoutBehavior::class,
-                'elementType' => Event::class,
-                'idAttribute' => 'fieldLayoutId'
-            ]
-        ];
     }
 }

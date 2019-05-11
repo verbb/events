@@ -102,19 +102,21 @@
     {% if event.id %}<input type="hidden" name="eventId" value="{{ event.id }}">{% endif %}
 
     <div id="fields">
-        {{ forms.textField({
-            label: 'Title' | t('app'),
-            site: event.site,
-            id: 'title',
-            name: 'title',
-            value: event.title,
-            placeholder: 'Enter title' | t('app'),
-            errors: event.getErrors('title'),
-            first: true,
-            autofocus: true,
-            required: true,
-            maxlength: 255,
-        }) }}
+        {% if eventType.hasTitleField or event.hasErrors('title') %}
+            {{ forms.textField({
+                label: eventType.titleLabel | t('site') | e ?: 'Title' | t('app'),
+                siteId: eventType.hasTitleField ? event.siteId,
+                id: 'title',
+                name: 'title',
+                value: event.title,
+                placeholder: 'Enter title' | t('app'),
+                errors: event.getErrors('title'),
+                first: true,
+                autofocus: true,
+                required: eventType.hasTitleField,
+                maxlength: 255,
+            }) }}
+        {% endif %}
 
         <div>
             {% set allEventTab = eventType.getFieldLayout().getTabs() %}

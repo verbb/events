@@ -30,6 +30,9 @@ class ProjectConfigData
                 'name',
                 'handle',
                 'fieldLayoutId',
+                'hasTitleField',
+                'titleLabel',
+                'titleFormat',
                 'uid'
             ])
             ->from(['{{%events_eventtypes}} eventTypes'])

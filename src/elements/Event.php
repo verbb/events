@@ -459,6 +459,23 @@ class Event extends Element
         return $tickets;
     }
 
+    public function updateTitle()
+    {
+        $eventType = $this->getType();
+
+        if (!$eventType->hasTitleField) {
+            // Make sure that the locale has been loaded in case the title format has any Date/Time fields
+            Craft::$app->getLocale();
+
+            // Set Craft to the event's site's language, in case the title format has any static translations
+            $language = Craft::$app->language;
+            Craft::$app->language = $this->getSite()->language;
+            
+            $this->title = Craft::$app->getView()->renderObjectTemplate($eventType->titleFormat, $this);
+            Craft::$app->language = $language;
+        }
+    }
+
 
     // Events
     // -------------------------------------------------------------------------
@@ -467,6 +484,8 @@ class Event extends Element
     {
         // Make sure the field layout is set correctly
         $this->fieldLayoutId = $this->getType()->fieldLayoutId;
+
+        $this->updateTitle();
 
         if ($this->enabled && !$this->postDate) {
             // Default the post date to the current date/time
