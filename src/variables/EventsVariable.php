@@ -11,6 +11,8 @@ use Craft;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 
+use DateTime;
+
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
@@ -53,6 +55,10 @@ class EventsVariable
     public function events($criteria = null): EventQuery
     {
         $query = Event::find();
+
+        // Default startDate
+        $today = (new DateTime)->format(DateTime::W3C);
+        $query->startDate[] = '>=' . $today;
 
         if ($criteria) {
             Craft::configure($query, $criteria);
