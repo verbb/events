@@ -27,7 +27,7 @@ class EventQuery extends ElementQuery
     public $postDate;
     public $expiryDate;
 
-    protected $defaultOrderBy = ['events_events.postDate' => SORT_DESC];
+    protected $defaultOrderBy = ['events_events.startDate' => SORT_ASC];
 
 
     // Public Methods
