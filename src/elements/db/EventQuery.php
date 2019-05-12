@@ -40,6 +40,13 @@ class EventQuery extends ElementQuery
             $config['status'] = Event::STATUS_LIVE;
         }
 
+        // Default startDate
+        if (!isset($config['startDate'])) {
+            $today = (new DateTime)->format(DateTime::W3C);
+
+            $this->startDate[] = '>=' . $today;
+        }
+
         parent::__construct($elementType, $config);
     }
 
