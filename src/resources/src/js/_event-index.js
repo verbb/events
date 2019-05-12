@@ -21,6 +21,10 @@ Craft.Events.EventIndex = Craft.BaseElementIndex.extend({
         // Find which of the visible eventTypes the user has permission to create new events in
         this.editableEventTypes = [];
 
+        if (!Craft.Events.editableEventTypes) {
+            Craft.Events.editableEventTypes = [];
+        }
+
         for (var i = 0; i < Craft.Events.editableEventTypes.length; i++) {
             var eventType = Craft.Events.editableEventTypes[i];
 
