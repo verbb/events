@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0 - 2019-05-12
+
+### Added
+- Add Title Format to event types.
+
+### Changed
+- When calling `craft.events.events()` in your templates, it will now only show events with a start date after today.
+- Change default sort to be the startDate ascending (oldest first).
+- Tickets are now not required when saving an event.
+
+### Fixed
+- Fix incorrect editable event types being returned.
+- Fix error ocurring in an events field modal.
+- Add missing `startDate` and `endDate` query params.
+- Ensure tickets have a title value.
+
 ## 1.0.2.1 - 2019-04-30
 
 ### Fixed
