@@ -50,6 +50,15 @@ class EventQuery extends ElementQuery
             $this->startDate[] = '>=' . $today;
         }
 
+        // Don't limit for CP requests (think element index)
+        if (!Craft::$app->request->isConsoleRequest) {
+            $context = Craft::$app->getRequest()->getParam('context');
+
+            if (in_array($context, ['index', 'modal'])) {
+                $this->startDate = null;
+            }
+        }
+
         parent::__construct($elementType, $config);
     }
 
