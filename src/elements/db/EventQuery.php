@@ -27,6 +27,9 @@ class EventQuery extends ElementQuery
     public $postDate;
     public $expiryDate;
 
+    public $before;
+    public $after;
+
     protected $defaultOrderBy = ['events_events.startDate' => SORT_ASC];
 
 
@@ -56,12 +59,6 @@ class EventQuery extends ElementQuery
             case 'type':
                 $this->type($value);
                 break;
-            case 'before':
-                $this->before($value);
-                break;
-            case 'after':
-                $this->after($value);
-                break;
             default:
                 parent::__set($name, $value);
         }
@@ -86,25 +83,13 @@ class EventQuery extends ElementQuery
 
     public function before($value)
     {
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->postDate = ArrayHelper::toArray($this->postDate);
-        $this->postDate[] = '<'.$value;
-
+        $this->before = $value;
         return $this;
     }
 
     public function after($value)
     {
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->postDate = ArrayHelper::toArray($this->postDate);
-        $this->postDate[] = '>='.$value;
-
+        $this->after = $value;
         return $this;
     }
 
@@ -183,6 +168,13 @@ class EventQuery extends ElementQuery
 
         if ($this->postDate) {
             $this->subQuery->andWhere(Db::parseDateParam('events_events.postDate', $this->postDate));
+        } else {
+            if ($this->before) {
+                $this->subQuery->andWhere(Db::parseDateParam('events_events.postDate', $this->before, '<'));
+            }
+            if ($this->after) {
+                $this->subQuery->andWhere(Db::parseDateParam('events_events.postDate', $this->after, '>='));
+            }
         }
 
         if ($this->expiryDate) {
