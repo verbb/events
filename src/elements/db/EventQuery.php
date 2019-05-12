@@ -22,6 +22,8 @@ class EventQuery extends ElementQuery
 
     public $editable = false;
     public $typeId;
+    public $startDate;
+    public $endDate;
     public $postDate;
     public $expiryDate;
 
@@ -111,6 +113,18 @@ class EventQuery extends ElementQuery
         return $this;
     }
 
+    public function startDate($value)
+    {
+        $this->startDate = $value;
+        return $this;
+    }
+
+    public function endDate($value)
+    {
+        $this->endDate = $value;
+        return $this;
+    }
+
     public function postDate($value)
     {
         $this->postDate = $value;
@@ -151,6 +165,14 @@ class EventQuery extends ElementQuery
             'events_events.postDate',
             'events_events.expiryDate',
         ]);
+
+        if ($this->startDate) {
+            $this->subQuery->andWhere(Db::parseDateParam('events_events.startDate', $this->startDate));
+        }
+
+        if ($this->endDate) {
+            $this->subQuery->andWhere(Db::parseDateParam('events_events.endDate', $this->endDate));
+        }
 
         if ($this->postDate) {
             $this->subQuery->andWhere(Db::parseDateParam('events_events.postDate', $this->postDate));

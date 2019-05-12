@@ -252,6 +252,40 @@ $events = \verbb\events\elements\Event::find()
 
 
 
+### `endDate`
+
+Narrows the query results based on the events’ end date.
+
+Possible values include:
+
+| Value | Fetches events…
+| - | -
+| `'>= 2018-04-01'` | that has an end date on or after 2018-04-01.
+| `'< 2018-05-01'` | that has an end date before 2018-05-01
+| `['and', '>= 2018-04-04', '< 2018-05-01']` | that has an end date between 2018-04-01 and 2018-05-01.
+
+::: code
+```twig
+{# Fetch events finishing after today #}
+{% set end = date('today') | atom %}
+
+{% set events = craft.events.events()
+    .endDate(">= #{end}")
+    .all() %}
+```
+
+```php
+// Fetch events created last month
+$end = new \DateTime('today')->format(\DateTime::ATOM);
+
+$events = \verbb\events\elements\Event::find()
+    ->endDate(">= {$end}"])
+    ->all();
+```
+:::
+
+
+
 ### `expiryDate`
 
 Narrows the query results based on the events’ expiry dates.
@@ -625,6 +659,40 @@ $requestedSlug = \Craft::$app->request->getSegment(3);
 $event = \verbb\events\elements\Event::find()
     ->slug(\craft\helpers\Db::escapeParam($requestedSlug))
     ->one();
+```
+:::
+
+
+
+### `startDate`
+
+Narrows the query results based on the events’ start date.
+
+Possible values include:
+
+| Value | Fetches events…
+| - | -
+| `'>= 2018-04-01'` | that has a start date on or after 2018-04-01.
+| `'< 2018-05-01'` | that has a start date before 2018-05-01
+| `['and', '>= 2018-04-04', '< 2018-05-01']` | that has a start date between 2018-04-01 and 2018-05-01.
+
+::: code
+```twig
+{# Fetch events from today onwards #}
+{% set start = date('today') | atom %}
+
+{% set events = craft.events.events()
+    .startDate(">= #{start}")
+    .all() %}
+```
+
+```php
+// Fetch events created last month
+$start = new \DateTime('today')->format(\DateTime::ATOM);
+
+$events = \verbb\events\elements\Event::find()
+    ->startDate(">= {$start}"])
+    ->all();
 ```
 :::
 
