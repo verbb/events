@@ -12,7 +12,7 @@
 
 ### Fixed
 - Fix incorrect editable event types being returned.
-- Fix error ocurring in an events field modal.
+- Fix error occurring in an events field modal.
 - Add missing `startDate` and `endDate` query params.
 - Ensure tickets have a title value.
 
