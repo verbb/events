@@ -69,11 +69,11 @@ class EventTypes extends Component
     {
         if ($this->_editableEventTypeIds === null) {
             $this->_editableEventTypeIds = [];
-            $allEventTypeIds = $this->getAllEventTypeIds();
+            $allEventTypes = $this->getAllEventTypes();
 
-            foreach ($allEventTypeIds as $eventTypeId) {
-                if (Craft::$app->getUser()->checkPermission('events-manageEventType:' . $eventTypeId)) {
-                    $this->_editableEventTypeIds[] = $eventTypeId;
+            foreach ($allEventTypes as $eventType) {
+                if (Craft::$app->getUser()->checkPermission('events-manageEventType:' . $eventType->uid)) {
+                    $this->_editableEventTypeIds[] = $eventType->id;
                 }
             }
         }
