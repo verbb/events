@@ -165,6 +165,13 @@ class Ticket extends Purchasable
     // Public Methods
     // =========================================================================
 
+    public function init()
+    {
+        parent::init();
+
+        $this->title = $this->getType()->title ?? '';
+    }
+
     public function __toString(): string
     {
         $event = $this->getEvent();
@@ -176,9 +183,14 @@ class Ticket extends Purchasable
         }
     }
 
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
     public function getName(): string
     {
-        return $this->getType()->title ?? '';
+        return $this->title;
     }
 
     public function rules()
