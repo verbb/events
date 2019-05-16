@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1 - 2019-05-17
+
+### Fixed
+- Fix error thrown when creating new tickets for event.
+- Show an error settings icon when saving an event with required ticket type fields not set.
+
 ## 1.1.0 - 2019-05-12
 
 ### Added
