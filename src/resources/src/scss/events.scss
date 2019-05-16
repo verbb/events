@@ -77,6 +77,10 @@
         color: rgba(0, 0, 0, 0.2);
     }
 
+    &.settings.error:before {
+        color: #da5a47 !important;
+    }
+
     &.settings.active:before,
     &.settings:hover:before {
         color: #0d78f2;

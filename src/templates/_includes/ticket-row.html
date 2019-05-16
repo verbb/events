@@ -48,8 +48,22 @@
             }) }}
         </div>
 
+        {% set hasErrors = '' %}
+
+        {% if types %}
+            {% set ticketType = types[0] %}
+
+            {% for tab in ticketType.getFieldLayout().getTabs() %}
+                {% for field in tab.getFields() %}
+                    {% if ticket.hasErrors(field.handle ~ '.*') %}
+                        {% set hasErrors = 'error' %}
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
         <div class="table-cell table-cell-md-2 thin action">
-            <a class="settings icon" title="{{ 'Settings' | t }}" role="button"></a>
+            <a class="settings icon {{ hasErrors }}" title="{{ 'Settings' | t }}" role="button"></a>
             <a class="delete icon button" title="{{ 'Delete' | t }}" role="button"></a>
         </div>
     </div>
