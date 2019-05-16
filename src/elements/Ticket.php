@@ -262,10 +262,10 @@ class Ticket extends Purchasable
         $this->_event = $event;
     }
 
-    public function getType(): TicketType
+    public function getType()
     {
         if ($this->typeId === null) {
-            throw new InvalidConfigException('Ticket is missing its ticket type ID');
+            return null;
         }
 
         $ticketType = Events::getInstance()->getTicketTypes()->getTicketTypeById($this->typeId);
