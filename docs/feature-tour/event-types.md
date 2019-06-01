@@ -22,4 +22,4 @@ If you ticked **Events of this type have their own URLs**, the following fields 
 - **Event URL Format**: What the event URLs should look like. You can include tags that output event properties, such as such as {slug} or {publishDate|date("Y")}.
 - **Event Template**: The template to use when a event’s URL is requested.
 
-Be sure to check out our [Template Guide →](docs:template-guide/) to get started quickly to show events.
+Be sure to check out our [Template Guide →](docs:template-guides/events-index) to get started quickly to show events.

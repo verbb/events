@@ -6,4 +6,4 @@ Behind the scenes, we use [Dompdf](https://github.com/dompdf/dompdf/), the same 
 
 ![Ticket Demo](/docs/screenshots/ticket-demo.png)
 
-The above shows an example of a PDF ticket you can generate. Of course, the design is 100% up to you, but you might like to get started with our [PDF Template →](docs:template-guide/pdf-ticket#example-template).
+The above shows an example of a PDF ticket you can generate. Of course, the design is 100% up to you, but you might like to get started with our [PDF Template →](docs:template-guides/pdf-template#example-template).
