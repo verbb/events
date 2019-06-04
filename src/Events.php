@@ -231,7 +231,9 @@ class Events extends Plugin
 
     private function _registerThirdPartyEventListeners()
     {
-        Event::on(Track::class, Track::ADD_LINE_ITEM_CUSTOM_PROPERTIES, [$this->getKlaviyoConnect(), 'addLineItemCustomProperties']);
+        if (class_exists(Track::class)) {
+            Event::on(Track::class, Track::ADD_LINE_ITEM_CUSTOM_PROPERTIES, [$this->getKlaviyoConnect(), 'addLineItemCustomProperties']);
+        }
     }
 
 }
