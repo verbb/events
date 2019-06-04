@@ -210,7 +210,7 @@ class Event extends Element
     public $expiryDate;
 
     private $_eventType;
-    private $_tickets = [];
+    private $_tickets = null;
 
 
     // Public Methods
