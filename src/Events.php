@@ -31,6 +31,9 @@ use craft\commerce\services\OrderAdjustments;
 
 use yii\base\Event;
 
+use fostercommerce\klaviyoconnect\services\Track;
+use fostercommerce\klaviyoconnect\models\EventProperties;
+
 class Events extends Plugin
 {
     // Public Properties
@@ -60,6 +63,7 @@ class Events extends Plugin
         $this->_registerFieldTypes();
         $this->_registerPermissions();
         $this->_registerCraftEventListeners();
+        $this->_registerThirdPartyEventListeners();
         $this->_registerProjectConfigEventListeners();
         $this->_registerVariables();
         $this->_registerElementTypes();
@@ -224,5 +228,10 @@ class Events extends Plugin
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEventTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEvents(), 'afterSaveSiteHandler']);
     }
-    
+
+    private function _registerThirdPartyEventListeners()
+    {
+        Event::on(Track::class, Track::ADD_LINE_ITEM_CUSTOM_PROPERTIES, [$this->getKlaviyoConnect(), 'addLineItemCustomProperties']);
+    }
+
 }

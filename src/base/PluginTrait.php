@@ -9,6 +9,8 @@ use verbb\events\services\PurchasedTickets;
 use verbb\events\services\Tickets;
 use verbb\events\services\TicketTypes;
 
+use verbb\events\integrations\klaviyoconnect\KlaviyoConnect;
+
 use Craft;
 
 trait PluginTrait
@@ -30,6 +32,11 @@ trait PluginTrait
     public function getEventTypes()
     {
         return $this->get('eventTypes');
+    }
+
+    public function getKlaviyoConnect()
+    {
+        return $this->get('klaviyoConnect');
     }
 
     public function getPdf()
@@ -57,6 +64,7 @@ trait PluginTrait
         $this->setComponents([
             'events' => EventsService::class,
             'eventTypes' => EventTypes::class,
+            'klaviyoConnect' => KlaviyoConnect::class,
             'pdf' => Pdf::class,
             'purchasedTickets' => PurchasedTickets::class,
             'tickets' => Tickets::class,
