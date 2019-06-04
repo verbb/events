@@ -100,9 +100,7 @@ class EventHelper
 
         $event->setFieldValuesFromRequest('fields');
 
-        if ($request->getParam('tickets')) {
-            $event->setTickets($request->getParam('tickets'));
-        }
+        $event->setTickets($request->getParam('tickets', []));
 
         return $event;
     }

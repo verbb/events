@@ -211,7 +211,6 @@ class Event extends Element
 
     private $_eventType;
     private $_tickets = [];
-    private $_defaultTicket;
 
 
     // Public Methods
@@ -362,7 +361,7 @@ class Event extends Element
 
     public function getTickets(): array
     {
-        if (!$this->_tickets) {
+        if ($this->_tickets === null) {
             if ($this->id) {
                 $this->setTickets(Events::getInstance()->getTickets()->getAllTicketsByEventId($this->id, $this->siteId));
             }
@@ -374,10 +373,9 @@ class Event extends Element
     public function setTickets(array $tickets)
     {
         $count = 1;
-        $this->_defaultTicket = null;
 
         if (empty($tickets)) {
-            return;
+            $this->_tickets = [];
         }
 
         foreach ($tickets as $key => $ticket) {
