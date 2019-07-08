@@ -201,7 +201,7 @@ Below we've prepared a ready-to-go template, complete with provided CSS to get y
 <body>
 {% for ticket in tickets %}
     <div class="ticket">
-        <img class="ticket-img" src="https://verbb.io/docs/screenshots/ticket-trans-notext.jpg" />
+        <img class="ticket-img" src="https://verbb.io/uploads/plugins/events/ticket-trans-notext.jpg" />
 
         <div id="event-info">
             <span class="label">EVENT</span>
