@@ -2,7 +2,7 @@
 namespace verbb\events;
 
 use verbb\events\base\PluginTrait;
-use verbb\events\elements\EventElement;
+use verbb\events\elements\Event as EventElement;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
 use verbb\events\helpers\ProjectConfigData;
