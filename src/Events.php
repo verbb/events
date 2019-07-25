@@ -13,6 +13,7 @@ use verbb\events\variables\EventsVariable;
 
 use Craft;
 use craft\base\Plugin;
+use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\events\RegisterUrlRulesEvent;
