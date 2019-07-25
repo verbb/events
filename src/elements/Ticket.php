@@ -221,8 +221,12 @@ class Ticket extends Purchasable
     }
 
     public function getFieldLayout()
-    {
-        return $this->getType()->getFieldLayout();
+    {   
+        if ($this->getType()) {
+            return $this->getType()->getFieldLayout();
+        }
+
+        return null;
     }
 
     public function getEvent()
@@ -271,7 +275,7 @@ class Ticket extends Purchasable
         $ticketType = Events::getInstance()->getTicketTypes()->getTicketTypeById($this->typeId);
 
         if ($ticketType === null) {
-            throw new InvalidConfigException('Invalid ticket type ID: ' . $this->typeId);
+            // throw new InvalidConfigException('Invalid ticket type ID: ' . $this->typeId);
         }
 
         return $ticketType;

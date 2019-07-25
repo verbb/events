@@ -172,4 +172,23 @@ class TicketType extends Element
 
         return parent::afterSave($isNew);
     }
+
+    public function beforeDelete(): bool
+    {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
+        $tickets = Ticket::find()
+            ->typeId($this->id)
+            ->anyStatus()
+            ->limit(null)
+            ->all();
+
+        foreach ($tickets as $ticket) {
+            Craft::$app->getElements()->deleteElement($ticket);
+        }
+
+        return true;
+    }
 }
