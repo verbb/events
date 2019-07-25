@@ -34,7 +34,16 @@ Craft.Events.TicketEdit = Garnish.Base.extend({
         this.$quantity = this.$container.find('.ticket-quantity');
 
         for (var i = 0; i < this.$ticketRows.length; i++) {
+            var id = $(this.$ticketRows[i]).data('id');
+
             new Craft.Events.TicketEditRow(this, this.$ticketRows[i], i);
+
+            // Is this a new ticket?
+            var newMatch = (typeof id === 'string' && id.match(/new(\d+)/));
+
+            if (newMatch && newMatch[1] > this.totalNewRows) {
+                this.totalNewRows = parseInt(newMatch[1]);
+            }
         }
         
         this.addListener(this.$addBtn, 'click', 'addTicket');

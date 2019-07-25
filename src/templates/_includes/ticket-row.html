@@ -1,6 +1,6 @@
 {% import '_includes/forms' as forms %}
 
-<div class="create-tickets">
+<div class="create-tickets" data-id="{{ ticketId ?? '' }}">
     <div class="create-tickets-row table-row">
         <div class="table-cell table-cell-md-5 fields-tickets-type-field">
             {% set types = [] %}

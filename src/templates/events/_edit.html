@@ -191,8 +191,15 @@
                     </div>
 
                     <div class="create-tickets-container">
+                        {% set totalNewTickets = 0 %}
+
                         {% for ticket in tickets %}
-                            {% set ticketId = ticket.id ?? '' %}
+                            {% set ticketId = ticket.id %}
+
+                            {% if not ticketId %}
+                                {% set totalNewTickets = totalNewTickets + 1 %}
+                                {% set ticketId = 'new' ~ totalNewTickets %}
+                            {% endif %}
                             
                             {% namespace 'tickets[' ~ ticketId ~ ']' %}
                                 {% include 'events/_includes/ticket-row' %}

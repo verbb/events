@@ -24,6 +24,10 @@ class EventHelper
 
         if ($eventId && !$newTicket) {
             $ticketModel = Events::getInstance()->getTickets()->getTicketById($key, $event->siteId);
+
+            if (!$ticketModel) {
+                $ticketModel = new Ticket();
+            }
         } else {
             $ticketModel = new Ticket();
         }
