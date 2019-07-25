@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.2 - 2019-07-25
+
+### Added
+- Add support for Klaviyo Connect plugin.
+
+### Fixed
+- Fix error when trying to save an event after validation failed.
+- Fix deleting ticket type not deleting associated tickets.
+- Fix error with empty tickets for an event.
+- Allow Commerce 3 to work.
+- Fix invalid element type class being registered for events.
+- Fix error with project config rebuild. (thanks @ttempleton).
+- Fix incorrectly reporting tickets as unavailable.
+- Fix being unable to delete tickets from event.
+
 ## 1.1.1 - 2019-05-17
 
 ### Fixed
