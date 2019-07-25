@@ -367,6 +367,10 @@ class Event extends Element
             }
         }
 
+        if ($this->_tickets === null) {
+            return [];
+        }
+
         return $this->_tickets;
     }
 
