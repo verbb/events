@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.3 - 2019-07-28
+
+### Fixed
+- Fix `craft.events.events()` not including currently-on events.
+
 ## 1.1.2 - 2019-07-25
 
 ### Added
