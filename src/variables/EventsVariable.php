@@ -56,9 +56,9 @@ class EventsVariable
     {
         $query = Event::find();
 
-        // Default startDate
+        // Default endDate
         $today = (new DateTime)->format(DateTime::W3C);
-        $query->startDate[] = '>=' . $today;
+        $query->endDate[] = '>=' . $today;
 
         if ($criteria) {
             Craft::configure($query, $criteria);
