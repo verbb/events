@@ -2,9 +2,9 @@
 
 The following are common methods you will want to call in your front end templates:
 
-### `craft.events.events()`
+### `craft.events.events({ endDate: '>= now' })`
 
-Returns an [Event Querie](docs:getting-elements/event-queries) for you to modify and output events.
+Returns an [Event Query](docs:getting-elements/event-queries) for you to modify and output events.
 
 :::warning
 By default, only current events will be returned when calling `craft.events.events()`. To change this, use the `craft.events.events({ endDate: null })`. Events are also ordered from the oldest startDate to the newest, which you can also change with the `orderBy` parameter.
