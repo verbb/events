@@ -4,10 +4,10 @@ The following are common methods you will want to call in your front end templat
 
 ### `craft.events.events()`
 
-See [Event Queries](docs:getting-elements/event-queries)
+Returns an [Event Querie](docs:getting-elements/event-queries) for you to modify and output events.
 
 :::warning
-By default, only current events will be returned when calling `craft.events.events()`. To change this, use the `startDate` parameter. Events are also ordered from the oldest startDate to the newest, which you can also change with the `orderBy` parameter.
+By default, only current events will be returned when calling `craft.events.events()`. To change this, use the `craft.events.events({ endDate: null })`. Events are also ordered from the oldest startDate to the newest, which you can also change with the `orderBy` parameter.
 :::
 
 ### `craft.events.tickets()`
