@@ -44,8 +44,8 @@ We can display events for a given type by doing the following:
 {% endfor %}
 ```
 
-:::tip
-By default, only upcoming events will be returned when calling `craft.events.events()`. To change this, use the `startDate` parameter. Events are also ordered from the oldest startDate to the newest, which you can also change with the `orderBy` parameter.
+:::warning
+By default, only current events will be returned when calling `craft.events.events()`. To change this, use the `startDate` parameter. Events are also ordered from the oldest startDate to the newest, which you can also change with the `orderBy` parameter.
 :::
 
 ## Parameters

@@ -42,3 +42,17 @@ We're just using the default Commerce templates here, so change this to your nee
 {% endblock %}
 
 ```
+
+### Past Events
+
+The `craft.events.events()` call will by default only return events that are currently on, or upcoming events. This is because the default query returned will be limiting event elements that have an end date greater than, or equal to the current time.
+
+If you'd like to show past events, you can use the following:
+
+```twig
+{% for event in craft.events.events({ endDate: null }).all() %}
+    ...
+{% endfor %}
+```
+
+See [Event Queries](docs:getting-elements/event-queries) for more information.
