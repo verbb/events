@@ -28,7 +28,7 @@ class EventsController extends Controller
     // Properties
     // =========================================================================
 
-    protected $allowAnonymous = ['actionViewSharedEvent'];
+    protected $allowAnonymous = ['view-shared-event'];
 
 
     // Public Methods
