@@ -364,11 +364,7 @@ class Ticket extends Purchasable
         }
 
         // Check if there are any tickets left
-        $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets([
-            'ticketId' => $this->id,
-        ]);
-
-        if (($this->quantity - count($purchasedTickets)) === 0) {
+        if ($this->quantity < 1) {
             return false;
         }
 
