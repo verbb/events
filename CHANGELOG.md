@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.4 - 2019-08-08
+
+### Fixed 
+- Fixed sharing preview not working correctly for anonymous requests.
+- Fix capacity database column set incorrectly, in some cases (upgrading from older plugin versions).
+- Fix lack of total event capacity checks when adding to cart.
+- Fix `isAvailable` checks on event and ticket incorrectly reporting what’s available.
+- Fix incorrect available ticket calculation when adding to cart.
+
 ## 1.1.3 - 2019-07-28
 
 ### Fixed
