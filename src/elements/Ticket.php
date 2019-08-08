@@ -389,11 +389,13 @@ class Ticket extends Purchasable
         $errors = [];
 
         if ($lineItem->purchasable === $this) {
+            $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets(['eventId' => $lineItem->purchasable->event->id]);
             $ticketCapacity = $lineItem->purchasable->quantity;
             $eventCapacity = $lineItem->purchasable->event->capacity;
+            $eventAvailable = $eventCapacity - count($purchasedTickets);
 
             // Find the smallest number, out of the ticket or event capacity
-            $availableTickets = min([$ticketCapacity, $eventCapacity]);
+            $availableTickets = min([$ticketCapacity, $eventAvailable]);
 
             if ($lineItem->qty > $availableTickets) {
                 $lineItem->qty = $availableTickets;
