@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.5 - 2019-08-09
+
+### Fixed 
+- Fix incorrect available ticket calculation when adding to cart (again).
+
 ## 1.1.4 - 2019-08-08
 
 ### Fixed 
