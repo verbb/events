@@ -11,6 +11,7 @@ return [
         'ticketSKULength' => 10,
         'ticketPdfPath' => 'shop/_pdf/tickets',
         'ticketPdfFilenameFormat' => 'Tickets-{number}',
+        'checkinTemplate' => 'events/check-in',
         
         'pdfAllowRemoteImages' => false,
         'pdfPaperSize' => 'letter',
@@ -25,6 +26,7 @@ return [
 - `ticketSKULength` - Purchased tickets have a unique, auto-generated SKU. Use this value to set the desired length.
 - `ticketPdfPath` - Set the path to your PDF.
 - `ticketPdfFilenameFormat` - Set the defaulf PDF filename format.
+- `checkinTemplate` - Set a template to be shown when checking into an event. See `events/templates/check-in.html` for an example.
 - `pdfAllowRemoteImages` - Whether to allow remote images in the PDF.
 - `pdfPaperSize` - Sets the paper size for the PDF.
 - `pdfPaperOrientation` - Sets the paper orientation for the PDF.

@@ -1,0 +1,11 @@
+{% import '_includes/forms' as forms %}
+{% import 'events/_macros' as macros %}
+
+{{ forms.textField({
+    label: 'Check-in Template' | t('events'),
+    instructions: 'When customers are trying to check-in, show this template. This should handle error and success states.' | t('events'),
+    name: 'checkinTemplate',
+    value: settings.checkinTemplate,
+    warning: macros.configWarning('checkinTemplate', 'events'),
+}) }}
+

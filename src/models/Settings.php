@@ -12,6 +12,7 @@ class Settings extends Model
     public $ticketSKULength = 10;
     public $ticketPdfPath = 'shop/_pdf/tickets';
     public $ticketPdfFilenameFormat = 'Tickets-{number}';
+    public $checkinTemplate = '';
 
     public $pdfAllowRemoteImages = false;
     public $pdfPaperSize = 'letter';
