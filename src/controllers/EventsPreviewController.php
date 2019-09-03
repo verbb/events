@@ -3,7 +3,7 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 use verbb\events\elements\Event;
-use verbb\events\helpers\Event as EventHelper;
+use verbb\events\helpers\EventHelper;
 
 use Craft;
 use craft\base\Element;
