@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.6 - 2019-09-03
+
+### Added
+- Add Check-in template and nicer default template instead of JSON.
+
+### Fixed
+- Fix error when running live preview on an event.
+
 ## 1.1.5 - 2019-08-09
 
 ### Fixed 
