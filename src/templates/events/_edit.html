@@ -211,7 +211,9 @@
                 <a class="btn add add-ticket icon dashed" tabindex="0">{{ 'Add ticket' | t('events') }}</a>
             </div>  
         </div>
-    </div>
+	</div>
+	
+	{% hook "cp.events.event.edit.details" %}
 {% endblock %}
 
 {% js %}
