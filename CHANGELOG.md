@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.7 - 2019-31-10
+
+### Fixed
+- Fix Commented out Checkin Purchased Ticket bug.
+
 ## 1.1.6 - 2019-09-03
 
 ### Added
