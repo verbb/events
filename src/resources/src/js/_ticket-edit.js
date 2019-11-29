@@ -82,7 +82,9 @@ Craft.Events.TicketEdit = Garnish.Base.extend({
             quantity += Number($(this).val());
         });
 
-        this.$capacity.val(quantity);
+        if (this.$capacity.val() == '') {
+            this.$capacity.val(quantity);
+        }
     }
 });
 
@@ -139,7 +141,9 @@ Craft.Events.TicketEditRow = Garnish.Base.extend({
             quantity += Number($(this).val());
         });
 
-        this.$capacity.val(quantity);
+        if (this.$capacity.val() == '') {
+            this.$capacity.val(quantity);
+        }
     }
 });
 
