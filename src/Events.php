@@ -13,6 +13,7 @@ use verbb\events\variables\EventsVariable;
 
 use Craft;
 use craft\base\Plugin;
+use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
@@ -20,6 +21,7 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\Plugins;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
@@ -228,6 +230,13 @@ class Events extends Plugin
     {
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEventTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEvents(), 'afterSaveSiteHandler']);
+
+        // Ensure Commerce is installed
+        Event::on(Plugins::class, Plugins::EVENT_BEFORE_INSTALL_PLUGIN, function (PluginEvent $event) {
+            if ($event->plugin === $this && !Craft::$app->plugins->isPluginInstalled('commerce')) {
+                throw new \Exception('Events required Commerce to be installed.');
+            }
+        });
     }
 
     private function _registerThirdPartyEventListeners()
