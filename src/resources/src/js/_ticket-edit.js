@@ -129,9 +129,13 @@ Craft.Events.TicketEditRow = Garnish.Base.extend({
     },
 
     deleteRow: function() {
-        this.$container.remove();
+        var deleteRow = confirm(Craft.t('events', 'Are you sure you want to delete this ticket type?'));
 
-        this.sumAllQuantities();
+        if (deleteRow) {
+            this.$container.remove();
+
+            this.sumAllQuantities();
+        }
     },
 
     sumAllQuantities: function() {
