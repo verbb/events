@@ -260,11 +260,13 @@ class EventsController extends Controller
             $hasErrors = true;
         }
 
-        $variables['tabs'][] = [
-            'label' => Craft::t('events', 'Tickets'),
-            'url' => '#tab-tickets-container',
-            'class' => $hasErrors ? 'error' : null
-        ];
+        if ($eventType->hasTickets) {
+            $variables['tabs'][] = [
+                'label' => Craft::t('events', 'Tickets'),
+                'url' => '#tab-tickets-container',
+                'class' => $hasErrors ? 'error' : null
+            ];
+        }
 
         $variables['ticketRowHtml'] = TicketHelper::getTicketRowHtml();
     }

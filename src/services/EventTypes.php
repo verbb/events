@@ -201,6 +201,7 @@ class EventTypes extends Component
             'hasTitleField' => (bool)$eventType->hasTitleField,
             'titleLabel' => $eventType->titleLabel,
             'titleFormat' => $eventType->titleFormat,
+            'hasTickets' => $eventType->hasTickets,
             'siteSettings' => []
         ];
 
@@ -278,6 +279,7 @@ class EventTypes extends Component
             $eventTypeRecord->hasTitleField = $data['hasTitleField'];
             $eventTypeRecord->titleLabel = $data['titleLabel'];
             $eventTypeRecord->titleFormat = $data['titleFormat'];
+            $eventTypeRecord->hasTickets = $data['hasTickets'];
 
             if (!empty($data['eventFieldLayouts']) && !empty($config = reset($data['eventFieldLayouts']))) {
                 // Save the main field layout
@@ -625,6 +627,7 @@ class EventTypes extends Component
                 'eventTypes.hasTitleField',
                 'eventTypes.titleLabel',
                 'eventTypes.titleFormat',
+                'eventTypes.hasTickets',
                 'eventTypes.uid',
             ])
             ->from(['{{%events_eventtypes}} eventTypes']);

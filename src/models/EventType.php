@@ -26,6 +26,7 @@ class EventType extends Model
     public $hasTitleField = true;
     public $titleLabel = 'Title';
     public $titleFormat;
+    public $hasTickets = true;
     public $uid;
 
     private $_siteSettings;

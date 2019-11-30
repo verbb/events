@@ -33,6 +33,7 @@ class ProjectConfigData
                 'hasTitleField',
                 'titleLabel',
                 'titleFormat',
+                'hasTickets',
                 'uid'
             ])
             ->from(['{{%events_eventtypes}} eventTypes'])
