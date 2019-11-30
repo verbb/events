@@ -105,7 +105,7 @@ class Events extends Plugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('events-manageTickets')) {
+        if (Craft::$app->getUser()->checkPermission('events-manageTicketTypes')) {
             $nav['subnav']['ticketTypes'] = [
                 'label' => Craft::t('events', 'Ticket Types'),
                 'url' => 'events/ticket-types',
@@ -197,7 +197,7 @@ class Events extends Plugin
             $event->permissions[Craft::t('events', 'Events')] = [
                 'events-manageEventTypes' => ['label' => Craft::t('events', 'Manage event types')],
                 'events-manageEvents' => ['label' => Craft::t('events', 'Manage events'), 'nested' => $eventTypePermissions],
-                'events-manageTickets' => ['label' => Craft::t('events', 'Manage tickets')],
+                'events-manageTicketTypes' => ['label' => Craft::t('events', 'Manage ticket types')],
             ];
         });
     }
