@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.7.1 - 2019-12-02
+
+### Fixed
+- Fixed typo. (thanks @samuelbirch).
+
 ## 1.1.7 - 2019-12-02
 
 ### Added
