@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.1.7 - 2019-12-02
+
+### Added
+- Add `cp.events.event.edit.details` template hook. (thanks @samuelbirch).
+- Add better warning when Commerce isn’t installed.
+- Add `hasTickets` to event types.
+- Add confirm when deleting an events’ ticket type.
+
+### Changed
+- No longer override Total Capacity field when changing ticket type quantity.
+- Provide better handling for either event capacity or ticket quantity not being set.
+- Do not include custom fields in ticket snapshot.
+
+### Fixed
+- Fix ticket type permissions.
+- Fix ticket check-in not working.
+- Fix error thrown in `isTicket`.
+
 ## 1.1.6 - 2019-09-03
 
 ### Added

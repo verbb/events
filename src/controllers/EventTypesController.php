@@ -69,6 +69,7 @@ class EventTypesController extends Controller
         $eventType->hasTitleField = (bool)$request->getBodyParam('hasTitleField', $eventType->hasTitleField);
         $eventType->titleLabel = $request->getBodyParam('titleLabel', $eventType->titleLabel);
         $eventType->titleFormat = $request->getBodyParam('titleFormat', $eventType->titleFormat);
+        $eventType->hasTickets = (bool)$request->getBodyParam('hasTickets', $eventType->hasTickets);
 
         // Site-specific settings
         $allSiteSettings = [];

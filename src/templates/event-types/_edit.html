@@ -46,6 +46,16 @@
             required: true,
         }) }}
 
+        {{ forms.lightswitchField({
+            label: 'Has Tickets' | t('events'),
+            instructions: 'Whether this event type should be ticketed.' | t('events'),
+            id: 'hasTickets',
+            name: 'hasTickets',
+            value: 1,
+            on: eventType.hasTickets,
+            errors: eventType.getErrors('hasTickets'),
+        }) }}
+
         <hr>
 
         {{ forms.checkboxField({
@@ -80,8 +90,6 @@
                 required: true,
             }) }}
         </div>
-
-        <hr>
 
         {% macro hasUrlsField(eventType) %}
             {% from '_includes/forms' import checkboxField %}

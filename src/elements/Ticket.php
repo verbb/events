@@ -339,6 +339,20 @@ class Ticket extends Purchasable
         }
     }
 
+    public function availableQuantity()
+    {
+        // If there's no specific quantity set for this ticket, check the overall event capacity
+        if ($this->quantity === null && $this->event->capacity > 0) {
+            // Because the event capacity doesn't get decremented like a ticket quantity does
+            // we need to factor in purchased tickets
+            $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets(['eventId' => $this->event->id]);
+
+            return $this->event->capacity - count($purchasedTickets);
+        }
+
+        return $this->quantity;
+    }
+
     public function getIsAvailable(): bool
     {
         if ($this->getStatus() !== Element::STATUS_ENABLED) {
@@ -364,7 +378,7 @@ class Ticket extends Purchasable
         }
 
         // Check if there are any tickets left
-        if ($this->quantity < 1) {
+        if ($this->availableQuantity() < 1) {
             return false;
         }
 
@@ -392,6 +406,17 @@ class Ticket extends Purchasable
             $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets(['eventId' => $lineItem->purchasable->event->id]);
             $ticketCapacity = $lineItem->purchasable->quantity;
             $eventCapacity = $lineItem->purchasable->event->capacity;
+
+            // If no ticket quantity provided, use the event's capacity
+            if ($ticketCapacity === null) {
+                $ticketCapacity = $eventCapacity;
+            }
+
+            // If no event capacity set (but a ticket quantity set), that's actually easy to process
+            if ($eventCapacity === null) {
+                $eventCapacity = $ticketCapacity;
+            }
+
             $eventAvailable = $eventCapacity - count($purchasedTickets);
 
             // Find the smallest number, out of the ticket or event capacity
@@ -468,17 +493,13 @@ class Ticket extends Purchasable
     {
         $data = [];
         $data['onSale'] = $this->getOnSale();
-
-        $data['cpEditUrl'] = $this->getEvent() ? $this->getEvent()->getCpEditUrl() : [];
-
-        // Event Attributes
-        $data['event'] = $this->getEvent() ? $this->getEvent()->getSnapshot() : [];
+        $data['cpEditUrl'] = $this->getCpEditUrl();
 
         // Default Event custom field handles
         $eventFields = [];
         $eventFieldsEvent = new CustomizeEventSnapshotFieldsEvent([
             'event' => $this->getEvent(),
-            'fields' => $eventFields
+            'fields' => $eventFields,
         ]);
 
         // Allow plugins to modify Event fields to be fetched
@@ -486,25 +507,47 @@ class Ticket extends Purchasable
             $this->trigger(self::EVENT_BEFORE_CAPTURE_EVENT_SNAPSHOT, $eventFieldsEvent);
         }
 
-        // Capture specified Event field data
-        $eventFieldData = $this->getEvent() ? $this->getEvent()->getSerializedFieldValues($eventFieldsEvent->fields) : [];
-        $eventDataEvent = new CustomizeEventSnapshotDataEvent([
-            'event' => $this->getEvent(),
-            'fieldData' => $eventFieldData
-        ]);
+        // Event Attributes
+        if ($event = $this->getEvent()) {
+            $eventAttributes = $event->attributes();
+
+            // Remove custom fields
+            if (($fieldLayout = $event->getFieldLayout()) !== null) {
+                foreach ($fieldLayout->getFields() as $field) {
+                    ArrayHelper::removeValue($eventAttributes, $field->handle);
+                }
+            }
+
+            // Add back the custom fields they want
+            foreach ($eventFieldsEvent->fields as $field) {
+                $eventAttributes[] = $field;
+            }
+
+            $data['event'] = $this->getEvent()->toArray($eventAttributes, [], false);
+            
+            $eventDataEvent = new CustomizeEventSnapshotDataEvent([
+                'event' => $this->getEvent(),
+                'fieldData' => $data['event'],
+            ]);
+        } else {
+            $eventDataEvent = new CustomizeEventSnapshotDataEvent([
+                'event' => $this->getEvent(),
+                'fieldData' => []
+            ]);
+        }
 
         // Allow plugins to modify captured Event data
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_EVENT_SNAPSHOT)) {
             $this->trigger(self::EVENT_AFTER_CAPTURE_EVENT_SNAPSHOT, $eventDataEvent);
         }
 
-        $data['eventFields'] = $eventDataEvent->fieldData;
+        $data['event'] = $eventDataEvent->fieldData;
 
         // Default Ticket custom field handles
         $ticketFields = [];
         $ticketFieldsEvent = new CustomizeTicketSnapshotFieldsEvent([
             'ticket' => $this,
-            'fields' => $ticketFields
+            'fields' => $ticketFields,
         ]);
 
         // Allow plugins to modify fields to be fetched
@@ -512,11 +555,25 @@ class Ticket extends Purchasable
             $this->trigger(self::EVENT_BEFORE_CAPTURE_TICKET_SNAPSHOT, $ticketFieldsEvent);
         }
 
-        // Capture specified Ticket field data
-        $ticketFieldData = $this->getSerializedFieldValues($ticketFieldsEvent->fields);
+        $ticketAttributes = $this->attributes();
+
+        // Remove custom fields
+        if (($fieldLayout = $this->getFieldLayout()) !== null) {
+            foreach ($fieldLayout->getFields() as $field) {
+                ArrayHelper::removeValue($ticketAttributes, $field->handle);
+            }
+        }
+
+        // Add back the custom fields they want
+        foreach ($ticketFieldsEvent->fields as $field) {
+            $ticketAttributes[] = $field;
+        }
+
+        $ticketData = $this->toArray($vticketAttributes, [], false);
+
         $ticketDataEvent = new CustomizeTicketSnapshotDataEvent([
             'ticket' => $this,
-            'fieldData' => $ticketFieldData
+            'fieldData' => $ticketData,
         ]);
 
         // Allow plugins to modify captured Ticket data
@@ -524,9 +581,7 @@ class Ticket extends Purchasable
             $this->trigger(self::EVENT_AFTER_CAPTURE_TICKET_SNAPSHOT, $ticketDataEvent);
         }
 
-        $data['fields'] = $ticketDataEvent->fieldData;
-
-        return array_merge($this->getAttributes(), $data);
+        return array_merge($ticketDataEvent->fieldData, $data);
     }
 
     public function getOnSale(): bool

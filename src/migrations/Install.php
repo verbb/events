@@ -54,6 +54,7 @@ class Install extends Migration
             'hasTitleField' => $this->boolean()->defaultValue(true)->notNull(),
             'titleLabel' => $this->string()->defaultValue('Title'),
             'titleFormat' => $this->string(),
+            'hasTickets' => $this->boolean()->defaultValue(true)->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

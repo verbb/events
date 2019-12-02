@@ -82,7 +82,9 @@ Craft.Events.TicketEdit = Garnish.Base.extend({
             quantity += Number($(this).val());
         });
 
-        this.$capacity.val(quantity);
+        if (this.$capacity.val() == '') {
+            this.$capacity.val(quantity);
+        }
     }
 });
 
@@ -127,9 +129,13 @@ Craft.Events.TicketEditRow = Garnish.Base.extend({
     },
 
     deleteRow: function() {
-        this.$container.remove();
+        var deleteRow = confirm(Craft.t('events', 'Are you sure you want to delete this ticket type?'));
 
-        this.sumAllQuantities();
+        if (deleteRow) {
+            this.$container.remove();
+
+            this.sumAllQuantities();
+        }
     },
 
     sumAllQuantities: function() {
@@ -139,7 +145,9 @@ Craft.Events.TicketEditRow = Garnish.Base.extend({
             quantity += Number($(this).val());
         });
 
-        this.$capacity.val(quantity);
+        if (this.$capacity.val() == '') {
+            this.$capacity.val(quantity);
+        }
     }
 });
 
