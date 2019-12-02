@@ -569,7 +569,7 @@ class Ticket extends Purchasable
             $ticketAttributes[] = $field;
         }
 
-        $ticketData = $this->toArray($vticketAttributes, [], false);
+        $ticketData = $this->toArray($ticketAttributes, [], false);
 
         $ticketDataEvent = new CustomizeTicketSnapshotDataEvent([
             'ticket' => $this,
