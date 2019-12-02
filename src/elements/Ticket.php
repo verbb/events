@@ -339,6 +339,20 @@ class Ticket extends Purchasable
         }
     }
 
+    public function availableQuantity()
+    {
+        // If there's no specific quantity set for this ticket, check the overall event capacity
+        if ($this->quantity === null && $this->event->capacity > 0) {
+            // Because the event capacity doesn't get decremented like a ticket quantity does
+            // we need to factor in purchased tickets
+            $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets(['eventId' => $this->event->id]);
+
+            return $this->event->capacity - count($purchasedTickets);
+        }
+
+        return $this->quantity;
+    }
+
     public function getIsAvailable(): bool
     {
         if ($this->getStatus() !== Element::STATUS_ENABLED) {
@@ -364,7 +378,7 @@ class Ticket extends Purchasable
         }
 
         // Check if there are any tickets left
-        if ($this->quantity < 1) {
+        if ($this->availableQuantity() < 1) {
             return false;
         }
 
@@ -392,6 +406,17 @@ class Ticket extends Purchasable
             $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets(['eventId' => $lineItem->purchasable->event->id]);
             $ticketCapacity = $lineItem->purchasable->quantity;
             $eventCapacity = $lineItem->purchasable->event->capacity;
+
+            // If no ticket quantity provided, use the event's capacity
+            if ($ticketCapacity === null) {
+                $ticketCapacity = $eventCapacity;
+            }
+
+            // If no event capacity set (but a ticket quantity set), that's actually easy to process
+            if ($eventCapacity === null) {
+                $eventCapacity = $ticketCapacity;
+            }
+
             $eventAvailable = $eventCapacity - count($purchasedTickets);
 
             // Find the smallest number, out of the ticket or event capacity
