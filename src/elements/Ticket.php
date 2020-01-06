@@ -342,18 +342,28 @@ class Ticket extends Purchasable
 
     public function availableQuantity()
     {
-        // If there's no specific quantity set for this ticket, check the overall event capacity
-        if ($this->quantity === null && $this->event->capacity > 0) {
-            // Because the event capacity doesn't get decremented like a ticket quantity does
-            // we need to factor in purchased tickets
-            $purchasedTickets = PurchasedTicket::find()
-                ->eventId($this->event->id)
-                ->all();
-
-            return $this->event->capacity - count($purchasedTickets);
+        // Just quickly check if the event's capacity is zero - that's a hard-unavailable
+        if ($this->event->capacity === '0') {
+            return false;
         }
 
-        return $this->quantity;
+        // If there's no specific quantity set for this ticket, check the overall event capacity
+        if ($this->quantity === null && $this->event->capacity > 0) {
+            $purchasedTickets = PurchasedTicket::find()
+                ->eventId($this->event->id)
+                ->ticketId($this->id)
+                ->count();
+
+            return $this->event->capacity - $purchasedTickets;
+        }
+
+        // Make sure to check against any purchased tickets
+        $purchasedTickets = PurchasedTicket::find()
+            ->eventId($this->event->id)
+            ->ticketId($this->id)
+            ->count();
+
+        return $this->quantity - $purchasedTickets;
     }
 
     public function getIsAvailable(): bool
