@@ -614,24 +614,9 @@ class Ticket extends Purchasable
         return $this->getType()->shippingCategoryId;
     }
 
-    public function hasFreeShipping(): bool
-    {
-        return true;
-    }
-
-    public function getIsPromotable(): bool
-    {
-        return true;
-    }
-
     public function getIsShippable(): bool
     {
         return false;
-    }
-
-    public function getIsTaxable(): bool
-    {
-        return true;
     }
 
 
