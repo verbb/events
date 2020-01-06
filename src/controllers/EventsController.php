@@ -269,6 +269,9 @@ class EventsController extends Controller
         }
 
         $variables['ticketRowHtml'] = TicketHelper::getTicketRowHtml();
+
+        // Store each ticket type's field content so that it can be applied when selecting one
+        $variables['ticketTypeHtml'] = $this->_getTicketTypeHtml();
     }
 
     private function _prepEditEventVariables(array &$variables)
@@ -361,5 +364,35 @@ class EventsController extends Controller
                 $variables['tickets'] = [];
             }
         }
+    }
+
+    private function _getTicketTypeHtml()
+    {
+        $ticketTypes = Events::$plugin->getTicketTypes()->getAllTicketTypes();
+        $html = [];
+
+        $originalNamespace = Craft::$app->getView()->getNamespace();
+        $namespace = Craft::$app->getView()->namespaceInputName('tickets[__ROWID__]', $originalNamespace);
+        Craft::$app->getView()->setNamespace($namespace);
+
+        foreach ($ticketTypes as $ticketType) {
+            Craft::$app->getView()->startJsBuffer();
+
+            $bodyHtml = Craft::$app->getView()->namespaceInputs(Craft::$app->getView()->renderTemplate('events/_includes/ticket-type-fields', [
+                'namespace' => null,
+                'ticketType' => $ticketType,
+            ]));
+
+            $footHtml = Craft::$app->getView()->clearJsBuffer();
+
+            $html[$ticketType->id] = [
+                'bodyHtml' => $bodyHtml,
+                'footHtml' => $footHtml,
+            ];
+        }
+
+        Craft::$app->getView()->setNamespace($originalNamespace);
+
+        return $html;
     }
 }

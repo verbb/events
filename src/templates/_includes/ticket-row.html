@@ -86,14 +86,16 @@
                 value: ticket.availableTo ?? [],
             }) }}
 
-            {% if ticket and ticket.id %}
-                {% for tab in ticket.type.getFieldLayout().getTabs() %}
-                    {% include '_includes/fields' with {
-                        fields: tab.getFields(),
-                        element: ticket,
-                    } only %}
-                {% endfor %}
-            {% endif %}
+            <div class="ticket-type-fields">
+                {% if ticket %}
+                    {% for tab in ticket.type.getFieldLayout().getTabs() %}
+                        {% include '_includes/fields' with {
+                            fields: tab.getFields(),
+                            element: ticket,
+                        } only %}
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>

@@ -225,7 +225,9 @@
 
     new Craft.Events.TicketEdit(
         'tab-tickets-container',
-        {{ ticketRowHtml | json_encode | raw }}
+        {{ tickets | json_encode | raw }},
+        {{ ticketRowHtml | json_encode | raw }},
+        {{ ticketTypeHtml | json_encode | raw }}
     );
 {% endjs %}
 

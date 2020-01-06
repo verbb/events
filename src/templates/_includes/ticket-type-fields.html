@@ -1,0 +1,6 @@
+{% for tab in ticketType.getFieldLayout().getTabs() %}
+    {% include '_includes/fields' with {
+        fields: tab.getFields(),
+        element: null,
+    } only %}
+{% endfor %}
