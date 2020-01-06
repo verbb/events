@@ -35,7 +35,8 @@
         "collapsable": false,
         "children": [
             "getting-elements/event-queries",
-            "getting-elements/ticket-queries"
+            "getting-elements/ticket-queries",
+            "getting-elements/purchased-ticket-queries"
         ]
     },
     {
