@@ -3,6 +3,7 @@ namespace verbb\events;
 
 use verbb\events\base\PluginTrait;
 use verbb\events\elements\Event as EventElement;
+use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
 use verbb\events\helpers\ProjectConfigData;
@@ -42,7 +43,7 @@ class Events extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '1.0.7';
+    public $schemaVersion = '1.0.8';
     public $hasCpSettings = true;
     public $hasCpSection = true;
 
@@ -98,6 +99,13 @@ class Events extends Plugin
             }
         }
 
+        if (Craft::$app->getUser()->checkPermission('events-managePurchasedTickets')) {
+            $nav['subnav']['purchasedTickets'] = [
+                'label' => Craft::t('events', 'Purchased Tickets'),
+                'url' => 'events/purchased-tickets',
+            ];
+        }
+
         if (Craft::$app->getUser()->checkPermission('events-manageEventTypes')) {
             $nav['subnav']['eventTypes'] = [
                 'label' => Craft::t('events', 'Event Types'),
@@ -139,6 +147,9 @@ class Events extends Plugin
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
+                'events/purchased-tickets' => 'events/purchased-tickets',
+                'events/purchased-tickets/<purchasedTicketId:\d+>' => 'events/purchased-tickets/edit',
+
                 'events/event-types/new' => 'events/event-types/edit',
                 'events/event-types/<eventTypeId:\d+>' => 'events/event-types/edit',
                 
@@ -165,6 +176,7 @@ class Events extends Plugin
             $e->types[] = EventElement::class;
             $e->types[] = Ticket::class;
             $e->types[] = TicketType::class;
+            $e->types[] = PurchasedTicket::class;
         });
     }
 
@@ -198,6 +210,7 @@ class Events extends Plugin
                 'events-manageEventTypes' => ['label' => Craft::t('events', 'Manage event types')],
                 'events-manageEvents' => ['label' => Craft::t('events', 'Manage events'), 'nested' => $eventTypePermissions],
                 'events-manageTicketTypes' => ['label' => Craft::t('events', 'Manage ticket types')],
+                'events-managePurchasedTickets' => ['label' => Craft::t('events', 'Manage purchased tickets')],
             ];
         });
     }

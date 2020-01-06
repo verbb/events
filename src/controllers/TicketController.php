@@ -31,9 +31,9 @@ class TicketController extends Controller
             ]);
         }
 
-        $purchasedTicket = Events::$plugin->getPurchasedTickets()->getPurchasedTicket([
-            'ticketSku' => $sku,
-        ]);
+        $purchasedTicket = PurchasedTicket::find()
+            ->ticketSku($sku)
+            ->one();
 
         if (!$purchasedTicket->id) {
             return $this->_handleResponse([

@@ -1,0 +1,93 @@
+{% extends 'events/_layouts' %}
+{% import '_includes/forms' as forms %}
+
+{% set crumbs = [
+    { label: craft.events.getPluginName() | t('events'), url: url('events') },
+    { label: 'Purchased Tickets' | t('events'), url: url('events/purchased-tickets') },
+] %}
+
+{% set fullPageForm = false %}
+{% set selectedSubnavItem = 'purchasedTickets' %}
+
+{% block blockContent %}
+    
+{{ forms.textField({
+    first: true,
+    label: 'Ticket SKU' | t('events'),
+    id: 'ticketSku',
+    name: 'ticketSku',
+    value: purchasedTicket.ticketSku ?? '',
+    errors: purchasedTicket.getErrors('ticketSku') ?? '',
+}) }}
+
+<hr>
+
+<p><strong>{{ 'Check-in QR Code' | t('events') }}</strong></p>
+
+<img width="150px" src="{{ purchasedTicket.qrCode }}" />
+
+{% endblock %}
+
+{% block details %}
+
+<div class="meta events-meta">
+    <h5 class="first">{{ "Event" | t('events') }}</h5>
+
+    {% if purchasedTicket.event %}
+        <p>
+            <a class="go" href="{{ purchasedTicket.event.cpEditUrl }}">
+                {{ purchasedTicket.event.title }}
+            </a>
+        </p>
+    {% endif %}
+
+    <hr>
+
+    <h5>{{ 'Ticket' | t('events') }}</h5>
+
+    {% if purchasedTicket.ticket %}
+        <p>
+            <a class="go" href="{{ purchasedTicket.ticket.cpEditUrl }}">
+                {{ purchasedTicket.ticket.title }}
+            </a>
+        </p>
+    {% endif %}
+
+    <hr>
+
+    <h5>{{ 'Order' | t('events') }}</h5>
+
+    {% if purchasedTicket.order %}
+        <p>
+            <a class="go" href="{{ purchasedTicket.order.cpEditUrl }}">
+                {{ purchasedTicket.order.reference }}
+            </a>
+        </p>
+    {% endif %}
+
+    <hr>
+
+    <h5>{{ 'Checked In' | t('events') }}</h5>
+
+    <p>
+        <span class="status {{ purchasedTicket.checkedIn ? 'live' : 'disabled' }}"></span>
+    </p>
+
+    <h5>{{ 'Checked In Date' | t('events') }}</h5>
+
+    {% if purchasedTicket.checkedInDate %}
+        <p>{{ purchasedTicket.checkedInDate | date('short') }} {{ purchasedTicket.checkedInDate | time('short') }}</p>
+    {% else %}
+        <p>-</p>
+    {% endif %}
+
+    <hr>
+
+    <h5>{{ 'Created Date' | t('events') }}</h5>
+    <p>{{ purchasedTicket.dateCreated | date('short') }} {{ purchasedTicket.dateCreated | time('short') }}</p>
+
+    <h5>{{ 'Updated Date' | t('events') }}</h5>
+    <p>{{ purchasedTicket.dateUpdated | date('short') }} {{ purchasedTicket.dateUpdated | time('short') }}</p>
+</div>
+
+{% endblock %}

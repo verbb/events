@@ -3,6 +3,7 @@ namespace verbb\events\elements;
 
 use verbb\events\Events;
 use verbb\events\elements\db\TicketQuery;
+use verbb\events\elements\PurchasedTicket;
 use verbb\events\events\CustomizeEventSnapshotDataEvent;
 use verbb\events\events\CustomizeEventSnapshotFieldsEvent;
 use verbb\events\events\CustomizeTicketSnapshotDataEvent;
@@ -345,7 +346,9 @@ class Ticket extends Purchasable
         if ($this->quantity === null && $this->event->capacity > 0) {
             // Because the event capacity doesn't get decremented like a ticket quantity does
             // we need to factor in purchased tickets
-            $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets(['eventId' => $this->event->id]);
+            $purchasedTickets = PurchasedTicket::find()
+                ->eventId($this->event->id)
+                ->all();
 
             return $this->event->capacity - count($purchasedTickets);
         }
@@ -403,7 +406,10 @@ class Ticket extends Purchasable
         $errors = [];
 
         if ($lineItem->purchasable === $this) {
-            $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets(['eventId' => $lineItem->purchasable->event->id]);
+            $purchasedTickets = PurchasedTicket::find()
+                ->eventId($lineItem->purchasable->event->id)
+                ->all();
+
             $ticketCapacity = $lineItem->purchasable->quantity;
             $eventCapacity = $lineItem->purchasable->event->capacity;
 
@@ -453,24 +459,26 @@ class Ticket extends Purchasable
         Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
 
         // Generate purchased tickets
-        for ($i = 0; $i < $lineItem->qty; $i++) {
-            $record = new PurchasedTicketRecord();
-            $record->eventId = $this->eventId;
-            $record->ticketId = $this->id;
-            $record->orderId = $order->id;
-            $record->lineItemId = $lineItem->id;
-            $record->ticketSku = TicketHelper::generateTicketSKU();
+        $elementsService = Craft::$app->getElements();
 
-            $record->save(false);
+        for ($i = 0; $i < $lineItem->qty; $i++) {
+            $purchasedTicket = new PurchasedTicket();
+            $purchasedTicket->eventId = $this->eventId;
+            $purchasedTicket->ticketId = $this->id;
+            $purchasedTicket->orderId = $order->id;
+            $purchasedTicket->lineItemId = $lineItem->id;
+            $purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
+
+            $elementsService->saveElement($purchasedTicket, false);
         }
     }
 
     public function getPurchasedTickets(LineItem $lineItem)
     {
-        return Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets([
-            'orderId' => $lineItem->order->id,
-            'lineItemId' => $lineItem->id
-        ]);
+        return PurchasedTicket::find()
+            ->orderId($lineItem->order->id)
+            ->lineItemId($lineItem->id)
+            ->all();
     }
 
     public function getPurchasedTicketsForLineItem(LineItem $lineItem)
