@@ -98,7 +98,7 @@ class Events extends Plugin
             }
         }
 
-        if (Craft::$app->getUser()->checkPermission('events-manageEvents')) {
+        if (Craft::$app->getUser()->checkPermission('events-manageEventTypes')) {
             $nav['subnav']['eventTypes'] = [
                 'label' => Craft::t('events', 'Event Types'),
                 'url' => 'events/event-types',
