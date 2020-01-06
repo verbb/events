@@ -2,6 +2,7 @@
 namespace verbb\events\controllers;
 
 use verbb\events\Events;
+use verbb\events\elements\PurchasedTicket;
 
 use Craft;
 use craft\web\Controller;

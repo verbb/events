@@ -55,7 +55,13 @@
 
 <hr>
 
-<p><strong>{{ 'Check-in QR Code' | t('events') }}</strong></p>
+<p>
+    <strong>{{ 'Check-in QR Code' | t('events') }}</strong><br>
+
+    <a href="{{ actionUrl('events/ticket/checkin', { sku: purchasedTicket.ticketSku }) }}" target="_blank">
+        {{ 'Check in URL' | t('events') }}
+    </a>
+</p>
 
 <img width="150px" src="{{ purchasedTicket.qrCode }}" />
 
