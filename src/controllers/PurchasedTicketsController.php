@@ -63,4 +63,71 @@ class PurchasedTicketsController extends Controller
         
         return $this->renderTemplate('events/purchased-tickets/_edit', $variables);
     }
+
+    public function actionSave()
+    {
+        $this->requirePostRequest();
+
+        $request = Craft::$app->getRequest();
+
+        $purchasedTicketId = $request->getParam('id');
+
+        if ($purchasedTicketId) {
+            $purchasedTicket = Events::getInstance()->getPurchasedTickets()->getPurchasedTicketById($purchasedTicketId);
+        } else {
+            $purchasedTicket = new PurchasedTicket();
+        }
+
+        $purchasedTicket->id = $purchasedTicketId;
+        $purchasedTicket->ticketSku = $request->getParam('ticketSku');
+
+        // Save it
+        if (!Craft::$app->getElements()->saveElement($purchasedTicket)) {
+            Craft::$app->getSession()->setError(Craft::t('events', 'Couldn’t save purchased ticket.'));
+
+            // Send the purchasedTicket back to the template
+            Craft::$app->getUrlManager()->setRouteParams([
+                'purchasedTicket' => $purchasedTicket,
+            ]);
+
+            return null;
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('events', 'Purchased ticket saved.'));
+
+        return $this->redirectToPostedUrl($purchasedTicket);
+    }
+
+    public function actionDelete(): Response
+    {
+        $this->requirePostRequest();
+
+        $purchasedTicketId = Craft::$app->getRequest()->getRequiredParam('id');
+        $purchasedTicket = PurchasedTicket::findOne($purchasedTicketId);
+
+        if (!$purchasedTicket) {
+            throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
+        }
+
+        if (!Craft::$app->getElements()->deleteElement($purchasedTicket)) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                $this->asJson(['success' => false]);
+            }
+
+            Craft::$app->getSession()->setError(Craft::t('events', 'Couldn’t delete purchased ticket.'));
+            Craft::$app->getUrlManager()->setRouteParams([
+                'purchasedTicket' => $purchasedTicket,
+            ]);
+
+            return null;
+        }
+
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            return $this->asJson(['success' => true]);
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('events', 'Purchased ticket deleted.'));
+
+        return $this->redirectToPostedUrl($purchasedTicket);
+    }
 }

@@ -154,6 +154,19 @@ class PurchasedTicket extends Element
         }
     }
 
+    protected static function defineActions(string $source = null): array
+    {
+        $actions = [];
+
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => Delete::class,
+            'confirmationMessage' => Craft::t('events', 'Are you sure you want to delete the selected purchased tickets?'),
+            'successMessage' => Craft::t('events', 'Purchased tickets deleted.'),
+        ]);
+
+        return $actions;
+    }
+
 
     // Properties
     // =========================================================================
