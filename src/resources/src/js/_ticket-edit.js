@@ -131,8 +131,6 @@ Craft.Events.TicketEditRow = Garnish.Base.extend({
         this.addListener(this.$settingsBtn, 'click', 'settingsRow');
         this.addListener(this.$deleteBtn, 'click', 'deleteRow');
         this.addListener(this.$quantity, 'change', 'sumAllQuantities');
-
-        this.$settingsBtn.trigger('click');
     },
 
     onSelectElements: function(elements) {
