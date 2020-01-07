@@ -453,6 +453,22 @@ class Event extends Element
         return $tickets;
     }
 
+    public function getAvailableCapacity()
+    {
+        // If we've specifically not set a capacity on the event, treat it like unlimited
+        if ($this->capacity === null) {
+            return PHP_INT_MAX;
+        }
+
+        // Unlike a ticket's quantity, the event's capacity doesn't decrement, so in order to get 
+        // the true capacity of the event, we need to factor in purchased tickets
+        $purchasedTickets = PurchasedTicket::find()
+            ->eventId($this->id)
+            ->count();
+
+        return $this->capacity - $purchasedTickets;
+    }
+
     public function updateTitle()
     {
         $eventType = $this->getType();

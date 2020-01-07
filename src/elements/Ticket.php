@@ -342,28 +342,17 @@ class Ticket extends Purchasable
 
     public function availableQuantity()
     {
-        // Just quickly check if the event's capacity is zero - that's a hard-unavailable
-        if ($this->event->capacity === '0') {
+        // Check if the event overall even has any more to buy - that's a hard-unavailable
+        if ($this->event->getAvailableCapacity() < 1) {
             return false;
         }
 
-        // If there's no specific quantity set for this ticket, check the overall event capacity
-        if ($this->quantity === null && $this->event->capacity > 0) {
-            $purchasedTickets = PurchasedTicket::find()
-                ->eventId($this->event->id)
-                ->ticketId($this->id)
-                ->count();
-
-            return $this->event->capacity - $purchasedTickets;
+        // If we've specifically not set a quantity on the ticket, treat it like unlimited
+        if ($this->quantity === null) {
+            return PHP_INT_MAX;
         }
 
-        // Make sure to check against any purchased tickets
-        $purchasedTickets = PurchasedTicket::find()
-            ->eventId($this->event->id)
-            ->ticketId($this->id)
-            ->count();
-
-        return $this->quantity - $purchasedTickets;
+        return $this->quantity;
     }
 
     public function getIsAvailable(): bool
@@ -416,10 +405,6 @@ class Ticket extends Purchasable
         $errors = [];
 
         if ($lineItem->purchasable === $this) {
-            $purchasedTickets = PurchasedTicket::find()
-                ->eventId($lineItem->purchasable->event->id)
-                ->all();
-
             $ticketCapacity = $lineItem->purchasable->quantity;
             $eventCapacity = $lineItem->purchasable->event->capacity;
 
@@ -433,10 +418,20 @@ class Ticket extends Purchasable
                 $eventCapacity = $ticketCapacity;
             }
 
-            $eventAvailable = $eventCapacity - count($purchasedTickets);
+            // Just in case both are empty - then its an unlimited free-for-all!
+            if ($ticketCapacity === null && $eventCapacity === null) {
+                return;
+            }
+
+            $eventAvailable = $lineItem->purchasable->event->getAvailableCapacity();
 
             // Find the smallest number, out of the ticket or event capacity
             $availableTickets = min([$ticketCapacity, $eventAvailable]);
+
+            // Sanity check for negative values thrown SQL errors
+            if ($availableTickets < 1) {
+                $availableTickets = 0;
+            }
 
             if ($lineItem->qty > $availableTickets) {
                 $lineItem->qty = $availableTickets;
