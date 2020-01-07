@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.2.0 - 2020-01-07
+
+### Added
+- Add purchased tickets screen to CP, showing individual tickets and purchases.
+- Purchased tickets are now elements! Edit and delete purchased tickets is supported.
+- Show purchased tickets in the CP with their quantity, and a summary table below the ticket definitions.
+
+### Changed
+- Improve ticket-type custom field display. Now, whenever a ticket type is selected, all ticket type fields are shown, rather than having to save and reload the event.
+
+### Fixed
+- Cleanup purchasable options.
+- Fix event types permission.
+- Fix available ticket quantity checks.
+
 ## 1.1.7.1 - 2019-12-02
 
 ### Fixed
