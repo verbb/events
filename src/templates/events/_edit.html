@@ -209,9 +209,54 @@
                 </div>
 
                 <a class="btn add add-ticket icon dashed" tabindex="0">{{ 'Add ticket' | t('events') }}</a>
-            </div>  
+
+                {% if event.id %}
+                    <hr>
+
+                    <h2>{{ 'Purchased Tickets Summary' | t('events') }}</h2>
+                    <p>{{ 'A summary of any purchased tickets for this event.' | t('events') }}</p>
+
+                    {% set purchasedTickets = craft.events.purchasedTickets.eventId(event.id).all() %}
+                    {% set purchasedTicketsSummary = {} %}
+
+                    {% for purchasedTicket in purchasedTickets %}
+                        {% set count = 0 %}
+                        {% set key = purchasedTicket.ticket.type.title %}
+
+                        {% if purchasedTicketsSummary[key] is defined %}
+                            {% set count = purchasedTicketsSummary[key] %}
+                        {% endif %}
+
+                        {% set purchasedTicketsSummary = purchasedTicketsSummary | merge({ (key): count + 1 }) %}
+                    {% endfor %}
+
+                    {% if purchasedTickets | length %}
+                        <table id="eventTypes" class="data fullwidth collapsible">
+                            <thead>
+                                <th scope="col">{{ 'Ticket Type' | t('events') }}</th>
+                                <th scope="col">{{ 'Quantity' | t('events') }}</th>
+                            </thead>
+                            <tbody>
+                                {% for ticketType, count in purchasedTicketsSummary %}
+                                    <tr>
+                                        <th scope="row" data-title="{{ 'Ticket Type' | t('events') }}">
+                                            {{ ticketType }}
+                                        </th>
+                                        
+                                        <td data-title="{{ 'Quantity' | t('events') }}">
+                                            {{ count }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>{{ 'No purchased tickets yet.' | t('events') }}</p>
+                    {% endif %}
+                {% endif %}
+            </div>
         </div>
-	</div>
+    </div>
 	
 	{% hook "cp.events.event.edit.details" %}
 {% endblock %}
