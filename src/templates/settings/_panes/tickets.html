@@ -1,7 +1,8 @@
 {% import '_includes/forms' as forms %}
-{% import 'events/_macros' as macros %}
+{% import 'verbb-base/_macros' as macros %}
 
 {{ forms.textField({
+    first: true,
     label: 'Ticket SKU Length' | t('events'),
     instructions: 'Length of the generated ticket SKU.' | t('events'),
     name: 'ticketSKULength',
