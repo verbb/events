@@ -95,6 +95,28 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 
+### `customer`
+
+Narrows the query results to only tickets that have been purchased by a customer.
+
+::: code
+```twig
+{# Fetch tickets that have been purchased by a customer #}
+{% set tickets = craft.events.tickets()
+    .customer(craft.commerce.getCart().customer)
+    .all() %}
+```
+
+```php
+// Fetch tickets that have been purchased by a customer
+$tickets = \verbb\events\elements\Event::find()
+    ->customer($customer)
+    ->all();
+````
+:::
+
+
+
 ### `dateCreated`
 
 Narrows the query results based on the tickets’ creation dates.

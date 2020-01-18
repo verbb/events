@@ -6,6 +6,9 @@ use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 
+use craft\commerce\db\Table as CommerceTable;
+use craft\commerce\models\Customer;
+
 use yii\db\Connection;
 
 class PurchasedTicketQuery extends ElementQuery
@@ -21,11 +24,24 @@ class PurchasedTicketQuery extends ElementQuery
     public $checkedIn;
     public $checkedInDate;
 
+    public $customerId;
+
     protected $defaultOrderBy = ['events_purchasedtickets.dateCreated' => SORT_DESC];
 
 
     // Public Methods
     // =========================================================================
+
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'customer':
+                $this->customer($value);
+                break;
+            default:
+                parent::__set($name, $value);
+        }
+    }
 
     public function eventId($value)
     {
@@ -69,6 +85,23 @@ class PurchasedTicketQuery extends ElementQuery
         return $this;
     }
 
+    public function customer(Customer $value = null)
+    {
+        if ($value) {
+            $this->customerId = $value->id;
+        } else {
+            $this->customerId = null;
+        }
+
+        return $this;
+    }
+
+    public function customerId($value)
+    {
+        $this->customerId = $value;
+        return $this;
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -98,6 +131,12 @@ class PurchasedTicketQuery extends ElementQuery
         $this->addDateWhere('checkedInDate', 'events_purchasedtickets.checkedInDate');
         $this->addDateWhere('dateCreated', 'events_purchasedtickets.dateCreated');
         $this->addDateWhere('dateUpdated', 'events_purchasedtickets.dateUpdated');
+
+        if ($this->customerId) {
+            $this->subQuery->innerJoin(CommerceTable::ORDERS . ' orders', '[[orders.id]] = [[events_purchasedtickets.orderId]]');
+            $this->subQuery->andWhere(['=', '[[orders.customerId]]', $this->customerId]);
+            $this->subQuery->andWhere(['=', '[[orders.isCompleted]]', true]);
+        }
 
         return parent::beforePrepare();
     }

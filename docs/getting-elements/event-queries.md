@@ -186,6 +186,28 @@ $events = \verbb\events\elements\Event::find()
 
 
 
+### `customer`
+
+Narrows the query results to only events that have been purchased by a customer.
+
+::: code
+```twig
+{# Fetch events that have been purchased by a customer #}
+{% set events = craft.events.events()
+    .customer(craft.commerce.getCart().customer)
+    .all() %}
+```
+
+```php
+// Fetch events that have been purchased by a customer
+$events = \verbb\events\elements\Event::find()
+    ->customer($customer)
+    ->all();
+````
+:::
+
+
+
 ### `dateCreated`
 
 Narrows the query results based on the events’ creation dates.
