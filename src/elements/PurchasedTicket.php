@@ -66,7 +66,7 @@ class PurchasedTicket extends Element
 
     protected static function defineSearchableAttributes(): array
     {
-        return ['ticketSku'];
+        return ['ticketSku', 'event', 'ticket', 'order'];
     }
 
 
