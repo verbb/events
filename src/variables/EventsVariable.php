@@ -106,6 +106,19 @@ class EventsVariable
         return false;
     }
 
+    public function hasTicket(Order $order)
+    {
+        if ($order) {
+            foreach ($order->lineItems as $lineItem) {
+                if ($this->isTicket($lineItem)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public function getPdfUrl(LineItem $lineItem)
     {
         if ($this->isTicket($lineItem)) {

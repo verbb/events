@@ -22,6 +22,10 @@ Returns all purchased tickets based on the provided criteria. See [Purchased Tic
 
 Returns whether a provided Line Item object is a ticket or not.
 
+### `craft.events.hasTicket(order)`
+
+Returns if there is at least one ticket in the provided order.
+
 ### `craft.events.getPdfUrl(lineItem)`
 
 Returns a URL to the PDF for this ticket for the provided Line Item object. This will only show tickets for this line item.
