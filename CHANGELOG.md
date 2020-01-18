@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.1 - 2020-01-18
+
+### Added
+- Add `customer` query param to `craft.events.purchasedTickets()`.
+- Add `customer` query param to `craft.events.tickets()`.
+- Add `customer` query param to `craft.events.events()`.
+- Add `craft.events.hasTicket(order)`.
+- Add Event name, Ticket name, or Order reference to list of searchable attributes for purchased ticket elements.
+
 ## 1.2.0 - 2020-01-07
 
 ### Added
