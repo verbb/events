@@ -287,7 +287,9 @@ class EventTypes extends Component
                 $layout->id = $eventTypeRecord->fieldLayoutId;
                 $layout->type = Event::class;
                 $layout->uid = key($data['eventFieldLayouts']);
+                
                 $fieldsService->saveLayout($layout);
+
                 $eventTypeRecord->fieldLayoutId = $layout->id;
             } else if ($eventTypeRecord->fieldLayoutId) {
                 // Delete the main field layout

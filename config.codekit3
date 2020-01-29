@@ -305,6 +305,25 @@
 		"rFN": 0,
 		"uCM": 0
 		},
+	"/docs/getting-elements/purchased-ticket-queries.md": {
+		"cB": 0,
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"hM": 0,
+		"oA": 1,
+		"oAP": "/docs/getting-elements/purchased-ticket-queries.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
 	"/docs/getting-elements/ticket-queries.md": {
 		"cB": 0,
 		"cS": 0,
@@ -778,19 +797,6 @@
 		"oF": 0,
 		"sC": 0,
 		"tS": 0
-		},
-	"/src/resources/src/scss/_base.scss": {
-		"aP": 1,
-		"bl": 0,
-		"dP": 10,
-		"dS": 0,
-		"ft": 4,
-		"ma": 0,
-		"oA": 1,
-		"oAP": "/src/resources/dist/css/_base.css",
-		"oF": 0,
-		"oS": 3,
-		"uL": 1
 		},
 	"/src/resources/src/scss/_welcome.scss": {
 		"aP": 1,
