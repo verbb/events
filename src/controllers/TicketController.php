@@ -36,7 +36,7 @@ class TicketController extends Controller
             ->ticketSku($sku)
             ->one();
 
-        if (!$purchasedTicket->id) {
+        if (!$purchasedTicket) {
             return $this->_handleResponse([
                 'success' => false,
                 'message' => Craft::t('events', 'Could not find ticket SKU.'),
