@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1 - 2020-01-30
+
+### Fixed
+- Fix check-in error when no ticket is found.
+
 ## 1.3.0 - 2020-01-29
 
 ### Added
