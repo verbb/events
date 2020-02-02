@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.2 - 2020-02-02
+
+### Fixed
+- Fix potential errors when no event or ticket exists anymore for a purchased ticket
+
 ## 1.3.1 - 2020-01-30
 
 ### Fixed
