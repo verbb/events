@@ -212,7 +212,11 @@ class PurchasedTicket extends Element
             return $this->_event;
         }
 
-        return $this->_event = Events::$plugin->getEvents()->getEventById($this->eventId);
+        if ($this->eventId) {
+            return $this->_event = Events::$plugin->getEvents()->getEventById($this->eventId);
+        }
+
+        return null;
     }
 
     public function getTicket()
@@ -221,7 +225,11 @@ class PurchasedTicket extends Element
             return $this->_ticket;
         }
 
-        return $this->_ticket = Events::$plugin->getTickets()->getTicketById($this->ticketId);
+        if ($this->ticketId) {
+            return $this->_ticket = Events::$plugin->getTickets()->getTicketById($this->ticketId);
+        }
+
+        return null;
     }
 
     public function getOrder()
@@ -234,7 +242,7 @@ class PurchasedTicket extends Element
             return $this->_order = Commerce::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
-        return false;
+        return null;
     }
 
     public function getLineItem()
@@ -247,7 +255,7 @@ class PurchasedTicket extends Element
             return $this->_lineItem = Commerce::getInstance()->getLineItems()->getLineItemById($this->lineItemId);
         }
 
-        return false;
+        return null;
     }
 
     public function getEventType()
