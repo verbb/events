@@ -3,6 +3,7 @@ namespace verbb\events\elements;
 
 use verbb\events\Events;
 use verbb\events\elements\db\TicketQuery;
+use verbb\events\elements\PurchasedTicket;
 use verbb\events\events\CustomizeEventSnapshotDataEvent;
 use verbb\events\events\CustomizeEventSnapshotFieldsEvent;
 use verbb\events\events\CustomizeTicketSnapshotDataEvent;
@@ -341,13 +342,14 @@ class Ticket extends Purchasable
 
     public function availableQuantity()
     {
-        // If there's no specific quantity set for this ticket, check the overall event capacity
-        if ($this->quantity === null && $this->event->capacity > 0) {
-            // Because the event capacity doesn't get decremented like a ticket quantity does
-            // we need to factor in purchased tickets
-            $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets(['eventId' => $this->event->id]);
+        // Check if the event overall even has any more to buy - that's a hard-unavailable
+        if ($this->event->getAvailableCapacity() < 1) {
+            return false;
+        }
 
-            return $this->event->capacity - count($purchasedTickets);
+        // If we've specifically not set a quantity on the ticket, treat it like unlimited
+        if ($this->quantity === null) {
+            return PHP_INT_MAX;
         }
 
         return $this->quantity;
@@ -403,7 +405,6 @@ class Ticket extends Purchasable
         $errors = [];
 
         if ($lineItem->purchasable === $this) {
-            $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets(['eventId' => $lineItem->purchasable->event->id]);
             $ticketCapacity = $lineItem->purchasable->quantity;
             $eventCapacity = $lineItem->purchasable->event->capacity;
 
@@ -417,10 +418,20 @@ class Ticket extends Purchasable
                 $eventCapacity = $ticketCapacity;
             }
 
-            $eventAvailable = $eventCapacity - count($purchasedTickets);
+            // Just in case both are empty - then its an unlimited free-for-all!
+            if ($ticketCapacity === null && $eventCapacity === null) {
+                return;
+            }
+
+            $eventAvailable = $lineItem->purchasable->event->getAvailableCapacity();
 
             // Find the smallest number, out of the ticket or event capacity
             $availableTickets = min([$ticketCapacity, $eventAvailable]);
+
+            // Sanity check for negative values thrown SQL errors
+            if ($availableTickets < 1) {
+                $availableTickets = 0;
+            }
 
             if ($lineItem->qty > $availableTickets) {
                 $lineItem->qty = $availableTickets;
@@ -453,24 +464,26 @@ class Ticket extends Purchasable
         Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
 
         // Generate purchased tickets
-        for ($i = 0; $i < $lineItem->qty; $i++) {
-            $record = new PurchasedTicketRecord();
-            $record->eventId = $this->eventId;
-            $record->ticketId = $this->id;
-            $record->orderId = $order->id;
-            $record->lineItemId = $lineItem->id;
-            $record->ticketSku = TicketHelper::generateTicketSKU();
+        $elementsService = Craft::$app->getElements();
 
-            $record->save(false);
+        for ($i = 0; $i < $lineItem->qty; $i++) {
+            $purchasedTicket = new PurchasedTicket();
+            $purchasedTicket->eventId = $this->eventId;
+            $purchasedTicket->ticketId = $this->id;
+            $purchasedTicket->orderId = $order->id;
+            $purchasedTicket->lineItemId = $lineItem->id;
+            $purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
+
+            $elementsService->saveElement($purchasedTicket, false);
         }
     }
 
     public function getPurchasedTickets(LineItem $lineItem)
     {
-        return Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets([
-            'orderId' => $lineItem->order->id,
-            'lineItemId' => $lineItem->id
-        ]);
+        return PurchasedTicket::find()
+            ->orderId($lineItem->order->id)
+            ->lineItemId($lineItem->id)
+            ->all();
     }
 
     public function getPurchasedTicketsForLineItem(LineItem $lineItem)
@@ -614,24 +627,9 @@ class Ticket extends Purchasable
         return $this->getType()->shippingCategoryId;
     }
 
-    public function hasFreeShipping(): bool
-    {
-        return true;
-    }
-
-    public function getIsPromotable(): bool
-    {
-        return true;
-    }
-
     public function getIsShippable(): bool
     {
         return false;
-    }
-
-    public function getIsTaxable(): bool
-    {
-        return true;
     }
 
 

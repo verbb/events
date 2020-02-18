@@ -29,6 +29,16 @@
                 class: 'ticket-quantity',
                 errors: ticket ? ticket.getErrors('quantity'),
             }) }}
+
+            <span class="info">
+                <strong>{{ 'Purchased Tickets:' | t('events') }}</strong>
+
+                {% if ticket and ticket.id %}
+                    {{ craft.events.purchasedTickets.ticketId(ticket.id).count() }}
+                {% else %}
+                    0
+                {% endif %}
+            </span>
         </div>
 
         <div class="table-cell table-cell-md-3 fields-tickets-price-field">
@@ -86,14 +96,16 @@
                 value: ticket.availableTo ?? [],
             }) }}
 
-            {% if ticket and ticket.id %}
-                {% for tab in ticket.type.getFieldLayout().getTabs() %}
-                    {% include '_includes/fields' with {
-                        fields: tab.getFields(),
-                        element: ticket,
-                    } only %}
-                {% endfor %}
-            {% endif %}
+            <div class="ticket-type-fields">
+                {% if ticket %}
+                    {% for tab in ticket.type.getFieldLayout().getTabs() %}
+                        {% include '_includes/fields' with {
+                            fields: tab.getFields(),
+                            element: ticket,
+                        } only %}
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>

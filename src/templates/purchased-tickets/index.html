@@ -1,0 +1,12 @@
+{% set parentLayout = '_layouts/elementindex' %}
+{% extends 'events/_layouts' %}
+
+{% set crumbs = [
+    { label: 'Events' | t('events'), url: url('events') },
+    { label: 'Purchased Tickets' | t('events'), url: url('events/purchased-tickets') },
+] %}
+
+{% set elementType = 'verbb\\events\\elements\\PurchasedTicket' %}
+{% set selectedSubnavItem = 'purchasedTickets' %}
+{% set showStatusMenu = true %}
+{% set title = 'Purchased Tickets' %}

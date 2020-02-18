@@ -1,5 +1,50 @@
 # Changelog
 
+## 1.3.2 - 2020-02-02
+
+### Fixed
+- Fix potential errors when no event or ticket exists anymore for a purchased ticket
+
+## 1.3.1 - 2020-01-30
+
+### Fixed
+- Fix check-in error when no ticket is found.
+
+## 1.3.0 - 2020-01-29
+
+### Added
+- Craft 3.4 compatibility.
+- Commerce 3.0 compatibility.
+
+## 1.2.1 - 2020-01-18
+
+### Added
+- Add `customer` query param to `craft.events.purchasedTickets()`.
+- Add `customer` query param to `craft.events.tickets()`.
+- Add `customer` query param to `craft.events.events()`.
+- Add `craft.events.hasTicket(order)`.
+- Add Event name, Ticket name, or Order reference to list of searchable attributes for purchased ticket elements.
+
+## 1.2.0 - 2020-01-07
+
+### Added
+- Add purchased tickets screen to CP, showing individual tickets and purchases.
+- Purchased tickets are now elements! Edit and delete purchased tickets is supported.
+- Show purchased tickets in the CP with their quantity, and a summary table below the ticket definitions.
+
+### Changed
+- Improve ticket-type custom field display. Now, whenever a ticket type is selected, all ticket type fields are shown, rather than having to save and reload the event.
+
+### Fixed
+- Cleanup purchasable options.
+- Fix event types permission.
+- Fix available ticket quantity checks.
+
+## 1.1.7.1 - 2019-12-02
+
+### Fixed
+- Fixed typo. (thanks @samuelbirch).
+
 ## 1.1.7 - 2019-12-02
 
 ### Added

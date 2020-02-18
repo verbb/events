@@ -159,6 +159,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%events_eventtypes_sites}}', 'eventTypeId', '{{%events_eventtypes}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_eventtypes_sites}}', 'siteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
         
+        $this->addForeignKey(null, '{{%events_purchasedtickets}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_purchasedtickets}}', 'eventId', '{{%events_events}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_purchasedtickets}}', 'lineItemId', '{{%commerce_lineitems}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_purchasedtickets}}', 'orderId', '{{%commerce_orders}}', 'id', 'SET NULL', null);

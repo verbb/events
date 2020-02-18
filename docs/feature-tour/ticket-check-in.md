@@ -28,8 +28,19 @@ The controller returns a JSON response. On an **error** the response contains a 
 There are a number of ways you could setup this mechanism, but commonly you could setup a simple form on your website to allow staff at the door to check a customer in. Something similar to the below:
 
 ```twig
+{# Show an error if one exists #}
+{% if message is defined %}
+    {{ message }}
+{% endif %}
+
+{# Show the check-in was successful #}
+{% if success is defined and success %}
+    Success!
+{% endif %}
+
 <form method="post" accept-charset="UTF-8">
     <input type="hidden" name="action" value="events/ticket/checkin">
+    {{ csrfInput() }}
     
     <input type="text" name="sku">
     <input type="submit" value="Check in to event">

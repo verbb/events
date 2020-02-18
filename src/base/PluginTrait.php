@@ -13,6 +13,8 @@ use verbb\events\integrations\klaviyoconnect\KlaviyoConnect;
 
 use Craft;
 
+use verbb\base\BaseHelper;
+
 trait PluginTrait
 {
     // Static Properties
@@ -59,6 +61,20 @@ trait PluginTrait
         return $this->get('ticketTypes');
     }
 
+    public static function log($message)
+    {
+        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'events');
+    }
+
+    public static function error($message)
+    {
+        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'events');
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
     private function _setPluginComponents()
     {
         $this->setComponents([
@@ -70,6 +86,8 @@ trait PluginTrait
             'tickets' => Tickets::class,
             'ticketTypes' => TicketTypes::class,
         ]);
+
+        BaseHelper::registerModule();
     }
 
     private function _setLogging()
@@ -78,16 +96,6 @@ trait PluginTrait
             'logFile' => Craft::getAlias('@storage/logs/events.log'),
             'categories' => ['events'],
         ]);
-    }
-
-    public static function log($message)
-    {
-        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'events');
-    }
-
-    public static function error($message)
-    {
-        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'events');
     }
 
 }

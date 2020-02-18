@@ -2,6 +2,7 @@
 namespace verbb\events\controllers;
 
 use verbb\events\Events;
+use verbb\events\elements\PurchasedTicket;
 
 use Craft;
 use craft\web\Controller;
@@ -46,17 +47,15 @@ class DownloadsController extends Controller
             }
         }
 
-        $attributes = [
-            'orderId' => $order->id,
-        ];
-
         if ($lineItemId) {
             $lineItem = Commerce::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
             $attributes['lineItemId'] = $lineItem->id;
         }
 
-        $purchasedTickets = Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets($attributes);
+        $purchasedTickets = PurchasedTicket::find()
+            ->orderId($order->id)
+            ->all();
 
         $pdf = Events::getInstance()->getPdf()->renderPdf($purchasedTickets, $order, $lineItem, $option);
         $filenameFormat = Events::getInstance()->getSettings()->ticketPdfFilenameFormat;

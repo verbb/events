@@ -4,8 +4,12 @@ namespace verbb\events\elements\db;
 use Craft;
 use craft\base\Element;
 use craft\db\Query;
+use craft\db\Table;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
+
+use craft\commerce\db\Table as CommerceTable;
+use craft\commerce\models\Customer;
 
 use yii\db\Connection;
 
@@ -26,6 +30,7 @@ class TicketQuery extends ElementQuery
     public $event;
     public $hasSales;
     public $hasEvent;
+    public $customerId;
 
     protected $defaultOrderBy = ['events_tickets.sortOrder' => SORT_ASC];
 
@@ -41,6 +46,17 @@ class TicketQuery extends ElementQuery
         }
 
         parent::__construct($elementType, $config);
+    }
+
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'customer':
+                $this->customer($value);
+                break;
+            default:
+                parent::__set($name, $value);
+        }
     }
 
     public function sku($value)
@@ -97,6 +113,23 @@ class TicketQuery extends ElementQuery
         return $this;
     }
 
+    public function customer(Customer $value = null)
+    {
+        if ($value) {
+            $this->customerId = $value->id;
+        } else {
+            $this->customerId = null;
+        }
+
+        return $this;
+    }
+
+    public function customerId($value)
+    {
+        $this->customerId = $value;
+        return $this;
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -133,6 +166,14 @@ class TicketQuery extends ElementQuery
         $this->addWhere('price', 'events_tickets.price');
         $this->addWhere('availableFrom', 'events_tickets.availableFrom');
         $this->addWhere('availableTo', 'events_tickets.availableTo');
+
+        if ($this->customerId) {
+            $this->subQuery->innerJoin(CommerceTable::LINEITEMS . ' lineitems', '[[events_tickets.id]] = [[lineitems.purchasableId]]');
+            $this->subQuery->innerJoin(CommerceTable::ORDERS . ' orders', '[[lineitems.orderId]] = [[orders.id]]');
+            $this->subQuery->andWhere(['=', '[[orders.customerId]]', $this->customerId]);
+            $this->subQuery->andWhere(['=', '[[orders.isCompleted]]', true]);
+            $this->subQuery->groupBy(['events_tickets.id']);
+        }
 
         $this->_applyHasEventParam();
 

@@ -19,6 +19,11 @@ class PurchasedTicketRecord extends ActiveRecord
         return '{{%events_purchasedtickets}}';
     }
 
+    public function getElement(): ActiveQueryInterface
+    {
+        return $this->hasOne(Element::class, ['id' => 'id']);
+    }
+
     public function getEvent(): ActiveQueryInterface
     {
         return $this->hasOne(EventRecord::class, ['id' => 'eventId']);

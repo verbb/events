@@ -12,6 +12,9 @@ use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 
+use craft\commerce\db\Table as CommerceTable;
+use craft\commerce\models\Customer;
+
 use DateTime;
 use yii\db\Connection;
 
@@ -29,6 +32,7 @@ class EventQuery extends ElementQuery
 
     public $before;
     public $after;
+    public $customerId;
 
     protected $defaultOrderBy = ['events_events.startDate' => SORT_ASC];
 
@@ -51,6 +55,9 @@ class EventQuery extends ElementQuery
         switch ($name) {
             case 'type':
                 $this->type($value);
+                break;
+            case 'customer':
+                $this->customer($value);
                 break;
             default:
                 parent::__set($name, $value);
@@ -127,6 +134,23 @@ class EventQuery extends ElementQuery
         return parent::status($value);
     }
 
+    public function customer(Customer $value = null)
+    {
+        if ($value) {
+            $this->customerId = $value->id;
+        } else {
+            $this->customerId = null;
+        }
+
+        return $this;
+    }
+
+    public function customerId($value)
+    {
+        $this->customerId = $value;
+        return $this;
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -176,6 +200,15 @@ class EventQuery extends ElementQuery
 
         if ($this->typeId) {
             $this->subQuery->andWhere(Db::parseParam('events_events.typeId', $this->typeId));
+        }
+
+        if ($this->customerId) {
+            $this->subQuery->innerJoin('{{%events_tickets}} tickets', '[[tickets.eventId]] = [[events_events.id]]');
+            $this->subQuery->innerJoin(CommerceTable::LINEITEMS . ' lineitems', '[[tickets.id]] = [[lineitems.purchasableId]]');
+            $this->subQuery->innerJoin(CommerceTable::ORDERS . ' orders', '[[lineitems.orderId]] = [[orders.id]]');
+            $this->subQuery->andWhere(['=', '[[orders.customerId]]', $this->customerId]);
+            $this->subQuery->andWhere(['=', '[[orders.isCompleted]]', true]);
+            $this->subQuery->groupBy(['events_events.id']);
         }
 
         $this->_applyEditableParam();

@@ -6,19 +6,19 @@
     { label: 'Settings' | t('app'), url: url('events/settings') }
 ] %}
 
-{% set fullPageForm = true %}
-{% set selectedSubnavItem = 'settings' %}
-{% set selectedTab = 'settings' %}
-{% set selectedItem = 'general' %}
-
 {% set navItems = {
     'general': { title: 'General Settings' | t('events') },
     'tickets': { title: 'Tickets' | t('events') },
     'checkin': { title: 'Check-in' | t('events') },
 } %}
 
+{% set selectedSubnavItem = 'settings' %}
+{% set selectedTab = 'settings' %}
+{% set selectedItem = 'general' %}
+{% set fullPageForm = true %}
+
 {% block sidebar %}
-    <nav class="events-settings-tabs" id="tabs">
+    <nav class="events-settings-tabs" data-vui-tabs>
         <ul>
             {% for id, item in navItems %}
                 {% if item.heading is defined %}
@@ -44,8 +44,6 @@
     {% if item.title is defined %}
         <div id="tab-{{ id }}" {% if not loop.first %}class="hidden"{% endif %}>
             <h2>{{ item.title }}</h2>
-
-            <hr>
 
             {% namespace 'settings' %}
                 {% include 'events/settings/_panes/' ~ id ignore missing %}

@@ -1,0 +1,132 @@
+{% extends 'events/_layouts' %}
+{% import '_includes/forms' as forms %}
+
+{% set crumbs = [
+    { label: craft.events.getPluginName() | t('events'), url: url('events') },
+    { label: 'Purchased Tickets' | t('events'), url: url('events/purchased-tickets') },
+] %}
+
+{% set fullPageForm = true %}
+{% set selectedSubnavItem = 'purchasedTickets' %}
+{% set element = purchasedTicket %}
+
+{% block actionButton %}
+    <div id="save-btn-container" class="btngroup submit">
+        <input type="submit" class="btn submit" value="{{ 'Save' | t('app', { type: element.displayName() }) }}">
+        <div class="btn submit menubtn"></div>
+        <div class="menu" data-align="right">
+            <ul>
+                <li>
+                    <a class="formsubmit" data-redirect="{{ '{cpEditUrl}' | hash }}">
+                        {{ forms.optionShortcutLabel('S') }}
+                        {{ "Save and continue editing" | t('app') }}
+                    </a>
+                </li>
+            </ul>
+
+            <hr>
+
+            <ul>
+                <li>
+                    <a class="formsubmit error" data-action="events/purchased-tickets/delete"
+                       data-confirm="{{ 'Are you sure you want to delete this {type}?'|t('app', { type: element.lowerDisplayName() }) }}"
+                       data-redirect="{{ 'events/purchased-tickets' | hash }}">
+                        {{ 'Delete {type}' | t('app', { type: element.lowerDisplayName() }) }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block blockContent %}
+
+<input type="hidden" name="action" value="events/purchased-tickets/save">
+<input type="hidden" name="id" value="{{ purchasedTicket.id }}">
+
+{{ forms.textField({
+    first: true,
+    label: 'Ticket SKU' | t('events'),
+    id: 'ticketSku',
+    name: 'ticketSku',
+    value: purchasedTicket.ticketSku ?? '',
+    errors: purchasedTicket.getErrors('ticketSku') ?? '',
+}) }}
+
+<hr>
+
+<p>
+    <strong>{{ 'Check-in QR Code' | t('events') }}</strong><br>
+
+    <a href="{{ actionUrl('events/ticket/checkin', { sku: purchasedTicket.ticketSku }) }}" target="_blank">
+        {{ 'Check in URL' | t('events') }}
+    </a>
+</p>
+
+<img width="150px" src="{{ purchasedTicket.qrCode }}" />
+
+{% endblock %}
+
+{% block details %}
+
+<div class="meta events-meta">
+    <h5 class="first">{{ "Event" | t('events') }}</h5>
+
+    {% if purchasedTicket.event %}
+        <p>
+            <a class="go" href="{{ purchasedTicket.event.cpEditUrl }}">
+                {{ purchasedTicket.event.title }}
+            </a>
+        </p>
+    {% endif %}
+
+    <hr>
+
+    <h5>{{ 'Ticket' | t('events') }}</h5>
+
+    {% if purchasedTicket.ticket %}
+        <p>
+            <a class="go" href="{{ purchasedTicket.ticket.cpEditUrl }}">
+                {{ purchasedTicket.ticket.title }}
+            </a>
+        </p>
+    {% endif %}
+
+    <hr>
+
+    <h5>{{ 'Order' | t('events') }}</h5>
+
+    {% if purchasedTicket.order %}
+        <p>
+            <a class="go" href="{{ purchasedTicket.order.cpEditUrl }}">
+                {{ purchasedTicket.order.reference }}
+            </a>
+        </p>
+    {% endif %}
+
+    <hr>
+
+    <h5>{{ 'Checked In' | t('events') }}</h5>
+
+    <p>
+        <span class="status {{ purchasedTicket.checkedIn ? 'live' : 'disabled' }}"></span>
+    </p>
+
+    <h5>{{ 'Checked In Date' | t('events') }}</h5>
+
+    {% if purchasedTicket.checkedInDate %}
+        <p>{{ purchasedTicket.checkedInDate | date('short') }} {{ purchasedTicket.checkedInDate | time('short') }}</p>
+    {% else %}
+        <p>-</p>
+    {% endif %}
+
+    <hr>
+
+    <h5>{{ 'Created Date' | t('events') }}</h5>
+    <p>{{ purchasedTicket.dateCreated | date('short') }} {{ purchasedTicket.dateCreated | time('short') }}</p>
+
+    <h5>{{ 'Updated Date' | t('events') }}</h5>
+    <p>{{ purchasedTicket.dateUpdated | date('short') }} {{ purchasedTicket.dateUpdated | time('short') }}</p>
+</div>
+
+{% endblock %}

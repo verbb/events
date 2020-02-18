@@ -16,11 +16,15 @@ See [Ticket Queries](docs:getting-elements/ticket-queries)
 
 ### `craft.events.purchasedTickets()`
 
-Returns all purchased tickets based on the provided criteria. See [Purchased Ticket](docs:developers/purchased-ticket)
+Returns all purchased tickets based on the provided criteria. See [Purchased Ticket](docs:getting-elements/purchased-ticket-queries)
 
 ### `craft.events.isTicket(lineItem)`
 
 Returns whether a provided Line Item object is a ticket or not.
+
+### `craft.events.hasTicket(order)`
+
+Returns if there is at least one ticket in the provided order.
 
 ### `craft.events.getPdfUrl(lineItem)`
 

@@ -3,8 +3,10 @@ namespace verbb\events\variables;
 
 use verbb\events\Events;
 use verbb\events\elements\db\EventQuery;
+use verbb\events\elements\db\PurchasedTicketQuery;
 use verbb\events\elements\db\TicketQuery;
 use verbb\events\elements\Event;
+use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Ticket;
 
 use Craft;
@@ -78,9 +80,15 @@ class EventsVariable
         return $query;
     }
 
-    public function purchasedTickets(array $criteria = [])
+    public function purchasedTickets($criteria = null): PurchasedTicketQuery
     {
-        return Events::$plugin->getPurchasedTickets()->getAllPurchasedTickets($criteria);
+        $query = PurchasedTicket::find();
+
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+
+        return $query;
     }
 
     public function availableTickets($eventId)
@@ -93,6 +101,19 @@ class EventsVariable
     {
         if ($lineItem->purchasable) {
             return (bool)(get_class($lineItem->purchasable) === Ticket::class);
+        }
+
+        return false;
+    }
+
+    public function hasTicket(Order $order)
+    {
+        if ($order) {
+            foreach ($order->lineItems as $lineItem) {
+                if ($this->isTicket($lineItem)) {
+                    return true;
+                }
+            }
         }
 
         return false;

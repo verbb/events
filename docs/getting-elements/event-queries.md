@@ -25,7 +25,7 @@ See Introduction to [Element Queries](https://docs.craftcms.com/v3/dev/element-q
 We can display events for a given type by doing the following:
 
 1. Create an event query with `craft.events.events()`.
-2. Set the [type](#type) an [limit](#limit) parameters on it.
+2. Set the [type](#type) and [limit](#limit) parameters on it.
 3. Fetch all events with `.all()` and output.
 4. Loop through the events using a [for](https://twig.symfony.com/doc/2.x/tags/for.html) tag to output the contents.
 
@@ -182,6 +182,28 @@ $events = \verbb\events\elements\Event::find()
     ->before($firstDayOfMonth)
     ->all();
 ```
+:::
+
+
+
+### `customer`
+
+Narrows the query results to only events that have been purchased by a customer.
+
+::: code
+```twig
+{# Fetch events that have been purchased by a customer #}
+{% set events = craft.events.events()
+    .customer(craft.commerce.getCart().customer)
+    .all() %}
+```
+
+```php
+// Fetch events that have been purchased by a customer
+$events = \verbb\events\elements\Event::find()
+    ->customer($customer)
+    ->all();
+````
 :::
 
 

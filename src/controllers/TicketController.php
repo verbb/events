@@ -2,6 +2,7 @@
 namespace verbb\events\controllers;
 
 use verbb\events\Events;
+use verbb\events\elements\PurchasedTicket;
 
 use Craft;
 use craft\web\Controller;
@@ -31,11 +32,11 @@ class TicketController extends Controller
             ]);
         }
 
-        $purchasedTicket = Events::$plugin->getPurchasedTickets()->getPurchasedTicket([
-            'ticketSku' => $sku,
-        ]);
+        $purchasedTicket = PurchasedTicket::find()
+            ->ticketSku($sku)
+            ->one();
 
-        if (!$purchasedTicket->id) {
+        if (!$purchasedTicket) {
             return $this->_handleResponse([
                 'success' => false,
                 'message' => Craft::t('events', 'Could not find ticket SKU.'),
