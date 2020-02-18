@@ -349,7 +349,7 @@ class Ticket extends Purchasable
 
         // If we've specifically not set a quantity on the ticket, treat it like unlimited
         if ($this->quantity === null) {
-            return PHP_INT_MAX;
+            return $this->event->getAvailableCapacity();
         }
 
         return $this->quantity;
