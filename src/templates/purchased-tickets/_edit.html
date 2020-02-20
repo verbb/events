@@ -10,6 +10,16 @@
 {% set selectedSubnavItem = 'purchasedTickets' %}
 {% set element = purchasedTicket %}
 
+{% set selectedTab = 'ticketDetailsTab' %}
+{% set tabs = {
+	ticketDetailsTab: { label: 'Details' | t('events'), url: '#ticketDetailsTab' },
+} %}
+{% for tab in fieldLayout.getTabs() %}
+	{% set tabs = tabs|merge({
+		("tab"~loop.index) : { label: tab.name | t('events'), url: '#tab'~loop.index }
+	}) %}
+{% endfor %}
+
 {% block actionButton %}
     <div id="save-btn-container" class="btngroup submit">
         <input type="submit" class="btn submit" value="{{ 'Save' | t('app', { type: element.displayName() }) }}">
@@ -44,6 +54,7 @@
 <input type="hidden" name="action" value="events/purchased-tickets/save">
 <input type="hidden" name="id" value="{{ purchasedTicket.id }}">
 
+<div id="ticketDetailsTab">
 {{ forms.textField({
     first: true,
     label: 'Ticket SKU' | t('events'),
@@ -64,6 +75,16 @@
 </p>
 
 <img width="150px" src="{{ purchasedTicket.qrCode }}" />
+</div>
+
+{% for tab in fieldLayout.getTabs() %}
+    <div id="tab{{ loop.index }}" class="hidden">
+        {% include "_includes/fields" with {
+            fields: tab.getFields(),
+            element: purchasedTicket,
+        } only %}
+    </div>
+{% endfor %}
 
 {% endblock %}
 
@@ -109,7 +130,18 @@
     <h5>{{ 'Checked In' | t('events') }}</h5>
 
     <p>
-        <span class="status {{ purchasedTicket.checkedIn ? 'live' : 'disabled' }}"></span>
+        <span class="status {{ purchasedTicket.checkedIn ? 'live' : 'disabled' }}"></span> 
+		{% if purchasedTicket.checkedIn %}
+			<a class="formsubmit btn small" data-action="events/purchased-tickets/uncheckin"
+				data-redirect="{{ 'events/purchased-tickets' | hash }}">
+				{{ 'Un-Check in' | t('events') }}
+			</a>
+		{% else %}
+			<a class="formsubmit btn small" data-action="events/purchased-tickets/checkin"
+				data-redirect="{{ 'events/purchased-tickets' | hash }}">
+				{{ 'Check in' | t('events') }}
+			</a>
+		{% endif %}
     </p>
 
     <h5>{{ 'Checked In Date' | t('events') }}</h5>
