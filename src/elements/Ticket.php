@@ -291,11 +291,11 @@ class Ticket extends Purchasable
 
     public function getIsEditable(): bool
     {
-        $event = $this->getEvent();
+        /*$event = $this->getEvent();
 
         if ($event) {
             return $event->getIsEditable();
-        }
+        }*/
 
         return false;
     }
