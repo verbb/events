@@ -34,5 +34,17 @@ class PurchasedTickets extends Component
         $record->checkedInDate = $purchasedTicket->checkedInDate;
 
         $record->save(false);
+	}
+	
+	public function unCheckInPurchasedTicket(PurchasedTicket $purchasedTicket)
+    {
+        $purchasedTicket->checkedIn = false;
+        $purchasedTicket->checkedInDate = null;
+
+        $record = PurchasedTicketRecord::findOne($purchasedTicket->id);
+        $record->checkedIn = $purchasedTicket->checkedIn;
+        $record->checkedInDate = $purchasedTicket->checkedInDate;
+
+        $record->save(false);
     }
 }
