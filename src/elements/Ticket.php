@@ -472,7 +472,9 @@ class Ticket extends Purchasable
             $purchasedTicket->ticketId = $this->id;
             $purchasedTicket->orderId = $order->id;
             $purchasedTicket->lineItemId = $lineItem->id;
-            $purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
+			$purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
+			
+			$purchasedTicket->setFieldValues($this->getFieldValues());
 
             $elementsService->saveElement($purchasedTicket, false);
         }
