@@ -59,7 +59,9 @@ class PurchasedTicketsController extends Controller
             $variables['title'] = $variables['purchasedTicket']->ticketSku;
         } else {
             $variables['title'] = Craft::t('events', 'Create a Purchased Ticket');
-        }
+		}
+		
+		$variables['fieldLayout'] = $variables['purchasedTicket']->getFieldLayout();
         
         return $this->renderTemplate('events/purchased-tickets/_edit', $variables);
     }
