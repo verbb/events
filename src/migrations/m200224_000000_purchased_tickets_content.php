@@ -28,7 +28,7 @@ class m200224_000000_purchased_tickets_content extends Migration
                 continue;
             }
 
-            $fieldLayout = Craft::$app->getFields()->getLayoutByType(get_class($ticket));
+            $fieldLayout = $ticket->getFieldLayout();
 
             if (!$fieldLayout) {
                 continue;
