@@ -67,8 +67,9 @@ class PurchasedTicket extends Element
         foreach ($eventElements as $element) {
 			if ($element['name'] != $type) {
 				$type = $element['name'];
-				$sources[] = ['heading' => Craft::t('events', $element['name'].' Events')];
+				$sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $element['name']])];
 			}
+
             $sources['elements:' . $element['eventId']] = [
                 'key' => 'elements:' . $element['eventId'],
                 'label' => $element['title'],
