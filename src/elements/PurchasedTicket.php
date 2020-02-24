@@ -227,7 +227,7 @@ class PurchasedTicket extends Element
 	public function getFieldLayout()
     {   
         if ($ticket = $this->getTicket()) {
-            return Craft::$app->getFields()->getLayoutByType(get_class($ticket));
+            return $ticket->getFieldLayout();
         }
 
         return null;
