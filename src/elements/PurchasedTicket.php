@@ -53,21 +53,21 @@ class PurchasedTicket extends Element
         ]];
 
         $eventElements = (new Query())
-            ->select(['elements.id', 'purchasedtickets.eventId', 'content.title', 'eventtypes.name'])
+            ->select(['elements.id', 'purchasedtickets.eventId', 'content.title', 'eventtypes.name as eventTypeName'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
 			->innerJoin('{{%events_purchasedtickets}} purchasedtickets', '[[purchasedtickets.eventId]] = [[elements.id]]')
 			->innerJoin('{{%events_events}} events', '[[purchasedtickets.eventId]] = [[events.id]]')
 			->innerJoin('{{%events_eventtypes}} eventtypes', '[[events.typeId]] = [[eventtypes.id]]')
-            ->groupBy(['typeId', 'eventId', 'title', 'elements.id'])
+            ->groupBy(['typeId', 'eventId', 'eventTypeName', 'title', 'elements.id'])
             ->all();
 
 		$type = null;
 
         foreach ($eventElements as $element) {
-			if ($element['name'] != $type) {
-				$type = $element['name'];
-				$sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $element['name']])];
+			if ($element['eventTypeName'] != $type) {
+				$type = $element['eventTypeName'];
+				$sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $element['eventTypeName']])];
 			}
 
             $sources['elements:' . $element['eventId']] = [
