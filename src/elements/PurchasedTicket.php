@@ -4,6 +4,7 @@ namespace verbb\events\elements;
 use verbb\events\Events;
 use verbb\events\elements\db\PurchasedTicketQuery;
 use verbb\events\records\PurchasedTicketRecord;
+use verbb\events\elements\actions\Checkin;
 
 use Craft;
 use craft\base\Element;
@@ -27,7 +28,17 @@ class PurchasedTicket extends Element
     public static function displayName(): string
     {
         return Craft::t('events', 'Purchased Ticket');
+	}
+	
+	public static function refHandle()
+    {
+        return 'purchasedTicket';
     }
+	
+	public static function hasContent(): bool
+    {
+        return true;
+	}
 
     public static function find(): ElementQueryInterface
     {
@@ -42,16 +53,22 @@ class PurchasedTicket extends Element
         ]];
 
         $eventElements = (new Query())
-            ->select(['elements.id', 'purchasedtickets.eventId', 'content.title'])
+            ->select(['elements.id', 'purchasedtickets.eventId', 'content.title', 'eventtypes.name'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
-            ->innerJoin('{{%events_purchasedtickets}} purchasedtickets', '[[purchasedtickets.eventId]] = [[elements.id]]')
-            ->groupBy(['eventId', 'title', 'elements.id'])
+			->innerJoin('{{%events_purchasedtickets}} purchasedtickets', '[[purchasedtickets.eventId]] = [[elements.id]]')
+			->innerJoin('{{%events_events}} events', '[[purchasedtickets.eventId]] = [[events.id]]')
+			->innerJoin('{{%events_eventtypes}} eventtypes', '[[events.typeId]] = [[eventtypes.id]]')
+            ->groupBy(['typeId', 'eventId', 'title', 'elements.id'])
             ->all();
 
-        $sources[] = ['heading' => Craft::t('events', 'Events')];
+		$type = null;
 
         foreach ($eventElements as $element) {
+			if ($element['name'] != $type) {
+				$type = $element['name'];
+				$sources[] = ['heading' => Craft::t('events', $element['name'].' Events')];
+			}
             $sources['elements:' . $element['eventId']] = [
                 'key' => 'elements:' . $element['eventId'],
                 'label' => $element['title'],
@@ -204,7 +221,16 @@ class PurchasedTicket extends Element
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('events/purchased-tickets/' . $this->id);
-    }
+	}
+	
+	public function getFieldLayout()
+    {   
+        if ($ticket = $this->getTicket()) {
+            return Craft::$app->getFields()->getLayoutByType(get_class($ticket));
+        }
+
+        return null;
+	}
 
     public function getEvent()
     {

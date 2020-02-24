@@ -59,7 +59,9 @@ class PurchasedTicketsController extends Controller
             $variables['title'] = $variables['purchasedTicket']->ticketSku;
         } else {
             $variables['title'] = Craft::t('events', 'Create a Purchased Ticket');
-        }
+		}
+		
+		$variables['fieldLayout'] = $variables['purchasedTicket']->getFieldLayout();
         
         return $this->renderTemplate('events/purchased-tickets/_edit', $variables);
     }
@@ -129,5 +131,41 @@ class PurchasedTicketsController extends Controller
         Craft::$app->getSession()->setNotice(Craft::t('events', 'Purchased ticket deleted.'));
 
         return $this->redirectToPostedUrl($purchasedTicket);
-    }
+	}
+	
+	public function actionCheckin()
+	{
+		$this->requirePostRequest();
+
+		$purchasedTicketId = Craft::$app->getRequest()->getRequiredParam('id');
+		$purchasedTicket = PurchasedTicket::findOne($purchasedTicketId);
+		
+		if (!$purchasedTicket) {
+            throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
+        }
+
+		Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket);
+
+		Craft::$app->getSession()->setNotice(Craft::t('events', 'Ticket checked in.'));
+
+        return $this->redirectToPostedUrl($purchasedTicket);
+	}
+
+	public function actionUncheckin()
+	{
+		$this->requirePostRequest();
+
+		$purchasedTicketId = Craft::$app->getRequest()->getRequiredParam('id');
+		$purchasedTicket = PurchasedTicket::findOne($purchasedTicketId);
+		
+		if (!$purchasedTicket) {
+            throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
+        }
+
+		Events::$plugin->getPurchasedTickets()->unCheckInPurchasedTicket($purchasedTicket);
+
+		Craft::$app->getSession()->setNotice(Craft::t('events', 'Ticket un-checked in.'));
+
+        return $this->redirectToPostedUrl($purchasedTicket);
+	}
 }

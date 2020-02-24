@@ -291,11 +291,11 @@ class Ticket extends Purchasable
 
     public function getIsEditable(): bool
     {
-        $event = $this->getEvent();
+        /*$event = $this->getEvent();
 
         if ($event) {
             return $event->getIsEditable();
-        }
+        }*/
 
         return false;
     }
@@ -472,7 +472,9 @@ class Ticket extends Purchasable
             $purchasedTicket->ticketId = $this->id;
             $purchasedTicket->orderId = $order->id;
             $purchasedTicket->lineItemId = $lineItem->id;
-            $purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
+			$purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
+			
+			$purchasedTicket->setFieldValues($this->getFieldValues());
 
             $elementsService->saveElement($purchasedTicket, false);
         }
