@@ -109,6 +109,10 @@ class PurchasedTicket extends Element
             'eventId' => Craft::t('events', 'Event'),
             'ticketId' => Craft::t('events', 'Ticket'),
             'orderId' => Craft::t('events', 'Order'),
+            'customer' => Craft::t('events', 'Customer'),
+            'customerFirstName' => Craft::t('events', 'Customer First Name'),
+            'customerLastName' => Craft::t('events', 'Customer Last Name'),
+            'customerFullName' => Craft::t('events', 'Customer Full Name'),
             'checkedIn' => Craft::t('events', 'Checked In?'),
             'checkedInDate' => Craft::t('events', 'Checked In Date'),
             'dateCreated' => Craft::t('events', 'Date Created'),
@@ -158,6 +162,40 @@ class PurchasedTicket extends Element
                     return Craft::t('events', '[Deleted order]');
                 }
             }
+            case 'customer': {
+                if ($customer = $this->getCustomer()) {
+                    return (string)$customer;
+                }
+
+                return '';
+            }
+            case 'customerFirstName': {
+                if ($customer = $this->getCustomer()) {
+                    if ($customer->user) {
+                        return $customer->user->firstName;
+                    }
+                }
+
+                return Craft::t('events', '[Guest]');
+            }
+            case 'customerLastName': {
+                if ($customer = $this->getCustomer()) {
+                    if ($customer->user) {
+                        return $customer->user->lastName;
+                    }
+                }
+
+                return Craft::t('events', '[Guest]');
+            }
+            case 'customerFullName': {
+                if ($customer = $this->getCustomer()) {
+                    if ($customer->user) {
+                        return $customer->user->fullName;
+                    }
+                }
+
+                return Craft::t('events', '[Guest]');
+            }
             case 'checkedIn': {
                 return '<span class="status ' . ($this->checkedIn ? 'live' : 'disabled') . '"></span>';
             }
@@ -196,6 +234,7 @@ class PurchasedTicket extends Element
     private $_ticket;
     private $_order;
     private $_lineItem;
+    private $_customer;
 
 
     // Public Methods
@@ -275,6 +314,19 @@ class PurchasedTicket extends Element
 
         if ($this->lineItemId) {
             return $this->_lineItem = Commerce::getInstance()->getLineItems()->getLineItemById($this->lineItemId);
+        }
+
+        return null;
+    }
+
+    public function getCustomer()
+    {
+        if ($this->_customer) {
+            return $this->_customer;
+        }
+
+        if ($order = $this->getOrder()) {
+            return $this->_customer = $order->getCustomer();
         }
 
         return null;
