@@ -1,6 +1,11 @@
 # Changelog
 
-## 1.4.0 - 2020-02-02
+## 1.4.1 - 2020-02-06
+
+### Fixed
+- Fix purchased ticket custom fields in element index.
+
+## 1.4.0 - 2020-02-25
 
 ### Added 
 - Add un-checkin function for purchased tickets. (thanks @samuelbirch).
