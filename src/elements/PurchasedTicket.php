@@ -94,35 +94,30 @@ class PurchasedTicket extends Element
     protected static function defineSortOptions(): array
     {
         return [
-            'ticketSku' => Craft::t('app', 'Ticket SKU'),
-            'checkedIn' => Craft::t('app', 'Checked In?'),
-            'checkedInDate' => Craft::t('app', 'Checked In Date'),
-            'dateCreated' => Craft::t('app', 'Date Created'),
-            'dateUpdated' => Craft::t('app', 'Date Updated'),
+            'ticketSku' => Craft::t('events', 'Ticket SKU'),
+            'checkedIn' => Craft::t('events', 'Checked In?'),
+            'checkedInDate' => Craft::t('events', 'Checked In Date'),
+            'dateCreated' => Craft::t('events', 'Date Created'),
+            'dateUpdated' => Craft::t('events', 'Date Updated'),
         ];
     }
 
     protected static function defineTableAttributes(): array
     {
         return [
-            'ticketSku' => Craft::t('app', 'Ticket SKU'),
-            'eventId' => Craft::t('app', 'Event'),
-            'ticketId' => Craft::t('app', 'Ticket'),
-            'orderId' => Craft::t('app', 'Order'),
-            'checkedIn' => Craft::t('app', 'Checked In?'),
-            'checkedInDate' => Craft::t('app', 'Checked In Date'),
-            'dateCreated' => Craft::t('app', 'Date Created'),
-            'dateUpdated' => Craft::t('app', 'Date Updated'),
+            'ticketSku' => Craft::t('events', 'Ticket SKU'),
+            'eventId' => Craft::t('events', 'Event'),
+            'ticketId' => Craft::t('events', 'Ticket'),
+            'orderId' => Craft::t('events', 'Order'),
+            'checkedIn' => Craft::t('events', 'Checked In?'),
+            'checkedInDate' => Craft::t('events', 'Checked In Date'),
+            'dateCreated' => Craft::t('events', 'Date Created'),
+            'dateUpdated' => Craft::t('events', 'Date Updated'),
         ];
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = [];
-
-        $attributes[] = 'ticketSku';
-        $attributes[] = 'expiryDate';
-
         return [
             'ticketSku',
             'eventId',
