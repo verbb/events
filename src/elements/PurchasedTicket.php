@@ -104,7 +104,7 @@ class PurchasedTicket extends Element
 
     protected static function defineTableAttributes(): array
     {
-        return [
+        $attributes = [
             'ticketSku' => Craft::t('events', 'Ticket SKU'),
             'eventId' => Craft::t('events', 'Event'),
             'ticketId' => Craft::t('events', 'Ticket'),
@@ -118,6 +118,13 @@ class PurchasedTicket extends Element
             'dateCreated' => Craft::t('events', 'Date Created'),
             'dateUpdated' => Craft::t('events', 'Date Updated'),
         ];
+
+        // Include ticket custom fields
+        foreach (Craft::$app->elementIndexes->getAvailableTableFields(Ticket::class) as $field) {
+            $attributes['field:' . $field->id] = ['label' => Craft::t('site', $field->name)];
+        }
+
+        return $attributes;
     }
 
     protected static function defineDefaultTableAttributes(string $source): array

@@ -38,8 +38,6 @@ use yii\base\Event;
 use fostercommerce\klaviyoconnect\services\Track;
 use fostercommerce\klaviyoconnect\models\EventProperties;
 
-use craft\services\ElementIndexes;
-
 class Events extends Plugin
 {
     // Public Properties
@@ -252,11 +250,6 @@ class Events extends Plugin
                 throw new \Exception('Events required Commerce to be installed.');
             }
         });
-
-        // Allow modification of the element index for a purchased ticket, so we can use the ticket's custom fields
-        if (defined(ElementIndexes::class . '::EVENT_MODIFY_AVAILABLE_TABLE_ATTRIBUTES')) {
-            Event::on(ElementIndexes::class, ElementIndexes::EVENT_MODIFY_AVAILABLE_TABLE_ATTRIBUTES, [$this->getPurchasedTickets(), 'modifyAvailableTableAttributes']);
-        }
     }
 
     private function _registerThirdPartyEventListeners()

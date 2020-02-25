@@ -49,30 +49,4 @@ class PurchasedTickets extends Component
 
         $record->save(false);
     }
-    
-    public function modifyAvailableTableAttributes(ElementIndexAvailableTableAttributesEvent $event)
-    {
-        if ($event->elementType !== PurchasedTicket::class) {
-            return;
-        }
-
-        $attributes = $event->elementType::tableAttributes();
-        $elementIndexesService = Craft::$app->getElementIndexes();
-
-        foreach ($attributes as $key => $info) {
-            if (!is_array($info)) {
-                $attributes[$key] = ['label' => $info];
-            } else if (!isset($info['label'])) {
-                $attributes[$key]['label'] = '';
-            }
-        }
-
-        // Mix in custom fields
-        foreach ($elementIndexesService->getAvailableTableFields(Ticket::class) as $field) {
-            /** @var Field $field */
-            $attributes['field:' . $field->id] = ['label' => Craft::t('site', $field->name)];
-        }
-
-        $event->attributes = $attributes;
-    }
 }
