@@ -2,10 +2,12 @@
 namespace verbb\events\services;
 
 use verbb\events\elements\PurchasedTicket;
+use verbb\events\elements\Ticket;
 use verbb\events\records\PurchasedTicketRecord;
 
 use Craft;
 use craft\db\Query;
+use craft\events\ElementIndexAvailableTableAttributesEvent;
 use craft\events\SiteEvent;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;

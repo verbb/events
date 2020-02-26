@@ -474,7 +474,18 @@ class Ticket extends Purchasable
             $purchasedTicket->lineItemId = $lineItem->id;
 			$purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
 			
+            // Set the field values from the ticket (handle defaults, and values set on the ticket)
 			$purchasedTicket->setFieldValues($this->getFieldValues());
+
+            // But also allow overriding through the line item options
+            foreach ($lineItem->options as $option => $value) {
+                // Just catch any errors when trying to set attributes that aren't field handles
+                try {
+                    $purchasedTicket->setFieldValue($option, $value);
+                } catch (\Throwable $e) {
+                    continue;
+                }
+            }
 
             $elementsService->saveElement($purchasedTicket, false);
         }

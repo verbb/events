@@ -53,22 +53,23 @@ class PurchasedTicket extends Element
         ]];
 
         $eventElements = (new Query())
-            ->select(['elements.id', 'purchasedtickets.eventId', 'content.title', 'eventtypes.name'])
+            ->select(['elements.id', 'purchasedtickets.eventId', 'content.title', 'eventtypes.name as eventTypeName'])
             ->from(['{{%elements}} elements'])
             ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
 			->innerJoin('{{%events_purchasedtickets}} purchasedtickets', '[[purchasedtickets.eventId]] = [[elements.id]]')
 			->innerJoin('{{%events_events}} events', '[[purchasedtickets.eventId]] = [[events.id]]')
 			->innerJoin('{{%events_eventtypes}} eventtypes', '[[events.typeId]] = [[eventtypes.id]]')
-            ->groupBy(['typeId', 'eventId', 'title', 'elements.id'])
+            ->groupBy(['typeId', 'eventId', 'eventTypeName', 'title', 'elements.id'])
             ->all();
 
 		$type = null;
 
         foreach ($eventElements as $element) {
-			if ($element['name'] != $type) {
-				$type = $element['name'];
-				$sources[] = ['heading' => Craft::t('events', $element['name'].' Events')];
+			if ($element['eventTypeName'] != $type) {
+				$type = $element['eventTypeName'];
+				$sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $element['eventTypeName']])];
 			}
+
             $sources['elements:' . $element['eventId']] = [
                 'key' => 'elements:' . $element['eventId'],
                 'label' => $element['title'],
@@ -93,35 +94,41 @@ class PurchasedTicket extends Element
     protected static function defineSortOptions(): array
     {
         return [
-            'ticketSku' => Craft::t('app', 'Ticket SKU'),
-            'checkedIn' => Craft::t('app', 'Checked In?'),
-            'checkedInDate' => Craft::t('app', 'Checked In Date'),
-            'dateCreated' => Craft::t('app', 'Date Created'),
-            'dateUpdated' => Craft::t('app', 'Date Updated'),
+            'ticketSku' => Craft::t('events', 'Ticket SKU'),
+            'checkedIn' => Craft::t('events', 'Checked In?'),
+            'checkedInDate' => Craft::t('events', 'Checked In Date'),
+            'dateCreated' => Craft::t('events', 'Date Created'),
+            'dateUpdated' => Craft::t('events', 'Date Updated'),
         ];
     }
 
     protected static function defineTableAttributes(): array
     {
-        return [
-            'ticketSku' => Craft::t('app', 'Ticket SKU'),
-            'eventId' => Craft::t('app', 'Event'),
-            'ticketId' => Craft::t('app', 'Ticket'),
-            'orderId' => Craft::t('app', 'Order'),
-            'checkedIn' => Craft::t('app', 'Checked In?'),
-            'checkedInDate' => Craft::t('app', 'Checked In Date'),
-            'dateCreated' => Craft::t('app', 'Date Created'),
-            'dateUpdated' => Craft::t('app', 'Date Updated'),
+        $attributes = [
+            'ticketSku' => Craft::t('events', 'Ticket SKU'),
+            'eventId' => Craft::t('events', 'Event'),
+            'ticketId' => Craft::t('events', 'Ticket'),
+            'orderId' => Craft::t('events', 'Order'),
+            'customer' => Craft::t('events', 'Customer'),
+            'customerFirstName' => Craft::t('events', 'Customer First Name'),
+            'customerLastName' => Craft::t('events', 'Customer Last Name'),
+            'customerFullName' => Craft::t('events', 'Customer Full Name'),
+            'checkedIn' => Craft::t('events', 'Checked In?'),
+            'checkedInDate' => Craft::t('events', 'Checked In Date'),
+            'dateCreated' => Craft::t('events', 'Date Created'),
+            'dateUpdated' => Craft::t('events', 'Date Updated'),
         ];
+
+        // Include ticket custom fields
+        foreach (Craft::$app->elementIndexes->getAvailableTableFields(Ticket::class) as $field) {
+            $attributes['field:' . $field->id] = ['label' => Craft::t('site', $field->name)];
+        }
+
+        return $attributes;
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = [];
-
-        $attributes[] = 'ticketSku';
-        $attributes[] = 'expiryDate';
-
         return [
             'ticketSku',
             'eventId',
@@ -162,6 +169,40 @@ class PurchasedTicket extends Element
                     return Craft::t('events', '[Deleted order]');
                 }
             }
+            case 'customer': {
+                if ($customer = $this->getCustomer()) {
+                    return (string)$customer;
+                }
+
+                return '';
+            }
+            case 'customerFirstName': {
+                if ($customer = $this->getCustomer()) {
+                    if ($customer->user) {
+                        return $customer->user->firstName;
+                    }
+                }
+
+                return Craft::t('events', '[Guest]');
+            }
+            case 'customerLastName': {
+                if ($customer = $this->getCustomer()) {
+                    if ($customer->user) {
+                        return $customer->user->lastName;
+                    }
+                }
+
+                return Craft::t('events', '[Guest]');
+            }
+            case 'customerFullName': {
+                if ($customer = $this->getCustomer()) {
+                    if ($customer->user) {
+                        return $customer->user->fullName;
+                    }
+                }
+
+                return Craft::t('events', '[Guest]');
+            }
             case 'checkedIn': {
                 return '<span class="status ' . ($this->checkedIn ? 'live' : 'disabled') . '"></span>';
             }
@@ -200,6 +241,7 @@ class PurchasedTicket extends Element
     private $_ticket;
     private $_order;
     private $_lineItem;
+    private $_customer;
 
 
     // Public Methods
@@ -226,7 +268,7 @@ class PurchasedTicket extends Element
 	public function getFieldLayout()
     {   
         if ($ticket = $this->getTicket()) {
-            return Craft::$app->getFields()->getLayoutByType(get_class($ticket));
+            return $ticket->getFieldLayout();
         }
 
         return null;
@@ -279,6 +321,19 @@ class PurchasedTicket extends Element
 
         if ($this->lineItemId) {
             return $this->_lineItem = Commerce::getInstance()->getLineItems()->getLineItemById($this->lineItemId);
+        }
+
+        return null;
+    }
+
+    public function getCustomer()
+    {
+        if ($this->_customer) {
+            return $this->_customer;
+        }
+
+        if ($order = $this->getOrder()) {
+            return $this->_customer = $order->getCustomer();
         }
 
         return null;

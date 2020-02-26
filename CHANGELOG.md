@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.4.1 - 2020-02-06
+
+### Fixed
+- Fix purchased ticket custom fields in element index.
+
+## 1.4.0 - 2020-02-25
+
+### Added 
+- Add un-checkin function for purchased tickets. (thanks @samuelbirch).
+- Add custom fields to purchased tickets (inherited from the ticket's type). (thanks @samuelbirch).
+- Add controller action for manual purchased ticket checkin or un-checkin. (thanks @samuelbirch).
+- Add checkin/un-checkin button on the purchased ticket detail page. (thanks @samuelbirch).
+- Add checkin action to the purchased ticket index page. (thanks @samuelbirch).
+- Upon checkout completion, if a line item option matches the handle of a custom field on a purchased ticket, it'll now push that value onto the custom field. This means you won't have to dive through line item options from now on, instead accessing that info on a purchased ticket element.
+- Add customer email and name to purchased ticket element index table, for viewing event attendees.
+
+### Changed
+- Update ticket `availableCapacity` to return the events availableCapacity if not quantity is not set. (thanks @samuelbirch).
+- Tickets are un-editable by default. (thanks @samuelbirch).
+- Purchased tickets are now grouped by their event type in the control panel. (thanks @samuelbirch).
+
+### Fixed
+- Fix some translations in the CP not being to the Events plugin's scope.
+- Fix minor style issue for meta sidebar for purchased tickets
+
 ## 1.3.2 - 2020-02-02
 
 ### Fixed

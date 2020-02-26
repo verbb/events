@@ -26,7 +26,6 @@ class TicketController extends Controller
 		$sku = Craft::$app->request->getParam('sku');
 		
 		if (Craft::$app->getUser()->checkPermission('events-managePurchasedTickets')) {
-
 			if (!$sku) {
 				return $this->_handleResponse([
 					'success' => false,
@@ -58,7 +57,6 @@ class TicketController extends Controller
 				'success' => true,
 				'purchasedTicket' => $purchasedTicket,
 			]);
-			
 		}
 
 		return $this->_handleResponse([
@@ -86,6 +84,7 @@ class TicketController extends Controller
 			} else {
 				Craft::$app->getSession()->setError(Craft::t('events', $variables['message']));	
 			}
+
 			return $this->redirect('events/purchased-tickets');
 		}
 
