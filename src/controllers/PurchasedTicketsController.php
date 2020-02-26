@@ -81,7 +81,9 @@ class PurchasedTicketsController extends Controller
         }
 
         $purchasedTicket->id = $purchasedTicketId;
-        $purchasedTicket->ticketSku = $request->getParam('ticketSku');
+		$purchasedTicket->ticketSku = $request->getParam('ticketSku');
+		
+		$purchasedTicket->setFieldValuesFromRequest('fields');
 
         // Save it
         if (!Craft::$app->getElements()->saveElement($purchasedTicket)) {
