@@ -84,11 +84,15 @@ class Ticket extends Purchasable
             'defaultSort' => ['postDate', 'desc'],
         ]];
 
-        $sources[] = ['heading' => Craft::t('events', 'Events')];
-
         $events = Event::find()->all();
+		
+		$type = null;
 
         foreach ($events as $event) {
+			if ($event->type->name != $type) {
+				$type = $event->type->name;
+				$sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $event->type->name])];
+			}
             $key = 'event:' . $event->id;
 
             $sources[] = [
