@@ -22,6 +22,10 @@ class m200224_000000_purchased_tickets_content extends Migration
             ->all();
 
         foreach ($purchasedTickets as $purchasedTicket) {
+            if (!$purchasedTicket['ticketId']) {
+                continue;
+            }
+
             $ticket = Events::$plugin->getTickets()->getTicketById($purchasedTicket['ticketId']);
 
             if (!$ticket) {
