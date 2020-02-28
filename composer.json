@@ -26,7 +26,7 @@
     ],
     "require": {
         "craftcms/cms": "^3.4.0",
-        "craftcms/commerce": "^3.0.0",
+        "craftcms/commerce": "^2.0.0",
         "verbb/base": "^1.0.0",
         "endroid/qr-code": "^2.0.0"
     },
