@@ -1,6 +1,11 @@
 # Changelog
 
-## 1.4.1 - 2020-02-06
+## 1.4.2 - 2020-02-28
+
+### Fixed
+- Fix fatal migration error.
+
+## 1.4.1 - 2020-02-26
 
 ### Fixed
 - Fix purchased ticket custom fields in element index.
