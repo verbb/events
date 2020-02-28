@@ -1,6 +1,15 @@
 # Changelog
 
-## 1.4.1 - 2020-02-06
+## 1.4.2 - 2020-02-28
+
+### Changed
+- Updated ticket element sources to match that of purchased tickets. (thanks @samuelbirch).
+
+### Fixed
+- Fix fatal migration error.
+- Fix saving of custom fields for a purchased ticket. (thanks @samuelbirch).
+
+## 1.4.1 - 2020-02-26
 
 ### Fixed
 - Fix purchased ticket custom fields in element index.
