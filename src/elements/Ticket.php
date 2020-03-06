@@ -479,7 +479,7 @@ class Ticket extends Purchasable
 			$purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
 			
             // Set the field values from the ticket (handle defaults, and values set on the ticket)
-			$purchasedTicket->setFieldValues($this->getFieldValues());
+			$purchasedTicket->setFieldValues($this->getSerializedFieldValues());
 
             // But also allow overriding through the line item options
             foreach ($lineItem->options as $option => $value) {
