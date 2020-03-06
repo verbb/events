@@ -248,7 +248,9 @@ class Event extends Element
 
                         $ticket->addError('typeIds', Craft::t('events', 'Ticket type must be set.'));
                     } else if (!$ticket->validate()) {
-                        $this->addError('tickets', Craft::t('events', 'Ticket type must be set.'));
+                        $error = $ticket->getErrors()[0] ?? 'An error occured';
+                        
+                        $this->addError('tickets', Craft::t('events', $error));
                     }
                 }
             }
