@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.3 - 2020-03-06
+
+### Fixed
+- When generating purchased tickets use serialized field values so that elements etc get regenerated. (thanks @joshangell).
+- Fix incorrect error from failed ticket validation.
+
 ## 1.4.2 - 2020-02-28
 
 ### Changed
