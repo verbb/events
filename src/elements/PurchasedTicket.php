@@ -355,7 +355,7 @@ class PurchasedTicket extends Element
         $ticket = $this->getTicket();
 
         if ($ticket) {
-            return $ticket->getTicketType();
+            return $ticket->getType();
         }
 
         return null;
