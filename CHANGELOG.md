@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.4 - 2020-03-16
+
+### Fixed
+- Allows getting the ticket download via the purchasedTicket id. (thanks @samuelbirch).
+- Use existing `ticketSku` if not passed when saving purchasedTicket. (thanks @samuelbirch).
+- Fix error in `purchasedTicket->getTicketType()`. (thanks @samuelbirch).
+
 ## 1.4.3 - 2020-03-06
 
 ### Fixed
