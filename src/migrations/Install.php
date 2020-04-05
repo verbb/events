@@ -23,6 +23,7 @@ class Install extends Migration
     {
         $this->dropForeignKeys();
         $this->dropTables();
+        $this->dropProjectConfig();
 
         return true;
     }
@@ -183,5 +184,10 @@ class Install extends Migration
         MigrationHelper::dropAllForeignKeysOnTable('{{%events_purchasedtickets}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%events_tickets}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%events_tickettypes}}', $this);
+    }
+
+    public function dropProjectConfig()
+    {
+        Craft::$app->projectConfig->remove('events');
     }
 }
