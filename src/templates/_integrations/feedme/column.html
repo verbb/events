@@ -1,0 +1,3 @@
+{% set type = craft.events.getEventTypeById(feed.elementGroup[elementType]) %}
+
+{{ type.name ?? '' }}

@@ -54,6 +54,11 @@ class EventsVariable
         return Events::$plugin->getTicketTypes()->getEditableTicketTypes();
     }
 
+    public function getEventTypeById($id)
+    {
+        return Events::$plugin->getEventTypes()->getEventTypeById($id);
+    }
+
     public function events($criteria = null): EventQuery
     {
         $query = Event::find();

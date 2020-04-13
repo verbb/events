@@ -8,6 +8,7 @@ use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
 use verbb\events\helpers\ProjectConfigData;
 use verbb\events\fields\Events as EventsField;
+use verbb\events\integrations\feedme\Event as FeedMeEvent;
 use verbb\events\models\Settings;
 use verbb\events\services\EventTypes;
 use verbb\events\variables\EventsVariable;
@@ -37,6 +38,9 @@ use yii\base\Event;
 
 use fostercommerce\klaviyoconnect\services\Track;
 use fostercommerce\klaviyoconnect\models\EventProperties;
+
+use craft\feedme\events\RegisterFeedMeElementsEvent;
+use craft\feedme\services\Elements as FeedMeElements;
 
 class Events extends Plugin
 {
@@ -256,6 +260,13 @@ class Events extends Plugin
     {
         if (class_exists(Track::class)) {
             Event::on(Track::class, Track::ADD_LINE_ITEM_CUSTOM_PROPERTIES, [$this->getKlaviyoConnect(), 'addLineItemCustomProperties']);
+        }
+
+        // Support Feed Me
+        if (class_exists(FeedMeElements::class)) {
+            Event::on(FeedMeElements::class, FeedMeElements::EVENT_REGISTER_FEED_ME_ELEMENTS, function(RegisterFeedMeElementsEvent $e) {
+                $e->elements[] = FeedMeEvent::class;
+            });
         }
     }
 
