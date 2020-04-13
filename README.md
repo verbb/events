@@ -13,6 +13,7 @@ A full-featured event management and ticketing plugin for Craft Commerce. Sell t
 - Ticket types to manage custom fields and different ticketing needs.
 - Intelligent capacity management - set how many tickets are available per-event, or per-ticket.
 - Generate PDF tickets, complete with QR codes for scanning at the venu.
+- Works with either Commerce **Lite** or **Pro**.
 
 ## Documentation
 
