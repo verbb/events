@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.5 - 2020-04-14
+
+### Added
+- Add Feed Me support for importing events.
+- Add ICS support. See [docs](https://verbb.io/craft-plugins/events/docs/template-guides/ics-exporting).
+
+### Fixed
+- Only allow editing of event/ticket types if editable.
+- Ensure plugin project config is removed when uninstalling.
+
 ## 1.4.4 - 2020-03-16
 
 ### Fixed
