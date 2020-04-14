@@ -202,6 +202,9 @@ class EventTypes extends Component
             'titleLabel' => $eventType->titleLabel,
             'titleFormat' => $eventType->titleFormat,
             'hasTickets' => $eventType->hasTickets,
+            'icsTimezone' => $eventType->icsTimezone,
+            'icsDescriptionFieldHandle' => $eventType->icsDescriptionFieldHandle,
+            'icsLocationFieldHandle' => $eventType->icsLocationFieldHandle,
             'siteSettings' => []
         ];
 
@@ -280,6 +283,9 @@ class EventTypes extends Component
             $eventTypeRecord->titleLabel = $data['titleLabel'];
             $eventTypeRecord->titleFormat = $data['titleFormat'];
             $eventTypeRecord->hasTickets = $data['hasTickets'];
+            $eventTypeRecord->icsTimezone = $data['icsTimezone'];
+            $eventTypeRecord->icsDescriptionFieldHandle = $data['icsDescriptionFieldHandle'];
+            $eventTypeRecord->icsLocationFieldHandle = $data['icsLocationFieldHandle'];
 
             if (!empty($data['eventFieldLayouts']) && !empty($config = reset($data['eventFieldLayouts']))) {
                 // Save the main field layout
@@ -630,6 +636,9 @@ class EventTypes extends Component
                 'eventTypes.titleLabel',
                 'eventTypes.titleFormat',
                 'eventTypes.hasTickets',
+                'eventTypes.icsTimezone',
+                'eventTypes.icsDescriptionFieldHandle',
+                'eventTypes.icsLocationFieldHandle',
                 'eventTypes.uid',
             ])
             ->from(['{{%events_eventtypes}} eventTypes']);

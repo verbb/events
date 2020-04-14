@@ -27,6 +27,9 @@ class EventType extends Model
     public $titleLabel = 'Title';
     public $titleFormat;
     public $hasTickets = true;
+    public $icsTimezone;
+    public $icsDescriptionFieldHandle;
+    public $icsLocationFieldHandle;
     public $uid;
 
     private $_siteSettings;
@@ -125,5 +128,21 @@ class EventType extends Model
     {
         $behavior = $this->getBehavior('eventFieldLayout');
         return $behavior->getFieldLayout();
+    }
+
+    public function getEventFieldHandles()
+    {
+        $fieldList = [[
+            'label' => Craft::t('events', 'None'),
+            'value' => '',
+        ]];
+
+        if ($this->getFieldLayout()) {
+            foreach ($this->getFieldLayout()->getFields() as $field) {
+                $fieldList[$field->handle] = $field->name;
+            }
+        }
+
+        return $fieldList;
     }
 }

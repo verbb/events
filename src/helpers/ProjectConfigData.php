@@ -34,6 +34,9 @@ class ProjectConfigData
                 'titleLabel',
                 'titleFormat',
                 'hasTickets',
+                'icsTimezone',
+                'icsDescriptionFieldHandle',
+                'icsLocationFieldHandle',
                 'uid'
             ])
             ->from(['{{%events_eventtypes}} eventTypes'])

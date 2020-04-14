@@ -24,6 +24,8 @@ use craft\commerce\Plugin as Commerce;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
+use Jsvrcek\ICS\Model\CalendarEvent;
+
 class Event extends Element
 {
     // Constants
@@ -486,6 +488,56 @@ class Event extends Element
             $this->title = Craft::$app->getView()->renderObjectTemplate($eventType->titleFormat, $this);
             Craft::$app->language = $language;
         }
+    }
+
+    public function getIcsUrl()
+    {
+        return UrlHelper::actionUrl('events/ics', [ 'eventId' => $this->id ]);
+    }
+
+    public function getIcsEvent()
+    {
+        $eventType = $this->getType();
+
+        $description = $this->title;
+        $location = '';
+
+        $descriptionFieldHandle = $eventType->icsDescriptionFieldHandle;
+        $locationFieldHandle = $eventType->icsLocationFieldHandle;
+
+        // See if we need to override the timezone for events
+        $icsTimezone = $eventType->icsTimezone ?? '';
+
+        if ($icsTimezone == '') {
+            $startDate = $this->startDate;
+            $endDate = $this->endDate;
+        } else {
+            $timezone = new \DateTimeZone($icsTimezone);
+
+            $startDate = $this->startDate->setTimeZone($timezone);
+            $endDate = $this->endDate->setTimeZone($timezone);
+        }
+
+        $event = (new CalendarEvent())
+            ->setStart($startDate)
+            ->setEnd($endDate)
+            ->setCreated($this->dateCreated)
+            ->setLastModified($this->dateUpdated)
+            ->setSummary($this->title)
+            ->setAllDay($this->allDay)
+            ->setStatus($this->status)
+            ->setUrl($this->url)
+            ->setUid($this->uid);
+
+        if ($descriptionFieldHandle && isset($this->{$descriptionFieldHandle})) {
+            $event->setDescription($this->{$descriptionFieldHandle});
+        }
+
+        if ($locationFieldHandle && isset($this->{$locationFieldHandle})) {
+            $event->setLocation($this->{$locationFieldHandle});
+        }
+
+        return $event;
     }
 
 

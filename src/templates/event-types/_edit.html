@@ -177,6 +177,36 @@
             staticRows: true,
             errors: siteErrors | unique
         }) }}
+
+        <hr>
+
+        {{ forms.selectField({
+            label: 'Forced ICS Event Timezone' | t('events'),
+            instructions: 'Choose a timezone that will be forced upon exported ICS event dates.' | t('events'),
+            name: 'icsTimezone',
+            value: eventType.icsTimezone,
+            options: timezoneOptions,
+        }) }}
+
+        {{ forms.selectField({
+            label: 'ICS Description Field' | t('events'),
+            instructions: 'Set the field to be used for event description when exporting ICS file.' | t('events'),
+            id: 'icsDescriptionFieldHandle',
+            name: 'icsDescriptionFieldHandle',
+            options: eventType.getEventFieldHandles(),
+            value: eventType.icsDescriptionFieldHandle,
+            errors: eventType.getErrors('icsDescriptionFieldHandle'),
+        }) }}
+
+        {{ forms.selectField({
+            label: 'ICS Location Field' | t('events'),
+            instructions: 'Set the field to be used for event location when exporting ICS file.' | t('events'),
+            id: 'icsLocationFieldHandle',
+            name: 'icsLocationFieldHandle',
+            options: eventType.getEventFieldHandles(),
+            value: eventType.icsLocationFieldHandle,
+            errors: eventType.getErrors('icsLocationFieldHandle'),
+        }) }}
     </div>
 
     <div id="event-fields" class="hidden">
