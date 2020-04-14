@@ -28,3 +28,4 @@ Method | Description
 `getCpEditUrl()` | The url to edit this event in the control panel.
 `getTickets()` | A list of event's [Ticket's](docs:developers/ticket)
 `getAvailableTickets()` | A list of event's available [Ticket's](docs:developers/ticket) for sale. These take into account the 'Available To/From' fields for each ticket, along with ticket capacity and sales.
+`getIcsUrl()` | Returns a URL to the ICS for a single event.

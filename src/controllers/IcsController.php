@@ -30,26 +30,36 @@ class IcsController extends Controller
 
         $eventId = $request->getParam('eventId');
         $event = Event::find()->id($eventId)->endDate(null)->one();
-        $icsEvent = $event->getIcsEvent();
 
-        // Set the overall timezone to UTC. Individual events take care of timezone
-        $timezone = new \DateTimeZone('UTC');
-
-        $calendar = new Calendar();
-        $calendar->setProdId('-//Verbb//Events//EN')
-            ->setTimezone($timezone)
-            ->addEvent($icsEvent);
-
-        $calendarExport = new CalendarExport(new CalendarStream, new Formatter());
-        $calendarExport->addCalendar($calendar);
-
-        $exportString = $calendarExport->getStream();
+        $exportString = Events::$plugin->getIcs()->getCalendar([$event]);
 
         header('Content-type: text/calendar; charset=utf-8');
         header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Pragma: public');
         header('Content-Length: ' . strlen($exportString));
+        header('Content-Disposition: attachment; filename=' . time() . '.ics');
+
+        echo $exportString;
+
+        exit();
+    }
+
+    public function actionEventType()
+    {
+        $request = Craft::$app->getRequest();
+
+        $typeId = $request->getParam('typeId');
+        $events = Event::find()->typeId($typeId)->endDate(null)->all();
+
+        $exportString = Events::$plugin->getIcs()->getCalendar($events);
+
+        header('Content-type: text/calendar; charset=utf-8');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
+        header('Content-Length: ' . strlen($exportString));
+        header('Content-Disposition: attachment; filename=' . time() . '.ics');
 
         echo $exportString;
 

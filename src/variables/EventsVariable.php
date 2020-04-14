@@ -59,6 +59,11 @@ class EventsVariable
         return Events::$plugin->getEventTypes()->getEventTypeById($id);
     }
 
+    public function getEventTypeByHandle($handle)
+    {
+        return Events::$plugin->getEventTypes()->getEventTypeByHandle($handle);
+    }
+
     public function events($criteria = null): EventQuery
     {
         $query = Event::find();
@@ -138,5 +143,10 @@ class EventsVariable
     public function getOrderPdfUrl(Order $order)
     {
         return Events::$plugin->getPdf()->getPdfUrl($order);
+    }
+
+    public function getIcsFeed($events)
+    {
+        return Events::$plugin->getIcs()->getCalendar($events);
     }
 }

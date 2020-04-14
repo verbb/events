@@ -4,6 +4,7 @@ namespace verbb\events\base;
 use verbb\events\Events;
 use verbb\events\services\Events as EventsService;
 use verbb\events\services\EventTypes;
+use verbb\events\services\Ics;
 use verbb\events\services\Pdf;
 use verbb\events\services\PurchasedTickets;
 use verbb\events\services\Tickets;
@@ -34,6 +35,11 @@ trait PluginTrait
     public function getEventTypes()
     {
         return $this->get('eventTypes');
+    }
+
+    public function getIcs()
+    {
+        return $this->get('ics');
     }
 
     public function getKlaviyoConnect()
@@ -80,6 +86,7 @@ trait PluginTrait
         $this->setComponents([
             'events' => EventsService::class,
             'eventTypes' => EventTypes::class,
+            'ics' => Ics::class,
             'klaviyoConnect' => KlaviyoConnect::class,
             'pdf' => Pdf::class,
             'purchasedTickets' => PurchasedTickets::class,

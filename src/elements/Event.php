@@ -492,11 +492,15 @@ class Event extends Element
 
     public function getIcsUrl()
     {
-        return UrlHelper::actionUrl('events/ics', [ 'eventId' => $this->id ]);
+        return UrlHelper::actionUrl('events/ics', ['eventId' => $this->id]);
     }
 
     public function getIcsEvent()
     {
+        if (!$this->startDate || !$this->endDate) {
+            return;
+        }
+
         $eventType = $this->getType();
 
         $description = $this->title;

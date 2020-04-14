@@ -145,4 +145,9 @@ class EventType extends Model
 
         return $fieldList;
     }
+
+    public function getIcsUrl()
+    {
+        return UrlHelper::actionUrl('events/ics/event-type', ['typeId' => $this->id]);
+    }
 }
