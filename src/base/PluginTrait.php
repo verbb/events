@@ -99,10 +99,7 @@ trait PluginTrait
 
     private function _setLogging()
     {
-        Craft::getLogger()->dispatcher->targets[] = new FileTarget([
-            'logFile' => Craft::getAlias('@storage/logs/events.log'),
-            'categories' => ['events'],
-        ]);
+        BaseHelper::setFileLogging('events');
     }
 
 }
