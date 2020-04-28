@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.8 - 2020-04-28
+
+### Fixed
+- Fix typo for Feed Me mapping.
+
 ## 1.4.7 - 2020-04-16
 
 ### Fixed
