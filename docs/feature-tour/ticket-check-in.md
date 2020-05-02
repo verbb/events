@@ -26,6 +26,7 @@ The returned response (JSON or template) will provide the following variables:
 
 - `success`: Contains the string "Ticket checked in.".
 - `checkedInDate`: The check in date in [DATE\_ATOM](http://php.net/manual/en/class.datetime.php#datetime.constants.atom) format.
+- `purchasedTicket`: If successful, a [Purchased Ticket](docs:developers/purchased-ticket).
 
 ### Custom Template
 
