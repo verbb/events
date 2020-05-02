@@ -9,7 +9,7 @@ Additionally, if producing a PDF template using our example, a QR code will be g
 Visit the following action URL in your templates:
 
 ```
-actions/events/ticket/checkin?sku={exampleSku}<sku>
+actions/events/ticket/checkin?sku=<sku>
 ```
 
 ### Parameter
