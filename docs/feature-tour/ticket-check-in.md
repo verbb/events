@@ -6,10 +6,10 @@ Events provides a simple controller action endpoint for you to trigger. This wil
 
 Additionally, if producing a PDF template using our example, a QR code will be generated. This code is the full URL to this action endpoint.
 
-Simply trigger the following action URL in your templates:
+Visit the following action URL in your templates:
 
 ```
-actions/events/ticket/checkin?sku=<sku>
+actions/events/ticket/checkin?sku={exampleSku}<sku>
 ```
 
 ### Parameter
@@ -18,14 +18,45 @@ actions/events/ticket/checkin?sku=<sku>
 
 ### Return
 
-The controller returns a JSON response. On an **error** the response contains a simple error message. On **success** the response contains following:
+The controller will render a simple template with either an error, or a success message. An **error** the response contains a simple error message. On **success** the response contains following:
+
+If making the request via Ajax, a JSON response will be returned.
+
+The returned response (JSON or template) will provide the following variables:
 
 - `success`: Contains the string "Ticket checked in.".
 - `checkedInDate`: The check in date in [DATE\_ATOM](http://php.net/manual/en/class.datetime.php#datetime.constants.atom) format.
 
-### Example Form
+### Custom Template
 
-There are a number of ways you could setup this mechanism, but commonly you could setup a simple form on your website to allow staff at the door to check a customer in. Something similar to the below:
+The template returned by this controller can be changed to a custom one of your choosing. Use ths [checkinTemplate](https://verbb.io/craft-plugins/events/docs/get-started/configuration) config variable. In this instance, you could provide a template to show the appropriate response in a way that suits your site.
+
+An example of this template could be the following:
+
+```twig
+<html>
+<head>
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="p-4">
+
+{% if not success %}
+    <div role="alert" class="border px-4 py-3 rounded bg-red-100 border-red-400 text-red-700">
+        {{ message }}
+    </div>
+{% else %}
+    <div role="alert" class="border px-4 py-3 rounded bg-green-100 border-green-400 text-green-500">
+        Success! Checked in at {{ purchasedTicket.checkedInDate | date('short') }}
+    </div>
+{% endif %}
+
+</body>
+</html>
+```
+
+### Example Checkin Form
+
+In addition to the QR code in PDF tickets, you can also setup a form on your site to check a ticket in.
 
 ```twig
 {# Show an error if one exists #}
