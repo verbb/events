@@ -78,7 +78,7 @@ class TicketController extends Controller
 		
 		$user = Craft::$app->getUser();
 		
-		if ($user->checkPermission('accessCp') && $user->checkPermission('accessCpWhenSystemIsOff') && $user->checkPermission('events-managePurchasedTickets')) {
+        if (Craft::$app->getRequest()->getIsCpRequest() && $user->checkPermission('accessCp') && $user->checkPermission('accessCpWhenSystemIsOff') && $user->checkPermission('events-managePurchasedTickets')) {
 			if ($variables['success']) {
 				Craft::$app->getSession()->setNotice(Craft::t('events', 'Ticket checked in.'));
 			} else {
@@ -86,7 +86,7 @@ class TicketController extends Controller
 			}
 
 			return $this->redirect('events/purchased-tickets');
-		}
+        }
 
         $oldMode = Craft::$app->view->getTemplateMode();
         $templateMode = View::TEMPLATE_MODE_CP;
