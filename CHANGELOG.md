@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.9 - 2020-05-05
+
+### Fixed
+- Fix checkin controller redirecting incorrectly.
+- Fix site dropdown redirecting incorrectly for events.
+
 ## 1.4.8 - 2020-04-28
 
 ### Fixed
