@@ -78,13 +78,13 @@
 
                     <li>
                         {% if siteId == event.siteId %}
-                            <a class="sel">
+                            <a class="sel" data-site-id="{{ siteId }}">
                                 <div class="status {{ status }}"></div>{{ site.name | t('site') }}
                             </a>
                         {% else %}
-                            {% set url = url('events/events/#{eventTypeHandle}/#{craft.app.request.getSegment(4)}/#{site.handle}') %}
+                            {% set url = url("events/events/#{eventTypeHandle}/#{craft.app.request.getSegment(4)}/#{site.handle}") %}
 
-                            <a href="{{ url }}">
+                            <a href="{{ url }}" data-site-id="{{ siteId }}">
                                 <div class="status {{ status }}"></div>{{ site.name | t('site') }}
                             </a>
                         {% endif %}
