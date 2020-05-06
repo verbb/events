@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2 - 2020-05-06
+
+### Fixed
+- Fix site dropdown redirecting incorrectly for events.
+
 ## 1.2.1 - 2020-01-18
 
 ### Added
