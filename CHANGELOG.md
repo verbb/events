@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.2 - 2020-05-10
+## 1.2.3 - 2020-05-10
 
 ### Fixed
 - Fix saving event content in the incorrect site.
