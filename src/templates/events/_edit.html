@@ -99,7 +99,14 @@
     <input type="hidden" name="action" value="events/events/save">
     {{ redirectInput('events/events') }}
     <input type="hidden" name="typeId" value="{{ eventType.id }}">
-    {% if event.id %}<input type="hidden" name="eventId" value="{{ event.id }}">{% endif %}
+    
+    {% if event.id %}
+        <input type="hidden" name="eventId" value="{{ event.id }}">
+    {% endif %}
+
+    {% if craft.app.getIsMultiSite() %}
+        <input type="hidden" name="siteId" value="{{ event.siteId }}">
+    {% endif %}
 
     <div id="fields">
         {% if eventType.hasTitleField or event.hasErrors('title') %}
