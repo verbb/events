@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.10 - 2020-05-10
+
+### Fixed
+- Fix saving event content in the incorrect site.
+
 ## 1.4.9 - 2020-05-05
 
 ### Fixed
