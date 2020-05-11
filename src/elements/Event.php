@@ -661,22 +661,15 @@ class Event extends Element
     public function afterRestore()
     {
         // Also restore any tickets for this element
-        $elementsService = Craft::$app->getElements();
+        $tickets = Ticket::find()
+            ->anyStatus()
+            ->siteId($this->siteId)
+            ->eventId($this->id)
+            ->trashed()
+            ->andWhere(['events_tickets.deletedWithEvent' => true])
+            ->all();
 
-        foreach (ElementHelper::supportedSitesForElement($this) as $siteInfo) {
-            $tickets = Ticket::find()
-                ->anyStatus()
-                ->siteId($siteInfo['siteId'])
-                ->eventId($this->id)
-                ->trashed()
-                ->andWhere(['events_tickets.deletedWithEvent' => true])
-                ->all();
-
-            foreach ($tickets as $ticket) {
-                $elementsService->restoreElement($ticket);
-            }
-        }
-
+        Craft::$app->getElements()->restoreElements($tickets);
         $this->setTickets($tickets);
 
         parent::afterRestore();
