@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.4 - 2020-05-11
+
+### Fixed
+- Fix tickets not being site-aware.
+
 ## 1.2.3 - 2020-05-10
 
 ### Fixed
