@@ -228,13 +228,15 @@
 
                     {% for purchasedTicket in purchasedTickets %}
                         {% set count = 0 %}
-                        {% set key = purchasedTicket.ticket.type.title %}
+                        {% set key = purchasedTicket.ticket.type.title ?? '' %}
 
-                        {% if purchasedTicketsSummary[key] is defined %}
-                            {% set count = purchasedTicketsSummary[key] %}
+                        {% if key %}
+                            {% if purchasedTicketsSummary[key] is defined %}
+                                {% set count = purchasedTicketsSummary[key] %}
+                            {% endif %}
+
+                            {% set purchasedTicketsSummary = purchasedTicketsSummary | merge({ (key): count + 1 }) %}
                         {% endif %}
-
-                        {% set purchasedTicketsSummary = purchasedTicketsSummary | merge({ (key): count + 1 }) %}
                     {% endfor %}
 
                     {% if purchasedTickets | length %}
