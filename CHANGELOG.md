@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.11 - 2020-05-14
+
+### Fixed
+- Fix tickets not being site-aware.
+- Fix potential error for purchased tickets with no ticket.
+
 ## 1.4.10 - 2020-05-10
 
 ### Fixed
