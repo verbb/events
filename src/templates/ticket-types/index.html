@@ -10,12 +10,8 @@
     { label: 'Ticket Types' | t('events'), url: url('events/ticket-types') },
 ] %}
 
-{% set editable = craft.app.config.general.allowAdminChanges %}
-
 {% block actionButton %}
-    {% if editable %}
-        <a href="{{ url('events/ticket-types/new') }}" class="btn submit add icon">{{ 'New ticket type' | t('events') }}</a>
-    {% endif %}
+    <a href="{{ url('events/ticket-types/new') }}" class="btn submit add icon">{{ 'New ticket type' | t('events') }}</a>
 {% endblock %}
 
 {% block blockContent %}
@@ -28,9 +24,8 @@
     {% set tableData = tableData | merge([{
         id: type.id,
         title: type.name | t('site'),
-        url: editable ? type.cpEditUrl : '',
+        url: type.cpEditUrl,
         handle: type.handle | e,
-        _showDelete: editable,
     }]) %}
 {% endfor %}
 
