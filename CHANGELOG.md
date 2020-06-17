@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.12 - 2020-06-17
+
+### Fixed
+- Allow `ticketTypes` to be edited with `allowAdminChanges` set to false.
+
 ## 1.4.11 - 2020-05-14
 
 ### Fixed
