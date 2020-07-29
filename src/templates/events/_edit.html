@@ -12,23 +12,54 @@
 {% import '_includes/forms' as forms %}
 
 {% block header %}
-    {{ block('pageTitle') }}
-    {{ block('contextMenu') }}
-    <div class="flex-grow"></div>
+    <div class="flex flex-nowrap">
+        {{ block('pageTitle') }}
+        {{ block('contextMenu') }}
+    </div>
 
-    {% if showPreviewBtn or shareUrl is defined %}
-        {% if showPreviewBtn %}
-            <div class="btn livepreviewbtn">{{ 'Live Preview' | t('app') }}</div>
+    <div class="flex">
+        {% if showPreviewBtn or shareUrl is defined %}
+            <div class="btngroup">
+                {% if showPreviewBtn %}
+                    <div id="preview-btn" class="btn livepreviewbtn">{{ 'Preview' | t('app') }}</div>
+                {% endif %}
+
+                {% if shareUrl is defined %}
+                    <a id="share-btn" href="{{ shareUrl }}" class="btn sharebtn" target="_blank">{{ 'Share' | t('app') }}</a>
+                {% endif %}
+            </div>
         {% endif %}
 
-        {% if shareUrl is defined %}
-            <a href="{{ shareUrl }}" class="btn sharebtn" target="_blank">{{ 'Share' | t('app') }}</a>
-        {% endif %}
+        {{ block('actionButton') }}
+    </div>
+{% endblock %}
 
-        <div class="flex-grow"></div>
+{% block contextMenu %}
+    {% if craft.app.getIsMultiSite() %}
+        <div class="btn menubtn sitemenubtn" data-icon="world">{{ event.site.name | t('site') }}</div>
+        <div class="menu">
+            <ul class="padded">
+                {% for siteId in siteIds %}
+                    {% set site = craft.app.sites.getSiteById(siteId) %}
+                    {% set status = siteId in enabledSiteIds ? 'enabled' : 'disabled' %}
+
+                    <li>
+                        {% if siteId == event.siteId %}
+                            <a class="sel" data-site-id="{{ siteId }}">
+                                <div class="status {{ status }}"></div>{{ site.name | t('site') }}
+                            </a>
+                        {% else %}
+                            {% set url = url("events/events/#{eventTypeHandle}/#{craft.app.request.getSegment(4)}/#{site.handle}") %}
+
+                            <a href="{{ url }}" data-site-id="{{ siteId }}">
+                                <div class="status {{ status }}"></div>{{ site.name | t('site') }}
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     {% endif %}
-
-    {{ block('actionButton') }}
 {% endblock %}
 
 {% block actionButton %}
@@ -67,38 +98,10 @@
     </div>
 {% endblock %}
 
-{% block contextMenu %}
-    {% if craft.app.getIsMultiSite() %}
-        <div class="btn menubtn" data-icon="world">{{ event.site.name | t('site') }}</div>
-        <div class="menu">
-            <ul class="padded">
-                {% for siteId in siteIds %}
-                    {% set site = craft.app.sites.getSiteById(siteId) %}
-                    {% set status = siteId in enabledSiteIds ? 'enabled' : 'disabled' %}
-
-                    <li>
-                        {% if siteId == event.siteId %}
-                            <a class="sel" data-site-id="{{ siteId }}">
-                                <div class="status {{ status }}"></div>{{ site.name | t('site') }}
-                            </a>
-                        {% else %}
-                            {% set url = url("events/events/#{eventTypeHandle}/#{craft.app.request.getSegment(4)}/#{site.handle}") %}
-
-                            <a href="{{ url }}" data-site-id="{{ siteId }}">
-                                <div class="status {{ status }}"></div>{{ site.name | t('site') }}
-                            </a>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-{% endblock %}
-
 {% block content %}
     <input type="hidden" name="action" value="events/events/save">
-    {{ redirectInput('events/events') }}
     <input type="hidden" name="typeId" value="{{ eventType.id }}">
+    {{ redirectInput('events/events') }}
     
     {% if event.id %}
         <input type="hidden" name="eventId" value="{{ event.id }}">
@@ -332,8 +335,6 @@
     <hr>
 
     {% if event.id %}
-        <hr>
-
         <div class="meta read-only">
             <div class="data">
                 <h5 class="heading">{{ 'Date Created' | t('app') }}</h5>
