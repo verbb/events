@@ -25,12 +25,6 @@ use yii\web\ServerErrorHttpException;
 
 class EventsController extends Controller
 {
-    // Properties
-    // =========================================================================
-
-    protected $allowAnonymous = ['view-shared-event'];
-
-
     // Public Methods
     // =========================================================================
 
