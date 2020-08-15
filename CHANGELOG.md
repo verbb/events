@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.13 - 2020-08-15
+
+### Fixed
+- Fix migration error in Postgres.
+
 ## 1.4.12 - 2020-06-17
 
 ### Fixed
