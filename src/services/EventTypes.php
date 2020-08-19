@@ -283,9 +283,9 @@ class EventTypes extends Component
             $eventTypeRecord->titleLabel = $data['titleLabel'];
             $eventTypeRecord->titleFormat = $data['titleFormat'];
             $eventTypeRecord->hasTickets = $data['hasTickets'];
-            $eventTypeRecord->icsTimezone = $data['icsTimezone'];
-            $eventTypeRecord->icsDescriptionFieldHandle = $data['icsDescriptionFieldHandle'];
-            $eventTypeRecord->icsLocationFieldHandle = $data['icsLocationFieldHandle'];
+            $eventTypeRecord->icsTimezone = $data['icsTimezone'] ?? null;
+            $eventTypeRecord->icsDescriptionFieldHandle = $data['icsDescriptionFieldHandle'] ?? null;
+            $eventTypeRecord->icsLocationFieldHandle = $data['icsLocationFieldHandle'] ?? null;
 
             if (!empty($data['eventFieldLayouts']) && !empty($config = reset($data['eventFieldLayouts']))) {
                 // Save the main field layout
