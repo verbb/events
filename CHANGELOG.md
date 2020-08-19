@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.14 - 2020-08-20
+
+### Fixed
+- Fix migration error for older installs where event types had not re-saved to populate ICS settings.
+
 ## 1.4.13 - 2020-08-15
 
 ### Fixed
