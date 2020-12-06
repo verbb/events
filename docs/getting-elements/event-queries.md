@@ -194,7 +194,7 @@ Narrows the query results to only events that have been purchased by a customer.
 ```twig
 {# Fetch events that have been purchased by a customer #}
 {% set events = craft.events.events()
-    .customer(craft.commerce.getCart().customer)
+    .customer(craft.commerce.getCarts().getCart().customer)
     .all() %}
 ```
 

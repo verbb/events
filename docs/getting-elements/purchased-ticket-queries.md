@@ -80,7 +80,7 @@ Narrows the query results to only purchased tickets that have been purchased by 
 ```twig
 {# Fetch purchased tickets that have been purchased by a customer #}
 {% set purchasedTickets = craft.events.purchasedTickets()
-    .customer(craft.commerce.getCart().customer)
+    .customer(craft.commerce.getCarts().getCart().customer)
     .all() %}
 ```
 
