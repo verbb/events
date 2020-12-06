@@ -44,6 +44,21 @@ class Event extends Element
         return Craft::t('events', 'Event');
     }
 
+    public static function lowerDisplayName(): string
+    {
+        return Craft::t('events', 'event');
+    }
+
+    public static function pluralDisplayName(): string
+    {
+        return Craft::t('events', 'Events');
+    }
+
+    public static function pluralLowerDisplayName(): string
+    {
+        return Craft::t('events', 'events');
+    }
+
     public static function refHandle()
     {
         return 'event';
