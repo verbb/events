@@ -63,6 +63,8 @@
 {% endblock %}
 
 {% block actionButton %}
+    {% hook "events.edit.actionbutton" %}
+
     <div class="btngroup">
         <input type="submit" class="btn submit" value="{{ 'Save' | t('app') }}">
         <div class="btn submit menubtn"></div>
@@ -347,4 +349,6 @@
             </div>
         </div>
     {% endif %}
+
+    {% hook "events.edit.details" %}
 {% endblock %}
