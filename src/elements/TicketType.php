@@ -32,6 +32,11 @@ class TicketType extends Element
         return Craft::t('events', 'Ticket Type');
     }
 
+    public static function pluralDisplayName(): string
+    {
+        return Craft::t('events', 'Ticket Types');
+    }
+
     public static function hasTitles(): bool
     {
         return true;

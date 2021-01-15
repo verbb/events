@@ -30,6 +30,11 @@ class PurchasedTicket extends Element
     {
         return Craft::t('events', 'Purchased Ticket');
 	}
+
+    public static function pluralDisplayName(): string
+    {
+        return Craft::t('events', 'Purchased Tickets');
+    }
 	
 	public static function refHandle()
     {
