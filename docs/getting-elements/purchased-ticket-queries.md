@@ -455,6 +455,68 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 
+### `ticketType`
+
+Narrows the query results based on the purchased tickets ticket type.
+
+Possible values include:
+
+| Value | Fetches purchased tickets…
+| - | -
+| `'foo'` | of a ticket type with a handle of `foo`.
+| `'not foo'` | not of a ticket type with a handle of `foo`.
+| `['foo', 'bar']` | of a ticket type with a handle of `foo` or `bar`.
+| `['not', 'foo', 'bar']` | not of a ticket type with a handle of `foo` or `bar`.
+
+::: code
+```twig
+{# Fetch purchased tickets for a ticket type #}
+{% set purchasedTickets = craft.events.purchasedTickets()
+    .ticketType('adult')
+    .all() %}
+```
+
+```php
+// Fetch purchased tickets for a ticket
+$purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
+    ->ticketType('adult')
+    ->all();
+```
+:::
+
+
+
+### `typeId`
+
+Narrows the query results based on the purchased tickets ticket type IDs.
+
+Possible values include:
+
+| Value | Fetches purchased tickets…
+| - | -
+| `1` | of a ticket type with an ID of 1.
+| `'not 1'` | not of a ticket type with an ID of 1.
+| `[1, 2]` | of a ticket type with an ID of 1 or 2.
+| `['not', 1, 2]` | not of a ticket type with an ID of 1 or 2.
+
+::: code
+```twig
+{# Fetch purchased tickets for a ticket type #}
+{% set purchasedTickets = craft.events.purchasedTickets()
+    .ticketTypeId(1)
+    .all() %}
+```
+
+```php
+// Fetch events of the event type with an ID of 1
+$purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
+    ->ticketTypeId(1)
+    ->all();
+```
+:::
+
+
+
 ### `search`
 
 Narrows the query results to only purchased tickets that match a search query.

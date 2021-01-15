@@ -1,6 +1,8 @@
 <?php
 namespace verbb\events\elements\db;
 
+use verbb\events\elements\TicketType;
+
 use Craft;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
@@ -25,6 +27,7 @@ class PurchasedTicketQuery extends ElementQuery
     public $checkedInDate;
 
     public $customerId;
+    public $ticketTypeId;
 
     protected $defaultOrderBy = ['events_purchasedtickets.dateCreated' => SORT_DESC];
 
@@ -102,6 +105,33 @@ class PurchasedTicketQuery extends ElementQuery
         return $this;
     }
 
+    public function ticketType($value)
+    {
+        if ($value instanceof TicketType) {
+            $this->ticketTypeId = $value->id;
+        } else if ($value !== null) {
+            $this->ticketTypeId = (new Query())
+                ->select(['id'])
+                ->from(['{{%events_tickettypes}}'])
+                ->where(Db::parseParam('handle', $value))
+                ->scalar();
+
+            if ($this->ticketTypeId === false) {
+                $this->ticketTypeId = null;
+            }
+        } else {
+            $this->ticketTypeId = null;
+        }
+
+        return $this;
+    }
+
+    public function ticketTypeId($value)
+    {
+        $this->ticketTypeId = $value;
+        return $this;
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -136,6 +166,11 @@ class PurchasedTicketQuery extends ElementQuery
             $this->subQuery->innerJoin(CommerceTable::ORDERS . ' orders', '[[orders.id]] = [[events_purchasedtickets.orderId]]');
             $this->subQuery->andWhere(['=', '[[orders.customerId]]', $this->customerId]);
             $this->subQuery->andWhere(['=', '[[orders.isCompleted]]', true]);
+        }
+
+        if ($this->ticketTypeId) {
+            $this->subQuery->innerJoin('{{%events_tickets}} events_tickets', '[[events_tickets.id]] = [[events_purchasedtickets.ticketId]]');
+            $this->subQuery->andWhere(['=', '[[events_tickets.typeId]]', $this->ticketTypeId]);
         }
 
         return parent::beforePrepare();
