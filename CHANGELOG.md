@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.4.15 - 2021-01-15
+
+### Added
+- Add `events.edit.details` hook to the edit event page. (thanks @joshangell).
+- Add `events.edit.actionbutton` hook to event edit page. (thanks @joshangell).
+- Add `ticketType` and `ticketTypeId` query params to Purchase Ticket elements.
+- Add `pluralDisplayName` to Event, Purchased Ticket, Ticket and Ticket Type elements.
+- Add duplicate element action for Purchased Ticket elements.
+- Add duplicate element action for Event elements.
+- Add `ticketType` and `ticketTypeId` query params to Purchase Ticket element queries.
+
 ## 1.4.14 - 2020-08-20
 
 ### Fixed
