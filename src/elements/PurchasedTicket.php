@@ -10,6 +10,7 @@ use Craft;
 use craft\base\Element;
 use craft\db\Query;
 use craft\elements\actions\Delete;
+use craft\elements\actions\Duplicate;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
 
@@ -221,6 +222,10 @@ class PurchasedTicket extends Element
             'confirmationMessage' => Craft::t('events', 'Are you sure you want to delete the selected purchased tickets?'),
             'successMessage' => Craft::t('events', 'Purchased tickets deleted.'),
         ]);
+
+        $actions[] = [
+            'type' => Duplicate::class,
+        ];
 
         return $actions;
     }
