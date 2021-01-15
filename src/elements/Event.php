@@ -12,6 +12,7 @@ use Craft;
 use craft\base\Element;
 use craft\db\Query;
 use craft\elements\actions\Delete;
+use craft\elements\actions\Duplicate;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
@@ -162,6 +163,10 @@ class Event extends Element
             'confirmationMessage' => Craft::t('events', 'Are you sure you want to delete the selected events?'),
             'successMessage' => Craft::t('events', 'Events deleted.'),
         ]);
+
+        $actions[] = [
+            'type' => Duplicate::class,
+        ];
 
         return $actions;
     }
