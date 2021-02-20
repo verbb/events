@@ -131,28 +131,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 
-### `availableForPurchase`
-
-Narrows the query results to only events that are available for purchase.
-
-::: code
-```twig
-{# Fetch events that are available for purchase #}
-{% set events = craft.events.events()
-    .availableForPurchase()
-    .all() %}
-```
-
-```php
-// Fetch events that are available for purchase
-$events = \verbb\events\elements\Event::find()
-    ->availableForPurchase()
-    ->all();
-````
-:::
-
-
-
 ### `before`
 
 Narrows the query results to only events that were posted before a certain date.
