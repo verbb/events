@@ -45,6 +45,7 @@ use verbb\events\elements\Event;
 use yii\base\Event;
 
 Event::on(Event::class, Event::EVENT_BEFORE_SAVE, function(Event $event) {
+    $isNew = $event->isNew;
     $code = $event->sender;
     $event->isValid = false;
 });
@@ -59,6 +60,7 @@ use verbb\events\elements\Event;
 use yii\base\Event;
 
 Event::on(Event::class, Event::EVENT_AFTER_SAVE, function(Event $event) {
+    $isNew = $event->isNew;
     $code = $event->sender;
 });
 ```
@@ -107,6 +109,7 @@ use verbb\events\elements\Ticket;
 use yii\base\Event;
 
 Event::on(Ticket::class, Ticket::EVENT_BEFORE_SAVE, function(Event $event) {
+    $isNew = $event->isNew;
     $ticket = $event->sender;
     $event->isValid = false;
 });
@@ -121,6 +124,7 @@ use verbb\events\elements\Ticket;
 use yii\base\Event;
 
 Event::on(Ticket::class, Ticket::EVENT_AFTER_SAVE, function(Event $event) {
+    $isNew = $event->isNew;
     $ticket = $event->sender;
 });
 ```
@@ -197,6 +201,7 @@ use verbb\events\elements\PurchasedTicket;
 use yii\base\Event;
 
 Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_BEFORE_SAVE, function(Event $event) {
+    $isNew = $event->isNew;
     $purchasedTicket = $event->sender;
     $event->isValid = false;
 });
