@@ -26,6 +26,7 @@ use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
 use Jsvrcek\ICS\Model\CalendarEvent;
+use Jsvrcek\ICS\Model\Description\Location;
 
 class Event extends Element
 {
@@ -548,7 +549,10 @@ class Event extends Element
         }
 
         if ($locationFieldHandle && isset($this->{$locationFieldHandle})) {
-            $event->setLocation($this->{$locationFieldHandle});
+            $location = new Location();
+            $location->setName($this->{$locationFieldHandle});
+
+            $event->addLocation($location);
         }
 
         return $event;
