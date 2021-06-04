@@ -14,11 +14,14 @@
 {% set tabs = {
 	ticketDetailsTab: { label: 'Details' | t('events'), url: '#ticketDetailsTab' },
 } %}
-{% for tab in fieldLayout.getTabs() %}
-	{% set tabs = tabs|merge({
-		("tab"~loop.index) : { label: tab.name | t('events'), url: '#tab'~loop.index }
-	}) %}
-{% endfor %}
+
+{% if fieldLayout %}
+    {% for tab in fieldLayout.getTabs() %}
+    	{% set tabs = tabs|merge({
+    		("tab"~loop.index) : { label: tab.name | t('events'), url: '#tab'~loop.index }
+    	}) %}
+    {% endfor %}
+{% endif %}
 
 {% block actionButton %}
     <div id="save-btn-container" class="btngroup submit">
@@ -77,14 +80,16 @@
 <img width="150px" src="{{ purchasedTicket.qrCode }}" />
 </div>
 
-{% for tab in fieldLayout.getTabs() %}
-    <div id="tab{{ loop.index }}" class="hidden">
-        {% include "_includes/fields" with {
-            fields: tab.getFields(),
-            element: purchasedTicket,
-        } only %}
-    </div>
-{% endfor %}
+{% if fieldLayout %}
+    {% for tab in fieldLayout.getTabs() %}
+        <div id="tab{{ loop.index }}" class="hidden">
+            {% include "_includes/fields" with {
+                fields: tab.getFields(),
+                element: purchasedTicket,
+            } only %}
+        </div>
+    {% endfor %}
+{% endif %}
 
 {% endblock %}
 
