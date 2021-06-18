@@ -185,7 +185,7 @@ class PurchasedTicket extends Element
             case 'customerFirstName': {
                 if ($customer = $this->getCustomer()) {
                     if ($customer->user) {
-                        return $customer->user->firstName;
+                        return (string)$customer->user->firstName;
                     }
                 }
 
@@ -194,7 +194,7 @@ class PurchasedTicket extends Element
             case 'customerLastName': {
                 if ($customer = $this->getCustomer()) {
                     if ($customer->user) {
-                        return $customer->user->lastName;
+                        return (string)$customer->user->lastName;
                     }
                 }
 
@@ -203,7 +203,7 @@ class PurchasedTicket extends Element
             case 'customerFullName': {
                 if ($customer = $this->getCustomer()) {
                     if ($customer->user) {
-                        return $customer->user->fullName;
+                        return (string)$customer->user->fullName;
                     }
                 }
 
