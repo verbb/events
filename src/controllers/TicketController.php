@@ -24,44 +24,44 @@ class TicketController extends Controller
         $settings = Events::$plugin->getSettings();
 
 		$sku = Craft::$app->request->getParam('sku');
+
+        if ($settings->checkinLogin && !Craft::$app->getUser()->checkPermission('events-checkInTickets')) {
+            return $this->_handleResponse([
+                'success' => false,
+                'message' => Craft::t('events', 'You do not have permission to check in tickets.'),
+            ]);
+        }
 		
-		if (Craft::$app->getUser()->checkPermission('events-managePurchasedTickets')) {
-			if (!$sku) {
-				return $this->_handleResponse([
-					'success' => false,
-					'message' => Craft::t('events', 'Missing required ticket SKU.'),
-				]);
-			}
-
-			$purchasedTicket = PurchasedTicket::find()
-				->ticketSku($sku)
-				->one();
-
-			if (!$purchasedTicket) {
-				return $this->_handleResponse([
-					'success' => false,
-					'message' => Craft::t('events', 'Could not find ticket SKU.'),
-				]);
-			}
-
-			if ($purchasedTicket->checkedIn) {
-				return $this->_handleResponse([
-					'success' => false,
-					'message' => Craft::t('events', 'Ticket already checked in.'),
-				]);
-			}
-
-			Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket);
-
+		if (!$sku) {
 			return $this->_handleResponse([
-				'success' => true,
-				'purchasedTicket' => $purchasedTicket,
+				'success' => false,
+				'message' => Craft::t('events', 'Missing required ticket SKU.'),
 			]);
 		}
 
+		$purchasedTicket = PurchasedTicket::find()
+			->ticketSku($sku)
+			->one();
+
+		if (!$purchasedTicket) {
+			return $this->_handleResponse([
+				'success' => false,
+				'message' => Craft::t('events', 'Could not find ticket SKU.'),
+			]);
+		}
+
+		if ($purchasedTicket->checkedIn) {
+			return $this->_handleResponse([
+				'success' => false,
+				'message' => Craft::t('events', 'Ticket already checked in.'),
+			]);
+		}
+
+		Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket);
+
 		return $this->_handleResponse([
-			'success' => false,
-			'message' => Craft::t('events', 'You do not have permission to check in tickets.'),
+			'success' => true,
+			'purchasedTicket' => $purchasedTicket,
 		]);
     }
 
