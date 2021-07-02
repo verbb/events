@@ -215,6 +215,7 @@ class Events extends Plugin
                 'events-manageEvents' => ['label' => Craft::t('events', 'Manage events'), 'nested' => $eventTypePermissions],
                 'events-manageTicketTypes' => ['label' => Craft::t('events', 'Manage ticket types')],
                 'events-managePurchasedTickets' => ['label' => Craft::t('events', 'Manage purchased tickets')],
+                'events-checkInTickets' => ['label' => Craft::t('events', 'Check-in tickets')],
             ];
         });
     }
