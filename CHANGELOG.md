@@ -3,7 +3,6 @@
 ## 1.4.17 - 2021-07-08
 
 ### Added
-- Add `EVENT_BEFORE_MATCH_CODE` event for adding custom code matching logic.
 - Add “Require User Login” plugin setting for checking-in tickets.
 - Add “Check-in tickets” user permission.
 
