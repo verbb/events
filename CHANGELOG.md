@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.4.17 - 2021-07-08
+
+### Added
+- Add `EVENT_BEFORE_MATCH_CODE` event for adding custom code matching logic.
+- Add “Require User Login” plugin setting for checking-in tickets.
+- Add “Check-in tickets” user permission.
+
+### Fixed
+- Fix an error when generating PDFs and custom fonts, where the temporary folder isn’t writable (or created).
+- Fix an error when viewing purchased tickets index where users may not have a first/last name.
+
 ## 1.4.16 - 2021-06-04
 
 ### Fixed
