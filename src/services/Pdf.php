@@ -125,9 +125,21 @@ class Pdf extends Component
         $dompdfFontCache = $pathService->getCachePath() . DIRECTORY_SEPARATOR . 'events_dompdf';
         $dompdfLogFile = $pathService->getLogPath() . DIRECTORY_SEPARATOR . 'events_dompdf.htm';
 
-        // Should throw an error if not writable
-        FileHelper::isWritable($dompdfTempDir);
-        FileHelper::isWritable($dompdfLogFile);
+        // Ensure directories are created
+        FileHelper::createDirectory($dompdfTempDir);
+        FileHelper::createDirectory($dompdfFontCache);
+
+        if (!FileHelper::isWritable($dompdfLogFile)) {
+            throw new ErrorException("Unable to write to file: $dompdfLogFile");
+        }
+
+        if (!FileHelper::isWritable($dompdfFontCache)) {
+            throw new ErrorException("Unable to write to folder: $dompdfFontCache");
+        }
+
+        if (!FileHelper::isWritable($dompdfTempDir)) {
+            throw new ErrorException("Unable to write to folder: $dompdfTempDir");
+        }
 
         $isRemoteEnabled = $settings->pdfAllowRemoteImages;
 
