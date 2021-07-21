@@ -41,12 +41,12 @@ Event::on(Pdf::class, Pdf::EVENT_AFTER_RENDER_PDF, function(PdfEvent $event) {
 Plugins can get notified before an event is saved. Event handlers can prevent the event from getting saved by setting `$event->isValid` to false.
 
 ```php
-use verbb\events\elements\Event;
+use verbb\events\elements\Event as EventElement;
 use yii\base\Event;
 
-Event::on(Event::class, Event::EVENT_BEFORE_SAVE, function(Event $event) {
+Event::on(EventElement::class, EventElement::EVENT_BEFORE_SAVE, function(Event $event) {
     $isNew = $event->isNew;
-    $code = $event->sender;
+    $eventElement = $event->sender;
     $event->isValid = false;
 });
 ```
@@ -56,12 +56,39 @@ Event::on(Event::class, Event::EVENT_BEFORE_SAVE, function(Event $event) {
 Plugins can get notified after an event has been saved
 
 ```php
-use verbb\events\elements\Event;
+use verbb\events\elements\Event as EventElement;
 use yii\base\Event;
 
-Event::on(Event::class, Event::EVENT_AFTER_SAVE, function(Event $event) {
+Event::on(EventElement::class, EventElement::EVENT_AFTER_SAVE, function(Event $event) {
     $isNew = $event->isNew;
-    $code = $event->sender;
+    $eventElement = $event->sender;
+});
+```
+
+### The `beforeDeleteEvent` event
+The event that is triggered before an event is deleted.
+
+The `isValid` event property can be set to `false` to prevent the the deletion from proceeding.
+
+```php
+use verbb\events\elements\Event as EventElement;
+use yii\base\Event;
+
+Event::on(EventElement::class, EventElement::EVENT_BEFORE_DELETE, function(Event $event) {
+    $eventElement = $event->sender;
+    $event->isValid = false;
+});
+```
+
+### The `afterDeleteEvent` event
+The event that is triggered after an event is deleted.
+
+```php
+use verbb\events\elements\Event as EventElement;
+use yii\base\Event;
+
+Event::on(EventElement::class, EventElement::EVENT_AFTER_DELETE, function(Event $event) {
+    $eventElement = $event->sender;
 });
 ```
 
@@ -125,6 +152,33 @@ use yii\base\Event;
 
 Event::on(Ticket::class, Ticket::EVENT_AFTER_SAVE, function(Event $event) {
     $isNew = $event->isNew;
+    $ticket = $event->sender;
+});
+```
+
+### The `beforeDeleteTicket` event
+The event that is triggered before a ticket is deleted.
+
+The `isValid` event property can be set to `false` to prevent the the deletion from proceeding.
+
+```php
+use verbb\events\elements\Ticket;
+use yii\base\Event;
+
+Event::on(Ticket::class, Ticket::EVENT_BEFORE_DELETE, function(Event $event) {
+    $ticket = $event->sender;
+    $event->isValid = false;
+});
+```
+
+### The `afterDeleteTicket` event
+The event that is triggered after a ticket is deleted.
+
+```php
+use verbb\events\elements\Ticket;
+use yii\base\Event;
+
+Event::on(Ticket::class, Ticket::EVENT_AFTER_DELETE, function(Event $event) {
     $ticket = $event->sender;
 });
 ```
@@ -217,6 +271,33 @@ use yii\base\Event;
 
 Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_AFTER_SAVE, function(Event $event) {
     $isNew = $event->isNew;
+    $purchasedTicket = $event->sender;
+});
+```
+
+### The `beforeDeletePurchasedTicket` event
+The event that is triggered before a purchased ticket is deleted.
+
+The `isValid` event property can be set to `false` to prevent the the deletion from proceeding.
+
+```php
+use verbb\events\elements\PurchasedTicket;
+use yii\base\Event;
+
+Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_BEFORE_DELETE, function(Event $event) {
+    $purchasedTicket = $event->sender;
+    $event->isValid = false;
+});
+```
+
+### The `afterDeletePurchasedTicket` event
+The event that is triggered after a purchased ticket is deleted.
+
+```php
+use verbb\events\elements\PurchasedTicket;
+use yii\base\Event;
+
+Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_AFTER_DELETE, function(Event $event) {
     $purchasedTicket = $event->sender;
 });
 ```
