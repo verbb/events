@@ -180,6 +180,10 @@ class PurchasedTicket extends Element
                     return (string)$customer;
                 }
 
+                if ($order = $this->getOrder()) {
+                    return $order->email;
+                }
+
                 return '';
             }
             case 'customerFirstName': {
