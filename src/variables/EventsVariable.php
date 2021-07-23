@@ -5,9 +5,11 @@ use verbb\events\Events;
 use verbb\events\elements\db\EventQuery;
 use verbb\events\elements\db\PurchasedTicketQuery;
 use verbb\events\elements\db\TicketQuery;
+use verbb\events\elements\db\TicketTypeQuery;
 use verbb\events\elements\Event;
 use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Ticket;
+use verbb\events\elements\TicketType;
 
 use Craft;
 use craft\helpers\DateTimeHelper;
@@ -93,6 +95,17 @@ class EventsVariable
     public function purchasedTickets($criteria = null): PurchasedTicketQuery
     {
         $query = PurchasedTicket::find();
+
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+
+        return $query;
+    }
+
+    public function ticketTypes($criteria = null): TicketTypeQuery
+    {
+        $query = TicketType::find();
 
         if ($criteria) {
             Craft::configure($query, $criteria);
