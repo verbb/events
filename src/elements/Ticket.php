@@ -661,7 +661,9 @@ class Ticket extends Purchasable
 
     public function getIsShippable(): bool
     {
-        return false;
+        $settings = Events::$plugin->getSettings();
+
+        return $settings->ticketsShippable;
     }
 
 

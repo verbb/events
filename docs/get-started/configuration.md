@@ -12,6 +12,7 @@ return [
         'ticketPdfPath' => 'shop/_pdf/tickets',
         'ticketPdfFilenameFormat' => 'Tickets-{number}',
         'checkinTemplate' => 'events/check-in',
+        'ticketsShippable' => false,
         
         'pdfAllowRemoteImages' => false,
         'pdfPaperSize' => 'letter',
@@ -27,6 +28,8 @@ return [
 - `ticketPdfPath` - Set the path to your PDF.
 - `ticketPdfFilenameFormat` - Set the defaulf PDF filename format.
 - `checkinTemplate` - Set a template to be shown when checking into an event. See `events/templates/check-in.html` for an example.
+- `ticketsShippable` - Whether a ticket should be classified as shippable. If `false` (the default) no shipping methods will be able to be selected, if tickets are the only items in the cart.
+
 - `pdfAllowRemoteImages` - Whether to allow remote images in the PDF.
 - `pdfPaperSize` - Sets the paper size for the PDF.
 - `pdfPaperOrientation` - Sets the paper orientation for the PDF.

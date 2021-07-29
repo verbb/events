@@ -14,6 +14,7 @@ class Settings extends Model
     public $ticketPdfFilenameFormat = 'Tickets-{number}';
     public $checkinLogin = false;
     public $checkinTemplate = '';
+    public $ticketsShippable = false;
 
     public $pdfAllowRemoteImages = false;
     public $pdfPaperSize = 'letter';
