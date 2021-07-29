@@ -177,7 +177,9 @@ class PurchasedTicket extends Element
             }
             case 'customer': {
                 if ($customer = $this->getCustomer()) {
-                    return (string)$customer;
+                    if ($customer->getEmail()) {
+                        return $customer->getEmail();
+                    }
                 }
 
                 if ($order = $this->getOrder()) {
