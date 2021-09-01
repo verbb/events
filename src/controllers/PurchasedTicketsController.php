@@ -148,6 +148,20 @@ class PurchasedTicketsController extends Controller
             throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
         }
 
+        // Save any custom fields
+        $purchasedTicket->setFieldValuesFromRequest('fields');
+
+        if (!Craft::$app->getElements()->saveElement($purchasedTicket)) {
+            Craft::$app->getSession()->setError(Craft::t('events', 'Couldn’t save purchased ticket.'));
+
+            // Send the purchasedTicket back to the template
+            Craft::$app->getUrlManager()->setRouteParams([
+                'purchasedTicket' => $purchasedTicket,
+            ]);
+
+            return null;
+        }
+
 		Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket);
 
 		Craft::$app->getSession()->setNotice(Craft::t('events', 'Ticket checked in.'));
