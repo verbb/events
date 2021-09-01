@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.18 - 2021-09-02
+
+### Added
+- Add `ticketsShippable` plugin setting.
+- Add `craft.events.ticketTypes()`.
+- Add order email to "Customer" column for purchased tickets, when ordered by a guest.
+- Allow custom fields to be saved when calling `events/purchased-tickets/checkin`.
+- Allow `checkedIn` and `checkedIn` attributes to be saved when calling `events/purchased-tickets/save`.
+
+### Fixed
+- Fix customer email column.
+
 ## 1.4.17 - 2021-07-08
 
 ### Added
