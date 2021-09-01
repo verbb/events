@@ -81,7 +81,9 @@ class PurchasedTicketsController extends Controller
         }
 
         $purchasedTicket->id = $purchasedTicketId;
-		$purchasedTicket->ticketSku = $request->getParam('ticketSku', $purchasedTicket->ticketSku);
+        $purchasedTicket->ticketSku = $request->getParam('ticketSku', $purchasedTicket->ticketSku);
+        $purchasedTicket->checkedIn = $request->getParam('checkedIn', $purchasedTicket->checkedIn);
+        $purchasedTicket->checkedInDate = $request->getParam('checkedInDate', $purchasedTicket->checkedInDate);
 		
 		$purchasedTicket->setFieldValuesFromRequest('fields');
 
