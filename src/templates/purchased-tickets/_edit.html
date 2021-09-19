@@ -72,7 +72,10 @@
 <p>
     <strong>{{ 'Check-in QR Code' | t('events') }}</strong><br>
 
-    <a href="{{ actionUrl('events/ticket/checkin', { sku: purchasedTicket.ticketSku }) }}" target="_blank">
+    {% set url = actionUrl('events/ticket/checkin', { sku: purchasedTicket.ticketSku }) %}
+    {% set url = url | replace(craft.app.config.general.cpTrigger ~ '/', '') %}
+
+    <a href="{{ url }}" target="_blank">
         {{ 'Check in URL' | t('events') }}
     </a>
 </p>
