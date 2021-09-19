@@ -137,13 +137,11 @@
     <p>
         <span class="status {{ purchasedTicket.checkedIn ? 'live' : 'disabled' }}"></span> 
 		{% if purchasedTicket.checkedIn %}
-			<a class="formsubmit btn small" data-action="events/purchased-tickets/uncheckin"
-				data-redirect="{{ 'events/purchased-tickets' | hash }}">
+			<a class="formsubmit btn small" data-action="events/purchased-tickets/uncheckin">
 				{{ 'Un-Check in' | t('events') }}
 			</a>
 		{% else %}
-			<a class="formsubmit btn small" data-action="events/purchased-tickets/checkin"
-				data-redirect="{{ 'events/purchased-tickets' | hash }}">
+			<a class="formsubmit btn small" data-action="events/purchased-tickets/checkin">
 				{{ 'Check in' | t('events') }}
 			</a>
 		{% endif %}
