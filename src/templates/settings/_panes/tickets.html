@@ -10,14 +10,16 @@
     warning: macros.configWarning('ticketSKULength', 'events'),
 }) }}
 
-{{ forms.textField({
+{{ forms.autosuggestField({
     label: 'Ticket PDF Template' | t('events'),
     instructions: 'The path to the template used for generating purchased ticket PDFs.' | t('events'),
+    required: true,
     id: 'ticketPdfPath',
     name: 'ticketPdfPath',
+    suggestions: craft.cp.getTemplateSuggestions(),
+    suggestEnvVars: false,
     value: settings.ticketPdfPath,
     errors: settings.getErrors('ticketPdfPath'),
-    required: true,
     warning: macros.configWarning('ticketPdfPath', 'events'),
 }) }}
 
