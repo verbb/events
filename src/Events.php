@@ -9,6 +9,7 @@ use verbb\events\elements\TicketType;
 use verbb\events\helpers\ProjectConfigData;
 use verbb\events\fields\Events as EventsField;
 use verbb\events\integrations\feedme\Event as FeedMeEvent;
+use verbb\events\integrations\seomatic\Event as SeomaticEvent;
 use verbb\events\models\Settings;
 use verbb\events\services\EventTypes;
 use verbb\events\variables\EventsVariable;
@@ -41,6 +42,8 @@ use fostercommerce\klaviyoconnect\models\EventProperties;
 
 use craft\feedme\events\RegisterFeedMeElementsEvent;
 use craft\feedme\services\Elements as FeedMeElements;
+
+use nystudio107\seomatic\services\SeoElements;
 
 class Events extends Plugin
 {
@@ -269,6 +272,14 @@ class Events extends Plugin
                 $e->elements[] = FeedMeEvent::class;
             });
         }
+
+        // Support SEOmatic
+        if (class_exists(FeedMeElements::class)) {
+            Event::on(SeoElements::class, SeoElements::EVENT_REGISTER_SEO_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
+                $event->types[] = SeomaticEvent::class;
+            });
+        }
+
     }
 
 }
