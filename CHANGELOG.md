@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.4.19 - 2021-10-01
+
+### Added
+- Add support for SEOmatic.
+
+### Changed
+- Update "Ticket PDF Template" plugin setting field to auto-suggest templates.
+- Update "Check-in Template" plugin setting field to auto-suggest templates.
+
+### Fixed
+- Fix check-in URL shortcut in control panel (when editing a purchased ticket) not being correct.
+- Fix redirecting back to the purchased ticket index when checking/unchecking in from the control panel.
+
 ## 1.4.18 - 2021-09-02
 
 ### Added
