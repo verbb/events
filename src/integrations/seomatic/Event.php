@@ -65,17 +65,17 @@ class Event implements SeoElementInterface
 
         // Install for all non-console requests
         if (!$request->getIsConsoleRequest()) {
-            YiiEvent::on(EventTypes::class, EventTypes::EVENT_AFTER_SAVE_EVENTTYPE, function(SaveModelEvent $event) {
+            YiiEvent::on(EventTypes::class, EventTypes::EVENT_AFTER_SAVE_EVENTTYPE, function($event) {
                 if ($event->eventType !== null && $event->eventType->id !== null) {
                     Seomatic::$plugin->metaBundles->invalidateMetaBundleById(
-                        SeoProduct::getMetaBundleType(),
+                        Event::getMetaBundleType(),
                         $event->eventType->id,
                         $event->isNew
                     );
 
-                    // Create the meta bundles for this Product Type if it's new
+                    // Create the meta bundles for this Event Type if it's new
                     if ($event->isNew) {
-                        SeoProduct::createContentMetaBundle($event->eventType);
+                        Event::createContentMetaBundle($event->eventType);
                         Seomatic::$plugin->sitemaps->submitSitemapIndex();
                     }
                 }
