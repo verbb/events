@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.19.1 - 2021-10-05
+
+### Fixed
+- Fix an error when saving a Event type and the SEOmatic integration.
+
 ## 1.4.19 - 2021-10-01
 
 ### Added
