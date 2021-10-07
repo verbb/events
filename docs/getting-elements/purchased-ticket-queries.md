@@ -1,4 +1,4 @@
-# PurchasedTicket Queries
+# Purchased Ticket Queries
 
 You can fetch purchased tickets in your templates or PHP code using **purchased ticket queries**.
 
