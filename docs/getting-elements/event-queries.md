@@ -780,7 +780,7 @@ Possible values include:
 | `'not foo'` | not of a type with a handle of `foo`.
 | `['foo', 'bar']` | of a type with a handle of `foo` or `bar`.
 | `['not', 'foo', 'bar']` | not of a type with a handle of `foo` or `bar`.
-| an [EventType](docs:developers/event-type) object | of a type represented by the object.
+| an Event Type object | of a type represented by the object.
 
 ::: code
 ```twig
