@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.19.2 - 2021-10-12
+
+### Fixed
+- Fix an error being thrown when SEOmatic wasn't installed.
+
 ## 1.4.19.1 - 2021-10-05
 
 ### Fixed
