@@ -274,7 +274,7 @@ class Events extends Plugin
         }
 
         // Support SEOmatic
-        if (class_exists(FeedMeElements::class)) {
+        if (class_exists(SeoElements::class)) {
             Event::on(SeoElements::class, SeoElements::EVENT_REGISTER_SEO_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
                 $event->types[] = SeomaticEvent::class;
             });
