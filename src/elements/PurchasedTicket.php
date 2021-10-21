@@ -5,6 +5,7 @@ use verbb\events\Events;
 use verbb\events\elements\db\PurchasedTicketQuery;
 use verbb\events\records\PurchasedTicketRecord;
 use verbb\events\elements\actions\Checkin;
+use verbb\events\elements\TicketType;
 
 use Craft;
 use craft\base\Element;
@@ -126,7 +127,7 @@ class PurchasedTicket extends Element
         ];
 
         // Include ticket custom fields
-        foreach (Craft::$app->elementIndexes->getAvailableTableFields(Ticket::class) as $field) {
+        foreach (Craft::$app->elementIndexes->getAvailableTableFields(TicketType::class) as $field) {
             $attributes['field:' . $field->id] = ['label' => Craft::t('site', $field->name)];
         }
 
