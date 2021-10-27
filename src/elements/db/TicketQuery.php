@@ -172,7 +172,7 @@ class TicketQuery extends ElementQuery
             $this->subQuery->innerJoin(CommerceTable::ORDERS . ' orders', '[[lineitems.orderId]] = [[orders.id]]');
             $this->subQuery->andWhere(['=', '[[orders.customerId]]', $this->customerId]);
             $this->subQuery->andWhere(['=', '[[orders.isCompleted]]', true]);
-            $this->subQuery->groupBy(['events_tickets.id']);
+            $this->subQuery->groupBy(['events_tickets.id', 'elementsSitesId', 'contentId']);
         }
 
         $this->_applyHasEventParam();
