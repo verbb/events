@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.20 - 2021-10-30
+
+### Fixed
+- Fix an error with querying customer tickets with `sql_mode=only_full_group_by`.
+
 ## 1.4.19.2 - 2021-10-12
 
 ### Fixed
