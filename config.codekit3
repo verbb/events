@@ -760,6 +760,14 @@
       "oAP" : "\/src\/integrations\/klaviyoconnect\/KlaviyoConnect.php",
       "oF" : 0
     },
+    "\/src\/integrations\/seomatic\/Event.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/integrations\/seomatic\/Event.php",
+      "oF" : 0
+    },
     "\/src\/migrations" : {
       "ft" : 65536,
       "oA" : 1,

@@ -33,34 +33,19 @@ class Pdf extends Component
 
     public function getPdfUrl(Order $order, LineItem $lineItem = null, $option = null)
     {
-        $url = null;
-
-        try {
-            $path = "events/downloads/pdf?number={$order->number}" . ($option ? "&option={$option}" : '') . ($lineItem ? "&lineItemId={$lineItem->id}" : '');
-            $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
-            $url = UrlHelper::siteUrl($path);
-        } catch (\Exception $e) {
-            Craft::error($e->getMessage());
-            return null;
-        }
-
-        return $url;
+        return UrlHelper::actionUrl('events/downloads/pdf', array_filter([
+            'number' => $order->number ?? null,
+            'option' => $option ?? null,
+            'lineItemId' => $lineItem->id ?? null,
+        ]));
     }
 
     public function getPdfUrlForTicket($ticket, $option = null)
     {
-        $url = null;
-
-        try {
-            $path = "events/downloads/pdf?ticketId={$ticket->id}" . ($option ? "&option={$option}" : '');
-            $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
-            $url = UrlHelper::siteUrl($path);
-        } catch (\Exception $e) {
-            Craft::error($e->getMessage());
-            return null;
-        }
-
-        return $url;
+        return UrlHelper::actionUrl('events/downloads/pdf', array_filter([
+            'ticketId' => $ticket->id ?? null,
+            'option' => $option ?? null,
+        ]));
     }
 
     public function renderPdf($tickets, $order = [], $lineItem = null, $option = '', $templatePath = null): string
