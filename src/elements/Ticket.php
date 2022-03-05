@@ -39,13 +39,13 @@ class Ticket extends Purchasable
     // Constants
     // =========================================================================
 
-    const EVENT_BEFORE_CAPTURE_TICKET_SNAPSHOT = 'beforeCaptureTicketSnapshot';
+    const EVENT_AFTER_CAPTURE_EVENT_SNAPSHOT = 'afterCaptureEventSnapshot';
     const EVENT_AFTER_CAPTURE_TICKET_SNAPSHOT = 'afterCaptureTicketSnapshot';
     const EVENT_BEFORE_CAPTURE_EVENT_SNAPSHOT = 'beforeCaptureEventSnapshot';
-    const EVENT_AFTER_CAPTURE_EVENT_SNAPSHOT = 'afterCaptureEventSnapshot';
+    const EVENT_BEFORE_CAPTURE_TICKET_SNAPSHOT = 'beforeCaptureTicketSnapshot';
 
 
-    // Static
+    // Static Methods
     // =========================================================================
 
     public static function displayName(): string
@@ -88,6 +88,31 @@ class Ticket extends Purchasable
         return new TicketQuery(static::class);
     }
 
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
+    {
+        if ($handle == 'event') {
+            // Get the source element IDs
+            $sourceElementIds = [];
+
+            foreach ($sourceElements as $sourceElement) {
+                $sourceElementIds[] = $sourceElement->id;
+            }
+
+            $map = (new Query())
+                ->select('id as source, eventId as target')
+                ->from('events_tickets')
+                ->where(['in', 'id', $sourceElementIds])
+                ->all();
+
+            return [
+                'elementType' => Event::class,
+                'map' => $map,
+            ];
+        }
+
+        return parent::eagerLoadingMap($sourceElements, $handle);
+    }
+
     protected static function defineSources(string $context = null): array
     {
         $sources = [
@@ -95,7 +120,7 @@ class Ticket extends Purchasable
                 'key' => '*',
                 'label' => Craft::t('events', 'All events'),
                 'defaultSort' => ['postDate', 'desc'],
-            ]
+            ],
         ];
 
         $events = Event::find()->all();
@@ -114,7 +139,7 @@ class Ticket extends Purchasable
                 'label' => $event->title,
                 'criteria' => [
                     'eventId' => $event->id,
-                ]
+                ],
             ];
         }
 
@@ -125,10 +150,6 @@ class Ticket extends Purchasable
     {
         return ['sku', 'price'];
     }
-
-
-    // Element index methods
-    // -------------------------------------------------------------------------
 
     protected static function defineSortOptions(): array
     {
@@ -167,15 +188,15 @@ class Ticket extends Purchasable
     // Properties
     // =========================================================================
 
-    public ?int $eventId = null;
-    public ?int $typeId = null;
-    public ?string $sku = null;
-    public ?int $quantity = null;
-    public ?float $price = null;
     public ?DateTime $availableFrom = null;
     public ?DateTime $availableTo = null;
-    public ?int $sortOrder = null;
     public bool $deletedWithEvent = false;
+    public ?int $eventId = null;
+    public ?float $price = null;
+    public ?int $quantity = null;
+    public ?string $sku = null;
+    public ?int $sortOrder = null;
+    public ?int $typeId = null;
 
     private ?Event $_event = null;
     private ?TicketType $_ticketType = null;
@@ -325,31 +346,6 @@ class Ticket extends Purchasable
     public function getCpEditUrl(): ?string
     {
         return $this->getEvent() ? $this->getEvent()->getCpEditUrl() : null;
-    }
-
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
-    {
-        if ($handle == 'event') {
-            // Get the source element IDs
-            $sourceElementIds = [];
-
-            foreach ($sourceElements as $sourceElement) {
-                $sourceElementIds[] = $sourceElement->id;
-            }
-
-            $map = (new Query())
-                ->select('id as source, eventId as target')
-                ->from('events_tickets')
-                ->where(['in', 'id', $sourceElementIds])
-                ->all();
-
-            return [
-                'elementType' => Event::class,
-                'map' => $map,
-            ];
-        }
-
-        return parent::eagerLoadingMap($sourceElements, $handle);
     }
 
     public function setEagerLoadedElements(string $handle, array $elements): void
@@ -518,10 +514,6 @@ class Ticket extends Purchasable
         return $this->getPurchasedTickets($lineItem);
     }
 
-
-    // Purchasable
-    // =========================================================================
-
     public function getPurchasableId(): ?int
     {
         return $this->id;
@@ -570,7 +562,7 @@ class Ticket extends Purchasable
         } else {
             $eventDataEvent = new CustomizeEventSnapshotDataEvent([
                 'event' => $this->getEvent(),
-                'fieldData' => []
+                'fieldData' => [],
             ]);
         }
 
@@ -651,10 +643,6 @@ class Ticket extends Purchasable
     {
         return Events::$plugin->getSettings()->ticketsShippable;
     }
-
-
-    // Events
-    // -------------------------------------------------------------------------
 
     public function afterSave(bool $isNew): void
     {

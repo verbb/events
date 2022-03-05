@@ -10,6 +10,6 @@ class CustomizeTicketSnapshotFieldsEvent extends Event
     // Properties
     // =========================================================================
 
-    public Ticket $ticket;
     public array $fields = [];
+    public Ticket $ticket;
 }

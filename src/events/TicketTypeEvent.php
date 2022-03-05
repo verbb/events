@@ -10,7 +10,7 @@ class TicketTypeEvent extends Event
     // Properties
     // =========================================================================
 
-    public TicketType $ticketType;
     public bool $isNew = false;
-    
+    public TicketType $ticketType;
+
 }

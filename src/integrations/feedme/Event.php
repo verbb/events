@@ -82,9 +82,9 @@ class Event extends Element
             ->anyStatus()
             ->typeId($settings['elementGroup'][EventElement::class])
             ->siteId(Hash::get($settings, 'siteId') ?: Craft::$app->getSites()->getPrimarySite()->id);
-        
+
         Craft::configure($query, $params);
-        
+
         return $query;
     }
 
@@ -125,6 +125,29 @@ class Event extends Element
         return true;
     }
 
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function parsePostDate($feedData, $fieldInfo): DateTime|bool|array|Carbon|string|null
+    {
+        $value = $this->fetchSimpleValue($feedData, $fieldInfo);
+        $formatting = Hash::get($fieldInfo, 'options.match');
+
+        return $this->parseDateAttribute($value, $formatting);
+    }
+
+    protected function parseExpiryDate($feedData, $fieldInfo): DateTime|bool|array|Carbon|string|null
+    {
+        $value = $this->fetchSimpleValue($feedData, $fieldInfo);
+        $formatting = Hash::get($fieldInfo, 'options.match');
+
+        return $this->parseDateAttribute($value, $formatting);
+    }
+
+
+    // Private Methods
+    // =========================================================================
 
     private function _preParseTickets($event): void
     {
@@ -284,26 +307,6 @@ class Event extends Element
         $event->feedData = $feedData;
         $event->contentData = $contentData;
         $event->element = $element;
-    }
-
-
-    // Protected Methods
-    // =========================================================================
-
-    protected function parsePostDate($feedData, $fieldInfo): DateTime|bool|array|Carbon|string|null
-    {
-        $value = $this->fetchSimpleValue($feedData, $fieldInfo);
-        $formatting = Hash::get($fieldInfo, 'options.match');
-
-        return $this->parseDateAttribute($value, $formatting);
-    }
-
-    protected function parseExpiryDate($feedData, $fieldInfo): DateTime|bool|array|Carbon|string|null
-    {
-        $value = $this->fetchSimpleValue($feedData, $fieldInfo);
-        $formatting = Hash::get($fieldInfo, 'options.match');
-
-        return $this->parseDateAttribute($value, $formatting);
     }
 
 }

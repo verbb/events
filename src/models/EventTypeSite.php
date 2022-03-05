@@ -64,7 +64,7 @@ class EventTypeSite extends Model
         if (($this->_site = Craft::$app->getSites()->getSiteById($this->siteId)) === null) {
             throw new InvalidConfigException('Invalid site ID: ' . $this->siteId);
         }
-        
+
         return $this->_site;
     }
 

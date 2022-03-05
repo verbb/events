@@ -29,7 +29,7 @@ use DateTime;
 
 class PurchasedTicket extends Element
 {
-    // Static
+    // Static Methods
     // =========================================================================
 
     public static function displayName(): string
@@ -41,12 +41,12 @@ class PurchasedTicket extends Element
     {
         return Craft::t('events', 'Purchased Tickets');
     }
-    
+
     public static function refHandle(): ?string
     {
         return 'purchasedTicket';
     }
-    
+
     public static function hasContent(): bool
     {
         return true;
@@ -59,10 +59,12 @@ class PurchasedTicket extends Element
 
     protected static function defineSources(string $context = null): array
     {
-        $sources = [[
-            'key' => '*',
-            'label' => Craft::t('events', 'All purchased tickets'),
-        ]];
+        $sources = [
+            [
+                'key' => '*',
+                'label' => Craft::t('events', 'All purchased tickets'),
+            ],
+        ];
 
         $eventElements = (new Query())
             ->select(['elements.id', 'purchasedtickets.eventId', 'content.title', 'eventtypes.name as eventTypeName'])
@@ -98,10 +100,6 @@ class PurchasedTicket extends Element
     {
         return ['ticketSku', 'event', 'ticket', 'order'];
     }
-
-
-    // Element index methods
-    // -------------------------------------------------------------------------
 
     protected static function defineSortOptions(): array
     {
@@ -146,77 +144,6 @@ class PurchasedTicket extends Element
         ];
     }
 
-    protected function tableAttributeHtml(string $attribute): string
-    {
-        switch ($attribute) {
-            case 'eventId': {
-                $event = $this->getEvent();
-
-                if ($event) {
-                    return "<a href='" . $event->cpEditUrl . "'>" . $event->title . "</a>";
-                }
-
-                return Craft::t('events', '[Deleted event]');
-            }
-            case 'ticketId': {
-                $ticket = $this->getTicket();
-
-                if ($ticket) {
-                    return "<a href='" . $ticket->cpEditUrl . "'>" . $ticket->title . "</a>";
-                }
-
-                return Craft::t('events', '[Deleted ticket]');
-            }
-            case 'orderId': {
-                $order = $this->getOrder();
-
-                if ($order) {
-                    return "<a href='" . $order->cpEditUrl . "'>" . $order->reference . "</a>";
-                }
-
-                return Craft::t('events', '[Deleted order]');
-            }
-            case 'customer': {
-                if (($customer = $this->getCustomer()) && $customer->getEmail()) {
-                    return $customer->getEmail();
-                }
-
-                if ($order = $this->getOrder()) {
-                    return $order->email;
-                }
-
-                return '';
-            }
-            case 'customerFirstName': {
-                if (($customer = $this->getCustomer()) && $customer->user) {
-                    return (string)$customer->user->firstName;
-                }
-
-                return Craft::t('events', '[Guest]');
-            }
-            case 'customerLastName': {
-                if (($customer = $this->getCustomer()) && $customer->user) {
-                    return (string)$customer->user->lastName;
-                }
-
-                return Craft::t('events', '[Guest]');
-            }
-            case 'customerFullName': {
-                if (($customer = $this->getCustomer()) && $customer->user) {
-                    return (string)$customer->user->fullName;
-                }
-
-                return Craft::t('events', '[Guest]');
-            }
-            case 'checkedIn': {
-                return '<span class="status ' . ($this->checkedIn ? 'live' : 'disabled') . '"></span>';
-            }
-            default: {
-                return parent::tableAttributeHtml($attribute);
-            }
-        }
-    }
-
     protected static function defineActions(string $source = null): array
     {
         $actions = [];
@@ -238,19 +165,18 @@ class PurchasedTicket extends Element
     // Properties
     // =========================================================================
 
-    public ?int $eventId = null;
-    public ?int $ticketId = null;
-    public ?int $orderId = null;
-    public ?int $lineItemId = null;
-    public ?string $ticketSku = null;
     public ?bool $checkedIn = null;
     public ?DateTime $checkedInDate = null;
-
-    private ?Event $_event = null;
-    private ?Ticket $_ticket = null;
-    private ?Order $_order = null;
-    private ?LineItem $_lineItem = null;
+    public ?int $eventId = null;
+    public ?int $lineItemId = null;
+    public ?int $orderId = null;
+    public ?int $ticketId = null;
+    public ?string $ticketSku = null;
     private ?Customer $_customer = null;
+    private ?Event $_event = null;
+    private ?LineItem $_lineItem = null;
+    private ?Order $_order = null;
+    private ?Ticket $_ticket = null;
 
 
     // Public Methods
@@ -273,9 +199,9 @@ class PurchasedTicket extends Element
     {
         return UrlHelper::cpUrl('events/purchased-tickets/' . $this->id);
     }
-    
+
     public function getFieldLayout(): ?FieldLayout
-    {   
+    {
         if ($ticket = $this->getTicket()) {
             return $ticket->getFieldLayout();
         }
@@ -396,10 +322,6 @@ class PurchasedTicket extends Element
         return $qrCode->writeDataUri();
     }
 
-
-    // Events
-    // -------------------------------------------------------------------------
-
     public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
@@ -412,7 +334,7 @@ class PurchasedTicket extends Element
             $purchasedTicketRecord = new PurchasedTicketRecord();
             $purchasedTicketRecord->id = $this->id;
         }
-        
+
         $purchasedTicketRecord->eventId = $this->eventId;
         $purchasedTicketRecord->ticketId = $this->ticketId;
         $purchasedTicketRecord->orderId = $this->orderId;
@@ -424,5 +346,89 @@ class PurchasedTicket extends Element
         $purchasedTicketRecord->save(false);
 
         parent::afterSave($isNew);
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function tableAttributeHtml(string $attribute): string
+    {
+        switch ($attribute) {
+            case 'eventId':
+            {
+                $event = $this->getEvent();
+
+                if ($event) {
+                    return "<a href='" . $event->cpEditUrl . "'>" . $event->title . "</a>";
+                }
+
+                return Craft::t('events', '[Deleted event]');
+            }
+            case 'ticketId':
+            {
+                $ticket = $this->getTicket();
+
+                if ($ticket) {
+                    return "<a href='" . $ticket->cpEditUrl . "'>" . $ticket->title . "</a>";
+                }
+
+                return Craft::t('events', '[Deleted ticket]');
+            }
+            case 'orderId':
+            {
+                $order = $this->getOrder();
+
+                if ($order) {
+                    return "<a href='" . $order->cpEditUrl . "'>" . $order->reference . "</a>";
+                }
+
+                return Craft::t('events', '[Deleted order]');
+            }
+            case 'customer':
+            {
+                if (($customer = $this->getCustomer()) && $customer->getEmail()) {
+                    return $customer->getEmail();
+                }
+
+                if ($order = $this->getOrder()) {
+                    return $order->email;
+                }
+
+                return '';
+            }
+            case 'customerFirstName':
+            {
+                if (($customer = $this->getCustomer()) && $customer->user) {
+                    return (string)$customer->user->firstName;
+                }
+
+                return Craft::t('events', '[Guest]');
+            }
+            case 'customerLastName':
+            {
+                if (($customer = $this->getCustomer()) && $customer->user) {
+                    return (string)$customer->user->lastName;
+                }
+
+                return Craft::t('events', '[Guest]');
+            }
+            case 'customerFullName':
+            {
+                if (($customer = $this->getCustomer()) && $customer->user) {
+                    return (string)$customer->user->fullName;
+                }
+
+                return Craft::t('events', '[Guest]');
+            }
+            case 'checkedIn':
+            {
+                return '<span class="status ' . ($this->checkedIn ? 'live' : 'disabled') . '"></span>';
+            }
+            default:
+            {
+                return parent::tableAttributeHtml($attribute);
+            }
+        }
     }
 }

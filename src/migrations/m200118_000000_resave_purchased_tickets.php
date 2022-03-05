@@ -12,7 +12,7 @@ class m200118_000000_resave_purchased_tickets extends Migration
     public function safeUp(): bool
     {
         Craft::$app->getQueue()->push(new ResaveElements([
-            'elementType' => PurchasedTicket::class
+            'elementType' => PurchasedTicket::class,
         ]));
 
         return true;

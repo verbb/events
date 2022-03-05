@@ -17,7 +17,7 @@ use yii\base\Exception;
 
 class TicketType extends Element
 {
-    // Static
+    // Static Methods
     // =========================================================================
 
     public static function displayName(): string
@@ -52,15 +52,13 @@ class TicketType extends Element
 
     protected static function defineSources(string $context = null): array
     {
-        return [[
-            'key' => '*',
-            'label' => Craft::t('events', 'All ticket types'),
-        ]];
+        return [
+            [
+                'key' => '*',
+                'label' => Craft::t('events', 'All ticket types'),
+            ],
+        ];
     }
-
-
-    // Element index methods
-    // -------------------------------------------------------------------------
 
     protected static function defineSortOptions(): array
     {
@@ -81,11 +79,11 @@ class TicketType extends Element
     // Properties
     // =========================================================================
 
-    public ?int $id = null;
-    public ?string $handle = null;
-    public ?int $taxCategoryId = null;
-    public ?int $shippingCategoryId = null;
     public ?int $fieldLayoutId = null;
+    public ?string $handle = null;
+    public ?int $id = null;
+    public ?int $shippingCategoryId = null;
+    public ?int $taxCategoryId = null;
 
 
     // Public Methods
@@ -136,10 +134,6 @@ class TicketType extends Element
         $this->title = $value;
     }
 
-
-    // Events
-    // -------------------------------------------------------------------------
-
     public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
@@ -152,7 +146,7 @@ class TicketType extends Element
             $ticketTypeRecord = new TicketTypeRecord();
             $ticketTypeRecord->id = $this->id;
         }
-        
+
         $ticketTypeRecord->handle = $this->handle;
         $ticketTypeRecord->taxCategoryId = $this->taxCategoryId;
         $ticketTypeRecord->shippingCategoryId = $this->shippingCategoryId;

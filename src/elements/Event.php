@@ -39,7 +39,7 @@ class Event extends Element
     const STATUS_EXPIRED = 'expired';
 
     
-    // Static
+    // Static Methods
     // =========================================================================
 
     public static function displayName(): string
@@ -88,13 +88,45 @@ class Event extends Element
             self::STATUS_LIVE => Craft::t('app', 'Live'),
             self::STATUS_PENDING => Craft::t('app', 'Pending'),
             self::STATUS_EXPIRED => Craft::t('app', 'Expired'),
-            self::STATUS_DISABLED => Craft::t('app', 'Disabled')
+            self::STATUS_DISABLED => Craft::t('app', 'Disabled'),
         ];
     }
 
     public static function find(): ElementQueryInterface
     {
         return new EventQuery(static::class);
+    }
+
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
+    {
+        if ($handle == 'tickets') {
+            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
+
+            $map = (new Query())
+                ->select('eventId as source, id as target')
+                ->from(['{{%events_tickets}}'])
+                ->where(['in', 'eventId', $sourceElementIds])
+                ->orderBy('sortOrder asc')
+                ->all();
+
+            return [
+                'elementType' => Ticket::class,
+                'map' => $map,
+            ];
+        }
+
+        return parent::eagerLoadingMap($sourceElements, $handle);
+    }
+
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
+    {
+        if ($attribute === 'tickets') {
+            $with = $elementQuery->with ?: [];
+            $with[] = 'tickets';
+            $elementQuery->with = $with;
+        } else {
+            parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
+        }
     }
 
     protected static function defineSources(string $context = null): array
@@ -113,15 +145,17 @@ class Event extends Element
             $eventTypeIds[] = $eventType->id;
         }
 
-        $sources = [[
-            'key' => '*',
-            'label' => Craft::t('events', 'All events'),
-            'criteria' => [
-                'typeId' => $eventTypeIds,
-                'editable' => $editable,
+        $sources = [
+            [
+                'key' => '*',
+                'label' => Craft::t('events', 'All events'),
+                'criteria' => [
+                    'typeId' => $eventTypeIds,
+                    'editable' => $editable,
+                ],
+                'defaultSort' => ['postDate', 'desc'],
             ],
-            'defaultSort' => ['postDate', 'desc'],
-        ]];
+        ];
 
         $sources[] = ['heading' => Craft::t('events', 'Event Types')];
 
@@ -139,7 +173,7 @@ class Event extends Element
                 'criteria' => [
                     'typeId' => $eventType->id,
                     'editable' => $editable,
-                ]
+                ],
             ];
         }
 
@@ -167,10 +201,6 @@ class Event extends Element
     {
         return ['title', 'sku'];
     }
-
-
-    // Element index methods
-    // -------------------------------------------------------------------------
 
     protected static function defineSortOptions(): array
     {
@@ -214,14 +244,14 @@ class Event extends Element
     // Properties
     // =========================================================================
 
-    public ?int $id = null;
-    public ?int $typeId = null;
     public ?bool $allDay = null;
     public ?int $capacity = null;
-    public ?DateTime $startDate = null;
     public ?DateTime $endDate = null;
-    public ?DateTime $postDate = null;
     public ?DateTime $expiryDate = null;
+    public ?int $id = null;
+    public ?DateTime $postDate = null;
+    public ?DateTime $startDate = null;
+    public ?int $typeId = null;
 
     private ?EventType $_eventType = null;
     private ?array $_tickets = null;
@@ -263,11 +293,11 @@ class Event extends Element
                         $ticket->addError('typeIds', Craft::t('events', 'Ticket type must be set.'));
                     } else if (!$ticket->validate()) {
                         $error = $ticket->getErrors()[0] ?? 'An error occurred';
-                        
+
                         $this->addError('tickets', Craft::t('events', $error));
                     }
                 }
-            }
+            },
         ];
 
         return $rules;
@@ -345,7 +375,7 @@ class Event extends Element
     public function getSnapshot(): array
     {
         $data = [
-            'title' => $this->title
+            'title' => $this->title,
         ];
 
         return array_merge($this->getAttributes(), $data);
@@ -417,38 +447,6 @@ class Event extends Element
         }
     }
 
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
-    {
-        if ($handle == 'tickets') {
-            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
-
-            $map = (new Query())
-                ->select('eventId as source, id as target')
-                ->from(['{{%events_tickets}}'])
-                ->where(['in', 'eventId', $sourceElementIds])
-                ->orderBy('sortOrder asc')
-                ->all();
-
-            return [
-                'elementType' => Ticket::class,
-                'map' => $map,
-            ];
-        }
-
-        return parent::eagerLoadingMap($sourceElements, $handle);
-    }
-
-    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
-    {
-        if ($attribute === 'tickets') {
-            $with = $elementQuery->with ?: [];
-            $with[] = 'tickets';
-            $elementQuery->with = $with;
-        } else {
-            parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
-        }
-    }
-
     public function getIsAvailable(): bool
     {
         return (bool)$this->getAvailableTickets();
@@ -494,7 +492,7 @@ class Event extends Element
             // Set Craft to the event's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            
+
             $this->title = Craft::$app->getView()->renderObjectTemplate($eventType->titleFormat, $this);
             Craft::$app->language = $language;
         }
@@ -557,10 +555,6 @@ class Event extends Element
         return $event;
     }
 
-
-    // Events
-    // -------------------------------------------------------------------------
-
     public function beforeSave(bool $isNew): bool
     {
         // Make sure the field layout is set correctly
@@ -590,7 +584,7 @@ class Event extends Element
             $record = new EventRecord();
             $record->id = $this->id;
         }
-        
+
         $record->allDay = $this->allDay;
         $record->capacity = $this->capacity;
         $record->startDate = $this->startDate;
@@ -708,8 +702,8 @@ class Event extends Element
                 'variables' => [
                     'event' => $this,
                     'product' => $this,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 

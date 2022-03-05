@@ -35,7 +35,7 @@ class Events extends Component
                     'siteId' => $siteId,
                     'status' => null,
                     'enabledForSite' => false,
-                ]
+                ],
             ]));
         }
     }

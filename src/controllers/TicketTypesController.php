@@ -4,6 +4,7 @@ namespace verbb\events\controllers;
 use verbb\events\Events;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
+
 // use verbb\events\models\TicketTypeSite;
 
 use Craft;
@@ -51,7 +52,7 @@ class TicketTypesController extends Controller
         } else {
             $variables['title'] = Craft::t('events', 'Create a Ticket Type');
         }
-        
+
         return $this->renderTemplate('events/ticket-types/_edit', $variables);
     }
 

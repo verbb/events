@@ -85,16 +85,16 @@ class Event implements SeoElementInterface
         // Install only for non-console Control Panel requests
         if ($request->getIsCpRequest() && !$request->getIsConsoleRequest()) {
             // Events sidebar
-            Craft::$app->view->hook('events.edit.details', function (&$context) {
+            Craft::$app->view->hook('events.edit.details', function(&$context) {
                 $html = '';
-                
+
                 Seomatic::$view->registerAssetBundle(SeomaticAsset::class);
-                
+
                 $event = $context[self::getElementRefHandle()] ?? null;
-                
+
                 if ($event !== null && $event->uri !== null) {
                     Seomatic::$plugin->metaContainers->previewMetaContainers($event->uri, $event->siteId, true);
-                    
+
                     // Render our preview sidebar template
                     if (Seomatic::$settings->displayPreviewSidebar) {
                         $html .= PluginTemplate::renderPluginTemplate('_sidebars/event-preview.twig');
@@ -103,7 +103,6 @@ class Event implements SeoElementInterface
 
                 return $html;
             });
-
         }
     }
 
@@ -230,7 +229,8 @@ class Event implements SeoElementInterface
 
         try {
             $sourceHandle = $element->getType()->handle;
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         return $sourceHandle;
     }

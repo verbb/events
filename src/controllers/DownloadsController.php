@@ -10,6 +10,7 @@ use craft\web\Controller;
 use craft\commerce\Plugin as Commerce;
 
 use yii\web\HttpException;
+use craft\web\Response;
 
 class DownloadsController extends Controller
 {
@@ -22,7 +23,7 @@ class DownloadsController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function actionPdf(): \craft\web\Response|string
+    public function actionPdf(): Response|string
     {
         $attributes = [];
         $ticket = [];

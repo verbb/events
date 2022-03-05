@@ -74,16 +74,16 @@ class EventsController extends Controller
         // Enable Live Preview?
         if (!Craft::$app->getRequest()->isMobileBrowser(true) && Events::$plugin->getEventTypes()->isEventTypeTemplateValid($variables['eventType'], $variables['site']->id)) {
             $this->getView()->registerJs('Craft.LivePreview.init(' . Json::encode([
-                'fields' => '#title-field, #fields > div > div > .field',
-                'extraFields' => '#details',
-                'previewUrl' => $variables['event']->getUrl(),
-                'previewAction' => Craft::$app->getSecurity()->hashData('events/events-preview/preview-event'),
-                'previewParams' => [
-                    'typeId' => $variables['eventType']->id,
-                    'eventId' => $variables['event']->id,
-                    'siteId' => $variables['event']->siteId,
-                ]
-            ]) . ');');
+                    'fields' => '#title-field, #fields > div > div > .field',
+                    'extraFields' => '#details',
+                    'previewUrl' => $variables['event']->getUrl(),
+                    'previewAction' => Craft::$app->getSecurity()->hashData('events/events-preview/preview-event'),
+                    'previewParams' => [
+                        'typeId' => $variables['eventType']->id,
+                        'eventId' => $variables['event']->id,
+                        'siteId' => $variables['event']->siteId,
+                    ],
+                ]) . ');');
 
             $variables['showPreviewBtn'] = true;
 
@@ -95,7 +95,7 @@ class EventsController extends Controller
                 } else {
                     $variables['shareUrl'] = UrlHelper::actionUrl('events/events-preview/share-event', [
                         'eventId' => $variables['event']->id,
-                        'siteId' => $variables['event']->siteId
+                        'siteId' => $variables['event']->siteId,
                     ]);
                 }
             }
@@ -114,7 +114,7 @@ class EventsController extends Controller
         $event = Events::$plugin->getEvents()->getEventById($eventId);
 
         if (!$event) {
-            throw new Exception(Craft::t('events', 'No event exists with the ID “{id}”.',['id' => $eventId]));
+            throw new Exception(Craft::t('events', 'No event exists with the ID “{id}”.', ['id' => $eventId]));
         }
 
         $this->enforceEventPermissions($event);
@@ -126,7 +126,7 @@ class EventsController extends Controller
 
             Craft::$app->getSession()->setError(Craft::t('events', 'Couldn’t delete event.'));
             Craft::$app->getUrlManager()->setRouteParams([
-                'event' => $event
+                'event' => $event,
             ]);
 
             return null;
@@ -184,7 +184,7 @@ class EventsController extends Controller
                 'title' => $event->title,
                 'status' => $event->getStatus(),
                 'url' => $event->getUrl(),
-                'cpEditUrl' => $event->getCpEditUrl()
+                'cpEditUrl' => $event->getCpEditUrl(),
             ]);
         }
 
@@ -216,7 +216,7 @@ class EventsController extends Controller
         foreach ($eventType->getEventFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
-            
+
             if ($event->hasErrors()) {
                 foreach ($tab->getFields() as $field) {
                     if ($hasErrors = $event->hasErrors($field->handle . '.*')) {
@@ -228,7 +228,7 @@ class EventsController extends Controller
             $variables['tabs'][] = [
                 'label' => Craft::t('events', $tab->name),
                 'url' => '#' . $tab->getHtmlId(),
-                'class' => $hasErrors ? 'error' : null
+                'class' => $hasErrors ? 'error' : null,
             ];
         }
 
@@ -238,7 +238,7 @@ class EventsController extends Controller
         ];
 
         $hasErrors = false;
-        
+
         foreach ($event->getTickets() as $ticket) {
             if ($hasErrors = $ticket->hasErrors()) {
                 break;
@@ -253,7 +253,7 @@ class EventsController extends Controller
             $variables['tabs'][] = [
                 'label' => Craft::t('events', 'Tickets'),
                 'url' => '#tab-tickets-container',
-                'class' => $hasErrors ? 'error' : null
+                'class' => $hasErrors ? 'error' : null,
             ];
         }
 

@@ -36,7 +36,7 @@ class ProjectConfigData
                 'icsTimezone',
                 'icsDescriptionFieldHandle',
                 'icsLocationFieldHandle',
-                'uid'
+                'uid',
             ])
             ->from(['{{%events_eventtypes}} eventTypes'])
             ->all();

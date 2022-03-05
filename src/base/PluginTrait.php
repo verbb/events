@@ -26,6 +26,20 @@ trait PluginTrait
     public static Events $plugin;
 
 
+    // Static Methods
+    // =========================================================================
+
+    public static function log($message): void
+    {
+        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'events');
+    }
+
+    public static function error($message): void
+    {
+        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'events');
+    }
+
+
     // Public Methods
     // =========================================================================
 
@@ -67,16 +81,6 @@ trait PluginTrait
     public function getTicketTypes(): TicketTypes
     {
         return $this->get('ticketTypes');
-    }
-
-    public static function log($message): void
-    {
-        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'events');
-    }
-
-    public static function error($message): void
-    {
-        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'events');
     }
 
 

@@ -49,8 +49,8 @@ class EventType extends Model
             'eventFieldLayout' => [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Event::class,
-                'idAttribute' => 'fieldLayoutId'
-            ]
+                'idAttribute' => 'fieldLayoutId',
+            ],
         ];
     }
 
@@ -131,10 +131,12 @@ class EventType extends Model
 
     public function getEventFieldHandles(): array
     {
-        $fieldList = [[
-            'label' => Craft::t('events', 'None'),
-            'value' => '',
-        ]];
+        $fieldList = [
+            [
+                'label' => Craft::t('events', 'None'),
+                'value' => '',
+            ],
+        ];
 
         if ($this->getFieldLayout()) {
             foreach ($this->getFieldLayout()->getCustomFields() as $field) {
