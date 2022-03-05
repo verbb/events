@@ -51,12 +51,12 @@ class EventsVariable
         return Events::$plugin->getTicketTypes()->getEditableTicketTypes();
     }
 
-    public function getEventTypeById($id): EventType
+    public function getEventTypeById($id): ?EventType
     {
         return Events::$plugin->getEventTypes()->getEventTypeById($id);
     }
 
-    public function getEventTypeByHandle($handle): EventType
+    public function getEventTypeByHandle($handle): ?EventType
     {
         return Events::$plugin->getEventTypes()->getEventTypeByHandle($handle);
     }

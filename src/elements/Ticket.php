@@ -551,7 +551,7 @@ class Ticket extends Purchasable
 
             // Remove custom fields
             if (($fieldLayout = $event->getFieldLayout()) !== null) {
-                foreach ($fieldLayout->getFields() as $field) {
+                foreach ($fieldLayout->getCustomFields() as $field) {
                     ArrayHelper::removeValue($eventAttributes, $field->handle);
                 }
             }

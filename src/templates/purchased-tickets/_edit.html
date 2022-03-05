@@ -10,15 +10,16 @@
 {% set selectedSubnavItem = 'purchasedTickets' %}
 {% set element = purchasedTicket %}
 
-{% set selectedTab = 'ticketDetailsTab' %}
+{% set selectedTab = 'details' %}
+
 {% set tabs = {
-	ticketDetailsTab: { label: 'Details' | t('events'), url: '#ticketDetailsTab' },
+	details: { label: 'Details' | t('events'), url: '#ticket-details' },
 } %}
 
 {% if fieldLayout %}
     {% for tab in fieldLayout.getTabs() %}
-    	{% set tabs = tabs|merge({
-    		("tab"~loop.index) : { label: tab.name | t('events'), url: '#tab'~loop.index }
+    	{% set tabs = tabs | merge({
+    		('tab' ~ loop.index) : { label: tab.name | t('events'), url: '#' ~ tab.getHtmlId() }
     	}) %}
     {% endfor %}
 {% endif %}
@@ -57,42 +58,35 @@
 <input type="hidden" name="action" value="events/purchased-tickets/save">
 <input type="hidden" name="id" value="{{ purchasedTicket.id }}">
 
-<div id="ticketDetailsTab">
-{{ forms.textField({
-    first: true,
-    label: 'Ticket SKU' | t('events'),
-    id: 'ticketSku',
-    name: 'ticketSku',
-    value: purchasedTicket.ticketSku ?? '',
-    errors: purchasedTicket.getErrors('ticketSku') ?? '',
-}) }}
+<div id="fields">
+    <div id="ticket-details">
+        {{ forms.textField({
+            first: true,
+            label: 'Ticket SKU' | t('events'),
+            id: 'ticketSku',
+            name: 'ticketSku',
+            value: purchasedTicket.ticketSku ?? '',
+            errors: purchasedTicket.getErrors('ticketSku') ?? '',
+        }) }}
 
-<hr>
+        <hr>
 
-<p>
-    <strong>{{ 'Check-in QR Code' | t('events') }}</strong><br>
+        <p>
+            <strong>{{ 'Check-in QR Code' | t('events') }}</strong><br>
 
-    {% set url = actionUrl('events/ticket/checkin', { sku: purchasedTicket.ticketSku }) %}
-    {% set url = url | replace(craft.app.config.general.cpTrigger ~ '/', '') %}
+            {% set url = actionUrl('events/ticket/checkin', { sku: purchasedTicket.ticketSku }) %}
+            {% set url = url | replace(craft.app.config.general.cpTrigger ~ '/', '') %}
 
-    <a href="{{ url }}" target="_blank">
-        {{ 'Check in URL' | t('events') }}
-    </a>
-</p>
+            <a href="{{ url }}" target="_blank">
+                {{ 'Check in URL' | t('events') }}
+            </a>
+        </p>
 
-<img width="150px" src="{{ purchasedTicket.qrCode }}" />
+        <img width="150px" src="{{ purchasedTicket.qrCode }}" />
+    </div>
+
+    {{ fieldLayout.createForm(purchasedTicket).render(false) | raw }}
 </div>
-
-{% if fieldLayout %}
-    {% for tab in fieldLayout.getTabs() %}
-        <div id="tab{{ loop.index }}" class="hidden">
-            {% include "_includes/fields" with {
-                fields: tab.getFields(),
-                element: purchasedTicket,
-            } only %}
-        </div>
-    {% endfor %}
-{% endif %}
 
 {% endblock %}
 
