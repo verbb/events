@@ -33,7 +33,7 @@ class Install extends Migration
         Craft::$app->projectConfig->remove('events');
     }
 
-    
+
     // Protected Methods
     // =========================================================================
 

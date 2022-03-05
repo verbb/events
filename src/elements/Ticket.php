@@ -269,7 +269,7 @@ class Ticket extends Purchasable
         return null;
     }
 
-    public function getEvent(): ElementInterface|Model|array
+    public function getEvent(): ElementInterface
     {
         if ($this->_event !== null) {
             return $this->_event;
