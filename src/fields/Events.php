@@ -8,7 +8,7 @@ use craft\fields\BaseRelationField;
 
 class Events extends BaseRelationField
 {
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function displayName(): string
@@ -16,7 +16,7 @@ class Events extends BaseRelationField
         return Craft::t('events', 'Events');
     }
 
-    protected static function elementType(): string
+    public static function elementType(): string
     {
         return Event::class;
     }

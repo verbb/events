@@ -1,22 +1,15 @@
 <?php
 namespace verbb\events\elements;
 
-use verbb\events\Events;
 use verbb\events\elements\db\TicketTypeQuery;
 use verbb\events\records\TicketTypeRecord;
 
 use Craft;
 use craft\base\Element;
 use craft\behaviors\FieldLayoutBehavior;
-use craft\db\Query;
-use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
-use craft\helpers\ArrayHelper;
-use craft\helpers\DateTimeHelper;
-use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use craft\validators\DateTimeValidator;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 
@@ -59,12 +52,10 @@ class TicketType extends Element
 
     protected static function defineSources(string $context = null): array
     {
-        $sources = [[
+        return [[
             'key' => '*',
             'label' => Craft::t('events', 'All ticket types'),
         ]];
-
-        return $sources;
     }
 
 
@@ -90,17 +81,17 @@ class TicketType extends Element
     // Properties
     // =========================================================================
 
-    public $id;
-    public $handle;
-    public $taxCategoryId;
-    public $shippingCategoryId;
-    public $fieldLayoutId;
+    public ?int $id = null;
+    public ?string $handle = null;
+    public ?int $taxCategoryId = null;
+    public ?int $shippingCategoryId = null;
+    public ?int $fieldLayoutId = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
 
@@ -112,18 +103,17 @@ class TicketType extends Element
         return $rules;
     }
 
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('events/ticket-types/' . $this->id);
     }
 
-    public function getFieldLayout()
+    public function getFieldLayout(): ?FieldLayout
     {
-        $behavior = $this->getBehavior('fieldLayout');
-        return $behavior->getFieldLayout();
+        return $this->getBehavior('fieldLayout')->getFieldLayout();
     }
 
-    public function behaviors()
+    public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
@@ -136,12 +126,12 @@ class TicketType extends Element
         return $behaviors;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->title ?? '';
     }
 
-    public function setName($value)
+    public function setName($value): void
     {
         $this->title = $value;
     }
@@ -150,7 +140,7 @@ class TicketType extends Element
     // Events
     // -------------------------------------------------------------------------
 
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
             $ticketTypeRecord = TicketTypeRecord::findOne($this->id);
@@ -175,7 +165,7 @@ class TicketType extends Element
 
         $ticketTypeRecord->save(false);
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 
     public function beforeDelete(): bool

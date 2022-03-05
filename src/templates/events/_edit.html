@@ -131,18 +131,13 @@
         {% endif %}
 
         <div>
-            {% set allEventTab = eventType.getFieldLayout().getTabs() %}
+            {% set fieldLayout = eventType.getFieldLayout() %}
 
-            {% for tab in eventType.getFieldLayout().getTabs() %}
-                <div id="{{ tab.getHtmlId() }}" {% if not loop.first %} class="hidden" {% endif %}>
-                    {% include '_includes/fields' with {
-                        fields: tab.getFields(),
-                        element: event,
-                    } only %}
-                </div>
-            {% endfor %}
+            {% if fieldLayout.getTabs() | length %}
+                {{ fieldLayout.createForm(event).render() | raw }}
+            {% endif %}
 
-            <div id="tab-dates-container"{% if allEventTab | length > 0 %} class="hidden"{% endif %}>
+            <div id="tab-dates-container"{% if fieldLayout.getTabs() | length %} class="hidden"{% endif %}>
                 {{ forms.dateTimeField({
                     label: 'Start Date' | t('events'),
                     instructions: 'The start date/time for your event.' | t('events'),

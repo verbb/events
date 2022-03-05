@@ -7,24 +7,18 @@ use verbb\events\elements\Event;
 use Craft;
 use craft\web\Controller;
 
-use Jsvrcek\ICS\CalendarStream;
-use Jsvrcek\ICS\CalendarExport;
-use Jsvrcek\ICS\Model\Calendar;
-use Jsvrcek\ICS\Model\CalendarEvent;
-use Jsvrcek\ICS\Utility\Formatter;
-
 class IcsController extends Controller
 {
     // Properties
     // =========================================================================
 
-    protected $allowAnonymous = true;
+    protected array|bool|int $allowAnonymous = true;
 
 
     // Public Methods
     // =========================================================================
 
-    public function actionIndex()
+    public function actionIndex(): void
     {
         $request = Craft::$app->getRequest();
 
@@ -45,7 +39,7 @@ class IcsController extends Controller
         exit();
     }
 
-    public function actionEventType()
+    public function actionEventType(): void
     {
         $request = Craft::$app->getRequest();
 

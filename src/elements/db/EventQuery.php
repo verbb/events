@@ -16,25 +16,24 @@ use craft\commerce\db\Table as CommerceTable;
 use craft\commerce\models\Customer;
 
 use DateTime;
-use yii\db\Connection;
 
 class EventQuery extends ElementQuery
 {
     // Properties
     // =========================================================================
 
-    public $editable = false;
-    public $typeId;
-    public $startDate;
-    public $endDate;
-    public $postDate;
-    public $expiryDate;
+    public bool $editable = false;
+    public mixed $typeId = null;
+    public mixed $startDate = null;
+    public mixed $endDate = null;
+    public mixed $postDate = null;
+    public mixed $expiryDate = null;
 
-    public $before;
-    public $after;
-    public $customerId;
+    public mixed $before = null;
+    public mixed $after = null;
+    public mixed $customerId = null;
 
-    protected $defaultOrderBy = ['events_events.startDate' => SORT_ASC];
+    protected array $defaultOrderBy = ['events_events.startDate' => SORT_ASC];
 
 
     // Public Methods
@@ -64,7 +63,7 @@ class EventQuery extends ElementQuery
         }
     }
 
-    public function type($value)
+    public function type($value): static
     {
         if ($value instanceof EventType) {
             $this->typeId = $value->id;
@@ -81,60 +80,55 @@ class EventQuery extends ElementQuery
         return $this;
     }
 
-    public function before($value)
+    public function before($value): static
     {
         $this->before = $value;
         return $this;
     }
 
-    public function after($value)
+    public function after($value): static
     {
         $this->after = $value;
         return $this;
     }
 
-    public function editable(bool $value = true)
+    public function editable(bool $value = true): static
     {
         $this->editable = $value;
         return $this;
     }
 
-    public function typeId($value)
+    public function typeId($value): static
     {
         $this->typeId = $value;
         return $this;
     }
 
-    public function startDate($value)
+    public function startDate($value): static
     {
         $this->startDate = $value;
         return $this;
     }
 
-    public function endDate($value)
+    public function endDate($value): static
     {
         $this->endDate = $value;
         return $this;
     }
 
-    public function postDate($value)
+    public function postDate($value): static
     {
         $this->postDate = $value;
         return $this;
     }
 
-    public function expiryDate($value)
+    public function expiryDate($value): static
     {
         $this->expiryDate = $value;
         return $this;
     }
 
-    public function status($value)
-    {
-        return parent::status($value);
-    }
-
-    public function customer(Customer $value = null)
+    public function customer(Customer $value = null): static
     {
         if ($value) {
             $this->customerId = $value->id;
@@ -145,7 +139,7 @@ class EventQuery extends ElementQuery
         return $this;
     }
 
-    public function customerId($value)
+    public function customerId($value): static
     {
         $this->customerId = $value;
         return $this;
@@ -217,53 +211,49 @@ class EventQuery extends ElementQuery
         return parent::beforePrepare();
     }
 
-    protected function statusCondition(string $status)
+    protected function statusCondition(string $status): mixed
     {
-        $currentTimeDb = Db::prepareDateForDb(new \DateTime());
+        $currentTimeDb = Db::prepareDateForDb(new DateTime());
 
-        switch ($status) {
-            case Event::STATUS_LIVE:
-                return [
-                    'and',
-                    [
-                        'elements.enabled' => true,
-                        'elements_sites.enabled' => true
-                    ],
-                    ['<=', 'events_events.postDate', $currentTimeDb],
-                    [
-                        'or',
-                        ['events_events.expiryDate' => null],
-                        ['>', 'events_events.expiryDate', $currentTimeDb]
-                    ]
-                ];
-            case Event::STATUS_PENDING:
-                return [
-                    'and',
-                    [
-                        'elements.enabled' => true,
-                        'elements_sites.enabled' => true,
-                    ],
-                    ['>', 'events_events.postDate', $currentTimeDb]
-                ];
-            case Event::STATUS_EXPIRED:
-                return [
-                    'and',
-                    [
-                        'elements.enabled' => true,
-                        'elements_sites.enabled' => true
-                    ],
-                    ['not', ['events_events.expiryDate' => null]],
-                    ['<=', 'events_events.expiryDate', $currentTimeDb]
-                ];
-            default:
-                return parent::statusCondition($status);
-        }
+        return match ($status) {
+            Event::STATUS_LIVE => [
+                'and',
+                [
+                    'elements.enabled' => true,
+                    'elements_sites.enabled' => true
+                ],
+                ['<=', 'events_events.postDate', $currentTimeDb],
+                [
+                    'or',
+                    ['events_events.expiryDate' => null],
+                    ['>', 'events_events.expiryDate', $currentTimeDb]
+                ]
+            ],
+            Event::STATUS_PENDING => [
+                'and',
+                [
+                    'elements.enabled' => true,
+                    'elements_sites.enabled' => true,
+                ],
+                ['>', 'events_events.postDate', $currentTimeDb]
+            ],
+            Event::STATUS_EXPIRED => [
+                'and',
+                [
+                    'elements.enabled' => true,
+                    'elements_sites.enabled' => true
+                ],
+                ['not', ['events_events.expiryDate' => null]],
+                ['<=', 'events_events.expiryDate', $currentTimeDb]
+            ],
+            default => parent::statusCondition($status),
+        };
     }
 
     // Private Methods
     // =========================================================================
 
-    private function _applyEditableParam()
+    private function _applyEditableParam(): void
     {
         if (!$this->editable) {
             return;
@@ -281,7 +271,7 @@ class EventQuery extends ElementQuery
         ]);
     }
 
-    private function _applyRefParam()
+    private function _applyRefParam(): void
     {
         if (!$this->ref) {
             return;

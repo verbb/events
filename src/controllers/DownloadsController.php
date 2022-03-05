@@ -10,21 +10,22 @@ use craft\web\Controller;
 use craft\commerce\Plugin as Commerce;
 
 use yii\web\HttpException;
-use yii\web\Response;
 
 class DownloadsController extends Controller
 {
     // Properties
     // =========================================================================
 
-    protected $allowAnonymous = true;
+    protected array|bool|int $allowAnonymous = true;
 
 
     // Public Methods
     // =========================================================================
 
-    public function actionPdf()
+    public function actionPdf(): \craft\web\Response|string
     {
+        $attributes = [];
+        $ticket = [];
         $request = Craft::$app->getRequest();
 
         $tickets = [];
@@ -54,16 +55,16 @@ class DownloadsController extends Controller
         }
 
         $purchasedTickets = PurchasedTicket::find();
-		
-		if ($ticketId) {
-			$purchasedTickets->id($ticketId);
-		} else {
-			$purchasedTickets->orderId($order->id);
-		}
+
+        if ($ticketId) {
+            $purchasedTickets->id($ticketId);
+        } else {
+            $purchasedTickets->orderId($order->id);
+        }
         $purchasedTickets->all();
 
-        $pdf = Events::getInstance()->getPdf()->renderPdf($purchasedTickets, $order, $lineItem, $option);
-        $filenameFormat = Events::getInstance()->getSettings()->ticketPdfFilenameFormat;
+        $pdf = Events::$plugin->getPdf()->renderPdf($purchasedTickets, $order, $lineItem, $option);
+        $filenameFormat = Events::$plugin->getSettings()->ticketPdfFilenameFormat;
 
         $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);
 
@@ -85,8 +86,8 @@ class DownloadsController extends Controller
 
         if ($format === 'plain') {
             return $pdf;
-        } else {
-            return Craft::$app->getResponse()->sendContentAsFile($pdf, $fileName . '.pdf', $options);
         }
+
+        return Craft::$app->getResponse()->sendContentAsFile($pdf, $fileName . '.pdf', $options);
     }
 }

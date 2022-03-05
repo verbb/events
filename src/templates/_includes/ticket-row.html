@@ -63,12 +63,10 @@
         {% if types %}
             {% set ticketType = types[0] %}
 
-            {% for tab in ticketType.getFieldLayout().getTabs() %}
-                {% for field in tab.getFields() %}
-                    {% if ticket.hasErrors(field.handle ~ '.*') %}
-                        {% set hasErrors = 'error' %}
-                    {% endif %}
-                {% endfor %}
+            {% for field in ticketType.getFieldLayout().getCustomFields() %}
+                {% if ticket.hasErrors(field.handle ~ '.*') %}
+                    {% set hasErrors = 'error' %}
+                {% endif %}
             {% endfor %}
         {% endif %}
 
@@ -98,12 +96,10 @@
 
             <div class="ticket-type-fields">
                 {% if ticket %}
-                    {% for tab in ticket.type.getFieldLayout().getTabs() %}
-                        {% include '_includes/fields' with {
-                            fields: tab.getFields(),
-                            element: ticket,
-                        } only %}
-                    {% endfor %}
+                    {% include '_includes/fields' with {
+                        fields: ticketType.getFieldLayout().getCustomFields(),
+                        element: ticket,
+                    } only %}
                 {% endif %}
             </div>
         </div>

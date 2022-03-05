@@ -41,10 +41,10 @@ class TicketHelper
         ];
     }
 
-    public static function generateTicketSKU()
+    public static function generateTicketSKU(): string
     {
         $codeAlphabet = self::TICKET_KEY_CHARACTERS;
-        $keyLength = Events::getInstance()->getSettings()->ticketSKULength;
+        $keyLength = Events::$plugin->getSettings()->ticketSKULength;
         $ticketKey = '';
         
         for ($i = 0; $i < $keyLength; $i++) {

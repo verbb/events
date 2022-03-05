@@ -2,14 +2,12 @@
 namespace verbb\events\services;
 
 use verbb\events\Events;
-use verbb\events\elements\Ticket;
 
 use Craft;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\web\View;
 
-use craft\commerce\Plugin as Commerce;
 use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
 use craft\commerce\models\LineItem;
@@ -31,7 +29,7 @@ class Pdf extends Component
     // Public Methods
     // =========================================================================
 
-    public function getPdfUrl(Order $order, LineItem $lineItem = null, $option = null)
+    public function getPdfUrl(Order $order, LineItem $lineItem = null, $option = null): string
     {
         return UrlHelper::actionUrl('events/downloads/pdf', array_filter([
             'number' => $order->number ?? null,
@@ -40,7 +38,7 @@ class Pdf extends Component
         ]));
     }
 
-    public function getPdfUrlForTicket($ticket, $option = null)
+    public function getPdfUrlForTicket($ticket, $option = null): string
     {
         return UrlHelper::actionUrl('events/downloads/pdf', array_filter([
             'ticketId' => $ticket->id ?? null,
@@ -48,9 +46,9 @@ class Pdf extends Component
         ]));
     }
 
-    public function renderPdf($tickets, $order = [], $lineItem = null, $option = '', $templatePath = null): string
+    public function renderPdf($tickets, Order $order = null, $lineItem = null, $option = '', $templatePath = null): string
     {
-        $settings = Events::getInstance()->getSettings();
+        $settings = Events::$plugin->getSettings();
 
         $request = Craft::$app->getRequest();
         $format = $request->getParam('format');
@@ -115,15 +113,15 @@ class Pdf extends Component
         FileHelper::createDirectory($dompdfFontCache);
 
         if (!FileHelper::isWritable($dompdfLogFile)) {
-            throw new ErrorException("Unable to write to file: $dompdfLogFile");
+            throw new Exception("Unable to write to file: $dompdfLogFile");
         }
 
         if (!FileHelper::isWritable($dompdfFontCache)) {
-            throw new ErrorException("Unable to write to folder: $dompdfFontCache");
+            throw new Exception("Unable to write to folder: $dompdfFontCache");
         }
 
         if (!FileHelper::isWritable($dompdfTempDir)) {
-            throw new ErrorException("Unable to write to folder: $dompdfTempDir");
+            throw new Exception("Unable to write to folder: $dompdfTempDir");
         }
 
         $isRemoteEnabled = $settings->pdfAllowRemoteImages;
@@ -145,9 +143,9 @@ class Pdf extends Component
 
         if ($format === 'plain') {
             return $html;
-        } else {
-            $dompdf->render();
         }
+
+        $dompdf->render();
 
         // Trigger an 'afterRenderPdf' event
         $event = new PdfEvent([

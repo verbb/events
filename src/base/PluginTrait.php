@@ -14,65 +14,67 @@ use verbb\events\integrations\klaviyoconnect\KlaviyoConnect;
 
 use Craft;
 
+use yii\log\Logger;
+
 use verbb\base\BaseHelper;
 
 trait PluginTrait
 {
-    // Static Properties
+    // Properties
     // =========================================================================
 
-    public static $plugin;
+    public static Events $plugin;
 
 
     // Public Methods
     // =========================================================================
 
-    public function getEvents()
+    public function getEvents(): EventsService
     {
         return $this->get('events');
     }
 
-    public function getEventTypes()
+    public function getEventTypes(): EventTypes
     {
         return $this->get('eventTypes');
     }
 
-    public function getIcs()
+    public function getIcs(): Ics
     {
         return $this->get('ics');
     }
 
-    public function getKlaviyoConnect()
+    public function getKlaviyoConnect(): KlaviyoConnect
     {
         return $this->get('klaviyoConnect');
     }
 
-    public function getPdf()
+    public function getPdf(): Pdf
     {
         return $this->get('pdf');
     }
 
-    public function getPurchasedTickets()
+    public function getPurchasedTickets(): PurchasedTickets
     {
         return $this->get('purchasedTickets');
     }
 
-    public function getTickets()
+    public function getTickets(): Tickets
     {
         return $this->get('tickets');
     }
 
-    public function getTicketTypes()
+    public function getTicketTypes(): TicketTypes
     {
         return $this->get('ticketTypes');
     }
 
-    public static function log($message)
+    public static function log($message): void
     {
         Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'events');
     }
 
-    public static function error($message)
+    public static function error($message): void
     {
         Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'events');
     }
@@ -81,7 +83,7 @@ trait PluginTrait
     // Private Methods
     // =========================================================================
 
-    private function _setPluginComponents()
+    private function _setPluginComponents(): void
     {
         $this->setComponents([
             'events' => EventsService::class,
@@ -97,7 +99,7 @@ trait PluginTrait
         BaseHelper::registerModule();
     }
 
-    private function _setLogging()
+    private function _setLogging(): void
     {
         BaseHelper::setFileLogging('events');
     }

@@ -3,17 +3,13 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 use verbb\events\elements\Event;
-use verbb\events\elements\Ticket;
 use verbb\events\helpers\EventHelper;
 use verbb\events\helpers\TicketHelper;
 
 use Craft;
 use craft\base\Element;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
-use craft\helpers\Localization;
 use craft\helpers\UrlHelper;
-use craft\models\Site;
 use craft\web\Controller;
 
 use yii\base\Exception;
@@ -21,14 +17,13 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
-use yii\web\ServerErrorHttpException;
 
 class EventsController extends Controller
 {
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         $this->requirePermission('events-manageEvents');
 
@@ -77,7 +72,7 @@ class EventsController extends Controller
         $this->_prepVariables($variables);
 
         // Enable Live Preview?
-        if (!Craft::$app->getRequest()->isMobileBrowser(true) && Events::getInstance()->getEventTypes()->isEventTypeTemplateValid($variables['eventType'], $variables['site']->id)) {
+        if (!Craft::$app->getRequest()->isMobileBrowser(true) && Events::$plugin->getEventTypes()->isEventTypeTemplateValid($variables['eventType'], $variables['site']->id)) {
             $this->getView()->registerJs('Craft.LivePreview.init(' . Json::encode([
                 'fields' => '#title-field, #fields > div > div > .field',
                 'extraFields' => '#details',
@@ -111,12 +106,12 @@ class EventsController extends Controller
         return $this->renderTemplate('events/events/_edit', $variables);
     }
 
-    public function actionDelete()
+    public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
 
         $eventId = Craft::$app->getRequest()->getRequiredParam('eventId');
-        $event = Events::getInstance()->getEvents()->getEventById($eventId);
+        $event = Events::$plugin->getEvents()->getEventById($eventId);
 
         if (!$event) {
             throw new Exception(Craft::t('events', 'No event exists with the ID “{id}”.',['id' => $eventId]));
@@ -146,7 +141,7 @@ class EventsController extends Controller
         return $this->redirectToPostedUrl($event);
     }
 
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -202,7 +197,7 @@ class EventsController extends Controller
     // Protected Methods
     // =========================================================================
 
-    protected function enforceEventPermissions(Event $event)
+    protected function enforceEventPermissions(Event $event): void
     {
         $this->requirePermission('events-manageEventType:' . $event->getType()->uid);
     }
@@ -211,7 +206,7 @@ class EventsController extends Controller
     // Private Methods
     // =========================================================================
 
-    private function _prepVariables(&$variables)
+    private function _prepVariables(&$variables): void
     {
         $variables['tabs'] = [];
 
@@ -268,12 +263,12 @@ class EventsController extends Controller
         $variables['ticketTypeHtml'] = $this->_getTicketTypeHtml();
     }
 
-    private function _prepEditEventVariables(array &$variables)
+    private function _prepEditEventVariables(array &$variables): void
     {
         if (!empty($variables['eventTypeHandle'])) {
-            $variables['eventType'] = Events::getInstance()->getEventTypes()->getEventTypeByHandle($variables['eventTypeHandle']);
+            $variables['eventType'] = Events::$plugin->getEventTypes()->getEventTypeByHandle($variables['eventTypeHandle']);
         } else if (!empty($variables['eventTypeId'])) {
-            $variables['eventType'] = Events::getInstance()->getEventTypes()->getEventTypeById($variables['eventTypeId']);
+            $variables['eventType'] = Events::$plugin->getEventTypes()->getEventTypeById($variables['eventTypeId']);
         }
 
         if (empty($variables['eventType'])) {
@@ -311,7 +306,7 @@ class EventsController extends Controller
         }
 
         if (!empty($variables['eventTypeHandle'])) {
-            $variables['eventType'] = Events::getInstance()->getEventTypes()->getEventTypeByHandle($variables['eventTypeHandle']);
+            $variables['eventType'] = Events::$plugin->getEventTypes()->getEventTypeByHandle($variables['eventTypeHandle']);
         }
 
         if (empty($variables['eventType'])) {
@@ -323,7 +318,7 @@ class EventsController extends Controller
 
         if (empty($variables['event'])) {
             if (!empty($variables['eventId'])) {
-                $variables['event'] = Events::getInstance()->getEvents()->getEventById($variables['eventId'], $variables['site']->id);
+                $variables['event'] = Events::$plugin->getEvents()->getEventById($variables['eventId'], $variables['site']->id);
 
                 if (!$variables['event']) {
                     throw new NotFoundHttpException('Event not found');
@@ -352,7 +347,7 @@ class EventsController extends Controller
 
         if (empty($variables['tickets'])) {
             if ($variables['event']->id) {
-                $variables['tickets'] = Events::getInstance()->getTickets()->getAllTicketsByEventId($variables['event']->id);
+                $variables['tickets'] = Events::$plugin->getTickets()->getAllTicketsByEventId($variables['event']->id);
             } else {
                 // Always have at least one row for new events
                 $variables['tickets'] = [];
@@ -360,7 +355,7 @@ class EventsController extends Controller
         }
     }
 
-    private function _getTicketTypeHtml()
+    private function _getTicketTypeHtml(): array
     {
         $ticketTypes = Events::$plugin->getTicketTypes()->getAllTicketTypes();
         $html = [];

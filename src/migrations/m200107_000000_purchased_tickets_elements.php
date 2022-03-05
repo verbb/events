@@ -7,13 +7,10 @@ use verbb\events\records\PurchasedTicketRecord;
 use Craft;
 use craft\db\Migration;
 use craft\db\Query;
-use craft\helpers\MigrationHelper;
-use craft\helpers\Component as ComponentHelper;
-use craft\helpers\StringHelper;
 
 class m200107_000000_purchased_tickets_elements extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         // Convert models into elements
         $purchasedTickets = (new Query())
@@ -52,7 +49,7 @@ class m200107_000000_purchased_tickets_elements extends Migration
         return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m200107_000000_purchased_tickets_elements cannot be reverted.\n";
         return false;

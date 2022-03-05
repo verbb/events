@@ -3,15 +3,16 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 
-use Craft;
 use craft\web\Controller;
+
+use yii\web\Response;
 
 class BaseController extends Controller
 {
     // Public Methods
     // =========================================================================
 
-    public function actionSettings()
+    public function actionSettings(): Response
     {
         $settings = Events::$plugin->getSettings();
 

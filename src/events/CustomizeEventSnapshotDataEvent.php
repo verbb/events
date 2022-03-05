@@ -1,6 +1,8 @@
 <?php
 namespace verbb\events\events;
 
+use verbb\events\elements\Event as EventElement;
+
 use yii\base\Event;
 
 class CustomizeEventSnapshotDataEvent extends Event
@@ -8,6 +10,6 @@ class CustomizeEventSnapshotDataEvent extends Event
     // Properties
     // =========================================================================
 
-    public $event;
-    public $fieldData;
+    public EventElement $event;
+    public array $fieldData = [];
 }

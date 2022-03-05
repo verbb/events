@@ -9,17 +9,18 @@ use verbb\events\models\EventTypeSite;
 use Craft;
 use craft\web\Controller;
 
-use DateTime;
-
-use yii\base\Exception;
 use yii\web\Response;
+use yii\web\NotFoundHttpException;
+
+use DateTime;
+use DateTimeZone;
 
 class EventTypesController extends Controller
 {
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         $this->requirePermission('events-manageEventTypes');
 
@@ -36,11 +37,10 @@ class EventTypesController extends Controller
 
         if (empty($variables['eventType'])) {
             if (!empty($variables['eventTypeId'])) {
-                $eventTypeId = $variables['eventTypeId'];
-                $variables['eventType'] = Events::getInstance()->getEventTypes()->getEventTypeById($eventTypeId);
+                $variables['eventType'] = Events::$plugin->getEventTypes()->getEventTypeById($eventTypeId);
 
                 if (!$variables['eventType']) {
-                    throw new HttpException(404);
+                    throw new NotFoundHttpException();
                 }
             } else {
                 $variables['eventType'] = new EventType();
@@ -59,7 +59,7 @@ class EventTypesController extends Controller
         return $this->renderTemplate('events/event-types/_edit', $variables);
     }
 
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -107,7 +107,7 @@ class EventTypesController extends Controller
         $eventType->setFieldLayout($fieldLayout);
 
         // Save it
-        if (Events::getInstance()->getEventTypes()->saveEventType($eventType)) {
+        if (Events::$plugin->getEventTypes()->saveEventType($eventType)) {
             Craft::$app->getSession()->setNotice(Craft::t('events', 'Event type saved.'));
 
             return $this->redirectToPostedUrl($eventType);
@@ -129,7 +129,7 @@ class EventTypesController extends Controller
         $this->requireAcceptsJson();
 
         $eventTypeId = Craft::$app->getRequest()->getRequiredParam('id');
-        Events::getInstance()->getEventTypes()->deleteEventTypeById($eventTypeId);
+        Events::$plugin->getEventTypes()->deleteEventTypeById($eventTypeId);
 
         return $this->asJson(['success' => true]);
     }
@@ -138,7 +138,7 @@ class EventTypesController extends Controller
     // Private Methods
     // =========================================================================
 
-    private function _getTimezoneOptions()
+    private function _getTimezoneOptions(): array
     {
         // Assemble the timezone options array (Technique adapted from http://stackoverflow.com/a/7022536/1688568)
         $timezoneOptions = [];
@@ -147,8 +147,8 @@ class EventTypesController extends Controller
         $offsets = [];
         $timezoneIds = [];
 
-        foreach (\DateTimeZone::listIdentifiers() as $timezoneId) {
-            $timezone = new \DateTimeZone($timezoneId);
+        foreach (DateTimeZone::listIdentifiers() as $timezoneId) {
+            $timezone = new DateTimeZone($timezoneId);
             $transition = $timezone->getTransitions($utc->getTimestamp(), $utc->getTimestamp());
             $abbr = $transition[0]['abbr'];
 
@@ -182,9 +182,7 @@ class EventTypesController extends Controller
             'label' => Craft::t('events', 'Floating Timezone (recommended)'),
         ];
 
-        $timezoneOptions = array_merge($appended, $timezoneOptions);
-
-        return $timezoneOptions;
+        return array_merge($appended, $timezoneOptions);
     }
 
 }

@@ -4,22 +4,28 @@ namespace verbb\events\elements;
 use verbb\events\Events;
 use verbb\events\elements\db\PurchasedTicketQuery;
 use verbb\events\records\PurchasedTicketRecord;
-use verbb\events\elements\actions\Checkin;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 
 use craft\commerce\Plugin as Commerce;
+use craft\commerce\models\Customer;
+use craft\commerce\models\LineItem;
+use craft\commerce\elements\Order;
 
 use yii\base\Exception;
 
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\ErrorCorrectionLevel;
+
+use DateTime;
 
 class PurchasedTicket extends Element
 {
@@ -36,7 +42,7 @@ class PurchasedTicket extends Element
         return Craft::t('events', 'Purchased Tickets');
     }
     
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'purchasedTicket';
     }
@@ -125,11 +131,6 @@ class PurchasedTicket extends Element
             'dateUpdated' => Craft::t('events', 'Date Updated'),
         ];
 
-        // Include ticket custom fields
-        foreach (Craft::$app->elementIndexes->getAvailableTableFields(Ticket::class) as $field) {
-            $attributes['field:' . $field->id] = ['label' => Craft::t('site', $field->name)];
-        }
-
         return $attributes;
     }
 
@@ -153,33 +154,31 @@ class PurchasedTicket extends Element
 
                 if ($event) {
                     return "<a href='" . $event->cpEditUrl . "'>" . $event->title . "</a>";
-                } else {
-                    return Craft::t('events', '[Deleted event]');
                 }
+
+                return Craft::t('events', '[Deleted event]');
             }
             case 'ticketId': {
                 $ticket = $this->getTicket();
 
                 if ($ticket) {
                     return "<a href='" . $ticket->cpEditUrl . "'>" . $ticket->title . "</a>";
-                } else {
-                    return Craft::t('events', '[Deleted ticket]');
                 }
+
+                return Craft::t('events', '[Deleted ticket]');
             }
             case 'orderId': {
                 $order = $this->getOrder();
 
                 if ($order) {
                     return "<a href='" . $order->cpEditUrl . "'>" . $order->reference . "</a>";
-                } else {
-                    return Craft::t('events', '[Deleted order]');
                 }
+
+                return Craft::t('events', '[Deleted order]');
             }
             case 'customer': {
-                if ($customer = $this->getCustomer()) {
-                    if ($customer->getEmail()) {
-                        return $customer->getEmail();
-                    }
+                if (($customer = $this->getCustomer()) && $customer->getEmail()) {
+                    return $customer->getEmail();
                 }
 
                 if ($order = $this->getOrder()) {
@@ -189,28 +188,22 @@ class PurchasedTicket extends Element
                 return '';
             }
             case 'customerFirstName': {
-                if ($customer = $this->getCustomer()) {
-                    if ($customer->user) {
-                        return (string)$customer->user->firstName;
-                    }
+                if (($customer = $this->getCustomer()) && $customer->user) {
+                    return (string)$customer->user->firstName;
                 }
 
                 return Craft::t('events', '[Guest]');
             }
             case 'customerLastName': {
-                if ($customer = $this->getCustomer()) {
-                    if ($customer->user) {
-                        return (string)$customer->user->lastName;
-                    }
+                if (($customer = $this->getCustomer()) && $customer->user) {
+                    return (string)$customer->user->lastName;
                 }
 
                 return Craft::t('events', '[Guest]');
             }
             case 'customerFullName': {
-                if ($customer = $this->getCustomer()) {
-                    if ($customer->user) {
-                        return (string)$customer->user->fullName;
-                    }
+                if (($customer = $this->getCustomer()) && $customer->user) {
+                    return (string)$customer->user->fullName;
                 }
 
                 return Craft::t('events', '[Guest]');
@@ -245,25 +238,25 @@ class PurchasedTicket extends Element
     // Properties
     // =========================================================================
 
-    public $eventId;
-    public $ticketId;
-    public $orderId;
-    public $lineItemId;
-    public $ticketSku;
-    public $checkedIn;
-    public $checkedInDate;
+    public ?int $eventId = null;
+    public ?int $ticketId = null;
+    public ?int $orderId = null;
+    public ?int $lineItemId = null;
+    public ?string $ticketSku = null;
+    public ?bool $checkedIn = null;
+    public ?DateTime $checkedInDate = null;
 
-    private $_event;
-    private $_ticket;
-    private $_order;
-    private $_lineItem;
-    private $_customer;
+    private ?Event $_event = null;
+    private ?Ticket $_ticket = null;
+    private ?Order $_order = null;
+    private ?LineItem $_lineItem = null;
+    private ?Customer $_customer = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->ticketSku ?? '';
     }
@@ -276,12 +269,12 @@ class PurchasedTicket extends Element
         return $attributes;
     }
 
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('events/purchased-tickets/' . $this->id);
     }
     
-    public function getFieldLayout()
+    public function getFieldLayout(): ?FieldLayout
     {   
         if ($ticket = $this->getTicket()) {
             return $ticket->getFieldLayout();
@@ -290,7 +283,7 @@ class PurchasedTicket extends Element
         return null;
     }
 
-    public function getEvent()
+    public function getEvent(): ?ElementInterface
     {
         if ($this->_event) {
             return $this->_event;
@@ -303,7 +296,7 @@ class PurchasedTicket extends Element
         return null;
     }
 
-    public function getTicket()
+    public function getTicket(): ?ElementInterface
     {
         if ($this->_ticket) {
             return $this->_ticket;
@@ -316,7 +309,7 @@ class PurchasedTicket extends Element
         return null;
     }
 
-    public function getOrder()
+    public function getOrder(): ?Order
     {
         if ($this->_order) {
             return $this->_order;
@@ -329,7 +322,7 @@ class PurchasedTicket extends Element
         return null;
     }
 
-    public function getLineItem()
+    public function getLineItem(): ?LineItem
     {
         if ($this->_lineItem) {
             return $this->_lineItem;
@@ -342,7 +335,7 @@ class PurchasedTicket extends Element
         return null;
     }
 
-    public function getCustomer()
+    public function getCustomer(): ?Customer
     {
         if ($this->_customer) {
             return $this->_customer;
@@ -387,7 +380,7 @@ class PurchasedTicket extends Element
         return $this->getTicket()->getName();
     }
 
-    public function getQrCode()
+    public function getQrCode(): string
     {
         $url = UrlHelper::actionUrl('events/ticket/checkin', ['sku' => $this->ticketSku]);
 
@@ -407,7 +400,7 @@ class PurchasedTicket extends Element
     // Events
     // -------------------------------------------------------------------------
 
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
             $purchasedTicketRecord = PurchasedTicketRecord::findOne($this->id);
@@ -430,6 +423,6 @@ class PurchasedTicket extends Element
 
         $purchasedTicketRecord->save(false);
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 }

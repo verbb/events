@@ -16,17 +16,18 @@ use craft\elements\actions\Duplicate;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
-
-use craft\commerce\Plugin as Commerce;
 
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
 use Jsvrcek\ICS\Model\CalendarEvent;
 use Jsvrcek\ICS\Model\Description\Location;
+
+use DateTime;
+use DateTimeZone;
 
 class Event extends Element
 {
@@ -51,7 +52,7 @@ class Event extends Element
         return Craft::t('events', 'Events');
     }
 
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'event';
     }
@@ -213,17 +214,17 @@ class Event extends Element
     // Properties
     // =========================================================================
 
-    public $id;
-    public $typeId;
-    public $allDay;
-    public $capacity;
-    public $startDate;
-    public $endDate;
-    public $postDate;
-    public $expiryDate;
+    public ?int $id = null;
+    public ?int $typeId = null;
+    public ?bool $allDay = null;
+    public ?int $capacity = null;
+    public ?DateTime $startDate = null;
+    public ?DateTime $endDate = null;
+    public ?DateTime $postDate = null;
+    public ?DateTime $expiryDate = null;
 
-    private $_eventType;
-    private $_tickets = null;
+    private ?EventType $_eventType = null;
+    private ?array $_tickets = null;
 
 
     // Public Methods
@@ -253,7 +254,7 @@ class Event extends Element
         $rules[] = [['startDate', 'endDate', 'postDate', 'expiryDate'], DateTimeValidator::class];
 
         $rules[] = [
-            ['tickets'], function($model) {
+            ['tickets'], function($model): void {
                 foreach ($this->getTickets() as $ticket) {
                     // Break immediately if no ticket type set, also check for other ticket validation errors
                     if (!$ticket->typeId) {
@@ -261,7 +262,7 @@ class Event extends Element
 
                         $ticket->addError('typeIds', Craft::t('events', 'Ticket type must be set.'));
                     } else if (!$ticket->validate()) {
-                        $error = $ticket->getErrors()[0] ?? 'An error occured';
+                        $error = $ticket->getErrors()[0] ?? 'An error occurred';
                         
                         $this->addError('tickets', Craft::t('events', $error));
                     }
@@ -283,11 +284,11 @@ class Event extends Element
         return false;
     }
 
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         $eventType = $this->getType();
 
-        // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
+        // The slug *might* not be set if this is a Draft, and they've deleted it for whatever reason
         $url = UrlHelper::cpUrl('events/events/' . $eventType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
 
         if (Craft::$app->getIsMultiSite()) {
@@ -297,12 +298,12 @@ class Event extends Element
         return $url;
     }
 
-    public function getFieldLayout()
+    public function getFieldLayout(): ?FieldLayout
     {
         return $this->getType()->getEventFieldLayout();
     }
 
-    public function getUriFormat()
+    public function getUriFormat(): ?string
     {
         $eventTypeSiteSettings = $this->getType()->getSiteSettings();
 
@@ -324,17 +325,21 @@ class Event extends Element
 
     public function getType(): EventType
     {
+        if ($this->_eventType !== null) {
+            return $this->_eventType;
+        }
+
         if ($this->typeId === null) {
             throw new InvalidConfigException('Event is missing its event type ID');
         }
 
-        $eventType = Events::getInstance()->getEventTypes()->getEventTypeById($this->typeId);
+        $eventType = Events::$plugin->getEventTypes()->getEventTypeById($this->typeId);
 
         if (null === $eventType) {
             throw new InvalidConfigException('Invalid event type ID: ' . $this->typeId);
         }
 
-        return $eventType;
+        return $this->_eventType = $eventType;
     }
 
     public function getSnapshot(): array
@@ -346,12 +351,12 @@ class Event extends Element
         return array_merge($this->getAttributes(), $data);
     }
 
-    public function getProduct()
+    public function getProduct(): static
     {
         return $this;
     }
 
-    public function getStatus()
+    public function getStatus(): ?string
     {
         $status = parent::getStatus();
 
@@ -376,20 +381,14 @@ class Event extends Element
 
     public function getTickets(): array
     {
-        if ($this->_tickets === null) {
-            if ($this->id) {
-                $this->setTickets(Events::getInstance()->getTickets()->getAllTicketsByEventId($this->id, $this->siteId));
-            }
+        if (($this->_tickets === null) && $this->id) {
+            $this->setTickets(Events::$plugin->getTickets()->getAllTicketsByEventId($this->id, $this->siteId));
         }
 
-        if ($this->_tickets === null) {
-            return [];
-        }
-
-        return $this->_tickets;
+        return $this->_tickets ?? [];
     }
 
-    public function setTickets(array $tickets)
+    public function setTickets(array $tickets): void
     {
         $count = 1;
 
@@ -409,7 +408,7 @@ class Event extends Element
         }
     }
 
-    public function setEagerLoadedElements(string $handle, array $elements)
+    public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle == 'tickets') {
             $this->setTickets($elements);
@@ -418,7 +417,7 @@ class Event extends Element
         }
     }
 
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'tickets') {
             $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
@@ -439,7 +438,7 @@ class Event extends Element
         return parent::eagerLoadingMap($sourceElements, $handle);
     }
 
-    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         if ($attribute === 'tickets') {
             $with = $elementQuery->with ?: [];
@@ -450,12 +449,12 @@ class Event extends Element
         }
     }
 
-    public function getIsAvailable()
+    public function getIsAvailable(): bool
     {
         return (bool)$this->getAvailableTickets();
     }
 
-    public function getAvailableTickets()
+    public function getAvailableTickets(): array
     {
         $tickets = $this->getTickets();
 
@@ -468,7 +467,7 @@ class Event extends Element
         return $tickets;
     }
 
-    public function getAvailableCapacity()
+    public function getAvailableCapacity(): float|int
     {
         // If we've specifically not set a capacity on the event, treat it like unlimited
         if ($this->capacity === null) {
@@ -484,7 +483,7 @@ class Event extends Element
         return $this->capacity - $purchasedTickets;
     }
 
-    public function updateTitle()
+    public function updateTitle(): void
     {
         $eventType = $this->getType();
 
@@ -501,15 +500,15 @@ class Event extends Element
         }
     }
 
-    public function getIcsUrl()
+    public function getIcsUrl(): string
     {
         return UrlHelper::actionUrl('events/ics', ['eventId' => $this->id]);
     }
 
-    public function getIcsEvent()
+    public function getIcsEvent(): ?CalendarEvent
     {
         if (!$this->startDate || !$this->endDate) {
-            return;
+            return null;
         }
 
         $eventType = $this->getType();
@@ -527,7 +526,7 @@ class Event extends Element
             $startDate = $this->startDate;
             $endDate = $this->endDate;
         } else {
-            $timezone = new \DateTimeZone($icsTimezone);
+            $timezone = new DateTimeZone($icsTimezone);
 
             $startDate = $this->startDate->setTimeZone($timezone);
             $endDate = $this->endDate->setTimeZone($timezone);
@@ -571,7 +570,7 @@ class Event extends Element
 
         if ($this->enabled && !$this->postDate) {
             // Default the post date to the current date/time
-            $this->postDate = new \DateTime();
+            $this->postDate = new DateTime();
             // ...without the seconds
             $this->postDate->setTimestamp($this->postDate->getTimestamp() - ($this->postDate->getTimestamp() % 60));
         }
@@ -579,7 +578,7 @@ class Event extends Element
         return parent::beforeSave($isNew);
     }
 
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
             $record = EventRecord::findOne($this->id);
@@ -604,7 +603,7 @@ class Event extends Element
 
         $this->id = $record->id;
 
-        // Only save tickets once (since they will propagate themselves the first time.
+        // Only save tickets once (since they will propagate themselves the first time).
         if (!$this->propagating) {
             $keepTicketIds = [];
             $oldTicketIds = (new Query())
@@ -629,7 +628,7 @@ class Event extends Element
             }
         }
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 
     public function beforeRestore(): bool
@@ -641,7 +640,7 @@ class Event extends Element
         return parent::beforeRestore();
     }
 
-    public function beforeValidate()
+    public function beforeValidate(): bool
     {
         // We need to generate all ticket sku formats before validating the product,
         // since the event validates the uniqueness of all tickets in memory.
@@ -656,7 +655,7 @@ class Event extends Element
         return parent::beforeValidate();
     }
 
-    public function afterDelete()
+    public function afterDelete(): void
     {
         $tickets = Ticket::find()
             ->eventId($this->id)
@@ -672,7 +671,7 @@ class Event extends Element
         parent::afterDelete();
     }
 
-    public function afterRestore()
+    public function afterRestore(): void
     {
         // Also restore any tickets for this element
         $tickets = Ticket::find()
@@ -693,7 +692,7 @@ class Event extends Element
     // Protected methods
     // =========================================================================
 
-    protected function route()
+    protected function route(): array|string|null
     {
         // Make sure the event type is set to have URLs for this site
         $siteId = Craft::$app->getSites()->currentSite->id;
@@ -718,13 +717,10 @@ class Event extends Element
     {
         $eventType = $this->getType();
 
-        switch ($attribute) {
-            case 'type':
-                return ($eventType ? Craft::t('events', $eventType->name) : '');
-
-            default:
-                return parent::tableAttributeHtml($attribute);
-        }
+        return match ($attribute) {
+            'type' => $eventType ? Craft::t('events', $eventType->name) : '',
+            default => parent::tableAttributeHtml($attribute),
+        };
     }
 
 }

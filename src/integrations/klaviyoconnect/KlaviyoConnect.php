@@ -1,10 +1,7 @@
 <?php
 namespace verbb\events\integrations\klaviyoconnect;
 
-use verbb\events\elements\Event;
 use verbb\events\elements\Ticket;
-
-use Craft;
 
 use yii\base\Component;
 
@@ -15,7 +12,7 @@ class KlaviyoConnect extends Component
     // Public Methods
     // =========================================================================
 
-    public function addLineItemCustomProperties(AddLineItemCustomPropertiesEvent $e)
+    public function addLineItemCustomProperties(AddLineItemCustomPropertiesEvent $e): void
     {
         $eventName = $e->event;
         $order = $e->order;

@@ -14,16 +14,16 @@ class EventTypeSite extends Model
     // Properties
     // =========================================================================
 
-    public $id;
-    public $eventTypeId;
-    public $siteId;
-    public $hasUrls;
-    public $uriFormat;
-    public $template;
-    public $uriFormatIsRequired = true;
+    public ?int $id = null;
+    public ?int $eventTypeId = null;
+    public ?int $siteId = null;
+    public ?bool $hasUrls = null;
+    public ?string $uriFormat = null;
+    public ?string $template = null;
+    public bool $uriFormatIsRequired = true;
 
-    private $_eventType;
-    private $_site;
+    private ?EventType $_eventType = null;
+    private ?Site $_site = null;
 
 
     // Public Methods
@@ -46,7 +46,7 @@ class EventTypeSite extends Model
         return $this->_eventType;
     }
 
-    public function setEventType(EventType $eventType)
+    public function setEventType(EventType $eventType): void
     {
         $this->_eventType = $eventType;
     }

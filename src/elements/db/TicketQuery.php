@@ -1,44 +1,42 @@
 <?php
 namespace verbb\events\elements\db;
 
+use verbb\events\elements\Event;
+
 use Craft;
 use craft\base\Element;
-use craft\db\Query;
-use craft\db\Table;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 
 use craft\commerce\db\Table as CommerceTable;
 use craft\commerce\models\Customer;
 
-use yii\db\Connection;
-
 class TicketQuery extends ElementQuery
 {
     // Properties
     // =========================================================================
 
-    public $eventId;
-    public $typeId;
-    public $sku;
-    public $quantity;
-    public $price;
-    public $availableFrom;
-    public $availableTo;
+    public mixed $eventId = null;
+    public mixed $typeId = null;
+    public mixed $sku = null;
+    public mixed $quantity = null;
+    public mixed $price = null;
+    public mixed $availableFrom = null;
+    public mixed $availableTo = null;
 
-    public $editable = false;
-    public $event;
-    public $hasSales;
-    public $hasEvent;
-    public $customerId;
+    public bool $editable = false;
+    public mixed $event = null;
+    public mixed $hasSales = null;
+    public mixed $hasEvent = null;
+    public mixed $customerId = null;
 
-    protected $defaultOrderBy = ['events_tickets.sortOrder' => SORT_ASC];
+    protected array $defaultOrderBy = ['events_tickets.sortOrder' => SORT_ASC];
 
 
     // Public Methods
     // =========================================================================
 
-    public function __construct($elementType, array $config = [])
+    public function __construct(string $elementType, array $config = [])
     {
         // Default status
         if (!isset($config['status'])) {
@@ -59,61 +57,61 @@ class TicketQuery extends ElementQuery
         }
     }
 
-    public function sku($value)
+    public function sku($value): static
     {
         $this->sku = $value;
         return $this;
     }
 
-    public function event($value)
+    public function event($value): static
     {
         $this->event = $value;
         return $this;
     }
 
-    public function eventId($value)
+    public function eventId($value): static
     {
         $this->eventId = $value;
         return $this;
     }
 
-    public function typeId($value)
+    public function typeId($value): static
     {
         $this->typeId = $value;
         return $this;
     }
 
-    public function price($value)
+    public function price($value): static
     {
         $this->price = $value;
         return $this;
     }
 
-    public function quantity($value)
+    public function quantity($value): static
     {
         $this->quantity = $value;
         return $this;
     }
 
-    public function hasEvent($value)
+    public function hasEvent($value): static
     {
         $this->hasEvent = $value;
         return $this;
     }
 
-    public function availableFrom($value)
+    public function availableFrom($value): static
     {
         $this->availableFrom = $value;
         return $this;
     }
 
-    public function availableTo($value)
+    public function availableTo($value): static
     {
         $this->availableTo = $value;
         return $this;
     }
 
-    public function customer(Customer $value = null)
+    public function customer(Customer $value = null): static
     {
         if ($value) {
             $this->customerId = $value->id;
@@ -124,7 +122,7 @@ class TicketQuery extends ElementQuery
         return $this;
     }
 
-    public function customerId($value)
+    public function customerId($value): static
     {
         $this->customerId = $value;
         return $this;
@@ -184,14 +182,14 @@ class TicketQuery extends ElementQuery
     // Private Methods
     // =========================================================================
 
-    private function addWhere(string $property, string $column)
+    private function addWhere(string $property, string $column): void
     {
         if ($this->{$property}) {
             $this->subQuery->andWhere(Db::parseParam($column, $this->{$property}));
         }
     }
 
-    private function _applyHasEventParam()
+    private function _applyHasEventParam(): void
     {
         if ($this->hasEvent) {
             if ($this->hasEvent instanceof EventQuery) {

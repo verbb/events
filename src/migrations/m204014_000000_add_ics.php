@@ -1,21 +1,11 @@
 <?php
 namespace verbb\events\migrations;
 
-use verbb\events\elements\Event;
-use verbb\events\elements\Ticket;
-use verbb\events\elements\TicketType;
-use verbb\events\records\TicketTypeRecord;
-
-use Craft;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\MigrationHelper;
-use craft\helpers\Component as ComponentHelper;
-use craft\helpers\StringHelper;
 
 class m204014_000000_add_ics extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         if (!$this->db->columnExists('{{%events_eventtypes}}', 'icsTimezone')) {
             $this->addColumn('{{%events_eventtypes}}', 'icsTimezone', $this->string()->after('hasTickets'));
@@ -28,9 +18,11 @@ class m204014_000000_add_ics extends Migration
         if (!$this->db->columnExists('{{%events_eventtypes}}', 'icsLocationFieldHandle')) {
             $this->addColumn('{{%events_eventtypes}}', 'icsLocationFieldHandle', $this->string()->after('icsDescriptionFieldHandle'));
         }
+
+        return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m204014_000000_add_ics cannot be reverted.\n";
         return false;

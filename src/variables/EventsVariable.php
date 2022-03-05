@@ -2,24 +2,19 @@
 namespace verbb\events\variables;
 
 use verbb\events\Events;
-use verbb\events\elements\db\EventQuery;
-use verbb\events\elements\db\PurchasedTicketQuery;
-use verbb\events\elements\db\TicketQuery;
-use verbb\events\elements\db\TicketTypeQuery;
 use verbb\events\elements\Event;
 use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
+use verbb\events\models\EventType;
 
 use Craft;
-use craft\helpers\DateTimeHelper;
-use craft\helpers\Db;
+use craft\elements\db\ElementQueryInterface;
 
-use DateTime;
-
-use craft\commerce\Plugin as Commerce;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
+
+use DateTime;
 
 class EventsVariable
 {
@@ -31,7 +26,7 @@ class EventsVariable
         return Events::$plugin;
     }
 
-    public function getPluginName()
+    public function getPluginName(): string
     {
         return Events::$plugin->getPluginName();
     }
@@ -56,17 +51,17 @@ class EventsVariable
         return Events::$plugin->getTicketTypes()->getEditableTicketTypes();
     }
 
-    public function getEventTypeById($id)
+    public function getEventTypeById($id): EventType
     {
         return Events::$plugin->getEventTypes()->getEventTypeById($id);
     }
 
-    public function getEventTypeByHandle($handle)
+    public function getEventTypeByHandle($handle): EventType
     {
         return Events::$plugin->getEventTypes()->getEventTypeByHandle($handle);
     }
 
-    public function events($criteria = null): EventQuery
+    public function events($criteria = null): ElementQueryInterface
     {
         $query = Event::find();
 
@@ -81,7 +76,7 @@ class EventsVariable
         return $query;
     }
 
-    public function tickets($criteria = null): TicketQuery
+    public function tickets($criteria = null): ElementQueryInterface
     {
         $query = Ticket::find();
 
@@ -92,7 +87,7 @@ class EventsVariable
         return $query;
     }
 
-    public function purchasedTickets($criteria = null): PurchasedTicketQuery
+    public function purchasedTickets($criteria = null): ElementQueryInterface
     {
         $query = PurchasedTicket::find();
 
@@ -103,7 +98,7 @@ class EventsVariable
         return $query;
     }
 
-    public function ticketTypes($criteria = null): TicketTypeQuery
+    public function ticketTypes($criteria = null): ElementQueryInterface
     {
         $query = TicketType::find();
 
@@ -120,16 +115,16 @@ class EventsVariable
         return Event::find()->eventId($eventId)->one()->availableTickets();
     }
 
-    public function isTicket(LineItem $lineItem)
+    public function isTicket(LineItem $lineItem): bool
     {
         if ($lineItem->purchasable) {
-            return (bool)(get_class($lineItem->purchasable) === Ticket::class);
+            return get_class($lineItem->purchasable) === Ticket::class;
         }
 
         return false;
     }
 
-    public function hasTicket(Order $order)
+    public function hasTicket(Order $order): bool
     {
         if ($order) {
             foreach ($order->lineItems as $lineItem) {
@@ -142,7 +137,7 @@ class EventsVariable
         return false;
     }
 
-    public function getPdfUrl(LineItem $lineItem)
+    public function getPdfUrl(LineItem $lineItem): ?string
     {
         if ($this->isTicket($lineItem)) {
             $order = $lineItem->order;
@@ -153,12 +148,12 @@ class EventsVariable
         return null;
     }
 
-    public function getOrderPdfUrl(Order $order)
+    public function getOrderPdfUrl(Order $order): string
     {
         return Events::$plugin->getPdf()->getPdfUrl($order);
     }
 
-    public function getIcsFeed($events)
+    public function getIcsFeed($events): string
     {
         return Events::$plugin->getIcs()->getCalendar($events);
     }

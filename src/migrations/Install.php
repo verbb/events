@@ -10,7 +10,7 @@ class Install extends Migration
     // Public Methods
     // =========================================================================
 
-    public function safeUp()
+    public function safeUp(): bool
     {
         $this->createTables();
         $this->createIndexes();
@@ -19,7 +19,7 @@ class Install extends Migration
         return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         $this->dropForeignKeys();
         $this->dropTables();
@@ -31,7 +31,7 @@ class Install extends Migration
     // Protected Methods
     // =========================================================================
 
-    protected function createTables()
+    protected function createTables(): void
     {
         $this->createTable('{{%events_events}}', [
             'id' => $this->primaryKey(),
@@ -118,7 +118,7 @@ class Install extends Migration
         ]);        
     }
     
-    protected function dropTables()
+    protected function dropTables(): void
     {
         $this->dropTable('{{%events_events}}');
         $this->dropTable('{{%events_eventtypes}}');
@@ -128,7 +128,7 @@ class Install extends Migration
         $this->dropTable('{{%events_tickettypes}}');
     }
     
-    protected function createIndexes()
+    protected function createIndexes(): void
     {
         $this->createIndex(null, '{{%events_events}}', 'typeId', false);
         
@@ -153,7 +153,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%events_tickettypes}}', 'fieldLayoutId', false);
     }
 
-    protected function addForeignKeys()
+    protected function addForeignKeys(): void
     {
         $this->addForeignKey(null, '{{%events_events}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_events}}', 'typeId', '{{%events_eventtypes}}', 'id', 'CASCADE', null);
@@ -179,7 +179,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%events_tickettypes}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', null, null);
     }
     
-    protected function dropForeignKeys()
+    protected function dropForeignKeys(): void
     {
         MigrationHelper::dropAllForeignKeysOnTable('{{%events_events}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%events_eventtypes}}', $this);
@@ -189,7 +189,7 @@ class Install extends Migration
         MigrationHelper::dropAllForeignKeysOnTable('{{%events_tickettypes}}', $this);
     }
 
-    public function dropProjectConfig()
+    public function dropProjectConfig(): void
     {
         Craft::$app->projectConfig->remove('events');
     }

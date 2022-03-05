@@ -2,17 +2,15 @@
 namespace verbb\events\migrations;
 
 use verbb\events\Events;
-use verbb\events\elements\PurchasedTicket;
 
 use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
-use craft\queue\jobs\ResaveElements;
 
 class m200224_000000_purchased_tickets_content extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         $db = Craft::$app->getDb();
 
@@ -51,9 +49,11 @@ class m200224_000000_purchased_tickets_content extends Migration
                 ->upsert(Table::CONTENT, $contentData)
                 ->execute();
         }
+
+        return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m200224_000000_purchased_tickets_content cannot be reverted.\n";
         return false;

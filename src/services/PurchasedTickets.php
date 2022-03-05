@@ -2,43 +2,38 @@
 namespace verbb\events\services;
 
 use verbb\events\elements\PurchasedTicket;
-use verbb\events\elements\Ticket;
 use verbb\events\records\PurchasedTicketRecord;
 
 use Craft;
-use craft\db\Query;
-use craft\events\ElementIndexAvailableTableAttributesEvent;
-use craft\events\SiteEvent;
-use craft\helpers\App;
-use craft\helpers\ArrayHelper;
-use craft\queue\jobs\ResaveElements;
+use craft\base\ElementInterface;
 
 use yii\base\Component;
-use yii\base\Exception;
+
+use DateTime;
 
 class PurchasedTickets extends Component
 {
     // Public Methods
     // =========================================================================
 
-    public function getPurchasedTicketById(int $id, $siteId = null)
+    public function getPurchasedTicketById(int $id, $siteId = null): ?ElementInterface
     {
         return Craft::$app->getElements()->getElementById($id, PurchasedTicket::class, $siteId);
     }
 
-    public function checkInPurchasedTicket(PurchasedTicket $purchasedTicket)
+    public function checkInPurchasedTicket(PurchasedTicket $purchasedTicket): void
     {
         $purchasedTicket->checkedIn = true;
-        $purchasedTicket->checkedInDate = new \DateTime();
+        $purchasedTicket->checkedInDate = new DateTime();
 
         $record = PurchasedTicketRecord::findOne($purchasedTicket->id);
         $record->checkedIn = $purchasedTicket->checkedIn;
         $record->checkedInDate = $purchasedTicket->checkedInDate;
 
         $record->save(false);
-	}
-	
-	public function unCheckInPurchasedTicket(PurchasedTicket $purchasedTicket)
+    }
+
+    public function unCheckInPurchasedTicket(PurchasedTicket $purchasedTicket): void
     {
         $purchasedTicket->checkedIn = false;
         $purchasedTicket->checkedInDate = null;

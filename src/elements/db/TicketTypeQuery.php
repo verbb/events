@@ -1,23 +1,19 @@
 <?php
 namespace verbb\events\elements\db;
 
-use Craft;
-use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
-
-use yii\db\Connection;
 
 class TicketTypeQuery extends ElementQuery
 {
     // Properties
     // =========================================================================
 
-    public $id;
-    public $taxCategoryId;
-    public $shippingCategoryId;
-    public $fieldLayoutId;
-    public $handle;
+    public mixed $id = null;
+    public mixed $taxCategoryId = null;
+    public mixed $shippingCategoryId = null;
+    public mixed $fieldLayoutId = null;
+    public mixed $handle = null;
 
 
     // Protected Methods
@@ -48,7 +44,7 @@ class TicketTypeQuery extends ElementQuery
     // Private Methods
     // =========================================================================
 
-    private function addWhere(string $property, string $column)
+    private function addWhere(string $property, string $column): void
     {
         if ($this->{$property}) {
             $this->subQuery->andWhere(Db::parseParam($column, $this->{$property}));

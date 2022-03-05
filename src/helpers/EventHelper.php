@@ -20,10 +20,10 @@ class EventHelper
     {
         $eventId = $event->id;
 
-        $newTicket = 0 === strpos($key, 'new');
+        $newTicket = str_starts_with($key, 'new');
 
         if ($eventId && !$newTicket) {
-            $ticketModel = Events::getInstance()->getTickets()->getTicketById($key, $event->siteId);
+            $ticketModel = Events::$plugin->getTickets()->getTicketById($key, $event->siteId);
 
             if (!$ticketModel) {
                 $ticketModel = new Ticket();
@@ -66,7 +66,7 @@ class EventHelper
         $siteId = $request->getParam('siteId');
 
         if ($eventId) {
-            $event = Events::getInstance()->getEvents()->getEventById($eventId, $siteId);
+            $event = Events::$plugin->getEvents()->getEventById($eventId, $siteId);
 
             if (!$event) {
                 throw new HttpException(404, Craft::t('events', 'No event with the ID “{id}”', ['id' => $eventId]));

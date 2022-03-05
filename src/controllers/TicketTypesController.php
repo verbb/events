@@ -11,13 +11,14 @@ use craft\web\Controller;
 
 use yii\base\Exception;
 use yii\web\Response;
+use yii\web\NotFoundHttpException;
 
 class TicketTypesController extends Controller
 {
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         $this->requirePermission('events-manageTicketTypes');
 
@@ -34,11 +35,10 @@ class TicketTypesController extends Controller
 
         if (empty($variables['ticketType'])) {
             if (!empty($variables['ticketTypeId'])) {
-                $ticketTypeId = $variables['ticketTypeId'];
-                $variables['ticketType'] = Events::getInstance()->getTicketTypes()->getTicketTypeById($ticketTypeId);
+                $variables['ticketType'] = Events::$plugin->getTicketTypes()->getTicketTypeById($ticketTypeId);
 
                 if (!$variables['ticketType']) {
-                    throw new HttpException(404);
+                    throw new NotFoundHttpException();
                 }
             } else {
                 $variables['ticketType'] = new TicketType();
@@ -55,7 +55,7 @@ class TicketTypesController extends Controller
         return $this->renderTemplate('events/ticket-types/_edit', $variables);
     }
 
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -64,7 +64,7 @@ class TicketTypesController extends Controller
         $ticketTypeId = $request->getParam('ticketTypeId');
 
         if ($ticketTypeId) {
-            $ticketType = Events::getInstance()->getTicketTypes()->getTicketTypeById($ticketTypeId);
+            $ticketType = Events::$plugin->getTicketTypes()->getTicketTypeById($ticketTypeId);
         } else {
             $ticketType = new TicketType();
         }
@@ -97,7 +97,7 @@ class TicketTypesController extends Controller
         return $this->redirectToPostedUrl($ticketType);
     }
 
-    public function actionDelete(): Response
+    public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

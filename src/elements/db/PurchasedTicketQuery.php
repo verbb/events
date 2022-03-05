@@ -3,7 +3,6 @@ namespace verbb\events\elements\db;
 
 use verbb\events\elements\TicketType;
 
-use Craft;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
@@ -11,25 +10,23 @@ use craft\helpers\Db;
 use craft\commerce\db\Table as CommerceTable;
 use craft\commerce\models\Customer;
 
-use yii\db\Connection;
-
 class PurchasedTicketQuery extends ElementQuery
 {
     // Properties
     // =========================================================================
 
-    public $eventId;
-    public $ticketId;
-    public $orderId;
-    public $lineItemId;
-    public $ticketSku;
-    public $checkedIn;
-    public $checkedInDate;
+    public mixed $eventId = null;
+    public mixed $ticketId = null;
+    public mixed $orderId = null;
+    public mixed $lineItemId = null;
+    public mixed $ticketSku = null;
+    public mixed $checkedIn = null;
+    public mixed $checkedInDate = null;
 
-    public $customerId;
-    public $ticketTypeId;
+    public mixed $customerId = null;
+    public mixed $ticketTypeId = null;
 
-    protected $defaultOrderBy = ['events_purchasedtickets.dateCreated' => SORT_DESC];
+    protected array $defaultOrderBy = ['events_purchasedtickets.dateCreated' => SORT_DESC];
 
 
     // Public Methods
@@ -46,49 +43,49 @@ class PurchasedTicketQuery extends ElementQuery
         }
     }
 
-    public function eventId($value)
+    public function eventId($value): static
     {
         $this->eventId = $value;
         return $this;
     }
 
-    public function ticketId($value)
+    public function ticketId($value): static
     {
         $this->ticketId = $value;
         return $this;
     }
 
-    public function orderId($value)
+    public function orderId($value): static
     {
         $this->orderId = $value;
         return $this;
     }
 
-    public function lineItemId($value)
+    public function lineItemId($value): static
     {
         $this->lineItemId = $value;
         return $this;
     }
 
-    public function ticketSku($value)
+    public function ticketSku($value): static
     {
         $this->ticketSku = $value;
         return $this;
     }
 
-    public function checkedIn($value)
+    public function checkedIn($value): static
     {
         $this->checkedIn = $value;
         return $this;
     }
 
-    public function checkedInDate($value)
+    public function checkedInDate($value): static
     {
         $this->checkedInDate = $value;
         return $this;
     }
 
-    public function customer(Customer $value = null)
+    public function customer(Customer $value = null): static
     {
         if ($value) {
             $this->customerId = $value->id;
@@ -99,13 +96,13 @@ class PurchasedTicketQuery extends ElementQuery
         return $this;
     }
 
-    public function customerId($value)
+    public function customerId($value): static
     {
         $this->customerId = $value;
         return $this;
     }
 
-    public function ticketType($value)
+    public function ticketType($value): static
     {
         if ($value instanceof TicketType) {
             $this->ticketTypeId = $value->id;
@@ -126,7 +123,7 @@ class PurchasedTicketQuery extends ElementQuery
         return $this;
     }
 
-    public function ticketTypeId($value)
+    public function ticketTypeId($value): static
     {
         $this->ticketTypeId = $value;
         return $this;
@@ -180,14 +177,14 @@ class PurchasedTicketQuery extends ElementQuery
     // Private Methods
     // =========================================================================
 
-    private function addWhere(string $property, string $column)
+    private function addWhere(string $property, string $column): void
     {
         if ($this->{$property}) {
             $this->subQuery->andWhere(Db::parseParam($column, $this->{$property}));
         }
     }
 
-    private function addDateWhere(string $property, string $column)
+    private function addDateWhere(string $property, string $column): void
     {
         if ($this->{$property}) {
             $this->subQuery->andWhere(Db::parseDateParam($column, $this->{$property}));

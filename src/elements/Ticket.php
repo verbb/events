@@ -3,45 +3,42 @@ namespace verbb\events\elements;
 
 use verbb\events\Events;
 use verbb\events\elements\db\TicketQuery;
-use verbb\events\elements\PurchasedTicket;
 use verbb\events\events\CustomizeEventSnapshotDataEvent;
 use verbb\events\events\CustomizeEventSnapshotFieldsEvent;
 use verbb\events\events\CustomizeTicketSnapshotDataEvent;
 use verbb\events\events\CustomizeTicketSnapshotFieldsEvent;
 use verbb\events\helpers\TicketHelper;
 use verbb\events\records\TicketRecord;
-use verbb\events\records\PurchasedTicketRecord;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
-use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\Db;
-use craft\helpers\Json;
-use craft\helpers\UrlHelper;
-use craft\validators\DateTimeValidator;
+use craft\models\FieldLayout;
 
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
-use craft\commerce\models\ProductType;
-use craft\commerce\models\Sale;
 
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\base\Model;
 use yii\db\Expression;
+
+use Throwable;
+use DateTime;
 
 class Ticket extends Purchasable
 {
     // Constants
     // =========================================================================
-  
+
     const EVENT_BEFORE_CAPTURE_TICKET_SNAPSHOT = 'beforeCaptureTicketSnapshot';
     const EVENT_AFTER_CAPTURE_TICKET_SNAPSHOT = 'afterCaptureTicketSnapshot';
     const EVENT_BEFORE_CAPTURE_EVENT_SNAPSHOT = 'beforeCaptureEventSnapshot';
@@ -61,7 +58,7 @@ class Ticket extends Purchasable
         return Craft::t('events', 'Tickets');
     }
 
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'ticket';
     }
@@ -93,21 +90,23 @@ class Ticket extends Purchasable
 
     protected static function defineSources(string $context = null): array
     {
-        $sources = [[
-            'key' => '*',
-            'label' => Craft::t('events', 'All events'),
-            'defaultSort' => ['postDate', 'desc'],
-        ]];
+        $sources = [
+            [
+                'key' => '*',
+                'label' => Craft::t('events', 'All events'),
+                'defaultSort' => ['postDate', 'desc'],
+            ]
+        ];
 
         $events = Event::find()->all();
-		
-		$type = null;
+
+        $type = null;
 
         foreach ($events as $event) {
-			if ($event->type->name != $type) {
-				$type = $event->type->name;
-				$sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $event->type->name])];
-			}
+            if ($event->type->name != $type) {
+                $type = $event->type->name;
+                $sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $event->type->name])];
+            }
             $key = 'event:' . $event->id;
 
             $sources[] = [
@@ -168,24 +167,24 @@ class Ticket extends Purchasable
     // Properties
     // =========================================================================
 
-    public $eventId;
-    public $typeId;
-    public $sku;
-    public $quantity;
-    public $price;
-    public $availableFrom;
-    public $availableTo;
-    public $sortOrder;
-    public $deletedWithEvent = false;
+    public ?int $eventId = null;
+    public ?int $typeId = null;
+    public ?string $sku = null;
+    public ?int $quantity = null;
+    public ?float $price = null;
+    public ?DateTime $availableFrom = null;
+    public ?DateTime $availableTo = null;
+    public ?int $sortOrder = null;
+    public bool $deletedWithEvent = false;
 
-    private $_event;
-    private $_ticketType;
+    private ?Event $_event = null;
+    private ?TicketType $_ticketType = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -198,22 +197,22 @@ class Ticket extends Purchasable
 
         if ($event) {
             return "{$this->event}: {$this->getName()}";
-        } else {
-            return parent::__toString();
         }
+
+        return parent::__toString();
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->title;
     }
 
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
 
@@ -233,15 +232,15 @@ class Ticket extends Purchasable
         return $attributes;
     }
 
-    public function extraAttributes(): array
+    public function extraFields(): array
     {
-        $names = parent::extraAttributes();
+        $names = parent::extraFields();
         $names[] = 'event';
         return $names;
     }
 
-    public function getFieldLayout()
-    {   
+    public function getFieldLayout(): ?FieldLayout
+    {
         if ($this->getType()) {
             return $this->getType()->getFieldLayout();
         }
@@ -249,7 +248,7 @@ class Ticket extends Purchasable
         return null;
     }
 
-    public function getEvent()
+    public function getEvent(): ElementInterface|Model|array
     {
         if ($this->_event !== null) {
             return $this->_event;
@@ -273,7 +272,7 @@ class Ticket extends Purchasable
         return $this->_event = $event;
     }
 
-    public function setEvent(Event $event)
+    public function setEvent(Event $event): void
     {
         if ($event->siteId) {
             $this->siteId = $event->siteId;
@@ -288,17 +287,21 @@ class Ticket extends Purchasable
 
     public function getType()
     {
+        if ($this->_ticketType !== null) {
+            return $this->_ticketType;
+        }
+
         if ($this->typeId === null) {
             return null;
         }
 
-        $ticketType = Events::getInstance()->getTicketTypes()->getTicketTypeById($this->typeId);
+        $ticketType = Events::$plugin->getTicketTypes()->getTicketTypeById($this->typeId);
 
         if ($ticketType === null) {
             // throw new InvalidConfigException('Invalid ticket type ID: ' . $this->typeId);
         }
 
-        return $ticketType;
+        return $this->_ticketType = $ticketType;
     }
 
     public function attributeLabels(): array
@@ -319,12 +322,12 @@ class Ticket extends Purchasable
         return false;
     }
 
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return $this->getEvent() ? $this->getEvent()->getCpEditUrl() : null;
     }
 
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'event') {
             // Get the source element IDs
@@ -349,7 +352,7 @@ class Ticket extends Purchasable
         return parent::eagerLoadingMap($sourceElements, $handle);
     }
 
-    public function setEagerLoadedElements(string $handle, array $elements)
+    public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle == 'event') {
             $event = $elements[0] ?? null;
@@ -359,19 +362,15 @@ class Ticket extends Purchasable
         }
     }
 
-    public function availableQuantity()
+    public function availableQuantity(): bool
     {
-        // Check if the event overall even has any more to buy - that's a hard-unavailable
+        // Check if the event overall even has anymore to buy - that's a hard-unavailable
         if ($this->event->getAvailableCapacity() < 1) {
             return false;
         }
 
         // If we've specifically not set a quantity on the ticket, treat it like unlimited
-        if ($this->quantity === null) {
-            return $this->event->getAvailableCapacity();
-        }
-
-        return $this->quantity;
+        return $this->quantity ?? $this->event->getAvailableCapacity();
     }
 
     public function getIsAvailable(): bool
@@ -399,14 +398,10 @@ class Ticket extends Purchasable
         }
 
         // Check if there are any tickets left
-        if ($this->availableQuantity() < 1) {
-            return false;
-        }
-
-        return true;
+        return $this->availableQuantity() >= 1;
     }
 
-    public function getStatus()
+    public function getStatus(): ?string
     {
         $status = parent::getStatus();
 
@@ -419,7 +414,7 @@ class Ticket extends Purchasable
         return $status;
     }
 
-    public function populateLineItem(LineItem $lineItem)
+    public function populateLineItem(LineItem $lineItem): void
     {
         $errors = [];
 
@@ -437,7 +432,7 @@ class Ticket extends Purchasable
                 $eventCapacity = $ticketCapacity;
             }
 
-            // Just in case both are empty - then its an unlimited free-for-all!
+            // Just in case both are empty - then it's an unlimited free-for-all!
             if ($ticketCapacity === null && $eventCapacity === null) {
                 return;
             }
@@ -466,7 +461,7 @@ class Ticket extends Purchasable
         }
     }
 
-    public function afterOrderComplete(Order $order, LineItem $lineItem)
+    public function afterOrderComplete(Order $order, LineItem $lineItem): void
     {
         // Reduce quantity
         Craft::$app->getDb()->createCommand()->update('{{%events_tickets}}',
@@ -480,8 +475,6 @@ class Ticket extends Purchasable
             ->where('id = :ticketId', [':ticketId' => $this->id])
             ->scalar();
 
-        Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
-
         // Generate purchased tickets
         $elementsService = Craft::$app->getElements();
 
@@ -491,17 +484,17 @@ class Ticket extends Purchasable
             $purchasedTicket->ticketId = $this->id;
             $purchasedTicket->orderId = $order->id;
             $purchasedTicket->lineItemId = $lineItem->id;
-			$purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
-			
+            $purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
+
             // Set the field values from the ticket (handle defaults, and values set on the ticket)
-			$purchasedTicket->setFieldValues($this->getSerializedFieldValues());
+            $purchasedTicket->setFieldValues($this->getSerializedFieldValues());
 
             // But also allow overriding through the line item options
             foreach ($lineItem->options as $option => $value) {
                 // Just catch any errors when trying to set attributes that aren't field handles
                 try {
                     $purchasedTicket->setFieldValue($option, $value);
-                } catch (\Throwable $e) {
+                } catch (Throwable) {
                     continue;
                 }
             }
@@ -529,7 +522,7 @@ class Ticket extends Purchasable
     // Purchasable
     // =========================================================================
 
-    public function getPurchasableId(): int
+    public function getPurchasableId(): ?int
     {
         return $this->id;
     }
@@ -569,7 +562,7 @@ class Ticket extends Purchasable
             }
 
             $data['event'] = $this->getEvent()->toArray($eventAttributes, [], false);
-            
+
             $eventDataEvent = new CustomizeEventSnapshotDataEvent([
                 'event' => $this->getEvent(),
                 'fieldData' => $data['event'],
@@ -604,7 +597,7 @@ class Ticket extends Purchasable
 
         // Remove custom fields
         if (($fieldLayout = $this->getFieldLayout()) !== null) {
-            foreach ($fieldLayout->getFields() as $field) {
+            foreach ($fieldLayout->getCustomFields() as $field) {
                 ArrayHelper::removeValue($ticketAttributes, $field->handle);
             }
         }
@@ -644,11 +637,6 @@ class Ticket extends Purchasable
         return $this->sku;
     }
 
-    public function getDescription(): string
-    {
-        return (string)$this;
-    }
-
     public function getTaxCategoryId(): int
     {
         return $this->getType()->taxCategoryId;
@@ -661,16 +649,14 @@ class Ticket extends Purchasable
 
     public function getIsShippable(): bool
     {
-        $settings = Events::$plugin->getSettings();
-
-        return $settings->ticketsShippable;
+        return Events::$plugin->getSettings()->ticketsShippable;
     }
 
 
     // Events
     // -------------------------------------------------------------------------
 
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
             $record = TicketRecord::findOne($this->id);
@@ -694,7 +680,7 @@ class Ticket extends Purchasable
 
         $record->save(false);
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 
     public function beforeDelete(): bool
@@ -753,17 +739,20 @@ class Ticket extends Purchasable
     protected function tableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
-            case 'event': {
+            case 'event':
+            {
                 return $this->event->title;
             }
 
-            case 'price': {
+            case 'price':
+            {
                 $code = Commerce::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
                 return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
             }
 
-            default: {
+            default:
+            {
                 return parent::tableAttributeHtml($attribute);
             }
         }

@@ -10,7 +10,6 @@ use craft\base\Element;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
 
-use yii\base\Exception;
 use yii\web\HttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
@@ -20,7 +19,7 @@ class EventsPreviewController extends Controller
     // Properties
     // =========================================================================
 
-    protected $allowAnonymous = true;
+    protected array|bool|int $allowAnonymous = true;
 
 
     // Public Methods
@@ -39,7 +38,7 @@ class EventsPreviewController extends Controller
 
     public function actionShareEvent($eventId, $siteId): Response
     {
-        $event = Events::getInstance()->getEvents()->getEventById($eventId, $siteId);
+        $event = Events::$plugin->getEvents()->getEventById($eventId, $siteId);
 
         if (!$event) {
             throw new HttpException(404);
@@ -48,7 +47,7 @@ class EventsPreviewController extends Controller
         $this->enforceEventPermissions($event);
 
         // Make sure the event actually can be viewed
-        if (!Events::getInstance()->getEventTypes()->isEventTypeTemplateValid($event->getType(), $event->siteId)) {
+        if (!Events::$plugin->getEventTypes()->isEventTypeTemplateValid($event->getType(), $event->siteId)) {
             throw new HttpException(404);
         }
 
@@ -62,22 +61,20 @@ class EventsPreviewController extends Controller
         return $this->redirect($url);
     }
 
-    public function actionViewSharedEvent($eventId, $site = null)
+    public function actionViewSharedEvent($eventId, $site = null): void
     {
         $this->requireToken();
 
-        $event = Events::getInstance()->getEvents()->getEventById($eventId, $site);
+        $event = Events::$plugin->getEvents()->getEventById($eventId, $site);
 
         if (!$event) {
             throw new HttpException(404);
         }
 
         $this->_showEvent($event);
-
-        return null;
     }
 
-    public function actionSaveEvent()
+    public function actionSaveEvent(): ?Response
     {
         $this->requirePostRequest();
 
@@ -130,7 +127,7 @@ class EventsPreviewController extends Controller
     // Protected Methods
     // =========================================================================
 
-    protected function enforceEventPermissions(Event $event)
+    protected function enforceEventPermissions(Event $event): void
     {
         $this->requirePermission('events-manageEventType:' . $event->getType()->uid);
     }

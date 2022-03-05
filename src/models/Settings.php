@@ -8,16 +8,16 @@ class Settings extends Model
     // Properties
     // =========================================================================
 
-    public $pluginName = 'Events';
-    public $ticketSKULength = 10;
-    public $ticketPdfPath = 'shop/_pdf/tickets';
-    public $ticketPdfFilenameFormat = 'Tickets-{number}';
-    public $checkinLogin = false;
-    public $checkinTemplate = '';
-    public $ticketsShippable = false;
+    public string $pluginName = 'Events';
+    public int $ticketSKULength = 10;
+    public string $ticketPdfPath = 'shop/_pdf/tickets';
+    public string $ticketPdfFilenameFormat = 'Tickets-{number}';
+    public bool $checkinLogin = false;
+    public string $checkinTemplate = '';
+    public bool $ticketsShippable = false;
 
-    public $pdfAllowRemoteImages = false;
-    public $pdfPaperSize = 'letter';
-    public $pdfPaperOrientation = 'portrait';
+    public bool $pdfAllowRemoteImages = false;
+    public string $pdfPaperSize = 'letter';
+    public string $pdfPaperOrientation = 'portrait';
 
 }

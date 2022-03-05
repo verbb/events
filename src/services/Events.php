@@ -4,25 +4,23 @@ namespace verbb\events\services;
 use verbb\events\elements\Event;
 
 use Craft;
-use craft\db\Query;
+use craft\base\ElementInterface;
 use craft\events\SiteEvent;
-use craft\helpers\App;
 use craft\queue\jobs\ResaveElements;
 
 use yii\base\Component;
-use yii\base\Exception;
 
 class Events extends Component
 {
     // Public Methods
     // =========================================================================
 
-    public function getEventById(int $id, $siteId = null)
+    public function getEventById(int $id, $siteId = null): ?ElementInterface
     {
         return Craft::$app->getElements()->getElementById($id, Event::class, $siteId);
     }
 
-    public function afterSaveSiteHandler(SiteEvent $event)
+    public function afterSaveSiteHandler(SiteEvent $event): void
     {
         $queue = Craft::$app->getQueue();
         $siteId = $event->oldPrimarySiteId;

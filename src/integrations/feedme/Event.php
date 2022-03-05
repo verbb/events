@@ -6,7 +6,7 @@ use verbb\events\elements\Event as EventElement;
 use verbb\events\elements\Ticket as TicketElement;
 
 use Craft;
-use craft\elements\User as UserElement;
+use craft\helpers\Json;
 
 use craft\feedme\Plugin as FeedMe;
 use craft\feedme\base\Element;
@@ -18,6 +18,8 @@ use yii\base\Event as YiiEvent;
 
 use Cake\Utility\Hash;
 use Carbon\Carbon;
+use DateTime;
+use Exception;
 
 class Event extends Element
 {
@@ -25,7 +27,7 @@ class Event extends Element
     // =========================================================================
 
     public static $name = 'Event';
-    public static $class = 'verbb\events\elements\Event';
+    public static $class = EventElement::class;
 
     public $element;
 
@@ -33,17 +35,17 @@ class Event extends Element
     // Templates
     // =========================================================================
 
-    public function getGroupsTemplate()
+    public function getGroupsTemplate(): string
     {
         return 'events/_integrations/feedme/groups';
     }
 
-    public function getColumnTemplate()
+    public function getColumnTemplate(): string
     {
         return 'events/_integrations/feedme/column';
     }
 
-    public function getMappingTemplate()
+    public function getMappingTemplate(): string
     {
         return 'events/_integrations/feedme/map';
     }
@@ -52,7 +54,7 @@ class Event extends Element
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         // Hook into the process service on each step - we need to re-arrange the feed mapping
         YiiEvent::on(Process::class, Process::EVENT_STEP_BEFORE_PARSE_CONTENT, function(FeedProcessEvent $event) {
@@ -65,11 +67,13 @@ class Event extends Element
         });
     }
 
-    public function getGroups()
+    public function getGroups(): array
     {
-        if (Events::getInstance()) {
+        if (Events::$plugin) {
             return Events::$plugin->getEventTypes()->getAllEventTypes();
         }
+
+        return [];
     }
 
     public function getQuery($settings, $params = [])
@@ -98,7 +102,7 @@ class Event extends Element
         return $this->element;
     }
 
-    public function save($element, $settings)
+    public function save($element, $settings): bool
     {
         $this->beforeSave($element, $settings);
 
@@ -112,7 +116,7 @@ class Event extends Element
                     }
                 }
 
-                throw new \Exception(json_encode($errors));
+                throw new Exception(Json::encode($errors));
             }
 
             return false;
@@ -122,7 +126,7 @@ class Event extends Element
     }
 
 
-    private function _preParseTickets($event)
+    private function _preParseTickets($event): void
     {
         $feed = $event->feed;
 
@@ -130,7 +134,7 @@ class Event extends Element
         // tickets[] array for easy management later. If we don't do this, it'll start processing
         // attributes and fields based on the top-level event, which is incorrect..
         foreach ($feed['fieldMapping'] as $fieldHandle => $fieldInfo) {
-            if (strpos($fieldHandle, 'ticket-') !== false) {
+            if (str_contains($fieldHandle, 'ticket-')) {
                 // Add it to tickets[]
                 $attribute = str_replace('ticket-', '', $fieldHandle);
                 $feed['fieldMapping']['tickets'][$attribute] = $fieldInfo;
@@ -144,7 +148,7 @@ class Event extends Element
         $event->feed = $feed;
     }
 
-    private function _parseTickets($event)
+    private function _parseTickets($event): void
     {
         $feed = $event->feed;
         $feedData = $event->feedData;
@@ -172,12 +176,12 @@ class Event extends Element
         $ticketFieldsByNode = [];
 
         foreach (Hash::flatten($ticketMapping) as $key => $value) {
-            if (strstr($key, 'node') && $value !== 'noimport' && $value !== 'usedefault') {
+            if (str_contains($key, 'node') && $value !== 'noimport' && $value !== 'usedefault') {
                 $ticketFieldsByNode[] = $value;
             }
         }
 
-        // Now we need to find out how many tickets we're importing - can even be one, and its all a little tricky...
+        // Now we need to find out how many tickets we're importing - can even be one, and it's all a little tricky...
         foreach ($feedData as $nodePath => $value) {
             foreach ($ticketMapping as $fieldHandle => $fieldInfo) {
                 $node = Hash::get($fieldInfo, 'node');
@@ -195,7 +199,7 @@ class Event extends Element
 
                 if (!is_numeric($ticketIndex)) {
                     // Try to check if its only one-level deep (only importing one block type)
-                    // which is particuarly common for JSON.
+                    // which is particularly common for JSON.
                     $ticketIndex = Hash::get($nodePathSegments, 2);
 
                     if (!is_numeric($ticketIndex)) {
@@ -205,7 +209,7 @@ class Event extends Element
 
                 // Find the node in the feed (stripped of indexes) that matches what's stored in field mapping
                 if ($feedPath === $node) {
-                    // Store this information so we can parse the field data later
+                    // Store this information, so we can parse the field data later
                     if (!isset($ticketData[$ticketIndex][$fieldHandle])) {
                         $ticketData[$ticketIndex][$fieldHandle] = $fieldInfo;
                     }
@@ -233,7 +237,7 @@ class Event extends Element
             $attributeData = [];
             $fieldData = [];
 
-            // Parse the just the element attributes first. We use these in our field contexts, and need a fully-prepped element
+            // Parse just the element attributes first. We use these in our field contexts, and need a fully-prepped element
             foreach ($ticketContent as $fieldHandle => $fieldInfo) {
                 if (Hash::get($fieldInfo, 'attribute')) {
                     $attributeValue = DataHelper::fetchValue(Hash::get($fieldInfo, 'data'), $fieldInfo);
@@ -286,7 +290,7 @@ class Event extends Element
     // Protected Methods
     // =========================================================================
 
-    protected function parsePostDate($feedData, $fieldInfo)
+    protected function parsePostDate($feedData, $fieldInfo): DateTime|bool|array|Carbon|string|null
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
         $formatting = Hash::get($fieldInfo, 'options.match');
@@ -294,7 +298,7 @@ class Event extends Element
         return $this->parseDateAttribute($value, $formatting);
     }
 
-    protected function parseExpiryDate($feedData, $fieldInfo)
+    protected function parseExpiryDate($feedData, $fieldInfo): DateTime|bool|array|Carbon|string|null
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
         $formatting = Hash::get($fieldInfo, 'options.match');

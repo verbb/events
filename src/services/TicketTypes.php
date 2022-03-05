@@ -1,26 +1,22 @@
 <?php
 namespace verbb\events\services;
 
-use verbb\events\elements\Event;
 use verbb\events\elements\TicketType;
 
 use Craft;
-use craft\db\Query;
 
 use yii\base\Component;
-use yii\base\Exception;
 
 class TicketTypes extends Component
 {
     // Properties
     // =========================================================================
 
-    private $_fetchedAllTicketTypes = false;
-    private $_ticketTypesById;
-    private $_ticketTypesByHandle;
-    private $_allTicketTypeIds;
-    private $_editableTicketTypeIds;
-    private $_siteSettingsByEventId = [];
+    private bool $_fetchedAllTicketTypes = false;
+    private ?array $_ticketTypesById = null;
+    private ?array $_ticketTypesByHandle = null;
+    private ?array $_allTicketTypeIds = null;
+    private ?array $_editableTicketTypeIds = null;
 
 
     // Public Methods
@@ -137,7 +133,7 @@ class TicketTypes extends Component
     // Private methods
     // =========================================================================
 
-    private function _memoizeTicketType(TicketType $ticketType)
+    private function _memoizeTicketType(TicketType $ticketType): void
     {
         $this->_ticketTypesById[$ticketType->id] = $ticketType;
         $this->_ticketTypesByHandle[$ticketType->handle] = $ticketType;

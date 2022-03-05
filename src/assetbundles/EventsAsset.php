@@ -1,7 +1,6 @@
 <?php
 namespace verbb\events\assetbundles;
 
-use Craft;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 
@@ -12,7 +11,7 @@ class EventsAsset extends AssetBundle
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = "@verbb/events/resources/dist";
 

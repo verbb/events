@@ -18,7 +18,7 @@ class EventRecord extends ActiveRecord
 
     public function getType(): ActiveQueryInterface
     {
-        return $this->hasOne(VoucherTypeRecord::class, ['id' => 'typeId']);
+        return $this->hasOne(EventTypeRecord::class, ['id' => 'typeId']);
     }
 
     public function getElement(): ActiveQueryInterface

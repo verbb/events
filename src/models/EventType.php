@@ -19,31 +19,31 @@ class EventType extends Model
     // Properties
     // =========================================================================
 
-    public $id;
-    public $name;
-    public $handle;
-    public $fieldLayoutId;
-    public $hasTitleField = true;
-    public $titleLabel = 'Title';
-    public $titleFormat;
-    public $hasTickets = true;
-    public $icsTimezone;
-    public $icsDescriptionFieldHandle;
-    public $icsLocationFieldHandle;
-    public $uid;
+    public ?int $id = null;
+    public ?string $name = null;
+    public ?string $handle = null;
+    public ?int $fieldLayoutId = null;
+    public bool $hasTitleField = true;
+    public string $titleLabel = 'Title';
+    public ?string $titleFormat = null;
+    public bool $hasTickets = true;
+    public ?string $icsTimezone = null;
+    public ?string $icsDescriptionFieldHandle = null;
+    public ?string $icsLocationFieldHandle = null;
+    public ?string $uid = null;
 
-    private $_siteSettings;
+    private ?array $_siteSettings = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->handle;
     }
 
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'eventFieldLayout' => [
@@ -54,7 +54,7 @@ class EventType extends Model
         ];
     }
 
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'handle' => Craft::t('app', 'Handle'),
@@ -64,7 +64,7 @@ class EventType extends Model
         ];
     }
 
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
 
@@ -115,7 +115,7 @@ class EventType extends Model
         return $this->_siteSettings;
     }
 
-    public function setSiteSettings(array $siteSettings)
+    public function setSiteSettings(array $siteSettings): void
     {
         $this->_siteSettings = $siteSettings;
 
@@ -126,11 +126,10 @@ class EventType extends Model
 
     public function getEventFieldLayout(): FieldLayout
     {
-        $behavior = $this->getBehavior('eventFieldLayout');
-        return $behavior->getFieldLayout();
+        return $this->getBehavior('eventFieldLayout')->getFieldLayout();
     }
 
-    public function getEventFieldHandles()
+    public function getEventFieldHandles(): array
     {
         $fieldList = [[
             'label' => Craft::t('events', 'None'),
@@ -138,7 +137,7 @@ class EventType extends Model
         ]];
 
         if ($this->getFieldLayout()) {
-            foreach ($this->getFieldLayout()->getFields() as $field) {
+            foreach ($this->getFieldLayout()->getCustomFields() as $field) {
                 $fieldList[$field->handle] = $field->name;
             }
         }
@@ -146,7 +145,7 @@ class EventType extends Model
         return $fieldList;
     }
 
-    public function getIcsUrl()
+    public function getIcsUrl(): string
     {
         return UrlHelper::actionUrl('events/ics/event-type', ['typeId' => $this->id]);
     }

@@ -1,22 +1,18 @@
 <?php
 namespace verbb\events\migrations;
 
-use verbb\events\Events;
 use verbb\events\elements\PurchasedTicket;
 
 use Craft;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\db\Table;
-use craft\queue\jobs\ResaveElements;
 
-use craft\commerce\Plugin as Commerce;
+use Throwable;
 
 class m200225_000000_purchased_tickets_line_item_options extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
-        $db = Craft::$app->getDb();
+        $elementsService = Craft::$app->getElements();
 
         $purchasedTickets = PurchasedTicket::find()
             ->all();
@@ -42,16 +38,18 @@ class m200225_000000_purchased_tickets_line_item_options extends Migration
                 // Just catch any errors when trying to set attributes that aren't field handles
                 try {
                     $purchasedTicket->setFieldValue($option, $value);
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     continue;
                 }
             }
 
-            Craft::$app->getElements()->saveElement($purchasedTicket, false);
+            $elementsService->saveElement($purchasedTicket, false);
         }
+
+        return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m200225_000000_purchased_tickets_line_item_options cannot be reverted.\n";
         return false;

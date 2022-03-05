@@ -1,6 +1,8 @@
 <?php
 namespace verbb\events\events;
 
+use verbb\events\elements\TicketType;
+
 use yii\base\Event;
 
 class TicketTypeEvent extends Event
@@ -8,7 +10,7 @@ class TicketTypeEvent extends Event
     // Properties
     // =========================================================================
 
-    public $ticketType;
-    public $isNew = false;
+    public TicketType $ticketType;
+    public bool $isNew = false;
     
 }

@@ -1,21 +1,11 @@
 <?php
 namespace verbb\events\migrations;
 
-use verbb\events\elements\Event;
-use verbb\events\elements\Ticket;
-use verbb\events\elements\TicketType;
-use verbb\events\records\EventTypeSiteRecord;
-
-use Craft;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\MigrationHelper;
-use craft\helpers\Component as ComponentHelper;
-use craft\helpers\StringHelper;
 
 class m190511_000000_add_title_format extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         if (!$this->db->columnExists('{{%events_eventtypes}}', 'hasTitleField')) {
             $this->addColumn('{{%events_eventtypes}}', 'hasTitleField', $this->boolean()->defaultValue(true)->notNull());
@@ -28,9 +18,11 @@ class m190511_000000_add_title_format extends Migration
         if (!$this->db->columnExists('{{%events_eventtypes}}', 'titleFormat')) {
             $this->addColumn('{{%events_eventtypes}}', 'titleFormat', $this->string());
         }
+
+        return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m190511_000000_add_title_format cannot be reverted.\n";
         return false;

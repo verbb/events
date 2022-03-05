@@ -15,6 +15,7 @@ use verbb\events\services\EventTypes;
 use verbb\events\variables\EventsVariable;
 
 use Craft;
+use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
@@ -32,8 +33,6 @@ use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
 
 use craft\commerce\services\Purchasables;
-use craft\commerce\elements\Order;
-use craft\commerce\services\OrderAdjustments;
 
 use yii\base\Event;
 
@@ -44,15 +43,16 @@ use craft\feedme\events\RegisterFeedMeElementsEvent;
 use craft\feedme\services\Elements as FeedMeElements;
 
 use nystudio107\seomatic\services\SeoElements;
+use Exception;
 
 class Events extends Plugin
 {
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '1.0.13';
-    public $hasCpSettings = true;
-    public $hasCpSection = true;
+    public string $schemaVersion = '1.0.13';
+    public bool $hasCpSettings = true;
+    public bool $hasCpSection = true;
 
     // Traits
     // =========================================================================
@@ -63,13 +63,14 @@ class Events extends Plugin
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
         self::$plugin = $this;
 
         $this->_setPluginComponents();
+        $this->_setLogging();
         $this->_registerCpRoutes();
         $this->_registerFieldTypes();
         $this->_registerPermissions();
@@ -81,17 +82,17 @@ class Events extends Plugin
         $this->_registerPurchasableTypes();
     }
 
-    public function getPluginName()
+    public function getPluginName(): string
     {
         return Craft::t('events', $this->getSettings()->pluginName);
     }
 
-    public function getSettingsResponse()
+    public function getSettingsResponse(): mixed
     {
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('events/settings'));
     }
 
-    public function getCpNavItem(): array
+    public function getCpNavItem(): ?array
     {
         $nav = parent::getCpNavItem();
 
@@ -141,7 +142,7 @@ class Events extends Plugin
     // Protected Methods
     // =========================================================================
 
-    protected function createSettingsModel(): Settings
+    protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
@@ -150,7 +151,7 @@ class Events extends Plugin
     // Private Methods
     // =========================================================================
 
-    private function _registerCpRoutes()
+    private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
@@ -177,9 +178,9 @@ class Events extends Plugin
         });
     }
 
-    private function _registerElementTypes()
+    private function _registerElementTypes(): void
     {
-        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e) {
+        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e): void {
             $e->types[] = EventElement::class;
             $e->types[] = Ticket::class;
             $e->types[] = TicketType::class;
@@ -187,23 +188,23 @@ class Events extends Plugin
         });
     }
 
-    private function _registerFieldTypes()
+    private function _registerFieldTypes(): void
     {
-        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
+        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event): void {
             $event->types[] = EventsField::class;
         });
     }
 
-    private function _registerPurchasableTypes()
+    private function _registerPurchasableTypes(): void
     {
-        Event::on(Purchasables::class, Purchasables::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
+        Event::on(Purchasables::class, Purchasables::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event): void {
             $event->types[] = Ticket::class;
         });
     }
 
-    private function _registerPermissions()
+    private function _registerPermissions(): void
     {
-        Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
+        Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event): void {
             $eventTypes = $this->getEventTypes()->getAllEventTypes();
 
             $eventTypePermissions = [];
@@ -223,7 +224,7 @@ class Events extends Plugin
         });
     }
 
-    private function _registerVariables()
+    private function _registerVariables(): void
     {
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
             $variable = $event->sender;
@@ -231,7 +232,7 @@ class Events extends Plugin
         });
     }
 
-    private function _registerProjectConfigEventListeners()
+    private function _registerProjectConfigEventListeners(): void
     {
         $projectConfigService = Craft::$app->getProjectConfig();
 
@@ -247,7 +248,7 @@ class Events extends Plugin
         });
     }
 
-    private function _registerCraftEventListeners()
+    private function _registerCraftEventListeners(): void
     {
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEventTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEvents(), 'afterSaveSiteHandler']);
@@ -255,12 +256,12 @@ class Events extends Plugin
         // Ensure Commerce is installed
         Event::on(Plugins::class, Plugins::EVENT_BEFORE_INSTALL_PLUGIN, function (PluginEvent $event) {
             if ($event->plugin === $this && !Craft::$app->plugins->isPluginInstalled('commerce')) {
-                throw new \Exception('Events required Commerce to be installed.');
+                throw new Exception('Events required Commerce to be installed.');
             }
         });
     }
 
-    private function _registerThirdPartyEventListeners()
+    private function _registerThirdPartyEventListeners(): void
     {
         if (class_exists(Track::class)) {
             Event::on(Track::class, Track::ADD_LINE_ITEM_CUSTOM_PROPERTIES, [$this->getKlaviyoConnect(), 'addLineItemCustomProperties']);

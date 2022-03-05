@@ -6,16 +6,13 @@ use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
 use verbb\events\records\EventTypeSiteRecord;
 
-use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\MigrationHelper;
-use craft\helpers\Component as ComponentHelper;
-use craft\helpers\StringHelper;
 
 class m190420_000000_craft3_version extends Migration
 {
-    public function safeUp()
+    public function safeUp(): bool
     {
         // Update all the Element references
         $this->update('{{%elements}}', ['type' => Event::class], ['type' => 'Events_Event']);
@@ -86,9 +83,11 @@ class m190420_000000_craft3_version extends Migration
         if (!$this->db->columnExists('{{%events_tickets}}', 'deletedWithEvent')) {
             $this->addColumn('{{%events_tickets}}', 'deletedWithEvent', $this->integer()->null());
         }
+
+        return true;
     }
 
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m190420_000000_craft3_version cannot be reverted.\n";
         return false;

@@ -4,20 +4,19 @@ namespace verbb\events\elements\actions;
 use verbb\events\Events;
 
 use Craft;
-use craft\base\Element;
 use craft\base\ElementAction;
 use craft\elements\db\ElementQueryInterface;
 
 class Checkin extends ElementAction
 {
     // Public Methods
-	// =========================================================================
-	
-	public function getTriggerLabel(): string
+    // =========================================================================
+
+    public function getTriggerLabel(): string
     {
         return Craft::t('events', 'Check in');
-	}
-	
+    }
+
     /**
      * @inheritdoc
      */

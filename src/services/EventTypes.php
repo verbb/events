@@ -21,10 +21,10 @@ use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
-use craft\queue\jobs\ResaveElements;
 
 use yii\base\Component;
 use yii\base\Exception;
+use Throwable;
 
 class EventTypes extends Component
 {
@@ -39,13 +39,13 @@ class EventTypes extends Component
     // Properties
     // =========================================================================
 
-    private $_fetchedAllEventTypes = false;
-    private $_eventTypesById;
-    private $_eventTypesByHandle;
-    private $_allEventTypeIds;
-    private $_editableEventTypeIds;
-    private $_siteSettingsByEventId = [];
-    private $_savingEventTypes = [];
+    private bool $_fetchedAllEventTypes = false;
+    private ?array $_eventTypesById = null;
+    private ?array $_eventTypesByHandle = null;
+    private ?array $_allEventTypeIds = null;
+    private ?array $_editableEventTypeIds = null;
+    private ?array $_siteSettingsByEventId = null;
+    private ?array $_savingEventTypes = null;
 
 
     // Public Methods
@@ -110,7 +110,7 @@ class EventTypes extends Component
         return $this->_eventTypesById ?: [];
     }
 
-    public function getEventTypeByHandle($handle)
+    public function getEventTypeByHandle($handle): ?EventType
     {
         if (isset($this->_eventTypesByHandle[$handle])) {
             return $this->_eventTypesByHandle[$handle];
@@ -198,7 +198,7 @@ class EventTypes extends Component
         $configData = [
             'name' => $eventType->name,
             'handle' => $eventType->handle,
-            'hasTitleField' => (bool)$eventType->hasTitleField,
+            'hasTitleField' => $eventType->hasTitleField,
             'titleLabel' => $eventType->titleLabel,
             'titleFormat' => $eventType->titleFormat,
             'hasTickets' => $eventType->hasTickets,
@@ -256,7 +256,7 @@ class EventTypes extends Component
         return true;
     }
 
-    public function handleChangedEventType(ConfigEvent $event)
+    public function handleChangedEventType(ConfigEvent $event): void
     {
         $eventTypeUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -363,7 +363,6 @@ class EventTypes extends Component
                 // site rows
                 $affectedSiteUids = array_keys($siteData);
 
-                /** @noinspection PhpUndefinedVariableInspection */
                 foreach ($allOldSiteSettingsRecords as $siteId => $siteSettingsRecord) {
                     $siteUid = array_search($siteId, $siteIdMap, false);
                     if (!in_array($siteUid, $affectedSiteUids, false)) {
@@ -376,7 +375,7 @@ class EventTypes extends Component
             // -----------------------------------------------------------------
 
             if (!$isNewEventType) {
-                // Get all of the event IDs in this group
+                // Get all the event IDs in this group
                 $eventIds = Event::find()
                     ->typeId($eventTypeRecord->id)
                     ->anyStatus()
@@ -400,8 +399,7 @@ class EventTypes extends Component
                         foreach ($eventIds as $eventId) {
                             App::maxPowerCaptain();
 
-                            // Loop through each of the changed sites and update all of the events’ slugs and
-                            // URIs
+                            // Loop through each of the changed sites and update all the events’ slugs and URIs
                             foreach ($sitesWithNewUriFormats as $siteId) {
                                 $event = Event::find()
                                     ->id($eventId)
@@ -419,14 +417,14 @@ class EventTypes extends Component
             }
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
 
         // Clear caches
-        $this->_allEventTypeIds = null;
-        $this->_editableEventTypeIds = null;
+        $this->_allEventTypeIds = [];
+        $this->_editableEventTypeIds = [];
         $this->_fetchedAllEventTypes = false;
         
         unset(
@@ -451,7 +449,7 @@ class EventTypes extends Component
         return true;
     }
 
-    public function handleDeletedEventType(ConfigEvent $event)
+    public function handleDeletedEventType(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
         $eventTypeRecord = $this->_getEventTypeRecord($uid);
@@ -470,8 +468,8 @@ class EventTypes extends Component
                 ->limit(null)
                 ->all();
 
-            foreach ($events as $event) {
-                Craft::$app->getElements()->deleteElement($event);
+            foreach ($events as $eventElement) {
+                Craft::$app->getElements()->deleteElement($eventElement);
             }
 
             $fieldLayoutId = $eventTypeRecord->fieldLayoutId;
@@ -479,16 +477,17 @@ class EventTypes extends Component
 
             $eventTypeRecord->delete();
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
 
             throw $e;
         }
 
         // Clear caches
-        $this->_allEventTypeIds = null;
-        $this->_editableEventTypeIds = null;
+        $this->_allEventTypeIds = [];
+        $this->_editableEventTypeIds = [];
         $this->_fetchedAllEventTypes = false;
+
         unset(
             $this->_eventTypesById[$eventTypeRecord->id],
             $this->_eventTypesByHandle[$eventTypeRecord->handle],
@@ -496,7 +495,7 @@ class EventTypes extends Component
         );
     }
 
-    public function pruneDeletedSite(DeleteSiteEvent $event)
+    public function pruneDeletedSite(DeleteSiteEvent $event): void
     {
         $siteUid = $event->site->uid;
 
@@ -511,9 +510,8 @@ class EventTypes extends Component
         }
     }
 
-    public function pruneDeletedField(FieldEvent $event)
+    public function pruneDeletedField(FieldEvent $event): void
     {
-        /** @var Field $field */
         $field = $event->field;
         $fieldUid = $field->uid;
 
@@ -588,7 +586,7 @@ class EventTypes extends Component
         return false;
     }
 
-    public function afterSaveSiteHandler(SiteEvent $event)
+    public function afterSaveSiteHandler(SiteEvent $event): void
     {
         if ($event->isNew) {
             $primarySiteSettings = (new Query())
@@ -618,7 +616,7 @@ class EventTypes extends Component
     // Private methods
     // =========================================================================
 
-    private function _memoizeEventType(EventType $eventType)
+    private function _memoizeEventType(EventType $eventType): void
     {
         $this->_eventTypesById[$eventType->id] = $eventType;
         $this->_eventTypesByHandle[$eventType->handle] = $eventType;

@@ -1,32 +1,24 @@
 <?php
 namespace verbb\events\services;
 
-use verbb\events\elements\Event;
-
-use Craft;
-use craft\db\Query;
-use craft\events\SiteEvent;
-use craft\helpers\App;
-use craft\queue\jobs\ResaveElements;
-
 use yii\base\Component;
-use yii\base\Exception;
 
 use Jsvrcek\ICS\Model\Calendar;
-use Jsvrcek\ICS\Model\CalendarEvent;
 use Jsvrcek\ICS\Utility\Formatter;
 use Jsvrcek\ICS\CalendarStream;
 use Jsvrcek\ICS\CalendarExport;
+
+use DateTimeZone;
 
 class Ics extends Component
 {
     // Public Methods
     // =========================================================================
 
-    public function getCalendar($events)
+    public function getCalendar($events): string
     {
         // Set the overall timezone to UTC. Individual events take care of timezone
-        $timezone = new \DateTimeZone('UTC');
+        $timezone = new DateTimeZone('UTC');
 
         $calendar = new Calendar();
         $calendar->setProdId('-//Verbb//Events//EN')
