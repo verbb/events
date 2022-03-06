@@ -45,13 +45,15 @@ class EventType extends Model
 
     public function behaviors(): array
     {
-        return [
-            'eventFieldLayout' => [
-                'class' => FieldLayoutBehavior::class,
-                'elementType' => Event::class,
-                'idAttribute' => 'fieldLayoutId',
-            ],
+        $behaviors = parent::behaviors();
+
+        $behaviors['eventFieldLayout'] = [
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Event::class,
+            'idAttribute' => 'fieldLayoutId',
         ];
+
+        return $behaviors;
     }
 
     public function attributeLabels(): array
@@ -124,7 +126,7 @@ class EventType extends Model
         }
     }
 
-    public function getEventFieldLayout(): FieldLayout
+    public function getEventFieldLayout(): ?FieldLayout
     {
         return $this->getBehavior('eventFieldLayout')->getFieldLayout();
     }
