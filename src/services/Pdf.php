@@ -23,8 +23,8 @@ class Pdf extends Component
     // Constants
     // =========================================================================
 
-    const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
-    const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
+    public const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
+    public const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
 
     // Public Methods
     // =========================================================================

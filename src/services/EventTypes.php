@@ -31,9 +31,9 @@ class EventTypes extends Component
     // Constants
     // =========================================================================
 
-    const EVENT_BEFORE_SAVE_EVENTTYPE = 'beforeSaveEventType';
-    const EVENT_AFTER_SAVE_EVENTTYPE = 'afterSaveEventType';
-    const CONFIG_EVENTTYPES_KEY = 'events.eventTypes';
+    public const EVENT_BEFORE_SAVE_EVENTTYPE = 'beforeSaveEventType';
+    public const EVENT_AFTER_SAVE_EVENTTYPE = 'afterSaveEventType';
+    public const CONFIG_EVENTTYPES_KEY = 'events.eventTypes';
 
 
     // Properties

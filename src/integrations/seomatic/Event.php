@@ -26,14 +26,14 @@ class Event implements SeoElementInterface
     // Constants
     // =========================================================================
 
-    const META_BUNDLE_TYPE = 'event';
+    public const META_BUNDLE_TYPE = 'event';
 
-    const ELEMENT_CLASSES = [
+    public const ELEMENT_CLASSES = [
         EventElement::class,
     ];
 
-    const REQUIRED_PLUGIN_HANDLE = 'events';
-    const CONFIG_FILE_PATH = 'eventmeta/Bundle';
+    public const REQUIRED_PLUGIN_HANDLE = 'events';
+    public const CONFIG_FILE_PATH = 'eventmeta/Bundle';
 
 
     // Static Methods
