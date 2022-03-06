@@ -6,11 +6,7 @@ use craft\db\Query;
 
 class ProjectConfigData
 {
-    // Public Methods
-    // =========================================================================
-
-
-    // Project config rebuild methods
+    // Static Methods
     // =========================================================================
 
     public static function rebuildProjectConfig(): array

@@ -13,7 +13,7 @@ class TicketHelper
     const TICKET_KEY_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
 
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function getTicketRowHtml(): array

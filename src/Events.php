@@ -47,7 +47,7 @@ use Exception;
 
 class Events extends Plugin
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public bool $hasCpSection = true;

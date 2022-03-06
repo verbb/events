@@ -13,7 +13,7 @@ use yii\web\HttpException;
 
 class EventHelper
 {
-    // Public Methods
+    // Static Methods
     // =========================================================================
 
     public static function populateEventTicketModel(EventModel $event, $ticket, $key): Ticket
