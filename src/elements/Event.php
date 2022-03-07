@@ -265,17 +265,6 @@ class Event extends Element
         return (string)$this->title;
     }
 
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-        $attributes[] = 'startDate';
-        $attributes[] = 'endDate';
-        $attributes[] = 'postDate';
-        $attributes[] = 'expiryDate';
-
-        return $attributes;
-    }
-
     public function rules(): array
     {
         $rules = parent::rules();

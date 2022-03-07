@@ -244,15 +244,6 @@ class Ticket extends Purchasable
         return $rules;
     }
 
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-        $attributes[] = 'availableFrom';
-        $attributes[] = 'availableTo';
-
-        return $attributes;
-    }
-
     public function extraFields(): array
     {
         $names = parent::extraFields();

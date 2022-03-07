@@ -187,14 +187,6 @@ class PurchasedTicket extends Element
         return $this->ticketSku ?? '';
     }
 
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-        $attributes[] = 'checkedInDate';
-
-        return $attributes;
-    }
-
     public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('events/purchased-tickets/' . $this->id);
