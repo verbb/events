@@ -214,12 +214,15 @@ class Events extends Plugin
                 $eventTypePermissions['events-manageEventType' . $suffix] = ['label' => Craft::t('events', 'Manage “{type}” events', ['type' => $eventType->name])];
             }
 
-            $event->permissions[Craft::t('events', 'Events')] = [
-                'events-manageEventTypes' => ['label' => Craft::t('events', 'Manage event types')],
-                'events-manageEvents' => ['label' => Craft::t('events', 'Manage events'), 'nested' => $eventTypePermissions],
-                'events-manageTicketTypes' => ['label' => Craft::t('events', 'Manage ticket types')],
-                'events-managePurchasedTickets' => ['label' => Craft::t('events', 'Manage purchased tickets')],
-                'events-checkInTickets' => ['label' => Craft::t('events', 'Check-in tickets')],
+            $event->permissions[] = [
+                'heading' => Craft::t('events', 'Events'),
+                'permissions' => [
+                    'events-manageEventTypes' => ['label' => Craft::t('events', 'Manage event types')],
+                    'events-manageEvents' => ['label' => Craft::t('events', 'Manage events'), 'nested' => $eventTypePermissions],
+                    'events-manageTicketTypes' => ['label' => Craft::t('events', 'Manage ticket types')],
+                    'events-managePurchasedTickets' => ['label' => Craft::t('events', 'Manage purchased tickets')],
+                    'events-checkInTickets' => ['label' => Craft::t('events', 'Check-in tickets')],
+                ],
             ];
         });
     }
