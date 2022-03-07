@@ -16,8 +16,9 @@ class PurchasedTickets extends Component
     // Public Methods
     // =========================================================================
 
-    public function getPurchasedTicketById(int $id, $siteId = null): ?ElementInterface
+    public function getPurchasedTicketById(int $id, $siteId = null): ?PurchasedTicket
     {
+        /* @noinspection PhpIncompatibleReturnTypeInspection */
         return Craft::$app->getElements()->getElementById($id, PurchasedTicket::class, $siteId);
     }
 

@@ -6,6 +6,10 @@ use verbb\events\elements\Event;
 use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
+use verbb\events\elements\db\EventQuery;
+use verbb\events\elements\db\TicketQuery;
+use verbb\events\elements\db\PurchasedTicketQuery;
+use verbb\events\elements\db\TicketTypeQuery;
 use verbb\events\models\EventType;
 
 use Craft;
@@ -61,7 +65,7 @@ class EventsVariable
         return Events::$plugin->getEventTypes()->getEventTypeByHandle($handle);
     }
 
-    public function events($criteria = null): ElementQueryInterface
+    public function events($criteria = null): EventQuery
     {
         $query = Event::find();
 
@@ -76,7 +80,7 @@ class EventsVariable
         return $query;
     }
 
-    public function tickets($criteria = null): ElementQueryInterface
+    public function tickets($criteria = null): TicketQuery
     {
         $query = Ticket::find();
 
@@ -87,7 +91,7 @@ class EventsVariable
         return $query;
     }
 
-    public function purchasedTickets($criteria = null): ElementQueryInterface
+    public function purchasedTickets($criteria = null): PurchasedTicketQuery
     {
         $query = PurchasedTicket::find();
 
@@ -98,7 +102,7 @@ class EventsVariable
         return $query;
     }
 
-    public function ticketTypes($criteria = null): ElementQueryInterface
+    public function ticketTypes($criteria = null): TicketTypeQuery
     {
         $query = TicketType::find();
 
@@ -111,7 +115,7 @@ class EventsVariable
 
     public function availableTickets($eventId)
     {
-        // Backwads compatibility
+        // Backwards compatibility
         return Event::find()->eventId($eventId)->one()->availableTickets();
     }
 

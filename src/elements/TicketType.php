@@ -45,7 +45,7 @@ class TicketType extends Element
         return true;
     }
 
-    public static function find(): ElementQueryInterface
+    public static function find(): TicketTypeQuery
     {
         return new TicketTypeQuery(static::class);
     }

@@ -18,8 +18,9 @@ class Tickets extends Component
         return Ticket::find()->eventId($eventId)->status(null)->limit(null)->siteId($siteId)->all();
     }
 
-    public function getTicketById(int $ticketId, int $siteId = null): ?ElementInterface
+    public function getTicketById(int $ticketId, int $siteId = null): ?Ticket
     {
+        /* @noinspection PhpIncompatibleReturnTypeInspection */
         return Craft::$app->getElements()->getElementById($ticketId, Ticket::class, $siteId);
     }
 }

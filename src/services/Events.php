@@ -15,8 +15,9 @@ class Events extends Component
     // Public Methods
     // =========================================================================
 
-    public function getEventById(int $id, $siteId = null): ?ElementInterface
+    public function getEventById(int $id, $siteId = null): ?Event
     {
+        /* @noinspection PhpIncompatibleReturnTypeInspection */
         return Craft::$app->getElements()->getElementById($id, Event::class, $siteId);
     }
 

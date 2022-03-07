@@ -92,7 +92,7 @@ class Event extends Element
         ];
     }
 
-    public static function find(): ElementQueryInterface
+    public static function find(): EventQuery
     {
         return new EventQuery(static::class);
     }

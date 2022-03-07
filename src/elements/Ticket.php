@@ -83,7 +83,7 @@ class Ticket extends Purchasable
         return true;
     }
 
-    public static function find(): ElementQueryInterface
+    public static function find(): TicketQuery
     {
         return new TicketQuery(static::class);
     }

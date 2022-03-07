@@ -534,7 +534,7 @@ class EventTypes extends Component
         }
     }
 
-    public function getEventTypeById(int $eventTypeId)
+    public function getEventTypeById(int $eventTypeId): ?EventType
     {
         if (isset($this->_eventTypesById[$eventTypeId])) {
             return $this->_eventTypesById[$eventTypeId];

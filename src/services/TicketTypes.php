@@ -106,7 +106,7 @@ class TicketTypes extends Component
         return $this->_ticketTypesByHandle[$handle];
     }
 
-    public function getTicketTypeById(int $ticketTypeId)
+    public function getTicketTypeById(int $ticketTypeId): ?TicketType
     {
         if (isset($this->_ticketTypesById[$ticketTypeId])) {
             return $this->_ticketTypesById[$ticketTypeId];

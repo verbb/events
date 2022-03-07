@@ -52,7 +52,7 @@ class PurchasedTicket extends Element
         return true;
     }
 
-    public static function find(): ElementQueryInterface
+    public static function find(): PurchasedTicketQuery
     {
         return new PurchasedTicketQuery(static::class);
     }
@@ -209,7 +209,7 @@ class PurchasedTicket extends Element
         return null;
     }
 
-    public function getEvent(): ?ElementInterface
+    public function getEvent(): ?Event
     {
         if ($this->_event) {
             return $this->_event;
@@ -222,7 +222,7 @@ class PurchasedTicket extends Element
         return null;
     }
 
-    public function getTicket(): ?ElementInterface
+    public function getTicket(): ?Ticket
     {
         if ($this->_ticket) {
             return $this->_ticket;
