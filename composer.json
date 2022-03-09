@@ -26,8 +26,8 @@
     ],
     "require": {
         "php": "^8.0.2",
-        "craftcms/cms": "^4.0.0-alpha",
-        "craftcms/commerce": "^4.0.0-alpha",
+        "craftcms/cms": "^4.0.0-beta.1",
+        "craftcms/commerce": "^4.0.0-beta.1",
         "verbb/base": "^2.0.0-beta",
         "endroid/qr-code": "^2.0.0",
         "jsvrcek/ics": "^0.8.0"
