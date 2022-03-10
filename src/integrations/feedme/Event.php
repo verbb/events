@@ -79,7 +79,7 @@ class Event extends Element
     public function getQuery($settings, $params = [])
     {
         $query = EventElement::find()
-            ->anyStatus()
+            ->status(null)
             ->typeId($settings['elementGroup'][EventElement::class])
             ->siteId(Hash::get($settings, 'siteId') ?: Craft::$app->getSites()->getPrimarySite()->id);
 

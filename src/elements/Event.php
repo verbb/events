@@ -658,7 +658,7 @@ class Event extends Element
     {
         // Also restore any tickets for this element
         $tickets = Ticket::find()
-            ->anyStatus()
+            ->status(null)
             ->siteId($this->siteId)
             ->eventId($this->id)
             ->trashed()

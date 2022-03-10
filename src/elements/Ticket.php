@@ -273,7 +273,7 @@ class Ticket extends Purchasable
         $event = Event::find()
             ->id($this->eventId)
             ->siteId($this->siteId)
-            ->anyStatus()
+            ->status(null)
             ->trashed(null)
             ->one();
 

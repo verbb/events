@@ -378,7 +378,7 @@ class EventTypes extends Component
                 // Get all the event IDs in this group
                 $eventIds = Event::find()
                     ->typeId($eventTypeRecord->id)
-                    ->anyStatus()
+                    ->status(null)
                     ->limit(null)
                     ->ids();
 
@@ -404,7 +404,7 @@ class EventTypes extends Component
                                 $event = Event::find()
                                     ->id($eventId)
                                     ->siteId($siteId)
-                                    ->anyStatus()
+                                    ->status(null)
                                     ->one();
 
                                 if ($event) {
@@ -464,7 +464,7 @@ class EventTypes extends Component
         try {
             $events = Event::find()
                 ->typeId($eventTypeRecord->id)
-                ->anyStatus()
+                ->status(null)
                 ->limit(null)
                 ->all();
 

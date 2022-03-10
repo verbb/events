@@ -170,7 +170,7 @@ class TicketType extends Element
 
         $tickets = Ticket::find()
             ->typeId($this->id)
-            ->anyStatus()
+            ->status(null)
             ->limit(null)
             ->all();
 

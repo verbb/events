@@ -19,7 +19,7 @@ class m190725_000000_cleanup_tickets extends Migration
         foreach ($trashedTicketTypes as $trashedTicketType) {
             $tickets = Ticket::find()
                 ->typeId($trashedTicketType->id)
-                ->anyStatus()
+                ->status(null)
                 ->limit(null)
                 ->all();
 

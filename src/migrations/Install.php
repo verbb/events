@@ -3,7 +3,7 @@ namespace verbb\events\migrations;
 
 use Craft;
 use craft\db\Migration;
-use craft\helpers\MigrationHelper;
+use craft\helpers\Db;
 
 class Install extends Migration
 {
@@ -187,11 +187,11 @@ class Install extends Migration
 
     protected function dropForeignKeys(): void
     {
-        MigrationHelper::dropAllForeignKeysOnTable('{{%events_events}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%events_eventtypes}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%events_eventtypes_sites}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%events_purchasedtickets}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%events_tickets}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%events_tickettypes}}', $this);
+        Db::dropAllForeignKeysOnTable('{{%events_events}}', $this);
+        Db::dropAllForeignKeysOnTable('{{%events_eventtypes}}', $this);
+        Db::dropAllForeignKeysOnTable('{{%events_eventtypes_sites}}', $this);
+        Db::dropAllForeignKeysOnTable('{{%events_purchasedtickets}}', $this);
+        Db::dropAllForeignKeysOnTable('{{%events_tickets}}', $this);
+        Db::dropAllForeignKeysOnTable('{{%events_tickettypes}}', $this);
     }
 }
