@@ -43,6 +43,7 @@ use craft\feedme\events\RegisterFeedMeElementsEvent;
 use craft\feedme\services\Elements as FeedMeElements;
 
 use nystudio107\seomatic\services\SeoElements;
+
 use Exception;
 
 class Events extends Plugin
@@ -53,6 +54,8 @@ class Events extends Plugin
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
     public string $schemaVersion = '1.0.13';
+    public string $minVersionRequired = '1.0.13';
+
 
     // Traits
     // =========================================================================
