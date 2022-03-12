@@ -3,6 +3,7 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 use verbb\events\elements\PurchasedTicket;
+use verbb\events\models\Settings;
 
 use Craft;
 use craft\web\Controller;
@@ -23,6 +24,7 @@ class TicketController extends Controller
 
     public function actionCheckin(array $variables = []): Response|string
     {
+        /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();
 
         $sku = Craft::$app->request->getParam('sku');
@@ -72,6 +74,7 @@ class TicketController extends Controller
 
     private function _handleResponse($variables): Response|string
     {
+        /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {

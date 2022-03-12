@@ -3,14 +3,15 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 use verbb\events\elements\PurchasedTicket;
+use verbb\events\models\Settings;
 
 use Craft;
 use craft\web\Controller;
+use craft\web\Response;
 
 use craft\commerce\Plugin as Commerce;
 
 use yii\web\HttpException;
-use craft\web\Response;
 
 class DownloadsController extends Controller
 {
@@ -28,6 +29,9 @@ class DownloadsController extends Controller
         $attributes = [];
         $ticket = [];
         $request = Craft::$app->getRequest();
+
+        /* @var Settings $settings */
+        $settings = Events::$plugin->getSettings();
 
         $tickets = [];
         $order = [];
@@ -62,10 +66,11 @@ class DownloadsController extends Controller
         } else {
             $purchasedTickets->orderId($order->id);
         }
+
         $purchasedTickets->all();
 
         $pdf = Events::$plugin->getPdf()->renderPdf($purchasedTickets, $order, $lineItem, $option);
-        $filenameFormat = Events::$plugin->getSettings()->ticketPdfFilenameFormat;
+        $filenameFormat = $settings->ticketPdfFilenameFormat;
 
         $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);
 

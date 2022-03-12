@@ -2,6 +2,7 @@
 namespace verbb\events\controllers;
 
 use verbb\events\Events;
+use verbb\events\models\Settings;
 
 use craft\web\Controller;
 
@@ -14,6 +15,7 @@ class BaseController extends Controller
 
     public function actionSettings(): Response
     {
+        /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();
 
         return $this->renderTemplate('events/settings', [

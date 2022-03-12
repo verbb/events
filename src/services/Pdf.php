@@ -2,6 +2,7 @@
 namespace verbb\events\services;
 
 use verbb\events\Events;
+use verbb\events\models\Settings;
 
 use Craft;
 use craft\helpers\FileHelper;
@@ -48,6 +49,7 @@ class Pdf extends Component
 
     public function renderPdf($tickets, Order $order = null, $lineItem = null, $option = '', $templatePath = null): string
     {
+        /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();
 
         $request = Craft::$app->getRequest();
