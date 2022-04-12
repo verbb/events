@@ -35,7 +35,6 @@ class Events extends Component
                 'criteria' => [
                     'siteId' => $siteId,
                     'status' => null,
-                    'enabledForSite' => false,
                 ],
             ]));
         }
