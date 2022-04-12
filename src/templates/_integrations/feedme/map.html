@@ -159,7 +159,8 @@
                 <th>{{ 'Default Value' | t('feed-me') }}</th>
             </thead>
             <tbody>
-                {% for field in tab.getFields() %}
+                {% for layoutField in tab.getFields() %}
+                    {% set field = layoutField.getField() %}
                     {% set fieldClass = craft.feedme.fields.getRegisteredField(className(field)) %}
                     {% set template = fieldClass.getMappingTemplate() %}
 
@@ -176,7 +177,7 @@
 
 <hr>
 
-<h2>{{ "Set a unique identifier to match against existing elements" | t('feed-me') }}</h2>
+<h2 id="event-uniques-label">{{ "Set a unique identifier to match against existing elements" | t('feed-me') }}</h2>
 
 <p>{{ "Select the fields you want to use to check for existing elements. When selected, Feed Me will look for existing elements that match the fields provided below and either update, or skip depending on your choice of Import Strategy." | t('feed-me') }}</p>
 
@@ -190,23 +191,27 @@
 {% endfor %}
 
 {% for tab in eventTabs %}
-    {% for field in tab.getFields() %}
+    {% for layoutField in tab.getFields() %}
+        {% set field = layoutField.getField() %}
         {% set uniqueFields = uniqueFields | merge([{ name: field.name, handle: field.handle, type: className(field) }]) %}
     {% endfor %}
 {% endfor %}
 
 {% for tab in ticketTabs %}
-    {% for field in tab.getFields() %}
+    {% for layoutField in tab.getFields() %}
+        {% set field = layoutField.getField() %}
         {% set uniqueFields = uniqueFields | merge([{ name: field.name, handle: 'ticket-' ~ field.handle, type: className(field) }]) %}
     {% endfor %}
 {% endfor %}
 
-<div class="feedme-uniques">
-    {% for field in uniqueFields if field and craft.feedme.fieldCanBeUniqueId(field) %}
-        {{ forms.checkboxField({
-            name: 'fieldUnique[' ~ field.handle ~ ']',
-            label: field.name,
-            checked: feed.fieldUnique[field.handle] ?? '',
-        }) }}
+<fieldset class="feedme-uniques" aria-labelledby="event-uniques-label">
+    {% for field in uniqueFields %}
+        {% if field and craft.feedme.fieldCanBeUniqueId(field) %}
+            {{ forms.checkboxField({
+                name: 'fieldUnique[' ~ field.handle ~ ']',
+                label: field.name,
+                checked: feed.fieldUnique[field.handle] ?? '',
+            }) }}
+        {% endif %}
     {% endfor %}
-</div>
+</fieldset>

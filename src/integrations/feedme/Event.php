@@ -6,6 +6,7 @@ use verbb\events\elements\Event as EventElement;
 use verbb\events\elements\Ticket as TicketElement;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\helpers\Json;
 
 use craft\feedme\Plugin as FeedMe;
@@ -26,10 +27,10 @@ class Event extends Element
     // Properties
     // =========================================================================
 
-    public static $name = 'Event';
-    public static $class = EventElement::class;
+    public static string $name = 'Event';
+    public static string $class = EventElement::class;
 
-    public $element;
+    public ?ElementInterface $element = null;
 
 
     // Templates
@@ -76,7 +77,7 @@ class Event extends Element
         return [];
     }
 
-    public function getQuery($settings, $params = [])
+    public function getQuery($settings, array $params = []): mixed
     {
         $query = EventElement::find()
             ->status(null)
@@ -88,7 +89,7 @@ class Event extends Element
         return $query;
     }
 
-    public function setModel($settings)
+    public function setModel($settings): \craft\base\Element
     {
         $this->element = new EventElement();
         $this->element->typeId = $settings['elementGroup'][EventElement::class];
@@ -129,7 +130,7 @@ class Event extends Element
     // Protected Methods
     // =========================================================================
 
-    protected function parsePostDate($feedData, $fieldInfo): DateTime|bool|array|Carbon|string|null
+    protected function parsePostDate($feedData, $fieldInfo): ?DateTime
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
         $formatting = Hash::get($fieldInfo, 'options.match');
@@ -137,7 +138,7 @@ class Event extends Element
         return $this->parseDateAttribute($value, $formatting);
     }
 
-    protected function parseExpiryDate($feedData, $fieldInfo): DateTime|bool|array|Carbon|string|null
+    protected function parseExpiryDate($feedData, $fieldInfo): ?DateTime
     {
         $value = $this->fetchSimpleValue($feedData, $fieldInfo);
         $formatting = Hash::get($fieldInfo, 'options.match');
