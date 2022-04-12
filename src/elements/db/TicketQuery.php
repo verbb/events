@@ -111,7 +111,7 @@ class TicketQuery extends ElementQuery
         return $this;
     }
 
-    public function customer(Customer $value = null): static
+    public function customer($value): static
     {
         if ($value) {
             $this->customerId = $value->id;
