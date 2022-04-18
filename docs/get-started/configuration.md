@@ -22,11 +22,11 @@ return [
 ];
 ```
 
-### Configuration options
+## Configuration options
 - `pluginName` - Change the plugin name.
 - `ticketSKULength` - Purchased tickets have a unique, auto-generated SKU. Use this value to set the desired length.
 - `ticketPdfPath` - Set the path to your PDF.
-- `ticketPdfFilenameFormat` - Set the defaulf PDF filename format.
+- `ticketPdfFilenameFormat` - Set the default PDF filename format.
 - `checkinTemplate` - Set a template to be shown when checking into an event. See `events/templates/check-in.html` for an example.
 - `ticketsShippable` - Whether a ticket should be classified as shippable. If `false` (the default) no shipping methods will be able to be selected, if tickets are the only items in the cart.
 

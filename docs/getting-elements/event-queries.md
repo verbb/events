@@ -14,7 +14,7 @@ $myQuery = \verbb\events\elements\Event::find();
 ```
 :::
 
-Once you’ve created a event query, you can set parameters on it to narrow down the results, and then execute it by calling `.all()`. An array of [Event](docs:developers/event) objects will be returned.
+Once you’ve created an event query, you can set parameters on it to narrow down the results, and then execute it by calling `.all()`. An array of [Event](docs:developers/event) objects will be returned.
 
 :::tip
 See Introduction to [Element Queries](https://docs.craftcms.com/v3/dev/element-queries/) in the Craft docs to learn about how element queries work.

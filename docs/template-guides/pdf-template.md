@@ -1,12 +1,12 @@
 # PDF Template
 
-To generate a PDF ticket you need to create a extra template. You can use simple HTML tags, CSS styling and even Twig tags.
+To generate a PDF ticket you need to create an extra template. You can use simple HTML tags, CSS styling and even Twig tags.
 
 ### Display Tickets
 
 You can create PDFs for your tickets, using a template that you have total control over.
 
-Start by ensuring you've setup the **Tickets PDF Template** under the [General Settings](docs:get-started/installation-setup) for Events.
+Start by ensuring you've set up the **Tickets PDF Template** under the [General Settings](docs:get-started/installation-setup) for Events.
 
 Also check out [Configuration](docs:get-started/configuration) for more options to adjust your PDF.
 
@@ -34,7 +34,7 @@ In both cases, the URL will look something similar to:
 
 `https://mysite.local/actions/events/downloads/pdf?number=ba018a32b43cfef51c031f61ec4d2c48&lineItemId=12`
 
-This URL will be using the template you have defined under the Events plugin settings.
+This URL will be using the template you have defined under the Events' plugin settings.
 
 ### Additional parameters
 

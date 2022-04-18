@@ -8,7 +8,7 @@ Go to the main section for Events in your control panel main menu, and select **
 
 The **Delete** icon deletes already created event types. Created events for this event type will also be deleted. Already purchased tickets still remain in the database.
 
-### Create a Event Type
+### Create an Event Type
 
 Each field is fairly self-explanatory, but any additional information is provided below.
 
@@ -19,7 +19,7 @@ Each field is fairly self-explanatory, but any additional information is provide
 
 If you ticked **Events of this type have their own URLs**, the following fields appear:
 
-- **Event URL Format**: What the event URLs should look like. You can include tags that output event properties, such as such as {slug} or {publishDate|date("Y")}.
-- **Event Template**: The template to use when a event’s URL is requested.
+- **Event URL Format**: What the event URLs should look like. You can include tags that output event properties, such as {slug} or {publishDate|date("Y")}.
+- **Event Template**: The template to use when an event’s URL is requested.
 
 Be sure to check out our [Template Guide →](docs:template-guides/events-index) to get started quickly to show events.

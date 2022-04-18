@@ -68,7 +68,7 @@ Event::on(EventElement::class, EventElement::EVENT_AFTER_SAVE, function(Event $e
 ### The `beforeDeleteEvent` event
 The event that is triggered before an event is deleted.
 
-The `isValid` event property can be set to `false` to prevent the the deletion from proceeding.
+The `isValid` event property can be set to `false` to prevent the deletion from proceeding.
 
 ```php
 use verbb\events\elements\Event as EventElement;
@@ -159,7 +159,7 @@ Event::on(Ticket::class, Ticket::EVENT_AFTER_SAVE, function(Event $event) {
 ### The `beforeDeleteTicket` event
 The event that is triggered before a ticket is deleted.
 
-The `isValid` event property can be set to `false` to prevent the the deletion from proceeding.
+The `isValid` event property can be set to `false` to prevent the deletion from proceeding.
 
 ```php
 use verbb\events\elements\Ticket;
@@ -278,7 +278,7 @@ Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_AFTER_SAVE, function(Ev
 ### The `beforeDeletePurchasedTicket` event
 The event that is triggered before a purchased ticket is deleted.
 
-The `isValid` event property can be set to `false` to prevent the the deletion from proceeding.
+The `isValid` event property can be set to `false` to prevent the deletion from proceeding.
 
 ```php
 use verbb\events\elements\PurchasedTicket;

@@ -368,7 +368,7 @@ Possible values include:
 
 | Value | Fetches tickets…
 | - | -
-| a [Event](docs:developers/event) object | for a event represented by the object.
+| a [Event](docs:developers/event) object | for an event represented by the object.
 
 
 
