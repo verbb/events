@@ -3,12 +3,12 @@
 You can fetch purchased tickets in your templates or PHP code using **purchased ticket queries**.
 
 :::code
-```twig
+```twig Twig
 {# Create a new purchased ticket query #}
 {% set myQuery = craft.events.purchasedTickets() %}
 ```
 
-```php
+```php PHP
 // Create a new purchased ticket query
 $myQuery = \verbb\events\elements\PurchasedTicket::find();
 ```

@@ -3,12 +3,12 @@
 You can fetch events in your templates or PHP code using **event queries**.
 
 :::code
-```twig
+```twig Twig
 {# Create a new event query #}
 {% set myQuery = craft.events.events() %}
 ```
 
-```php
+```php PHP
 // Create a new event query
 $myQuery = \verbb\events\elements\Event::find();
 ```
