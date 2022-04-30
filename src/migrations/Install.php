@@ -40,6 +40,7 @@ class Install extends Migration
 
     protected function createTables(): void
     {
+        $this->archiveTableIfExists('{{%events_events}}');
         $this->createTable('{{%events_events}}', [
             'id' => $this->primaryKey(),
             'typeId' => $this->integer(),
@@ -54,6 +55,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists('{{%events_eventtypes}}');
         $this->createTable('{{%events_eventtypes}}', [
             'id' => $this->primaryKey(),
             'fieldLayoutId' => $this->integer(),
@@ -71,6 +73,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists('{{%events_eventtypes_sites}}');
         $this->createTable('{{%events_eventtypes_sites}}', [
             'id' => $this->primaryKey(),
             'eventTypeId' => $this->integer()->notNull(),
@@ -83,6 +86,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists('{{%events_tickets}}');
         $this->createTable('{{%events_tickets}}', [
             'id' => $this->primaryKey(),
             'eventId' => $this->integer(),
@@ -99,6 +103,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists('{{%events_tickettypes}}');
         $this->createTable('{{%events_tickettypes}}', [
             'id' => $this->primaryKey(),
             'taxCategoryId' => $this->integer()->notNull(),
@@ -110,6 +115,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists('{{%events_purchasedtickets}}');
         $this->createTable('{{%events_purchasedtickets}}', [
             'id' => $this->primaryKey(),
             'eventId' => $this->integer(),
