@@ -6,8 +6,8 @@ use verbb\events\errors\EventTypeNotFoundException;
 use verbb\events\events\EventTypeEvent;
 use verbb\events\models\EventType;
 use verbb\events\models\EventTypeSite;
-use verbb\events\records\EventTypeRecord;
-use verbb\events\records\EventTypeSiteRecord;
+use verbb\events\records\EventType as EventTypeRecord;
+use verbb\events\records\EventTypeSite as EventTypeSiteRecord;
 
 use Craft;
 use craft\db\Query;

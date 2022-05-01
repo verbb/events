@@ -3,7 +3,7 @@ namespace verbb\events\elements;
 
 use verbb\events\Events;
 use verbb\events\elements\db\PurchasedTicketQuery;
-use verbb\events\records\PurchasedTicketRecord;
+use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
 
 use Craft;
 use craft\base\Element;

@@ -6,7 +6,7 @@ use craft\records\Site;
 
 use yii\db\ActiveQueryInterface;
 
-class EventTypeSiteRecord extends ActiveRecord
+class EventTypeSite extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
@@ -18,7 +18,7 @@ class EventTypeSiteRecord extends ActiveRecord
 
     public function getEventType(): ActiveQueryInterface
     {
-        return $this->hasOne(EventTypeRecord::class, ['id', 'eventTypeId']);
+        return $this->hasOne(EventType::class, ['id', 'eventTypeId']);
     }
 
     public function getSite(): ActiveQueryInterface

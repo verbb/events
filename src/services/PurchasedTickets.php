@@ -2,7 +2,7 @@
 namespace verbb\events\services;
 
 use verbb\events\elements\PurchasedTicket;
-use verbb\events\records\PurchasedTicketRecord;
+use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
 
 use Craft;
 use craft\base\ElementInterface;

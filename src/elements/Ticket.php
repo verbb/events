@@ -8,7 +8,7 @@ use verbb\events\events\CustomizeEventSnapshotFieldsEvent;
 use verbb\events\events\CustomizeTicketSnapshotDataEvent;
 use verbb\events\events\CustomizeTicketSnapshotFieldsEvent;
 use verbb\events\helpers\TicketHelper;
-use verbb\events\records\TicketRecord;
+use verbb\events\records\Ticket as TicketRecord;
 
 use Craft;
 use craft\base\Element;

@@ -6,7 +6,7 @@ use craft\records\FieldLayout;
 
 use yii\db\ActiveQueryInterface;
 
-class EventTypeRecord extends ActiveRecord
+class EventType extends ActiveRecord
 {
     // Public Methods
     // =========================================================================

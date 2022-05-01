@@ -2,7 +2,7 @@
 namespace verbb\events\elements;
 
 use verbb\events\elements\db\TicketTypeQuery;
-use verbb\events\records\TicketTypeRecord;
+use verbb\events\records\TicketType as TicketTypeRecord;
 
 use Craft;
 use craft\base\Element;

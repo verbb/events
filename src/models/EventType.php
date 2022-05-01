@@ -3,7 +3,7 @@ namespace verbb\events\models;
 
 use verbb\events\Events;
 use verbb\events\elements\Event;
-use verbb\events\records\EventTypeRecord;
+use verbb\events\records\EventType as EventTypeRecord;
 
 use Craft;
 use craft\base\Model;

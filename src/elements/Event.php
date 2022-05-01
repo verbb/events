@@ -6,7 +6,7 @@ use verbb\events\elements\db\EventQuery;
 use verbb\events\helpers\EventHelper;
 use verbb\events\helpers\TicketHelper;
 use verbb\events\models\EventType;
-use verbb\events\records\EventRecord;
+use verbb\events\records\Event as EventRecord;
 
 use Craft;
 use craft\base\Element;

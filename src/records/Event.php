@@ -6,7 +6,7 @@ use craft\records\Element;
 
 use yii\db\ActiveQueryInterface;
 
-class EventRecord extends ActiveRecord
+class Event extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
@@ -18,7 +18,7 @@ class EventRecord extends ActiveRecord
 
     public function getType(): ActiveQueryInterface
     {
-        return $this->hasOne(EventTypeRecord::class, ['id' => 'typeId']);
+        return $this->hasOne(EventType::class, ['id' => 'typeId']);
     }
 
     public function getElement(): ActiveQueryInterface

@@ -9,7 +9,7 @@ use craft\commerce\records\LineItem;
 
 use yii\db\ActiveQueryInterface;
 
-class PurchasedTicketRecord extends ActiveRecord
+class PurchasedTicket extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
@@ -26,12 +26,12 @@ class PurchasedTicketRecord extends ActiveRecord
 
     public function getEvent(): ActiveQueryInterface
     {
-        return $this->hasOne(EventRecord::class, ['id' => 'eventId']);
+        return $this->hasOne(Event::class, ['id' => 'eventId']);
     }
 
     public function getTicket(): ActiveQueryInterface
     {
-        return $this->hasOne(TicketRecord::class, ['id' => 'ticketId']);
+        return $this->hasOne(Ticket::class, ['id' => 'ticketId']);
     }
 
     public function getOrder(): ActiveQueryInterface

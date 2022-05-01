@@ -10,7 +10,7 @@ use craft\commerce\records\ShippingCategory;
 
 use yii\db\ActiveQueryInterface;
 
-class TicketTypeRecord extends ActiveRecord
+class TicketType extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
