@@ -30,7 +30,7 @@ class Event extends Element
     public static string $name = 'Event';
     public static string $class = EventElement::class;
 
-    public ?ElementInterface $element = null;
+    public $element = null;
 
 
     // Templates
