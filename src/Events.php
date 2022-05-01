@@ -74,15 +74,21 @@ class Events extends Plugin
 
         $this->_registerComponents();
         $this->_registerLogTarget();
-        $this->_registerCpRoutes();
         $this->_registerFieldTypes();
-        $this->_registerPermissions();
         $this->_registerCraftEventListeners();
         $this->_registerThirdPartyEventListeners();
         $this->_registerProjectConfigEventListeners();
         $this->_registerVariables();
         $this->_registerElementTypes();
         $this->_registerPurchasableTypes();
+
+        if (Craft::$app->getRequest()->getIsCpRequest()) {
+            $this->_registerCpRoutes();
+        }
+        
+        if (Craft::$app->getEdition() === Craft::Pro) {
+            $this->_registerPermissions();
+        }
     }
 
     public function getPluginName(): string
