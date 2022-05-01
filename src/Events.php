@@ -17,6 +17,10 @@ use verbb\events\variables\EventsVariable;
 use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
+use craft\console\Application as ConsoleApplication;
+use craft\console\Controller as ConsoleController;
+use craft\console\controllers\ResaveController;
+use craft\events\DefineConsoleActionsEvent;
 use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -84,6 +88,10 @@ class Events extends Plugin
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
             $this->_registerCpRoutes();
+        }
+
+        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+            $this->_registerResaveCommand();
         }
         
         if (Craft::$app->getEdition() === Craft::Pro) {
@@ -292,6 +300,55 @@ class Events extends Plugin
                 $event->types[] = SeomaticEvent::class;
             });
         }
+    }
+
+    private function _registerResaveCommand(): void
+    {
+        if (!Craft::$app instanceof ConsoleApplication) {
+            return;
+        }
+
+        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
+            $e->actions['events-events'] = [
+                'action' => function(): int {
+                    $controller = Craft::$app->controller;
+                    $query = EventElement::find();
+                    return $controller->resaveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves Events events.',
+            ];
+
+            $e->actions['events-tickets'] = [
+                'action' => function(): int {
+                    $controller = Craft::$app->controller;
+                    $query = Ticket::find();
+                    return $controller->resaveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves Events tickets.',
+            ];
+
+            $e->actions['events-tickettypes'] = [
+                'action' => function(): int {
+                    $controller = Craft::$app->controller;
+                    $query = TicketType::find();
+                    return $controller->resaveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves Events ticket types.',
+            ];
+
+            $e->actions['events-purchasedtickets'] = [
+                'action' => function(): int {
+                    $controller = Craft::$app->controller;
+                    $query = PurchasedTicket::find();
+                    return $controller->resaveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves Events purchased tickets.',
+            ];
+        });
     }
 
 }
