@@ -1,7 +1,7 @@
 <?php
-namespace verbb\tickets\services;
+namespace verbb\events\services;
 
-use verbb\tickets\elements\TicketType;
+use verbb\events\elements\TicketType;
 
 use Craft;
 use craft\base\MemoizableArray;
@@ -50,7 +50,7 @@ class TicketTypes extends Component
         $userSession = Craft::$app->getUser();
         
         return ArrayHelper::where($this->getAllTicketTypes(), function(TicketType $ticketType) use ($userSession) {
-            return $userSession->checkPermission("tickets-manageTicketType:$ticketType->id");
+            return $userSession->checkPermission("events-manageTicketType:$ticketType->id");
         }, true, true, false);
     }
 
@@ -68,8 +68,8 @@ class TicketTypes extends Component
         if (!isset($this->_ticketTypes)) {
             $ticketTypes = [];
 
-            foreach ($this->_createTicketTypeQuery()->all() as $result) {
-                $ticketTypes[] = new TicketType($result);
+            foreach ($results = TicketType::find()->orderBy('id')->all() as $result) {
+                $ticketTypes[] = $result;
             }
 
             $this->_ticketTypes = new MemoizableArray($ticketTypes);
