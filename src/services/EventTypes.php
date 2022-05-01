@@ -10,6 +10,7 @@ use verbb\events\records\EventType as EventTypeRecord;
 use verbb\events\records\EventTypeSite as EventTypeSiteRecord;
 
 use Craft;
+use craft\base\MemoizableArray;
 use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
@@ -24,6 +25,7 @@ use craft\models\FieldLayout;
 
 use yii\base\Component;
 use yii\base\Exception;
+
 use Throwable;
 
 class EventTypes extends Component
@@ -39,124 +41,71 @@ class EventTypes extends Component
     // Properties
     // =========================================================================
 
-    private bool $_fetchedAllEventTypes = false;
-    private ?array $_eventTypesById = null;
-    private ?array $_eventTypesByHandle = null;
-    private ?array $_allEventTypeIds = null;
-    private ?array $_editableEventTypeIds = null;
-    private ?array $_siteSettingsByEventId = null;
-    private ?array $_savingEventTypes = null;
+    private ?MemoizableArray $_eventTypes = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function getEditableEventTypes(): array
+    public function getAllEventTypes(): array
     {
-        $editableEventTypeIds = $this->getEditableEventTypeIds();
-        $editableEventTypes = [];
-
-        foreach ($this->getAllEventTypes() as $eventTypes) {
-            if (in_array($eventTypes->id, $editableEventTypeIds, false)) {
-                $editableEventTypes[] = $eventTypes;
-            }
-        }
-
-        return $editableEventTypes;
-    }
-
-    public function getEditableEventTypeIds(): array
-    {
-        if ($this->_editableEventTypeIds === null) {
-            $this->_editableEventTypeIds = [];
-            $allEventTypes = $this->getAllEventTypes();
-
-            foreach ($allEventTypes as $eventType) {
-                if (Craft::$app->getUser()->checkPermission('events-manageEventType:' . $eventType->uid)) {
-                    $this->_editableEventTypeIds[] = $eventType->id;
-                }
-            }
-        }
-
-        return $this->_editableEventTypeIds;
+        return $this->_eventTypes()->all();
     }
 
     public function getAllEventTypeIds(): array
     {
-        if ($this->_allEventTypeIds === null) {
-            $this->_allEventTypeIds = [];
-            $eventTypes = $this->getAllEventTypes();
-
-            foreach ($eventTypes as $eventType) {
-                $this->_allEventTypeIds[] = $eventType->id;
-            }
-        }
-
-        return $this->_allEventTypeIds;
+        return ArrayHelper::getColumn($this->getAllEventTypes(), 'id', false);
     }
 
-    public function getAllEventTypes(): array
+    public function getEventTypeByHandle(string $handle): ?EventType
     {
-        if (!$this->_fetchedAllEventTypes) {
-            $results = $this->_createEventTypeQuery()->all();
-
-            foreach ($results as $result) {
-                $this->_memoizeEventType(new EventType($result));
-            }
-
-            $this->_fetchedAllEventTypes = true;
-        }
-
-        return $this->_eventTypesById ?: [];
+        return $this->_eventTypes()->firstWhere('handle', $handle, true);
     }
 
-    public function getEventTypeByHandle($handle): ?EventType
+    public function getEventTypeById(int $id): ?EventType
     {
-        if (isset($this->_eventTypesByHandle[$handle])) {
-            return $this->_eventTypesByHandle[$handle];
-        }
-
-        if ($this->_fetchedAllEventTypes) {
-            return null;
-        }
-
-        $result = $this->_createEventTypeQuery()
-            ->where(['handle' => $handle])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeEventType(new EventType($result));
-
-        return $this->_eventTypesByHandle[$handle];
+        return $this->_eventTypes()->firstWhere('id', $id);
     }
 
-    public function getEventTypeSites($eventTypeId): array
+    public function getEventTypeByUid(string $uid): ?EventType
     {
-        if (!isset($this->_siteSettingsByEventId[$eventTypeId])) {
-            $rows = (new Query())
-                ->select([
-                    'id',
-                    'eventTypeId',
-                    'siteId',
-                    'uriFormat',
-                    'hasUrls',
-                    'template',
-                ])
-                ->from('{{%events_eventtypes_sites}}')
-                ->where(['eventTypeId' => $eventTypeId])
-                ->all();
+        return $this->_eventTypes()->firstWhere('uid', $uid, true);
+    }
 
-            $this->_siteSettingsByEventId[$eventTypeId] = [];
+    public function getEditableEventTypes(): array
+    {
+        $userSession = Craft::$app->getUser();
+        
+        return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($userSession) {
+            return $userSession->checkPermission("events-manageEventType:$eventType->uid");
+        }, true, true, false);
+    }
 
-            foreach ($rows as $row) {
-                $this->_siteSettingsByEventId[$eventTypeId][] = new EventTypeSite($row);
-            }
+    public function getEditableEventTypeIds(): array
+    {
+        return ArrayHelper::getColumn($this->getEditableEventTypes(), 'id', false);
+    }
+
+    public function getEventTypeSites(int $eventTypeId): array
+    {
+        $results = EventTypeSiteRecord::find()
+            ->where(['eventTypeId' => $eventTypeId])
+            ->all();
+
+        $siteSettings = [];
+
+        foreach ($results as $result) {
+            $siteSettings[] = new EventTypeSite($result->toArray([
+                'id',
+                'eventTypeId',
+                'siteId',
+                'uriFormat',
+                'hasUrls',
+                'template',
+            ]));
         }
 
-        return $this->_siteSettingsByEventId[$eventTypeId];
+        return $siteSettings;
     }
 
     public function saveEventType(EventType $eventType, bool $runValidation = true): bool
@@ -190,8 +139,6 @@ class EventTypes extends Component
 
             $eventType->uid = $existingEventTypeRecord->uid;
         }
-
-        $this->_savingEventTypes[$eventType->uid] = $eventType;
 
         $projectConfig = Craft::$app->getProjectConfig();
 
@@ -423,21 +370,12 @@ class EventTypes extends Component
         }
 
         // Clear caches
-        $this->_allEventTypeIds = [];
-        $this->_editableEventTypeIds = [];
-        $this->_fetchedAllEventTypes = false;
-
-        unset(
-            $this->_eventTypesById[$eventTypeRecord->id],
-            $this->_eventTypesByHandle[$eventTypeRecord->handle],
-            $this->_siteSettingsByEventId[$eventTypeRecord->id]
-        );
+        $this->_eventTypes = null;
 
         // Fire an 'afterSaveEventType' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_EVENTTYPE)) {
             $this->trigger(self::EVENT_AFTER_SAVE_EVENTTYPE, new EventTypeEvent([
                 'eventType' => $this->getEventTypeById($eventTypeRecord->id),
-                'isNew' => empty($this->_savingEventTypes[$eventTypeUid]),
             ]));
         }
     }
@@ -484,15 +422,7 @@ class EventTypes extends Component
         }
 
         // Clear caches
-        $this->_allEventTypeIds = [];
-        $this->_editableEventTypeIds = [];
-        $this->_fetchedAllEventTypes = false;
-
-        unset(
-            $this->_eventTypesById[$eventTypeRecord->id],
-            $this->_eventTypesByHandle[$eventTypeRecord->handle],
-            $this->_siteSettingsByEventId[$eventTypeRecord->id]
-        );
+        $this->_eventTypes = null;
     }
 
     public function pruneDeletedSite(DeleteSiteEvent $event): void
@@ -532,34 +462,6 @@ class EventTypes extends Component
                 }
             }
         }
-    }
-
-    public function getEventTypeById(int $eventTypeId): ?EventType
-    {
-        if (isset($this->_eventTypesById[$eventTypeId])) {
-            return $this->_eventTypesById[$eventTypeId];
-        }
-
-        if ($this->_fetchedAllEventTypes) {
-            return null;
-        }
-
-        $result = $this->_createEventTypeQuery()
-            ->where(['id' => $eventTypeId])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeEventType(new EventType($result));
-
-        return $this->_eventTypesById[$eventTypeId];
-    }
-
-    public function getEventTypeByUid(string $uid)
-    {
-        return ArrayHelper::firstWhere($this->getAllEventTypes(), 'uid', $uid, true);
     }
 
     public function isEventTypeTemplateValid(EventType $eventType, int $siteId): bool
@@ -617,10 +519,19 @@ class EventTypes extends Component
     // Private methods
     // =========================================================================
 
-    private function _memoizeEventType(EventType $eventType): void
+    private function _eventTypes(): MemoizableArray
     {
-        $this->_eventTypesById[$eventType->id] = $eventType;
-        $this->_eventTypesByHandle[$eventType->handle] = $eventType;
+        if (!isset($this->_eventTypes)) {
+            $eventTypes = [];
+
+            foreach ($this->_createEventTypeQuery()->all() as $result) {
+                $eventTypes[] = new EventType($result);
+            }
+
+            $this->_eventTypes = new MemoizableArray($eventTypes);
+        }
+
+        return $this->_eventTypes;
     }
 
     private function _createEventTypeQuery(): Query

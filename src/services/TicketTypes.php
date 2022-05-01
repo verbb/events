@@ -1,9 +1,11 @@
 <?php
-namespace verbb\events\services;
+namespace verbb\tickets\services;
 
-use verbb\events\elements\TicketType;
+use verbb\tickets\elements\TicketType;
 
 use Craft;
+use craft\base\MemoizableArray;
+use craft\helpers\ArrayHelper;
 
 use yii\base\Component;
 
@@ -12,130 +14,67 @@ class TicketTypes extends Component
     // Properties
     // =========================================================================
 
-    private bool $_fetchedAllTicketTypes = false;
-    private ?array $_ticketTypesById = null;
-    private ?array $_ticketTypesByHandle = null;
-    private ?array $_allTicketTypeIds = null;
-    private ?array $_editableTicketTypeIds = null;
+    private ?MemoizableArray $_ticketTypes = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function getEditableTicketTypes(): array
+    public function getAllTicketTypes(): array
     {
-        $editableTicketTypeIds = $this->getEditableTicketTypeIds();
-        $editableTicketTypes = [];
-
-        foreach ($this->getAllTicketTypes() as $ticketTypes) {
-            if (in_array($ticketTypes->id, $editableTicketTypeIds, false)) {
-                $editableTicketTypes[] = $ticketTypes;
-            }
-        }
-
-        return $editableTicketTypes;
-    }
-
-    public function getEditableTicketTypeIds(): array
-    {
-        if (null === $this->_editableTicketTypeIds) {
-            $this->_editableTicketTypeIds = [];
-            $allTicketTypeIds = $this->getAllTicketTypeIds();
-
-            foreach ($allTicketTypeIds as $ticketTypeId) {
-                if (Craft::$app->getUser()->checkPermission('events-manageTicketType:' . $ticketTypeId)) {
-                    $this->_editableTicketTypeIds[] = $ticketTypeId;
-                }
-            }
-        }
-
-        return $this->_editableTicketTypeIds;
+        return $this->_ticketTypes()->all();
     }
 
     public function getAllTicketTypeIds(): array
     {
-        if (null === $this->_allTicketTypeIds) {
-            $this->_allTicketTypeIds = [];
-            $ticketTypes = $this->getAllTicketTypes();
-
-            foreach ($ticketTypes as $ticketType) {
-                $this->_allTicketTypeIds[] = $ticketType->id;
-            }
-        }
-
-        return $this->_allTicketTypeIds;
+        return ArrayHelper::getColumn($this->getAllTicketTypes(), 'id', false);
     }
 
-    public function getAllTicketTypes(): array
+    public function getTicketTypeByHandle(string $handle): ?TicketType
     {
-        if (!$this->_fetchedAllTicketTypes) {
-            $results = TicketType::find()
-                ->orderBy('id')
-                ->all();
-
-            foreach ($results as $result) {
-                $this->_memoizeTicketType($result);
-            }
-
-            $this->_fetchedAllTicketTypes = true;
-        }
-
-        return $this->_ticketTypesById ?: [];
+        return $this->_ticketTypes()->firstWhere('handle', $handle, true);
     }
 
-    public function getTicketTypeByHandle($handle)
+    public function getTicketTypeById(int $id): ?TicketType
     {
-        if (isset($this->_ticketTypesByHandle[$handle])) {
-            return $this->_ticketTypesByHandle[$handle];
-        }
-
-        if ($this->_fetchedAllTicketTypes) {
-            return null;
-        }
-
-        $result = TicketType::find()
-            ->where(['handle' => $handle])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeTicketType(new TicketType($result));
-
-        return $this->_ticketTypesByHandle[$handle];
+        return $this->_ticketTypes()->firstWhere('id', $id);
     }
 
-    public function getTicketTypeById(int $ticketTypeId): ?TicketType
+    public function getTicketTypeByUid(string $uid): ?TicketType
     {
-        if (isset($this->_ticketTypesById[$ticketTypeId])) {
-            return $this->_ticketTypesById[$ticketTypeId];
-        }
+        return $this->_ticketTypes()->firstWhere('uid', $uid, true);
+    }
 
-        if ($this->_fetchedAllTicketTypes) {
-            return null;
-        }
+    public function getEditableTicketTypes(): array
+    {
+        $userSession = Craft::$app->getUser();
+        
+        return ArrayHelper::where($this->getAllTicketTypes(), function(TicketType $ticketType) use ($userSession) {
+            return $userSession->checkPermission("tickets-manageTicketType:$ticketType->id");
+        }, true, true, false);
+    }
 
-        $result = TicketType::find()
-            ->where(['elements.id' => $ticketTypeId])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeTicketType($result);
-
-        return $this->_ticketTypesById[$ticketTypeId];
+    public function getEditableTicketTypeIds(): array
+    {
+        return ArrayHelper::getColumn($this->getEditableTicketTypes(), 'id', false);
     }
 
 
     // Private methods
     // =========================================================================
 
-    private function _memoizeTicketType(TicketType $ticketType): void
+    private function _ticketTypes(): MemoizableArray
     {
-        $this->_ticketTypesById[$ticketType->id] = $ticketType;
-        $this->_ticketTypesByHandle[$ticketType->handle] = $ticketType;
+        if (!isset($this->_ticketTypes)) {
+            $ticketTypes = [];
+
+            foreach ($this->_createTicketTypeQuery()->all() as $result) {
+                $ticketTypes[] = new TicketType($result);
+            }
+
+            $this->_ticketTypes = new MemoizableArray($ticketTypes);
+        }
+
+        return $this->_ticketTypes;
     }
 }
