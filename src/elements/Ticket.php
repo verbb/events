@@ -498,13 +498,6 @@ class Ticket extends Purchasable
             ->all();
     }
 
-    public function getPurchasedTicketsForLineItem(LineItem $lineItem)
-    {
-        Craft::$app->getDeprecator()->log('Ticket::getPurchasedTicketsForLineItem(item)', 'item.purchasable.getPurchasedTicketsForLineItem(item) has been deprecated. Use item.purchasable.getPurchasedTickets(item) instead');
-
-        return $this->getPurchasedTickets($lineItem);
-    }
-
     public function getPurchasableId(): ?int
     {
         return $this->id;

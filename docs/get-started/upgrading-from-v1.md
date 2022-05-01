@@ -12,3 +12,10 @@ Old | What to do instead
 | `verbb\events\records\PurchasedTicketRecord` | `verbb\events\records\PurchasedTicket`
 | `verbb\events\records\TicketRecord` | `verbb\events\records\Ticket`
 | `verbb\events\records\TicketTypeRecord` | `verbb\events\records\TicketType`
+
+## Removed Methods
+The following methods have been removed.
+
+Old | What to do instead
+--- | ---
+| `Ticket::getPurchasedTicketsForLineItem(item)` | Use `Ticket::getPurchasedTickets(item)` instead
