@@ -140,61 +140,8 @@ class EventTypes extends Component
             $eventType->uid = $existingEventTypeRecord->uid;
         }
 
-        $projectConfig = Craft::$app->getProjectConfig();
-
-        $configData = [
-            'name' => $eventType->name,
-            'handle' => $eventType->handle,
-            'hasTitleField' => $eventType->hasTitleField,
-            'titleLabel' => $eventType->titleLabel,
-            'titleFormat' => $eventType->titleFormat,
-            'hasTickets' => $eventType->hasTickets,
-            'icsTimezone' => $eventType->icsTimezone,
-            'icsDescriptionFieldHandle' => $eventType->icsDescriptionFieldHandle,
-            'icsLocationFieldHandle' => $eventType->icsLocationFieldHandle,
-            'siteSettings' => [],
-        ];
-
-        $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
-            $fieldLayoutConfig = $fieldLayout->getConfig();
-
-            if ($fieldLayoutConfig) {
-                if (empty($fieldLayout->id)) {
-                    $layoutUid = StringHelper::UUID();
-                    $fieldLayout->uid = $layoutUid;
-                } else {
-                    $layoutUid = Db::uidById('{{%fieldlayouts}}', $fieldLayout->id);
-                }
-
-                return [$layoutUid => $fieldLayoutConfig];
-            }
-
-            return [];
-        };
-
-        $configData['eventFieldLayouts'] = $generateLayoutConfig($eventType->getFieldLayout());
-
-        // Get the site settings
-        $allSiteSettings = $eventType->getSiteSettings();
-
-        // Make sure they're all there
-        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
-            if (!isset($allSiteSettings[$siteId])) {
-                throw new Exception('Tried to save a event type that is missing site settings');
-            }
-        }
-
-        foreach ($allSiteSettings as $siteId => $settings) {
-            $siteUid = Db::uidById('{{%sites}}', $siteId);
-            $configData['siteSettings'][$siteUid] = [
-                'hasUrls' => $settings['hasUrls'],
-                'uriFormat' => $settings['uriFormat'],
-                'template' => $settings['template'],
-            ];
-        }
-
         $configPath = self::CONFIG_EVENTTYPES_KEY . '.' . $eventType->uid;
-        $projectConfig->set($configPath, $configData);
+        Craft::$app->getProjectConfig()->set($configPath, $eventType->getConfig());
 
         if ($isNewEventType) {
             $eventType->id = Db::idByUid('{{%events_eventtypes}}', $eventType->uid);

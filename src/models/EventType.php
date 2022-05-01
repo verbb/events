@@ -9,10 +9,14 @@ use Craft;
 use craft\base\Model;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
+
+use Exception;
 
 class EventType extends Model
 {
@@ -152,5 +156,61 @@ class EventType extends Model
     public function getIcsUrl(): string
     {
         return UrlHelper::actionUrl('events/ics/event-type', ['typeId' => $this->id]);
+    }
+
+    public function getConfig(): array
+    {
+        $config = [
+            'name' => $this->name,
+            'handle' => $this->handle,
+            'hasTitleField' => $this->hasTitleField,
+            'titleLabel' => $this->titleLabel,
+            'titleFormat' => $this->titleFormat,
+            'hasTickets' => $this->hasTickets,
+            'icsTimezone' => $this->icsTimezone,
+            'icsDescriptionFieldHandle' => $this->icsDescriptionFieldHandle,
+            'icsLocationFieldHandle' => $this->icsLocationFieldHandle,
+            'siteSettings' => [],
+        ];
+
+        $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
+            $fieldLayoutConfig = $fieldLayout->getConfig();
+
+            if ($fieldLayoutConfig) {
+                if (empty($fieldLayout->id)) {
+                    $layoutUid = StringHelper::UUID();
+                    $fieldLayout->uid = $layoutUid;
+                } else {
+                    $layoutUid = Db::uidById('{{%fieldlayouts}}', $fieldLayout->id);
+                }
+
+                return [$layoutUid => $fieldLayoutConfig];
+            }
+
+            return [];
+        };
+
+        $config['eventFieldLayouts'] = $generateLayoutConfig($this->getFieldLayout());
+
+        // Get the site settings
+        $allSiteSettings = $this->getSiteSettings();
+
+        // Make sure they're all there
+        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
+            if (!isset($allSiteSettings[$siteId])) {
+                throw new Exception('Tried to save a event type that is missing site settings');
+            }
+        }
+
+        foreach ($allSiteSettings as $siteId => $settings) {
+            $siteUid = Db::uidById('{{%sites}}', $siteId);
+            $config['siteSettings'][$siteUid] = [
+                'hasUrls' => $settings['hasUrls'],
+                'uriFormat' => $settings['uriFormat'],
+                'template' => $settings['template'],
+            ];
+        }
+
+        return $config;
     }
 }
