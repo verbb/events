@@ -25,7 +25,7 @@ Plugins can get notified after the PDF or a ticket has been rendered.
 
 ```php
 use craft\commerce\events\PdfEvent;
-use verbb\events\services\PdfService as Pdf;
+use verbb\events\services\Pdf;
 use yii\base\Event;
 
 Event::on(Pdf::class, Pdf::EVENT_AFTER_RENDER_PDF, function(PdfEvent $event) {
