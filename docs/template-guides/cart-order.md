@@ -15,7 +15,7 @@ Using the following, you can check to see if a line item is a ticket, and show v
 ```
 
 :::tip
-Because multiple tickets can be purchased for one line item, its important to loop through potentially multiple unique ticket SKU's as above.
+Because multiple tickets can be purchased for one line item, It's important to loop through potentially multiple unique ticket SKU's as above.
 :::
 
 If you're looking for something a little prettier than simply showing the ticket SKU in your order confirmation page or email, you may want to look at generating a [PDF Template](docs:template-guides/pdf-template).

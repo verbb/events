@@ -3,12 +3,12 @@
 You can fetch purchased tickets in your templates or PHP code using **purchased ticket queries**.
 
 :::code
-```twig
+```twig Twig
 {# Create a new purchased ticket query #}
 {% set myQuery = craft.events.purchasedTickets() %}
 ```
 
-```php
+```php PHP
 // Create a new purchased ticket query
 $myQuery = \verbb\events\elements\PurchasedTicket::find();
 ```
@@ -21,10 +21,9 @@ See Introduction to [Element Queries](https://docs.craftcms.com/v3/dev/element-q
 :::
 
 ## Example
-
 We can display purchased tickets for a given event by doing the following:
 
-1. Create an purchased ticket query with `craft.events.purchasedTickets()`.
+1. Create a purchased ticket query with `craft.events.purchasedTickets()`.
 2. Set the [eventId](#eventId) and [limit](#limit) parameters on it.
 3. Fetch all purchased tickets with `.all()` and output.
 4. Loop through the purchased tickets using a [for](https://twig.symfony.com/doc/2.x/tags/for.html) tag to output the contents.
@@ -166,7 +165,7 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 ### `eventId`
 
-Narrows the query results based on the purchased tickets event ID.
+Narrows the query results based on the purchased tickets' event ID.
 
 Possible values include:
 

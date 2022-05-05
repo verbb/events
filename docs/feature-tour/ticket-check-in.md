@@ -25,7 +25,7 @@ If making the request via Ajax, a JSON response will be returned.
 The returned response (JSON or template) will provide the following variables:
 
 - `success`: Contains the string "Ticket checked in.".
-- `checkedInDate`: The check in date in [DATE\_ATOM](http://php.net/manual/en/class.datetime.php#datetime.constants.atom) format.
+- `checkedInDate`: The check-in date in [DATE\_ATOM](http://php.net/manual/en/class.datetime.php#datetime.constants.atom) format.
 - `purchasedTicket`: If successful, a [Purchased Ticket](docs:developers/purchased-ticket).
 
 ### Custom Template
@@ -55,9 +55,8 @@ An example of this template could be the following:
 </html>
 ```
 
-### Example Checkin Form
-
-In addition to the QR code in PDF tickets, you can also setup a form on your site to check a ticket in.
+### Example Check-in Form
+In addition to the QR code in PDF tickets, you can also set up a form on your site to check a ticket in.
 
 ```twig
 {# Show an error if one exists #}
