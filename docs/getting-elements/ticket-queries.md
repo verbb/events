@@ -3,7 +3,7 @@
 You can fetch tickets in your templates or PHP code using **ticket queries**.
 
 ::: code
-```twig
+```twig Twig
 {# Create a new ticket query #}
 {% set myTicketQuery = craft.events.tickets() %}
 ```
@@ -56,14 +56,14 @@ We can display a specific ticket by its ID by doing the following:
 Clears out the [status()](https://docs.craftcms.com/api/v3/craft-elements-db-elementquery.html#method-status) and [enabledForSite()](https://docs.craftcms.com/api/v3/craft-elements-db-elementquery.html#method-enabledforsite) parameters.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all tickets, regardless of status #}
 {% set tickets = craft.events.tickets()
     .anyStatus()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all tickets, regardless of status
 $tickets = \verbb\events\elements\Ticket::find()
     ->anyStatus()
@@ -78,14 +78,14 @@ $tickets = \verbb\events\elements\Ticket::find()
 Causes the query to return matching tickets as arrays of data, rather than [Ticket](docs:developers/ticket) objects.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch tickets as arrays #}
 {% set tickets = craft.events.tickets()
     .asArray()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch tickets as arrays
 $tickets = \verbb\events\elements\Ticket::find()
     ->asArray()
@@ -100,14 +100,14 @@ $tickets = \verbb\events\elements\Ticket::find()
 Narrows the query results to only tickets that have been purchased by a customer.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch tickets that have been purchased by a customer #}
 {% set tickets = craft.events.tickets()
     .customer(craft.commerce.getCarts().getCart().customer)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch tickets that have been purchased by a customer
 $tickets = \verbb\events\elements\Event::find()
     ->customer($customer)
@@ -130,7 +130,7 @@ Possible values include:
 | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were created between 2018-04-01 and 2018-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch tickets created last month #}
 {% set start = date('first day of last month')|atom %}
 {% set end = date('first day of this month')|atom %}
@@ -140,7 +140,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch tickets created last month
 $start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
 $end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
@@ -166,7 +166,7 @@ Possible values include:
 | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were updated between 2018-04-01 and 2018-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch tickets updated in the last week #}
 {% set lastWeek = date('1 week ago')|atom %}
 
@@ -175,7 +175,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch tickets updated in the last week
 $lastWeek = new \DateTime('1 week ago')->format(\DateTime::ATOM);
 
@@ -192,7 +192,7 @@ $tickets = \verbb\events\elements\Ticket::find()
 Causes the query results to be returned in the order specified by [id](#id).
 
 ::: code
-```twig
+```twig Twig
 {# Fetch tickets in a specific order #}
 {% set tickets = craft.events.tickets()
     .id([1, 2, 3, 4, 5])
@@ -200,7 +200,7 @@ Causes the query results to be returned in the order specified by [id](#id).
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch tickets in a specific order
 $tickets = \verbb\events\elements\Ticket::find()
     ->id([1, 2, 3, 4, 5])
@@ -237,14 +237,14 @@ Possible values include:
 | `['not', 1, 2]` | not with an ID of 1 or 2.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch the ticket by its ID #}
 {% set ticket = craft.events.tickets()
     .id(1)
     .one() %}
 ```
 
-```php
+```php PHP
 // Fetch the ticket by its ID
 $ticket = \verbb\events\elements\Ticket::find()
     ->id(1)
@@ -263,14 +263,14 @@ This can be combined with [fixedOrder](#fixedorder) if you want the results to b
 Causes the query results to be returned in reverse order.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch tickets in reverse #}
 {% set tickets = craft.events.tickets()
     .inReverse()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch tickets in reverse
 $tickets = \verbb\events\elements\Ticket::find()
     ->inReverse()
@@ -285,14 +285,14 @@ $tickets = \verbb\events\elements\Ticket::find()
 Determines the number of tickets that should be returned.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch up to 10 tickets  #}
 {% set tickets = craft.events.tickets()
     .limit(10)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch up to 10 tickets
 $tickets = \verbb\events\elements\Ticket::find()
     ->limit(10)
@@ -307,14 +307,14 @@ $tickets = \verbb\events\elements\Ticket::find()
 Determines how many tickets should be skipped in the results.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all tickets except for the first 3 #}
 {% set tickets = craft.events.tickets()
     .offset(3)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all tickets except for the first 3
 $tickets = \verbb\events\elements\Ticket::find()
     ->offset(3)
@@ -329,14 +329,14 @@ $tickets = \verbb\events\elements\Ticket::find()
 Determines the order that the tickets should be returned in.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all tickets in order of date created #}
 {% set tickets = craft.events.tickets()
     .orderBy('elements.dateCreated asc')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all tickets in order of date created
 $tickets = \verbb\events\elements\Ticket::find()
     ->orderBy('elements.dateCreated asc')
@@ -393,14 +393,14 @@ Narrows the query results to only tickets that are related to certain other elem
 See [Relations](https://docs.craftcms.com/v3/relations.html) for a full explanation of how to work with this parameter.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all tickets that are related to myCategory #}
 {% set tickets = craft.events.tickets()
     .relatedTo(myCategory)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all tickets that are related to $myCategory
 $tickets = \verbb\events\elements\Ticket::find()
     ->relatedTo($myCategory)
@@ -417,7 +417,7 @@ Narrows the query results to only tickets that match a search query.
 See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanation of how to work with this parameter.
 
 ::: code
-```twig
+```twig Twig
 {# Get the search query from the 'q' query string param #}
 {% set searchQuery = craft.request.getQueryParam('q') %}
 
@@ -427,7 +427,7 @@ See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanat
     .all() %}
 ```
 
-```php
+```php PHP
 // Get the search query from the 'q' query string param
 $searchQuery = \Craft::$app->request->getQueryParam('q');
 
@@ -454,14 +454,14 @@ Possible values include:
 | a `\craft\commerce\elements\db\Site` object | from the site represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch tickets from the Foo site #}
 {% set tickets = craft.events.tickets()
     .site('foo')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch tickets from the Foo site
 $tickets = \verbb\events\elements\Ticket::find()
     ->site('foo')
@@ -478,14 +478,14 @@ Determines which site the tickets should be queried in, per the site’s ID.
 The current site will be used by default.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch tickets from the site with an ID of 1 #}
 {% set tickets = craft.events.tickets()
     .siteId(1)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch tickets from the site with an ID of 1
 $tickets = \verbb\events\elements\Ticket::find()
     ->siteId(1)
@@ -512,7 +512,7 @@ Possible values include:
 | `['not', '*foo*', '*bar*']` | with a SKU that doesn’t contain `foo` or `bar`.
 
 ::: code
-```twig
+```twig Twig
 {# Get the requested ticket SKU from the URL #}
 {% set requestedSlug = craft.app.request.getSegment(3) %}
 
@@ -522,7 +522,7 @@ Possible values include:
     .one() %}
 ```
 
-```php
+```php PHP
 // Get the requested ticket SKU from the URL
 $requestedSlug = \Craft::$app->request->getSegment(3);
 
@@ -568,14 +568,14 @@ Possible values include:
 Narrows the query results based on the tickets’ UIDs.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch the ticket by its UID #}
 {% set ticket = craft.events.tickets()
     .uid('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
     .one() %}
 ```
 
-```php
+```php PHP
 // Fetch the ticket by its UID
 $ticket = \verbb\events\elements\Ticket::find()
     ->uid('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
@@ -592,14 +592,14 @@ Causes the query to return matching tickets eager-loaded with related elements.
 See [Eager-Loading Elements](https://docs.craftcms.com/v3/dev/eager-loading-elements.html) for a full explanation of how to work with this parameter.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch tickets eager-loaded with the "Related" field’s relations #}
 {% set tickets = craft.events.tickets()
     .with(['related'])
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch tickets eager-loaded with the "Related" field’s relations
 $tickets = \verbb\events\elements\Ticket::find()
     ->with(['related'])
