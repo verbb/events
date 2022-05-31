@@ -66,7 +66,7 @@ Possible values include:
 | a [DateTime](http://php.net/class.datetime) object | that were posted after the date represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events posted this month #}
 {% set firstDayOfMonth = date('first day of this month') %}
 
@@ -75,7 +75,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events posted this month
 $firstDayOfMonth = new \DateTime('first day of this month');
 
@@ -92,14 +92,14 @@ $events = \verbb\events\elements\Event::find()
 Clears out the [status()](https://docs.craftcms.com/api/v3/craft-elements-db-elementquery.html#method-status) and [enabledForSite()](https://docs.craftcms.com/api/v3/craft-elements-db-elementquery.html#method-enabledforsite) parameters.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all events, regardless of status #}
 {% set events = craft.events.events()
     .anyStatus()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all events, regardless of status
 $events = \verbb\events\elements\Event::find()
     ->anyStatus()
@@ -114,14 +114,14 @@ $events = \verbb\events\elements\Event::find()
 Causes the query to return matching events as arrays of data, rather than [Event](docs:developers/event) objects.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events as arrays #}
 {% set events = craft.events.events()
     .asArray()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events as arrays
 $events = \verbb\events\elements\Event::find()
     ->asArray()
@@ -143,7 +143,7 @@ Possible values include:
 | a [DateTime](http://php.net/class.datetime) object | that were posted before the date represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events posted before this month #}
 {% set firstDayOfMonth = date('first day of this month') %}
 
@@ -152,7 +152,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events posted before this month
 $firstDayOfMonth = new \DateTime('first day of this month');
 
@@ -169,14 +169,14 @@ $events = \verbb\events\elements\Event::find()
 Narrows the query results to only events that have been purchased by a customer.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events that have been purchased by a customer #}
 {% set events = craft.events.events()
     .customer(craft.commerce.getCarts().getCart().customer)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events that have been purchased by a customer
 $events = \verbb\events\elements\Event::find()
     ->customer($customer)
@@ -199,7 +199,7 @@ Possible values include:
 | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were created between 2018-04-01 and 2018-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events created last month #}
 {% set start = date('first day of last month') | atom %}
 {% set end = date('first day of this month') | atom %}
@@ -209,7 +209,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events created last month
 $start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
 $end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
@@ -235,7 +235,7 @@ Possible values include:
 | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were updated between 2018-04-01 and 2018-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events updated in the last week #}
 {% set lastWeek = date('1 week ago')|atom %}
 
@@ -244,7 +244,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events updated in the last week
 $lastWeek = new \DateTime('1 week ago')->format(\DateTime::ATOM);
 
@@ -269,7 +269,7 @@ Possible values include:
 | `['and', '>= 2018-04-04', '< 2018-05-01']` | that has an end date between 2018-04-01 and 2018-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events finishing after today #}
 {% set end = date('today') | atom %}
 
@@ -278,7 +278,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events created last month
 $end = new \DateTime('today')->format(\DateTime::ATOM);
 
@@ -303,7 +303,7 @@ Possible values include:
 | `['and', '>= 2020-04-04', '< 2020-05-01']` | that will expire between 2020-04-01 and 2020-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events expiring this month #}
 {% set nextMonth = date('first day of next month')|atom %}
 
@@ -312,7 +312,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events expiring this month
 $nextMonth = new \DateTime('first day of next month')->format(\DateTime::ATOM);
 
@@ -329,7 +329,7 @@ $events = \verbb\events\elements\Event::find()
 Causes the query results to be returned in the order specified by [id](#id).
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events in a specific order #}
 {% set events = craft.events.events()
     .id([1, 2, 3, 4, 5])
@@ -337,7 +337,7 @@ Causes the query results to be returned in the order specified by [id](#id).
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events in a specific order
 $events = \verbb\events\elements\Event::find()
     ->id([1, 2, 3, 4, 5])
@@ -374,14 +374,14 @@ Possible values include:
 | `['not', 1, 2]` | not with an ID of 1 or 2.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch the event by its ID #}
 {% set event = craft.events.events()
     .id(1)
     .one() %}
 ```
 
-```php
+```php PHP
 // Fetch the event by its ID
 $event = \verbb\events\elements\Event::find()
     ->id(1)
@@ -400,14 +400,14 @@ This can be combined with [fixedOrder](#fixedorder) if you want the results to b
 Causes the query results to be returned in reverse order.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events in reverse #}
 {% set events = craft.events.events()
     .inReverse()
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events in reverse
 $events = \verbb\events\elements\Event::find()
     ->inReverse()
@@ -422,14 +422,14 @@ $events = \verbb\events\elements\Event::find()
 Determines the number of events that should be returned.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch up to 10 events  #}
 {% set events = craft.events.events()
     .limit(10)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch up to 10 events
 $events = \verbb\events\elements\Event::find()
     ->limit(10)
@@ -444,14 +444,14 @@ $events = \verbb\events\elements\Event::find()
 Determines how many events should be skipped in the results.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all events except for the first 3 #}
 {% set events = craft.events.events()
     .offset(3)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all events except for the first 3
 $events = \verbb\events\elements\Event::find()
     ->offset(3)
@@ -466,14 +466,14 @@ $events = \verbb\events\elements\Event::find()
 Determines the order that the events should be returned in.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all events in order of date created #}
 {% set events = craft.events.events()
     .orderBy('elements.dateCreated asc')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all events in order of date created
 $events = \verbb\events\elements\Event::find()
     ->orderBy('elements.dateCreated asc')
@@ -496,7 +496,7 @@ Possible values include:
 | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were posted between 2018-04-01 and 2018-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events posted last month #}
 {% set start = date('first day of last month')|atom %}
 {% set end = date('first day of this month')|atom %}
@@ -506,7 +506,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events posted last month
 $start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
 $end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
@@ -526,14 +526,14 @@ Narrows the query results to only events that are related to certain other eleme
 See [Relations](https://docs.craftcms.com/v3/relations.html) for a full explanation of how to work with this parameter.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch all events that are related to myCategory #}
 {% set events = craft.events.events()
     .relatedTo(myCategory)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch all events that are related to $myCategory
 $events = \verbb\events\elements\Event::find()
     ->relatedTo($myCategory)
@@ -550,7 +550,7 @@ Narrows the query results to only events that match a search query.
 See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanation of how to work with this parameter.
 
 ::: code
-```twig
+```twig Twig
 {# Get the search query from the 'q' query string param #}
 {% set searchQuery = craft.request.getQueryParam('q') %}
 
@@ -560,7 +560,7 @@ See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanat
     .all() %}
 ```
 
-```php
+```php PHP
 // Get the search query from the 'q' query string param
 $searchQuery = \Craft::$app->request->getQueryParam('q');
 
@@ -587,14 +587,14 @@ Possible values include:
 | a `\craft\commerce\elements\db\Site` object | from the site represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events from the Foo site #}
 {% set events = craft.events.events()
     .site('foo')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events from the Foo site
 $events = \verbb\events\elements\Event::find()
     ->site('foo')
@@ -611,14 +611,14 @@ Determines which site the events should be queried in, per the site’s ID.
 The current site will be used by default.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events from the site with an ID of 1 #}
 {% set events = craft.events.events()
     .siteId(1)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events from the site with an ID of 1
 $events = \verbb\events\elements\Event::find()
     ->siteId(1)
@@ -645,7 +645,7 @@ Possible values include:
 | `['not', '*foo*', '*bar*']` | with a slug that doesn’t contain `foo` or `bar`.
 
 ::: code
-```twig
+```twig Twig
 {# Get the requested event slug from the URL #}
 {% set requestedSlug = craft.app.request.getSegment(3) %}
 
@@ -655,7 +655,7 @@ Possible values include:
     .one() %}
 ```
 
-```php
+```php PHP
 // Get the requested event slug from the URL
 $requestedSlug = \Craft::$app->request->getSegment(3);
 
@@ -681,7 +681,7 @@ Possible values include:
 | `['and', '>= 2018-04-04', '< 2018-05-01']` | that has a start date between 2018-04-01 and 2018-05-01.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events from today onwards #}
 {% set start = date('today') | atom %}
 
@@ -690,7 +690,7 @@ Possible values include:
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events created last month
 $start = new \DateTime('today')->format(\DateTime::ATOM);
 
@@ -717,14 +717,14 @@ Possible values include:
 | `['live', 'pending']` | that are live or pending.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch disabled events #}
 {% set events = {twig-function}
     .status('disabled')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch disabled events
 $events = \verbb\events\elements\Event::find()
     ->status('disabled')
@@ -751,14 +751,14 @@ Possible values include:
 | `['not', '*Foo*', '*Bar*']` | with a title that doesn’t contain `Foo` or `Bar`.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events with a title that contains "Foo" #}
 {% set events = craft.events.events()
     .title('*Foo*')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events with a title that contains "Foo"
 $events = \verbb\events\elements\Event::find()
     ->title('*Foo*')
@@ -783,14 +783,14 @@ Possible values include:
 | an Event Type object | of a type represented by the object.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events with a Foo event type #}
 {% set events = craft.events.events()
     .type('foo')
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events with a Foo event type
 $events = \verbb\events\elements\Event::find()
     ->type('foo')
@@ -814,14 +814,14 @@ Possible values include:
 | `['not', 1, 2]` | not of a type with an ID of 1 or 2.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events of the event type with an ID of 1 #}
 {% set events = craft.events.events()
     .typeId(1)
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events of the event type with an ID of 1
 $events = \verbb\events\elements\Event::find()
     ->typeId(1)
@@ -836,14 +836,14 @@ $events = \verbb\events\elements\Event::find()
 Narrows the query results based on the events’ UIDs.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch the event by its UID #}
 {% set event = craft.events.events()
     .uid('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
     .one() %}
 ```
 
-```php
+```php PHP
 // Fetch the event by its UID
 $event = \verbb\events\elements\Event::find()
     ->uid('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
@@ -870,7 +870,7 @@ Possible values include:
 | `['not', '*foo*', '*bar*']` | with a URI that doesn’t contain `foo` or `bar`.
 
 ::: code
-```twig
+```twig Twig
 {# Get the requested URI #}
 {% set requestedUri = craft.app.request.getPathInfo() %}
 
@@ -880,7 +880,7 @@ Possible values include:
     .one() %}
 ```
 
-```php
+```php PHP
 // Get the requested URI
 $requestedUri = \Craft::$app->request->getPathInfo();
 
@@ -900,14 +900,14 @@ Causes the query to return matching events eager-loaded with related elements.
 See [Eager-Loading Elements](https://docs.craftcms.com/v3/dev/eager-loading-elements.html) for a full explanation of how to work with this parameter.
 
 ::: code
-```twig
+```twig Twig
 {# Fetch events eager-loaded with the "Related" field’s relations #}
 {% set events = craft.events.events()
     .with(['related'])
     .all() %}
 ```
 
-```php
+```php PHP
 // Fetch events eager-loaded with the "Related" field’s relations
 $events = \verbb\events\elements\Event::find()
     ->with(['related'])

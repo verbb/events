@@ -41,10 +41,11 @@ Event::on(Pdf::class, Pdf::EVENT_AFTER_RENDER_PDF, function(PdfEvent $event) {
 Plugins can get notified before an event is saved. Event handlers can prevent the event from getting saved by setting `$event->isValid` to false.
 
 ```php
+use craft\events\ModelEvent;
 use verbb\events\elements\Event as EventElement;
 use yii\base\Event;
 
-Event::on(EventElement::class, EventElement::EVENT_BEFORE_SAVE, function(Event $event) {
+Event::on(EventElement::class, EventElement::EVENT_BEFORE_SAVE, function(ModelEvent $event) {
     $isNew = $event->isNew;
     $eventElement = $event->sender;
     $event->isValid = false;
@@ -56,10 +57,11 @@ Event::on(EventElement::class, EventElement::EVENT_BEFORE_SAVE, function(Event $
 Plugins can get notified after an event has been saved
 
 ```php
+use craft\events\ModelEvent;
 use verbb\events\elements\Event as EventElement;
 use yii\base\Event;
 
-Event::on(EventElement::class, EventElement::EVENT_AFTER_SAVE, function(Event $event) {
+Event::on(EventElement::class, EventElement::EVENT_AFTER_SAVE, function(ModelEvent $event) {
     $isNew = $event->isNew;
     $eventElement = $event->sender;
 });
@@ -132,10 +134,11 @@ Event::on(EventTypes::class, EventTypes::EVENT_AFTER_SAVE_EVENTTYPE, function(Ev
 Plugins can get notified before a ticket is saved. Event handlers can prevent the ticket from getting saved by setting `$event->isValid` to false.
 
 ```php
+use craft\events\ModelEvent;
 use verbb\events\elements\Ticket;
 use yii\base\Event;
 
-Event::on(Ticket::class, Ticket::EVENT_BEFORE_SAVE, function(Event $event) {
+Event::on(Ticket::class, Ticket::EVENT_BEFORE_SAVE, function(ModelEvent $event) {
     $isNew = $event->isNew;
     $ticket = $event->sender;
     $event->isValid = false;
@@ -147,10 +150,11 @@ Event::on(Ticket::class, Ticket::EVENT_BEFORE_SAVE, function(Event $event) {
 Plugins can get notified after a ticket has been saved
 
 ```php
+use craft\events\ModelEvent;
 use verbb\events\elements\Ticket;
 use yii\base\Event;
 
-Event::on(Ticket::class, Ticket::EVENT_AFTER_SAVE, function(Event $event) {
+Event::on(Ticket::class, Ticket::EVENT_AFTER_SAVE, function(ModelEvent $event) {
     $isNew = $event->isNew;
     $ticket = $event->sender;
 });
@@ -251,10 +255,11 @@ Event::on(EventElement::class, EventElement::EVENT_AFTER_CAPTURE_EVENT_SNAPSHOT,
 Plugins can get notified before a purchased ticket is saved. Event handlers can prevent the purchased ticket from getting saved by setting `$event->isValid` to false.
 
 ```php
+use craft\events\ModelEvent;
 use verbb\events\elements\PurchasedTicket;
 use yii\base\Event;
 
-Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_BEFORE_SAVE, function(Event $event) {
+Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_BEFORE_SAVE, function(ModelEvent $event) {
     $isNew = $event->isNew;
     $purchasedTicket = $event->sender;
     $event->isValid = false;
@@ -266,10 +271,11 @@ Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_BEFORE_SAVE, function(E
 Plugins can get notified after a purchased ticket has been saved
 
 ```php
+use craft\events\ModelEvent;
 use verbb\events\elements\PurchasedTicket;
 use yii\base\Event;
 
-Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_AFTER_SAVE, function(Event $event) {
+Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_AFTER_SAVE, function(ModelEvent $event) {
     $isNew = $event->isNew;
     $purchasedTicket = $event->sender;
 });
