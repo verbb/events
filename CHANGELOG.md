@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.0.0-beta.2 - 2022-06-08
+
+### Added
+- Add resave console command for elements.
+- Add checks for registering events for performance.
+- Add `archiveTableIfExists()` to install migration.
+
+### Changed
+- Memoize all services for performance.
+- Rename record classes.
+- Rename base plugin methods.
+- jsvrcek/ics dependency updated for php 8.0 support.
+- Now requires Events `1.4.20` in order to update from Craft 3.
+
+### Fixed
+- Fix `project-config/rebuild` support.
+- Fix Feed Me support.
+- Fix an error when uninstalling.
+- Fix an error with Craft 4.
+- Fix an error with Commerce.
+- Fix deprecations.
+
+### Removed
+- Removed `Ticket::getPurchasedTicketsForLineItem`.
+- Update `minVersionRequired`.
+- Remove unneeded migrations.
+
 ## 2.0.0-beta.1 - 2022-03-10
 
 ### Changed
