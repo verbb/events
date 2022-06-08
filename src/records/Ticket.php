@@ -6,7 +6,7 @@ use craft\records\Element;
 
 use yii\db\ActiveQueryInterface;
 
-class TicketRecord extends ActiveRecord
+class Ticket extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
