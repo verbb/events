@@ -11,7 +11,7 @@
 - Memoize all services for performance.
 - Rename record classes.
 - Rename base plugin methods.
-- jsvrcek/ics dependency updated for php 8.0 support.
+- `jsvrcek/ics` dependency updated for php 8.0 support.
 - Now requires Events `1.4.20` in order to update from Craft 3.
 
 ### Fixed
