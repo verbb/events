@@ -55,7 +55,7 @@ class Pdf extends Component
         $request = Craft::$app->getRequest();
         $format = $request->getParam('format');
 
-        if (null === $templatePath){
+        if (null === $templatePath) {
             $templatePath = $settings->ticketPdfPath;
         }
 

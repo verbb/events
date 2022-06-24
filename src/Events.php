@@ -159,7 +159,7 @@ class Events extends Plugin
 
                 'events/event-types/new' => 'events/event-types/edit',
                 'events/event-types/<eventTypeId:\d+>' => 'events/event-types/edit',
-                
+
                 'events/events/<eventTypeHandle:{handle}>' => 'events/events/index',
                 'events/events/<eventTypeHandle:{handle}>/new' => 'events/events/edit',
                 'events/events/<eventTypeHandle:{handle}>/new/<siteHandle:{handle}>' => 'events/events/edit',
@@ -168,7 +168,7 @@ class Events extends Plugin
 
                 'events/ticket-types/new' => 'events/ticket-types/edit',
                 'events/ticket-types/<ticketTypeId:\d+>' => 'events/ticket-types/edit',
-                
+
                 'events/tickets/new' => 'events/tickets/edit',
                 'events/tickets/<ticketId:\d+>' => 'events/tickets/edit',
 
@@ -212,7 +212,7 @@ class Events extends Plugin
                 $suffix = ':' . $eventType->uid;
                 $eventTypePermissions['events-manageEventType' . $suffix] = ['label' => Craft::t('events', 'Manage “{type}” events', ['type' => $eventType->name])];
             }
-            
+
             $event->permissions[Craft::t('events', 'Events')] = [
                 'events-manageEventTypes' => ['label' => Craft::t('events', 'Manage event types')],
                 'events-manageEvents' => ['label' => Craft::t('events', 'Manage events'), 'nested' => $eventTypePermissions],
@@ -242,7 +242,7 @@ class Events extends Plugin
         Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$eventTypeService, 'pruneDeletedField']);
         Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$eventTypeService, 'pruneDeletedSite']);
 
-        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function (RebuildConfigEvent $event) {
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
             $event->config['events'] = ProjectConfigData::rebuildProjectConfig();
         });
     }
@@ -253,7 +253,7 @@ class Events extends Plugin
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEvents(), 'afterSaveSiteHandler']);
 
         // Ensure Commerce is installed
-        Event::on(Plugins::class, Plugins::EVENT_BEFORE_INSTALL_PLUGIN, function (PluginEvent $event) {
+        Event::on(Plugins::class, Plugins::EVENT_BEFORE_INSTALL_PLUGIN, function(PluginEvent $event) {
             if ($event->plugin === $this && !Craft::$app->plugins->isPluginInstalled('commerce')) {
                 throw new \Exception('Events required Commerce to be installed.');
             }
@@ -279,7 +279,6 @@ class Events extends Plugin
                 $event->types[] = SeomaticEvent::class;
             });
         }
-
     }
 
 }

@@ -85,7 +85,7 @@ class Event implements SeoElementInterface
         // Install only for non-console Control Panel requests
         if ($request->getIsCpRequest() && !$request->getIsConsoleRequest()) {
             // Events sidebar
-            Craft::$app->view->hook('events.edit.details', function (&$context) {
+            Craft::$app->getView()->hook('events.edit.details', function (&$context) {
                 $html = '';
                 
                 Seomatic::$view->registerAssetBundle(SeomaticAsset::class);

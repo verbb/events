@@ -10,5 +10,5 @@ class TicketTypeEvent extends Event
 
     public $ticketType;
     public $isNew = false;
-    
+
 }

@@ -54,7 +54,7 @@ class EventsPreviewController extends Controller
 
         // Create the token and redirect to the event URL with the token in place
         $token = Craft::$app->getTokens()->createToken([
-            'events/events-preview/view-shared-event', ['eventId' => $event->id, 'siteId' => $siteId]
+            'events/events-preview/view-shared-event', ['eventId' => $event->id, 'siteId' => $siteId],
         ]);
 
         $url = UrlHelper::urlWithToken($event->getUrl(), $token);
@@ -104,7 +104,7 @@ class EventsPreviewController extends Controller
 
             // Send the category back to the template
             Craft::$app->getUrlManager()->setRouteParams([
-                'event' => $event
+                'event' => $event,
             ]);
 
             return null;
@@ -117,7 +117,7 @@ class EventsPreviewController extends Controller
                 'title' => $event->title,
                 'status' => $event->getStatus(),
                 'url' => $event->getUrl(),
-                'cpEditUrl' => $event->getCpEditUrl()
+                'cpEditUrl' => $event->getCpEditUrl(),
             ]);
         }
 
@@ -167,7 +167,7 @@ class EventsPreviewController extends Controller
         $this->getView()->getTwig()->disableStrictVariables();
 
         return $this->renderTemplate($siteSettings[$event->siteId]->template, [
-            'event' => $event
+            'event' => $event,
         ]);
     }
 }

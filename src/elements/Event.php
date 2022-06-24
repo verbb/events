@@ -37,7 +37,7 @@ class Event extends Element
     const STATUS_PENDING = 'pending';
     const STATUS_EXPIRED = 'expired';
 
-    
+
     // Static
     // =========================================================================
 
@@ -87,7 +87,7 @@ class Event extends Element
             self::STATUS_LIVE => Craft::t('app', 'Live'),
             self::STATUS_PENDING => Craft::t('app', 'Pending'),
             self::STATUS_EXPIRED => Craft::t('app', 'Expired'),
-            self::STATUS_DISABLED => Craft::t('app', 'Disabled')
+            self::STATUS_DISABLED => Craft::t('app', 'Disabled'),
         ];
     }
 
@@ -112,15 +112,17 @@ class Event extends Element
             $eventTypeIds[] = $eventType->id;
         }
 
-        $sources = [[
-            'key' => '*',
-            'label' => Craft::t('events', 'All events'),
-            'criteria' => [
-                'typeId' => $eventTypeIds,
-                'editable' => $editable,
+        $sources = [
+            [
+                'key' => '*',
+                'label' => Craft::t('events', 'All events'),
+                'criteria' => [
+                    'typeId' => $eventTypeIds,
+                    'editable' => $editable,
+                ],
+                'defaultSort' => ['postDate', 'desc'],
             ],
-            'defaultSort' => ['postDate', 'desc'],
-        ]];
+        ];
 
         $sources[] = ['heading' => Craft::t('events', 'Event Types')];
 
@@ -138,7 +140,7 @@ class Event extends Element
                 'criteria' => [
                     'typeId' => $eventType->id,
                     'editable' => $editable,
-                ]
+                ],
             ];
         }
 
@@ -262,11 +264,11 @@ class Event extends Element
                         $ticket->addError('typeIds', Craft::t('events', 'Ticket type must be set.'));
                     } else if (!$ticket->validate()) {
                         $error = $ticket->getErrors()[0] ?? 'An error occured';
-                        
+
                         $this->addError('tickets', Craft::t('events', $error));
                     }
                 }
-            }
+            },
         ];
 
         return $rules;
@@ -340,7 +342,7 @@ class Event extends Element
     public function getSnapshot(): array
     {
         $data = [
-            'title' => $this->title
+            'title' => $this->title,
         ];
 
         return array_merge($this->getAttributes(), $data);
@@ -495,7 +497,7 @@ class Event extends Element
             // Set Craft to the event's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            
+
             $this->title = Craft::$app->getView()->renderObjectTemplate($eventType->titleFormat, $this);
             Craft::$app->language = $language;
         }
@@ -591,7 +593,7 @@ class Event extends Element
             $record = new EventRecord();
             $record->id = $this->id;
         }
-        
+
         $record->allDay = $this->allDay;
         $record->capacity = $this->capacity;
         $record->startDate = $this->startDate;
@@ -709,8 +711,8 @@ class Event extends Element
                 'variables' => [
                     'event' => $this,
                     'product' => $this,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 

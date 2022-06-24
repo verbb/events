@@ -54,12 +54,12 @@ class DownloadsController extends Controller
         }
 
         $purchasedTickets = PurchasedTicket::find();
-		
-		if ($ticketId) {
-			$purchasedTickets->id($ticketId);
-		} else {
-			$purchasedTickets->orderId($order->id);
-		}
+
+        if ($ticketId) {
+            $purchasedTickets->id($ticketId);
+        } else {
+            $purchasedTickets->orderId($order->id);
+        }
         $purchasedTickets->all();
 
         $pdf = Events::getInstance()->getPdf()->renderPdf($purchasedTickets, $order, $lineItem, $option);

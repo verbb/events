@@ -11,13 +11,13 @@ use craft\elements\db\ElementQueryInterface;
 class Checkin extends ElementAction
 {
     // Public Methods
-	// =========================================================================
-	
-	public function getTriggerLabel(): string
+    // =========================================================================
+
+    public function getTriggerLabel(): string
     {
         return Craft::t('events', 'Check in');
-	}
-	
+    }
+
     /**
      * @inheritdoc
      */

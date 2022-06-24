@@ -55,7 +55,7 @@ class EventTypesController extends Controller
         }
 
         $variables['timezoneOptions'] = $this->_getTimezoneOptions();
-        
+
         return $this->renderTemplate('events/event-types/_edit', $variables);
     }
 
@@ -66,7 +66,7 @@ class EventTypesController extends Controller
         $eventType = new EventType();
 
         $request = Craft::$app->getRequest();
-        
+
         $eventType->id = $request->getBodyParam('eventTypeId');
         $eventType->name = $request->getBodyParam('name');
         $eventType->handle = $request->getBodyParam('handle');
@@ -117,7 +117,7 @@ class EventTypesController extends Controller
 
         // Send the eventType back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'eventType' => $eventType
+            'eventType' => $eventType,
         ]);
 
         return null;
@@ -171,7 +171,7 @@ class EventTypesController extends Controller
             $timezoneIds[] = $timezoneId;
             $timezoneOptions[] = [
                 'value' => $timezoneId,
-                'label' => 'UTC' . $format . ($abbr !== 'UTC' ? " ({$abbr})" : '') . ($timezoneId !== 'UTC' ? ' – ' . $timezoneId : '')
+                'label' => 'UTC' . $format . ($abbr !== 'UTC' ? " ({$abbr})" : '') . ($timezoneId !== 'UTC' ? ' – ' . $timezoneId : ''),
             ];
         }
 

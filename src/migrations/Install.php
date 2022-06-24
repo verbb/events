@@ -27,7 +27,7 @@ class Install extends Migration
 
         return true;
     }
-    
+
     // Protected Methods
     // =========================================================================
 
@@ -115,9 +115,9 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-        ]);        
+        ]);
     }
-    
+
     protected function dropTables()
     {
         $this->dropTable('{{%events_events}}');
@@ -127,26 +127,26 @@ class Install extends Migration
         $this->dropTable('{{%events_tickets}}');
         $this->dropTable('{{%events_tickettypes}}');
     }
-    
+
     protected function createIndexes()
     {
         $this->createIndex(null, '{{%events_events}}', 'typeId', false);
-        
+
         $this->createIndex(null, '{{%events_eventtypes}}', 'handle', true);
         $this->createIndex(null, '{{%events_eventtypes}}', 'fieldLayoutId', false);
-        
+
         $this->createIndex(null, '{{%events_eventtypes_sites}}', 'eventTypeId,siteId', true);
         $this->createIndex(null, '{{%events_eventtypes_sites}}', 'siteId', false);
-        
+
         $this->createIndex(null, '{{%events_purchasedtickets}}', 'eventId', false);
         $this->createIndex(null, '{{%events_purchasedtickets}}', 'ticketId', false);
         $this->createIndex(null, '{{%events_purchasedtickets}}', 'orderId', false);
         $this->createIndex(null, '{{%events_purchasedtickets}}', 'lineItemId', false);
-        
+
         $this->createIndex(null, '{{%events_tickets}}', 'sku', true);
         $this->createIndex(null, '{{%events_tickets}}', 'eventId', false);
         $this->createIndex(null, '{{%events_tickets}}', 'typeId', false);
-        
+
         $this->createIndex(null, '{{%events_tickettypes}}', 'handle', true);
         $this->createIndex(null, '{{%events_tickettypes}}', 'taxCategoryId', false);
         $this->createIndex(null, '{{%events_tickettypes}}', 'shippingCategoryId', false);
@@ -157,28 +157,28 @@ class Install extends Migration
     {
         $this->addForeignKey(null, '{{%events_events}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_events}}', 'typeId', '{{%events_eventtypes}}', 'id', 'CASCADE', null);
-        
+
         $this->addForeignKey(null, '{{%events_eventtypes}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
-        
+
         $this->addForeignKey(null, '{{%events_eventtypes_sites}}', 'eventTypeId', '{{%events_eventtypes}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_eventtypes_sites}}', 'siteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');
-        
+
         $this->addForeignKey(null, '{{%events_purchasedtickets}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_purchasedtickets}}', 'eventId', '{{%events_events}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_purchasedtickets}}', 'lineItemId', '{{%commerce_lineitems}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_purchasedtickets}}', 'orderId', '{{%commerce_orders}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_purchasedtickets}}', 'ticketId', '{{%events_tickets}}', 'id', 'SET NULL', null);
-        
+
         $this->addForeignKey(null, '{{%events_tickets}}', 'eventId', '{{%events_events}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_tickets}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_tickets}}', 'typeId', '{{%events_tickettypes}}', 'id', 'CASCADE', null);
-        
+
         $this->addForeignKey(null, '{{%events_tickettypes}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_tickettypes}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_tickettypes}}', 'shippingCategoryId', '{{%commerce_shippingcategories}}', 'id', null, null);
         $this->addForeignKey(null, '{{%events_tickettypes}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', null, null);
     }
-    
+
     protected function dropForeignKeys()
     {
         MigrationHelper::dropAllForeignKeysOnTable('{{%events_events}}', $this);

@@ -35,12 +35,12 @@ class PurchasedTicket extends Element
     {
         return Craft::t('events', 'Purchased Tickets');
     }
-    
+
     public static function refHandle()
     {
         return 'purchasedTicket';
     }
-    
+
     public static function hasContent(): bool
     {
         return true;
@@ -53,10 +53,12 @@ class PurchasedTicket extends Element
 
     protected static function defineSources(string $context = null): array
     {
-        $sources = [[
-            'key' => '*',
-            'label' => Craft::t('events', 'All purchased tickets'),
-        ]];
+        $sources = [
+            [
+                'key' => '*',
+                'label' => Craft::t('events', 'All purchased tickets'),
+            ],
+        ];
 
         $eventElements = (new Query())
             ->select(['elements.id', 'purchasedtickets.eventId', 'content.title', 'eventtypes.name as eventTypeName'])
@@ -280,9 +282,9 @@ class PurchasedTicket extends Element
     {
         return UrlHelper::cpUrl('events/purchased-tickets/' . $this->id);
     }
-    
+
     public function getFieldLayout()
-    {   
+    {
         if ($ticket = $this->getTicket()) {
             return $ticket->getFieldLayout();
         }
@@ -419,7 +421,7 @@ class PurchasedTicket extends Element
             $purchasedTicketRecord = new PurchasedTicketRecord();
             $purchasedTicketRecord->id = $this->id;
         }
-        
+
         $purchasedTicketRecord->eventId = $this->eventId;
         $purchasedTicketRecord->ticketId = $this->ticketId;
         $purchasedTicketRecord->orderId = $this->orderId;

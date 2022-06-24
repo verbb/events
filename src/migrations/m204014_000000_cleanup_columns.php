@@ -16,7 +16,7 @@ use craft\helpers\StringHelper;
 class m204014_000000_cleanup_columns extends Migration
 {
     public function safeUp()
-    {   
+    {
         if ($this->db->getIsMysql()) {
             $this->alterColumn('{{%events_eventtypes}}', 'dateCreated', $this->dateTime()->notNull() . " AFTER icsLocationFieldHandle");
             $this->alterColumn('{{%events_eventtypes}}', 'dateUpdated', $this->dateTime()->notNull() . " AFTER dateCreated");

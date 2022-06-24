@@ -78,9 +78,9 @@ class Event extends Element
             ->anyStatus()
             ->typeId($settings['elementGroup'][EventElement::class])
             ->siteId(Hash::get($settings, 'siteId') ?: Craft::$app->getSites()->getPrimarySite()->id);
-        
+
         Craft::configure($query, $params);
-        
+
         return $query;
     }
 

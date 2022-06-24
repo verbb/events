@@ -41,7 +41,7 @@ class Ticket extends Purchasable
 {
     // Constants
     // =========================================================================
-  
+
     const EVENT_BEFORE_CAPTURE_TICKET_SNAPSHOT = 'beforeCaptureTicketSnapshot';
     const EVENT_AFTER_CAPTURE_TICKET_SNAPSHOT = 'afterCaptureTicketSnapshot';
     const EVENT_BEFORE_CAPTURE_EVENT_SNAPSHOT = 'beforeCaptureEventSnapshot';
@@ -93,21 +93,23 @@ class Ticket extends Purchasable
 
     protected static function defineSources(string $context = null): array
     {
-        $sources = [[
-            'key' => '*',
-            'label' => Craft::t('events', 'All events'),
-            'defaultSort' => ['postDate', 'desc'],
-        ]];
+        $sources = [
+            [
+                'key' => '*',
+                'label' => Craft::t('events', 'All events'),
+                'defaultSort' => ['postDate', 'desc'],
+            ],
+        ];
 
         $events = Event::find()->all();
-		
-		$type = null;
+
+        $type = null;
 
         foreach ($events as $event) {
-			if ($event->type->name != $type) {
-				$type = $event->type->name;
-				$sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $event->type->name])];
-			}
+            if ($event->type->name != $type) {
+                $type = $event->type->name;
+                $sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $event->type->name])];
+            }
             $key = 'event:' . $event->id;
 
             $sources[] = [
@@ -115,7 +117,7 @@ class Ticket extends Purchasable
                 'label' => $event->title,
                 'criteria' => [
                     'eventId' => $event->id,
-                ]
+                ],
             ];
         }
 
@@ -241,7 +243,7 @@ class Ticket extends Purchasable
     }
 
     public function getFieldLayout()
-    {   
+    {
         if ($this->getType()) {
             return $this->getType()->getFieldLayout();
         }
@@ -491,10 +493,10 @@ class Ticket extends Purchasable
             $purchasedTicket->ticketId = $this->id;
             $purchasedTicket->orderId = $order->id;
             $purchasedTicket->lineItemId = $lineItem->id;
-			$purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
-			
+            $purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
+
             // Set the field values from the ticket (handle defaults, and values set on the ticket)
-			$purchasedTicket->setFieldValues($this->getSerializedFieldValues());
+            $purchasedTicket->setFieldValues($this->getSerializedFieldValues());
 
             // But also allow overriding through the line item options
             foreach ($lineItem->options as $option => $value) {
@@ -569,7 +571,7 @@ class Ticket extends Purchasable
             }
 
             $data['event'] = $this->getEvent()->toArray($eventAttributes, [], false);
-            
+
             $eventDataEvent = new CustomizeEventSnapshotDataEvent([
                 'event' => $this->getEvent(),
                 'fieldData' => $data['event'],
@@ -577,7 +579,7 @@ class Ticket extends Purchasable
         } else {
             $eventDataEvent = new CustomizeEventSnapshotDataEvent([
                 'event' => $this->getEvent(),
-                'fieldData' => []
+                'fieldData' => [],
             ]);
         }
 

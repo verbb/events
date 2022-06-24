@@ -59,10 +59,12 @@ class TicketType extends Element
 
     protected static function defineSources(string $context = null): array
     {
-        $sources = [[
-            'key' => '*',
-            'label' => Craft::t('events', 'All ticket types'),
-        ]];
+        $sources = [
+            [
+                'key' => '*',
+                'label' => Craft::t('events', 'All ticket types'),
+            ],
+        ];
 
         return $sources;
     }
@@ -162,7 +164,7 @@ class TicketType extends Element
             $ticketTypeRecord = new TicketTypeRecord();
             $ticketTypeRecord->id = $this->id;
         }
-        
+
         $ticketTypeRecord->handle = $this->handle;
         $ticketTypeRecord->taxCategoryId = $this->taxCategoryId;
         $ticketTypeRecord->shippingCategoryId = $this->shippingCategoryId;

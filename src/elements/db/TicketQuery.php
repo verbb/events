@@ -137,7 +137,7 @@ class TicketQuery extends ElementQuery
     protected function beforePrepare(): bool
     {
         $this->joinElementTable('events_tickets');
-            
+
         $this->query->select([
             'events_tickets.id',
             'events_tickets.eventId',

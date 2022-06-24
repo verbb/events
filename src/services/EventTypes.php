@@ -143,7 +143,7 @@ class EventTypes extends Component
                     'siteId',
                     'uriFormat',
                     'hasUrls',
-                    'template'
+                    'template',
                 ])
                 ->from('{{%events_eventtypes_sites}}')
                 ->where(['eventTypeId' => $eventTypeId])
@@ -205,7 +205,7 @@ class EventTypes extends Component
             'icsTimezone' => $eventType->icsTimezone,
             'icsDescriptionFieldHandle' => $eventType->icsDescriptionFieldHandle,
             'icsLocationFieldHandle' => $eventType->icsLocationFieldHandle,
-            'siteSettings' => []
+            'siteSettings' => [],
         ];
 
         $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
@@ -293,7 +293,7 @@ class EventTypes extends Component
                 $layout->id = $eventTypeRecord->fieldLayoutId;
                 $layout->type = Event::class;
                 $layout->uid = key($data['eventFieldLayouts']);
-                
+
                 $fieldsService->saveLayout($layout);
 
                 $eventTypeRecord->fieldLayoutId = $layout->id;
@@ -428,7 +428,7 @@ class EventTypes extends Component
         $this->_allEventTypeIds = null;
         $this->_editableEventTypeIds = null;
         $this->_fetchedAllEventTypes = false;
-        
+
         unset(
             $this->_eventTypesById[$eventTypeRecord->id],
             $this->_eventTypesByHandle[$eventTypeRecord->handle],
@@ -596,7 +596,8 @@ class EventTypes extends Component
                     'eventTypes.uid eventTypeUid',
                     'eventtypes_sites.uriFormat',
                     'eventtypes_sites.template',
-                    'eventtypes_sites.hasUrls'])
+                    'eventtypes_sites.hasUrls',
+                ])
                 ->from(['{{%events_eventtypes_sites}} eventtypes_sites'])
                 ->innerJoin(['{{%events_eventtypes}} eventTypes'], '[[eventtypes_sites.eventTypeId]] = [[eventTypes.id]]')
                 ->where(['siteId' => $event->oldPrimarySiteId])
@@ -606,7 +607,7 @@ class EventTypes extends Component
                 $newSiteSettings = [
                     'uriFormat' => $primarySiteSettings['uriFormat'],
                     'template' => $primarySiteSettings['template'],
-                    'hasUrls' => $primarySiteSettings['hasUrls']
+                    'hasUrls' => $primarySiteSettings['hasUrls'],
                 ];
 
                 Craft::$app->getProjectConfig()->set(self::CONFIG_EVENTTYPES_KEY . '.' . $primarySiteSettings['eventTypeUid'] . '.siteSettings.' . $event->site->uid, $newSiteSettings);

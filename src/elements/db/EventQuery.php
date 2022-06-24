@@ -227,14 +227,14 @@ class EventQuery extends ElementQuery
                     'and',
                     [
                         'elements.enabled' => true,
-                        'elements_sites.enabled' => true
+                        'elements_sites.enabled' => true,
                     ],
                     ['<=', 'events_events.postDate', $currentTimeDb],
                     [
                         'or',
                         ['events_events.expiryDate' => null],
-                        ['>', 'events_events.expiryDate', $currentTimeDb]
-                    ]
+                        ['>', 'events_events.expiryDate', $currentTimeDb],
+                    ],
                 ];
             case Event::STATUS_PENDING:
                 return [
@@ -243,17 +243,17 @@ class EventQuery extends ElementQuery
                         'elements.enabled' => true,
                         'elements_sites.enabled' => true,
                     ],
-                    ['>', 'events_events.postDate', $currentTimeDb]
+                    ['>', 'events_events.postDate', $currentTimeDb],
                 ];
             case Event::STATUS_EXPIRED:
                 return [
                     'and',
                     [
                         'elements.enabled' => true,
-                        'elements_sites.enabled' => true
+                        'elements_sites.enabled' => true,
                     ],
                     ['not', ['events_events.expiryDate' => null]],
-                    ['<=', 'events_events.expiryDate', $currentTimeDb]
+                    ['<=', 'events_events.expiryDate', $currentTimeDb],
                 ];
             default:
                 return parent::statusCondition($status);
@@ -277,7 +277,7 @@ class EventQuery extends ElementQuery
 
         // Limit the query to only the sections the user has permission to edit
         $this->subQuery->andWhere([
-            'events_events.typeId' => Events::$plugin->getEventTypes()->getEditableEventTypeIds()
+            'events_events.typeId' => Events::$plugin->getEventTypes()->getEditableEventTypeIds(),
         ]);
     }
 
@@ -301,7 +301,7 @@ class EventQuery extends ElementQuery
                     $condition[] = [
                         'and',
                         Db::parseParam('events_eventtypes.handle', $parts[0]),
-                        Db::parseParam('elements_sites.slug', $parts[1])
+                        Db::parseParam('elements_sites.slug', $parts[1]),
                     ];
                     $joinSections = true;
                 }

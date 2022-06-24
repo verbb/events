@@ -23,7 +23,7 @@ class TicketController extends Controller
     {
         $settings = Events::$plugin->getSettings();
 
-		$sku = Craft::$app->request->getParam('sku');
+		$sku = Craft::$app->getRequest()->getParam('sku');
 
         if ($settings->checkinLogin && !Craft::$app->getUser()->checkPermission('events-checkInTickets')) {
             return $this->_handleResponse([
@@ -88,7 +88,7 @@ class TicketController extends Controller
 			return $this->redirect('events/purchased-tickets');
         }
 
-        $oldMode = Craft::$app->view->getTemplateMode();
+        $oldMode = Craft::$app->getView()->getTemplateMode();
         $templateMode = View::TEMPLATE_MODE_CP;
         $template = 'events/check-in';
 
@@ -97,9 +97,9 @@ class TicketController extends Controller
             $template = $settings->checkinTemplate;
         }
 
-        Craft::$app->view->setTemplateMode($templateMode);
-        $html = Craft::$app->view->renderTemplate($template, $variables);
-        Craft::$app->view->setTemplateMode($oldMode);
+        Craft::$app->getView()->setTemplateMode($templateMode);
+        $html = Craft::$app->getView()->renderTemplate($template, $variables);
+        Craft::$app->getView()->setTemplateMode($oldMode);
 
         return $html;
     }

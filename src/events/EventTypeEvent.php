@@ -10,5 +10,5 @@ class EventTypeEvent extends Event
 
     public $eventType;
     public $isNew = false;
-    
+
 }
