@@ -40,6 +40,14 @@
 - Now requires Craft `^4.0.0-beta.1`.
 - Now requires Craft Commerce `^4.0.0-beta.1`.
 
+## 1.4.12 - 2022-06-28
+
+### Changed
+- `jsvrcek/ics` dependency updated for php 8.0 support.
+
+### Fixed
+- Fix PDF generation URLs not being correct in headless environments.
+
 ## 1.4.20 - 2021-10-30
 
 ### Fixed

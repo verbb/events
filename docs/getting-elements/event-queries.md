@@ -562,7 +562,7 @@ See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanat
 
 ```php PHP
 // Get the search query from the 'q' query string param
-$searchQuery = \Craft::$app->request->getQueryParam('q');
+$searchQuery = \Craft::$app->getRequest()->getQueryParam('q');
 
 // Fetch all events that match the search query
 $events = \verbb\events\elements\Event::find()
@@ -657,7 +657,7 @@ Possible values include:
 
 ```php PHP
 // Get the requested event slug from the URL
-$requestedSlug = \Craft::$app->request->getSegment(3);
+$requestedSlug = \Craft::$app->getRequest()->getSegment(3);
 
 // Fetch the event with that slug
 $event = \verbb\events\elements\Event::find()
@@ -882,7 +882,7 @@ Possible values include:
 
 ```php PHP
 // Get the requested URI
-$requestedUri = \Craft::$app->request->getPathInfo();
+$requestedUri = \Craft::$app->getRequest()->getPathInfo();
 
 // Fetch the event with that URI
 $event = \verbb\events\elements\Event::find()

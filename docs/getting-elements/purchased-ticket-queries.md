@@ -535,7 +535,7 @@ See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanat
 
 ```php PHP
 // Get the search query from the 'q' query string param
-$searchQuery = \Craft::$app->request->getQueryParam('q');
+$searchQuery = \Craft::$app->getRequest()->getQueryParam('q');
 
 // Fetch all purchased tickets that match the search query
 $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
