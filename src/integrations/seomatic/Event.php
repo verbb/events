@@ -223,6 +223,11 @@ class Event implements SeoElementInterface
         return $element->typeId;
     }
 
+    public static function typeIdFromElement(ElementInterface $element)
+    {
+        return null;
+    }
+
     public static function sourceHandleFromElement(ElementInterface $element): string
     {
         $sourceHandle = '';
