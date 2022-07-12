@@ -147,7 +147,7 @@ class EventsPreviewController extends Controller
         $siteSettings = $eventType->getSiteSettings();
 
         if (!isset($siteSettings[$event->siteId]) || !$siteSettings[$event->siteId]->hasUrls) {
-            throw new ServerErrorHttpException('The event ' . $event->id . ' doesn\'t have a URL for the site ' . $event->siteId . '.');
+            throw new ServerErrorHttpException('The event ' . $event->id . ' doesn‘t have a URL for the site ' . $event->siteId . '.');
         }
 
         $site = Craft::$app->getSites()->getSiteById($event->siteId);
