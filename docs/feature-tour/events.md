@@ -7,7 +7,7 @@ Events manage the tickets your customers can purchase. Tickets are very similar 
 Go to the main section for Events in your control panel main menu. This will list all the events you've created.
 
 :::tip
-Before you can start creating events, you'll first need to set up an [Event Type →](docs:feature-tour/ticket-types)
+Before you can start creating events, you'll first need to set up an [Event Type →](docs:feature-tour/event-types)
 :::
 
 Each field is fairly self-explanatory, but any additional information is provided below.
