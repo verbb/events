@@ -17,7 +17,7 @@ $myQuery = \verbb\events\elements\PurchasedTicket::find();
 Once you’ve created a purchased tickets query, you can set parameters on it to narrow down the results, and then execute it by calling `.all()`. An array of [PurchasedTicket](docs:developers/purchased-ticket) objects will be returned.
 
 :::tip
-See Introduction to [Element Queries](https://docs.craftcms.com/v3/dev/element-queries/) in the Craft docs to learn about how element queries work.
+See Introduction to [Element Queries](https://craftcms.com/docs/4.x/element-queries/) in the Craft docs to learn about how element queries work.
 :::
 
 ## Example
@@ -404,7 +404,7 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 Narrows the query results to only purchased tickets that are related to certain other elements.
 
-See [Relations](https://docs.craftcms.com/v3/relations.html) for a full explanation of how to work with this parameter.
+See [Relations](https://craftcms.com/docs/4.x/relations.html) for a full explanation of how to work with this parameter.
 
 ::: code
 ```twig Twig
@@ -520,7 +520,7 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 Narrows the query results to only purchased tickets that match a search query.
 
-See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanation of how to work with this parameter.
+See [Searching](https://craftcms.com/docs/4.x/searching.html) for a full explanation of how to work with this parameter.
 
 ::: code
 ```twig Twig
@@ -627,7 +627,7 @@ $purchasedTicket = \verbb\events\elements\PurchasedTicket::find()
 
 Causes the query to return matching purchased tickets eager-loaded with related elements.
 
-See [Eager-Loading Elements](https://docs.craftcms.com/v3/dev/eager-loading-elements.html) for a full explanation of how to work with this parameter.
+See [Eager-Loading Elements](https://craftcms.com/docs/4.x/eager-loading-elements.html) for a full explanation of how to work with this parameter.
 
 ::: code
 ```twig Twig
