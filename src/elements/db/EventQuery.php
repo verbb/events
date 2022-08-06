@@ -67,7 +67,7 @@ class EventQuery extends ElementQuery
     public function type($value)
     {
         if ($value instanceof EventType) {
-            $this->typeId = $value->id;
+            $this->typeId = [$value->id];
         } else if ($value !== null) {
             $this->typeId = (new Query())
                 ->select(['id'])
@@ -157,6 +157,8 @@ class EventQuery extends ElementQuery
 
     protected function beforePrepare(): bool
     {
+        $this->_normalizeTypeId();
+
         // See if 'type' were set to invalid handles
         if ($this->typeId === []) {
             return false;
@@ -262,6 +264,24 @@ class EventQuery extends ElementQuery
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * Normalizes the typeId param to an array of IDs or null
+     */
+    private function _normalizeTypeId(): void
+    {
+        if (empty($this->typeId)) {
+            $this->typeId = null;
+        } else if (is_numeric($this->typeId)) {
+            $this->typeId = [$this->typeId];
+        } else if (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
+            $this->typeId = (new Query())
+                ->select(['id'])
+                ->from(['{{%events_eventtypes}}'])
+                ->where(Db::parseParam('id', $this->typeId))
+                ->column();
+        }
+    }
 
     private function _applyEditableParam()
     {
