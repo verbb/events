@@ -6,6 +6,7 @@ use verbb\events\elements\TicketType;
 use Craft;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 
 use craft\commerce\db\Table as CommerceTable;
@@ -108,17 +109,13 @@ class PurchasedTicketQuery extends ElementQuery
     public function ticketType($value)
     {
         if ($value instanceof TicketType) {
-            $this->ticketTypeId = $value->id;
+            $this->ticketTypeId = [$value->id];
         } else if ($value !== null) {
             $this->ticketTypeId = (new Query())
                 ->select(['id'])
                 ->from(['{{%events_tickettypes}}'])
                 ->where(Db::parseParam('handle', $value))
-                ->scalar();
-
-            if ($this->ticketTypeId === false) {
-                $this->ticketTypeId = null;
-            }
+                ->column();
         } else {
             $this->ticketTypeId = null;
         }
@@ -138,6 +135,13 @@ class PurchasedTicketQuery extends ElementQuery
 
     protected function beforePrepare(): bool
     {
+        $this->_normalizeTicketTypeId();
+
+        // See if 'ticketType' were set to invalid handles
+        if ($this->ticketTypeId === []) {
+            return false;
+        }
+
         $this->joinElementTable('events_purchasedtickets');
 
         $this->query->select([
@@ -168,9 +172,9 @@ class PurchasedTicketQuery extends ElementQuery
             $this->subQuery->andWhere(['=', '[[orders.isCompleted]]', true]);
         }
 
-        if ($this->ticketTypeId) {
+        if (isset($this->ticketTypeId)) {
             $this->subQuery->innerJoin('{{%events_tickets}} events_tickets', '[[events_tickets.id]] = [[events_purchasedtickets.ticketId]]');
-            $this->subQuery->andWhere(['=', '[[events_tickets.typeId]]', $this->ticketTypeId]);
+            $this->subQuery->andWhere(['[[events_tickets.typeId]]' => $this->ticketTypeId]);
         }
 
         return parent::beforePrepare();
@@ -179,6 +183,24 @@ class PurchasedTicketQuery extends ElementQuery
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * Normalizes the ticketTypeId param to an array of IDs or null
+     */
+    private function _normalizeTicketTypeId(): void
+    {
+        if (empty($this->ticketTypeId)) {
+            $this->ticketTypeId = null;
+        } else if (is_numeric($this->ticketTypeId)) {
+            $this->ticketTypeId = [$this->ticketTypeId];
+        } else if (!is_array($this->ticketTypeId) || !ArrayHelper::isNumeric($this->ticketTypeId)) {
+            $this->ticketTypeId = (new Query())
+                ->select(['id'])
+                ->from(['{{%events_tickettypes}}'])
+                ->where(Db::parseParam('id', $this->ticketTypeId))
+                ->column();
+        }
+    }
 
     private function addWhere(string $property, string $column)
     {
