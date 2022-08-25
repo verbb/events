@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.4.12 - 2022-06-28
+## 1.4.22 - 2022-08-25
+
+### Fixed
+- Fix querying events by type not working correctly for multiple ticket types.
+- Fix querying purchased tickets by event type not working correctly for multiple ticket types.
+
+## 1.4.21 - 2022-06-28
 
 ### Changed
 - `jsvrcek/ics` dependency updated for php 8.0 support.
