@@ -312,8 +312,8 @@ class Events extends Plugin
             $e->actions['events-events'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
-                    $query = EventElement::find();
-                    return $controller->resaveElements($query);
+                    
+                    return $controller->resaveElements(EventElement::class);
                 },
                 'options' => [],
                 'helpSummary' => 'Re-saves Events events.',
@@ -322,8 +322,8 @@ class Events extends Plugin
             $e->actions['events-tickets'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
-                    $query = Ticket::find();
-                    return $controller->resaveElements($query);
+
+                    return $controller->resaveElements(Ticket::class);
                 },
                 'options' => [],
                 'helpSummary' => 'Re-saves Events tickets.',
@@ -332,8 +332,8 @@ class Events extends Plugin
             $e->actions['events-tickettypes'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
-                    $query = TicketType::find();
-                    return $controller->resaveElements($query);
+
+                    return $controller->resaveElements(TicketType::class);
                 },
                 'options' => [],
                 'helpSummary' => 'Re-saves Events ticket types.',
@@ -342,8 +342,8 @@ class Events extends Plugin
             $e->actions['events-purchasedtickets'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
-                    $query = PurchasedTicket::find();
-                    return $controller->resaveElements($query);
+
+                    return $controller->resaveElements(PurchasedTicket::class);
                 },
                 'options' => [],
                 'helpSummary' => 'Re-saves Events purchased tickets.',
