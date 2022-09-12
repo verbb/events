@@ -218,7 +218,7 @@ class PurchasedTicket extends Element
                 return Craft::t('events', '[Guest]');
             }
             case 'checkedIn': {
-                return '<span class="status ' . ($this->checkedIn ? 'live' : 'disabled') . '"></span>';
+                return '<span class="status ' . ($this->getIsCheckedIn() ? 'live' : 'disabled') . '"></span>';
             }
             default: {
                 return parent::tableAttributeHtml($attribute);
@@ -276,6 +276,16 @@ class PurchasedTicket extends Element
         $attributes[] = 'checkedInDate';
 
         return $attributes;
+    }
+
+    public function getIsCheckedIn()
+    {
+        if ($this->eventId) {
+            $purchasedTicketRecord = PurchasedTicketRecord::findOne($this->id);
+            return $purchasedTicketRecord->checkedIn;
+        }
+
+        return false;
     }
 
     public function getCpEditUrl(): string
