@@ -42,16 +42,10 @@
         </div>
 
         <div class="table-cell table-cell-md-3 fields-tickets-price-field">
-            {% set price = '' %}
-
-            {% if ticket and ticket.price %}
-                {% set price = ticket.price | number %}
-            {% endif %}
-
             {{ forms.textField({
                 id: 'price',
                 name: 'price',
-                value: price,
+                value: (ticket.price ?? '') | number,
                 placeholder: 'e.g. 10.00',
                 unit: craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,
                 errors: ticket ? ticket.getErrors('price'),
