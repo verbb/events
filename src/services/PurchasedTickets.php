@@ -3,7 +3,6 @@ namespace verbb\events\services;
 
 use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Ticket;
-use verbb\events\records\PurchasedTicketRecord;
 
 use Craft;
 use craft\db\Query;
@@ -12,6 +11,8 @@ use craft\events\SiteEvent;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use craft\queue\jobs\ResaveElements;
+
+use DateTime;
 
 use yii\base\Component;
 use yii\base\Exception;
@@ -29,13 +30,9 @@ class PurchasedTickets extends Component
     public function checkInPurchasedTicket(PurchasedTicket $purchasedTicket)
     {
         $purchasedTicket->checkedIn = true;
-        $purchasedTicket->checkedInDate = new \DateTime();
+        $purchasedTicket->checkedInDate = new DateTime();
 
-        $record = PurchasedTicketRecord::findOne($purchasedTicket->id);
-        $record->checkedIn = $purchasedTicket->checkedIn;
-        $record->checkedInDate = $purchasedTicket->checkedInDate;
-
-        $record->save(false);
+        Craft::$app->getElements()->saveElement($purchasedTicket);
     }
 
     public function unCheckInPurchasedTicket(PurchasedTicket $purchasedTicket)
@@ -43,10 +40,6 @@ class PurchasedTickets extends Component
         $purchasedTicket->checkedIn = false;
         $purchasedTicket->checkedInDate = null;
 
-        $record = PurchasedTicketRecord::findOne($purchasedTicket->id);
-        $record->checkedIn = $purchasedTicket->checkedIn;
-        $record->checkedInDate = $purchasedTicket->checkedInDate;
-
-        $record->save(false);
+        Craft::$app->getElements()->saveElement($purchasedTicket);
     }
 }
