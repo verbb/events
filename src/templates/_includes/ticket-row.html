@@ -24,7 +24,7 @@
             {{ forms.textField({
                 id: 'quantity',
                 name: 'quantity',
-                placeholder: 'eg. 100',
+                placeholder: 'e.g. 100',
                 value: ticket.quantity ?? '',
                 class: 'ticket-quantity',
                 errors: ticket ? ticket.getErrors('quantity'),
@@ -52,7 +52,7 @@
                 id: 'price',
                 name: 'price',
                 value: price,
-                placeholder: 'eg. 10.00',
+                placeholder: 'e.g. 10.00',
                 unit: craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,
                 errors: ticket ? ticket.getErrors('price'),
             }) }}
