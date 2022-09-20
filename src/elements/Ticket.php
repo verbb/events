@@ -223,6 +223,31 @@ class Ticket extends Purchasable
         $rules[] = [['sku', 'price', 'typeId'], 'required'];
         $rules[] = [['price'], 'number'];
 
+        $rules[] = [
+            ['availableFrom'], function($model) {
+                if ($this->availableFrom >= $this->availableTo) {
+                    $this->addError('availableFrom', Craft::t('events', 'Available From must be before Available To'));
+                }
+            },
+        ];
+
+        $rules[] = [
+            ['availableFrom', 'availableTo'], function($model) {
+                $event = $this->getEvent();
+                $endDate = $event ? $event->endDate : null;
+
+                if ($endDate) {
+                    if ($this->availableFrom >= $endDate) {
+                        $this->addError('availableFrom', Craft::t('events', 'Available From must be before the event End Date'));
+                    }
+
+                    if ($this->availableTo >= $endDate) {
+                        $this->addError('availableTo', Craft::t('events', 'Available To must be before the event End Date'));
+                    }
+                }
+            },
+        ];
+
         return $rules;
     }
 

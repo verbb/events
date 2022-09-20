@@ -80,6 +80,7 @@
                 id: 'availableFrom',
                 name: 'availableFrom',
                 value: ticket.availableFrom ?? [],
+                errors: ticket ? ticket.getErrors('availableFrom'),
             }) }}
 
             {{ forms.dateTimeField({
@@ -88,6 +89,7 @@
                 id: 'availableTo',
                 name: 'availableTo',
                 value: ticket.availableTo ?? [],
+                errors: ticket ? ticket.getErrors('availableTo'),
             }) }}
 
             <div class="ticket-type-fields">
