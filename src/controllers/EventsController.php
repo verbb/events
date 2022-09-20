@@ -230,14 +230,14 @@ class EventsController extends Controller
                 }
             }
 
-            $variables['tabs'][] = [
+            $variables['tabs'][$tab->getHtmlId()] = [
                 'label' => Craft::t('events', $tab->name),
                 'url' => '#' . $tab->getHtmlId(),
                 'class' => $hasErrors ? 'error' : null,
             ];
         }
 
-        $variables['tabs'][] = [
+        $variables['tabs']['tab-dates-container'] = [
             'label' => Craft::t('events', 'Dates/Times'),
             'url' => '#tab-dates-container',
         ];
@@ -255,7 +255,7 @@ class EventsController extends Controller
         }
 
         if ($eventType->hasTickets) {
-            $variables['tabs'][] = [
+            $variables['tabs']['tab-tickets-container'] = [
                 'label' => Craft::t('events', 'Tickets'),
                 'url' => '#tab-tickets-container',
                 'class' => $hasErrors ? 'error' : null,
