@@ -256,7 +256,7 @@ class Event extends Element
 
         $rules[] = [
             ['startDate'], function($model) {
-                if ($this->startDate >= $this->endDate) {
+                if ($this->startDate >= $this->endDate && !$this->allDay) {
                     $this->addError('startDate', Craft::t('events', 'Start Date must be before End Date'));
                 }
             },
