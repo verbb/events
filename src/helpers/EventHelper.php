@@ -83,8 +83,8 @@ class EventHelper
         $event->enabled = (bool)$request->getParam('enabled');
         $event->enabledForSite = (bool)$request->getParam('enabledForSite', $event->enabledForSite);
 
-        $event->allDay = $request->getParam('allDay');
-        $event->capacity = $request->getParam('capacity');
+        $event->allDay = (bool)$request->getParam('allDay');
+        $event->capacity = intval($request->getParam('capacity'));
 
         if (($startDate = $request->getParam('startDate')) !== null) {
             $event->startDate = DateTimeHelper::toDateTime($startDate) ?: null;
