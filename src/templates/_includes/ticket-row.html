@@ -24,7 +24,7 @@
             {{ forms.textField({
                 id: 'quantity',
                 name: 'quantity',
-                placeholder: 'eg. 100',
+                placeholder: 'e.g. 100',
                 value: ticket.quantity ?? '',
                 class: 'ticket-quantity',
                 errors: ticket ? ticket.getErrors('quantity'),
@@ -42,17 +42,11 @@
         </div>
 
         <div class="table-cell table-cell-md-3 fields-tickets-price-field">
-            {% set price = '' %}
-
-            {% if ticket and ticket.price %}
-                {% set price = ticket.price | number %}
-            {% endif %}
-
             {{ forms.textField({
                 id: 'price',
                 name: 'price',
-                value: price,
-                placeholder: 'eg. 10.00',
+                value: (ticket.price ?? '') | number,
+                placeholder: 'e.g. 10.00',
                 unit: craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,
                 errors: ticket ? ticket.getErrors('price'),
             }) }}
@@ -84,6 +78,7 @@
                 id: 'availableFrom',
                 name: 'availableFrom',
                 value: ticket.availableFrom ?? [],
+                errors: ticket ? ticket.getErrors('availableFrom'),
             }) }}
 
             {{ forms.dateTimeField({
@@ -92,6 +87,7 @@
                 id: 'availableTo',
                 name: 'availableTo',
                 value: ticket.availableTo ?? [],
+                errors: ticket ? ticket.getErrors('availableTo'),
             }) }}
 
             <div class="ticket-type-fields">

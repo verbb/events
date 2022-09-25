@@ -273,7 +273,15 @@ class Event extends Element
         $rules[] = [['startDate', 'endDate', 'postDate', 'expiryDate'], DateTimeValidator::class];
 
         $rules[] = [
-            ['tickets'], function($model): void {
+            ['startDate'], function($model) {
+                if ($this->startDate >= $this->endDate && !$this->allDay) {
+                    $this->addError('startDate', Craft::t('events', 'Start Date must be before End Date'));
+                }
+            },
+        ];
+
+        $rules[] = [
+            ['tickets'], function($model) {
                 foreach ($this->getTickets() as $ticket) {
                     // Break immediately if no ticket type set, also check for other ticket validation errors
                     if (!$ticket->typeId) {

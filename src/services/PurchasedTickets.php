@@ -27,11 +27,7 @@ class PurchasedTickets extends Component
         $purchasedTicket->checkedIn = true;
         $purchasedTicket->checkedInDate = new DateTime();
 
-        $record = PurchasedTicketRecord::findOne($purchasedTicket->id);
-        $record->checkedIn = $purchasedTicket->checkedIn;
-        $record->checkedInDate = $purchasedTicket->checkedInDate;
-
-        $record->save(false);
+        Craft::$app->getElements()->saveElement($purchasedTicket);
     }
 
     public function unCheckInPurchasedTicket(PurchasedTicket $purchasedTicket): void
@@ -39,10 +35,6 @@ class PurchasedTickets extends Component
         $purchasedTicket->checkedIn = false;
         $purchasedTicket->checkedInDate = null;
 
-        $record = PurchasedTicketRecord::findOne($purchasedTicket->id);
-        $record->checkedIn = $purchasedTicket->checkedIn;
-        $record->checkedInDate = $purchasedTicket->checkedInDate;
-
-        $record->save(false);
+        Craft::$app->getElements()->saveElement($purchasedTicket);
     }
 }
