@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.0-beta.4 - 2022-09-25
+
+### Added
+- Add missing English Translations.
+
+### Fixed
+- Fix an error when creating an event with an empty capacity.
+- Fix an error running `resave` console commands.
+- Fix querying events by type not working correctly for multiple ticket types.
+- Fix querying purchased tickets by event type not working correctly for multiple ticket types.
+- Fix an error when uninstalling.
+- Fix being unable to view purchased ticket in the control panel.
+
 ## 2.0.0-beta.3 - 2022-07-01
 
 ### Fixed
