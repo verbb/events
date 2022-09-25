@@ -2,11 +2,14 @@
 
 ## 1.4.23 - 2022-09-25
 
+### Added
 - Add validation to event ticket available from/to in relation to each other and the event end datetime.
 - Add validation for events when setting the start date to be later than the end date.
+- Add tabs for events not working correctly in the control panel.
+
+### Fixed
 - Fix a validation error with ticket pricing in the control panel.
 - Fix an issue when checkin/uncheckin for purchased tickets wasn’t working.
-- Add tabs for events not working correctly in the control panel.
 - Fix a potential issue when generating QR codes.
 
 ## 1.4.22 - 2022-08-25
