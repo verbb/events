@@ -239,7 +239,7 @@ class EventsController extends Controller
 
         $hasErrors = false;
 
-        if($event->hasErrors('startDate') || $event->hasErrors('endDate') || $event->hasErrors('allDay')){
+        if ($event->hasErrors('startDate') || $event->hasErrors('endDate') || $event->hasErrors('allDay')) {
             $hasErrors = true;
         }
 
