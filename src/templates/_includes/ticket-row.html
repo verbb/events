@@ -93,7 +93,7 @@
             }) }}
 
             <div class="ticket-type-fields">
-                {% if ticket %}
+                {% if ticket and ticket.type %}
                     {% for tab in ticket.type.getFieldLayout().getTabs() %}
                         {% include '_includes/fields' with {
                             fields: tab.getFields(),
