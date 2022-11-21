@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0-beta.5 - 2022-11-22
+
+### Fixed
+- Fix being unable to manage Events and Purchased tickets in the control panel due to Craft 4.3.2 changes.
+
 ## 2.0.0-beta.4 - 2022-09-25
 
 ### Added
