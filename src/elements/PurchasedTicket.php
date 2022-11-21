@@ -9,6 +9,7 @@ use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\db\Query;
+use craft\elements\User;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\db\ElementQueryInterface;
@@ -187,9 +188,39 @@ class PurchasedTicket extends Element
         return $this->ticketSku ?? '';
     }
 
+    public function canView(User $user): bool
+    {
+        return $user->can('events-managePurchasedTickets');
+    }
+
+    public function canSave(User $user): bool
+    {
+        return $user->can('events-managePurchasedTickets');
+    }
+
+    public function canDuplicate(User $user): bool
+    {
+        return $user->can('events-managePurchasedTickets');
+    }
+
+    public function canDelete(User $user): bool
+    {
+        return $user->can('events-managePurchasedTickets');
+    }
+
     public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('events/purchased-tickets/' . $this->id);
+    }
+
+    public function canDeleteForSite(User $user): bool
+    {
+        return $this->canDelete($user);
+    }
+
+    public function createAnother(): ?ElementInterface
+    {
+        return null;
     }
 
     public function getFieldLayout(): ?FieldLayout

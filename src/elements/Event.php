@@ -10,7 +10,9 @@ use verbb\events\records\Event as EventRecord;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\db\Query;
+use craft\elements\User;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\db\ElementQueryInterface;
@@ -263,6 +265,76 @@ class Event extends Element
     public function __toString(): string
     {
         return (string)$this->title;
+    }
+
+    public function canView(User $user): bool
+    {
+        if (parent::canView($user)) {
+            return true;
+        }
+
+        try {
+            $eventType = $this->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can('events-manageEventType:' . $eventType->uid);
+    }
+
+    public function canSave(User $user): bool
+    {
+        if (parent::canSave($user)) {
+            return true;
+        }
+
+        try {
+            $eventType = $this->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can('events-manageEventType:' . $eventType->uid);
+    }
+
+    public function canDuplicate(User $user): bool
+    {
+        if (parent::canDuplicate($user)) {
+            return true;
+        }
+
+        try {
+            $eventType = $this->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can('events-manageEventType:' . $eventType->uid);
+    }
+
+    public function canDelete(User $user): bool
+    {
+        if (parent::canDelete($user)) {
+            return true;
+        }
+
+        try {
+            $eventType = $this->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can('events-manageEventType:' . $eventType->uid);
+    }
+
+    public function canDeleteForSite(User $user): bool
+    {
+        return $this->canDelete($user);
+    }
+
+    public function createAnother(): ?ElementInterface
+    {
+        return null;
     }
 
     public function rules(): array
