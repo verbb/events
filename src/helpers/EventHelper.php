@@ -37,7 +37,7 @@ class EventHelper
         $ticketModel->typeId = $ticket['typeIds'][0] ?? 0;
         $ticketModel->enabled = (bool)($ticket['enabled'] ?? 1);
         $ticketModel->sku = $ticket['sku'] ?? '';
-        $ticketModel->quantity = $ticket['quantity'] ?? '';
+        $ticketModel->quantity = (int)$ticket['quantity'] ?? null;
         $ticketModel->price = LocalizationHelper::normalizeNumber($ticket['price']);
 
         if (($availableFrom = $ticket['availableFrom']) !== null) {
