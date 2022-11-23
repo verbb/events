@@ -357,8 +357,9 @@ class EventTypes extends Component
                 Craft::$app->getElements()->deleteElement($eventElement);
             }
 
-            $fieldLayoutId = $eventTypeRecord->fieldLayoutId;
-            Craft::$app->getFields()->deleteLayoutById($fieldLayoutId);
+            if ($fieldLayoutId = $eventTypeRecord->fieldLayoutId) {
+                Craft::$app->getFields()->deleteLayoutById($fieldLayoutId);
+            }
 
             $eventTypeRecord->delete();
             $transaction->commit();
