@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.0-beta.6 - 2022-11-30
+
+### Fixed
+- Fix an error when editing an event.
+- Fix an error when creating an event with empty ticket quantities.
+- Fix an error when deleting an event type.
+
 ## 2.0.0-beta.5 - 2022-11-22
 
 ### Fixed

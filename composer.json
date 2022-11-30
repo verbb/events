@@ -2,7 +2,7 @@
     "name": "verbb/events",
     "description": "Events is a full-featured Craft CMS Plugin for event management and ticketing. Events integrates with Craft Commerce so you can easily sell tickets to your events.",
     "type": "craft-plugin",
-    "version": "2.0.0-beta.5",
+    "version": "2.0.0-beta.6",
     "keywords": [
         "craft",
         "cms",
