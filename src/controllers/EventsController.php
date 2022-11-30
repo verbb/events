@@ -8,6 +8,7 @@ use verbb\events\helpers\TicketHelper;
 
 use Craft;
 use craft\base\Element;
+use craft\fieldlayoutelements\CustomField;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
@@ -218,9 +219,13 @@ class EventsController extends Controller
             $hasErrors = false;
 
             if ($event->hasErrors()) {
-                foreach ($tab->getCustomFields() as $field) {
-                    if ($hasErrors = $event->hasErrors($field->handle . '.*')) {
-                        break;
+                foreach ($tab->getElements() as $layoutElement) {
+                    if ($layoutElement instanceof CustomField) {
+                        $field = $layoutElement->getField();
+
+                        if ($hasErrors = $event->hasErrors($field->handle . '.*')) {
+                            break;
+                        }
                     }
                 }
             }
