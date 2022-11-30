@@ -218,7 +218,7 @@ class EventsController extends Controller
             $hasErrors = false;
 
             if ($event->hasErrors()) {
-                foreach ($tab->getFields() as $field) {
+                foreach ($tab->getCustomFields() as $field) {
                     if ($hasErrors = $event->hasErrors($field->handle . '.*')) {
                         break;
                     }
