@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0-beta.7 - 2022-12-01
+
+### Fixed
+- Fix an error when editing an event with validation errors.
+
 ## 2.0.0-beta.6 - 2022-11-30
 
 ### Fixed
