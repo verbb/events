@@ -85,7 +85,9 @@
         <img width="150px" src="{{ purchasedTicket.qrCode }}" />
     </div>
 
-    {{ fieldLayout.createForm(purchasedTicket).render(false) | raw }}
+    {% if fieldLayout %}
+        {{ fieldLayout.createForm(purchasedTicket).render(false) | raw }}
+    {% endif %}
 </div>
 
 {% endblock %}

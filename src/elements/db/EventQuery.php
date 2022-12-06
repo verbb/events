@@ -8,12 +8,12 @@ use verbb\events\models\EventType;
 use Craft;
 use craft\db\Query;
 use craft\db\QueryAbortedException;
+use craft\elements\User;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 
 use craft\commerce\db\Table as CommerceTable;
-use craft\commerce\models\Customer;
 
 use DateTime;
 
@@ -128,7 +128,7 @@ class EventQuery extends ElementQuery
         return $this;
     }
 
-    public function customer(Customer $value = null): static
+    public function customer(?User $value = null): static
     {
         if ($value) {
             $this->customerId = $value->id;

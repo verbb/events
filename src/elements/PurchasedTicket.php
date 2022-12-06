@@ -17,7 +17,6 @@ use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 
 use craft\commerce\Plugin as Commerce;
-use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\elements\Order;
 
@@ -173,7 +172,7 @@ class PurchasedTicket extends Element
     public ?int $orderId = null;
     public ?int $ticketId = null;
     public ?string $ticketSku = null;
-    private ?Customer $_customer = null;
+    private ?User $_customer = null;
     private ?Event $_event = null;
     private ?LineItem $_lineItem = null;
     private ?Order $_order = null;
@@ -284,7 +283,7 @@ class PurchasedTicket extends Element
         return null;
     }
 
-    public function getCustomer(): ?Customer
+    public function getCustomer(): ?User
     {
         if ($this->_customer) {
             return $this->_customer;
