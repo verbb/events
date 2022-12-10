@@ -719,7 +719,7 @@ Possible values include:
 ::: code
 ```twig Twig
 {# Fetch disabled events #}
-{% set events = {twig-function}
+{% set events = craft.events.events()
     .status('disabled')
     .all() %}
 ```
