@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0-beta.8 - 2022-12-15
+
+### Changed
+- Update `endroid/qr-code:^4.0.0` dependancy.
+
+### Fixed
+- Fix Customer changeover to User (Commerce change).
+
 ## 2.0.0-beta.7 - 2022-12-01
 
 ### Fixed
