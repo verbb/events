@@ -237,9 +237,16 @@ class EventsController extends Controller
             ];
         }
 
+        $hasErrors = false;
+
+        if ($event->hasErrors('startDate') || $event->hasErrors('endDate') || $event->hasErrors('allDay')) {
+            $hasErrors = true;
+        }
+
         $variables['tabs']['tab-dates-container'] = [
             'label' => Craft::t('events', 'Dates/Times'),
             'url' => '#tab-dates-container',
+            'class' => $hasErrors ? 'error' : null,
         ];
 
         $hasErrors = false;

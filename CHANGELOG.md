@@ -78,6 +78,14 @@
 - Now requires Craft `^4.0.0-beta.1`.
 - Now requires Craft Commerce `^4.0.0-beta.1`.
 
+## 1.4.24 - 2022-12-25
+
+### Added
+- Add error state to the Date/Time tab if a field has errors. (thanks @anchovy).
+
+### Fixed
+- Fix an error when saving an event with un-selected ticket type for a ticket.
+
 ## 1.4.23 - 2022-09-25
 
 ### Added
