@@ -1,6 +1,8 @@
 {% extends 'events/_layouts' %}
 {% import '_includes/forms' as forms %}
 
+{% requireAdmin %}
+
 {% set crumbs = [
     { label: craft.events.getPluginName() | t('events'), url: url('events') },
     { label: 'Settings' | t('app'), url: url('events/settings') }
