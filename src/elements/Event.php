@@ -11,6 +11,7 @@ use verbb\events\records\Event as EventRecord;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\base\ExpirableElementInterface;
 use craft\db\Query;
 use craft\elements\User;
 use craft\elements\actions\Delete;
@@ -31,7 +32,7 @@ use Jsvrcek\ICS\Model\Description\Location;
 use DateTime;
 use DateTimeZone;
 
-class Event extends Element
+class Event extends Element implements ExpirableElementInterface
 {
     // Constants
     // =========================================================================
@@ -402,6 +403,11 @@ class Event extends Element
         return $this->getType()->getEventFieldLayout();
     }
 
+    public function getExpiryDate(): ?DateTime
+    {
+        return $this->expiryDate;
+    }
+
     public function getUriFormat(): ?string
     {
         $eventTypeSiteSettings = $this->getType()->getSiteSettings();
@@ -459,12 +465,12 @@ class Event extends Element
     {
         $status = parent::getStatus();
 
-        if ($status === self::STATUS_ENABLED && $this->postDate) {
+        if ($status == self::STATUS_ENABLED && $this->postDate) {
             $currentTime = DateTimeHelper::currentTimeStamp();
             $postDate = $this->postDate->getTimestamp();
-            $expiryDate = $this->expiryDate ? $this->expiryDate->getTimestamp() : null;
+            $expiryDate = $this->expiryDate?->getTimestamp();
 
-            if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime)) {
+            if ($postDate <= $currentTime && ($expiryDate === null || $expiryDate > $currentTime)) {
                 return self::STATUS_LIVE;
             }
 
@@ -757,6 +763,11 @@ class Event extends Element
 
     protected function route(): array|string|null
     {
+        // Make sure that the entry is actually live
+        if (!$this->previewing && $this->getStatus() != self::STATUS_LIVE) {
+            return null;
+        }
+        
         // Make sure the event type is set to have URLs for this site
         $siteId = Craft::$app->getSites()->currentSite->id;
         $eventTypeSiteSettings = $this->getType()->getSiteSettings();

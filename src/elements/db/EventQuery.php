@@ -215,7 +215,9 @@ class EventQuery extends ElementQuery
 
     protected function statusCondition(string $status): mixed
     {
-        $currentTimeDb = Db::prepareDateForDb(new DateTime());
+        $now = new DateTime();
+        $now->setTime((int)$now->format('H'), (int)$now->format('i'), 59);
+        $currentTimeDb = Db::prepareDateForDb($now);
 
         return match ($status) {
             Event::STATUS_LIVE => [
