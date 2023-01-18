@@ -22,8 +22,11 @@ use craft\commerce\elements\Order;
 
 use yii\base\Exception;
 
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelMedium;
 use Endroid\QrCode\QrCode;
-use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\Writer\PngWriter;
 
 use DateTime;
 
@@ -332,16 +335,18 @@ class PurchasedTicket extends Element
     {
         $url = UrlHelper::actionUrl('events/ticket/checkin', ['sku' => $this->ticketSku]);
 
-        $qrCode = new QrCode();
-
-        $qrCode
-            ->setText($url)
+        $qrCode = QrCode::create($url)
+            ->setEncoding(new Encoding('UTF-8'))
             ->setSize(300)
-            ->setErrorCorrectionLevel(ErrorCorrectionLevel::MEDIUM)
-            ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0])
-            ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0]);
+            ->setMargin(0)
+            ->setErrorCorrectionLevel(new ErrorCorrectionLevelMedium())
+            ->setForegroundColor(new Color(0, 0, 0))
+            ->setBackgroundColor(new Color(255, 255, 255));
 
-        return $qrCode->writeDataUri();
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
+
+        return $result->getDataUri();
     }
 
     public function afterSave(bool $isNew): void
