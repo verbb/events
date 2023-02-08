@@ -414,8 +414,8 @@ class PurchasedTicket extends Element
             }
             case 'customer':
             {
-                if (($customer = $this->getCustomer()) && $customer->getEmail()) {
-                    return $customer->getEmail();
+                if (($customer = $this->getCustomer())) {
+                    return $customer->email;
                 }
 
                 if ($order = $this->getOrder()) {
@@ -426,24 +426,24 @@ class PurchasedTicket extends Element
             }
             case 'customerFirstName':
             {
-                if (($customer = $this->getCustomer()) && $customer->user) {
-                    return (string)$customer->user->firstName;
+                if (($customer = $this->getCustomer())) {
+                    return (string)$customer->firstName;
                 }
 
                 return Craft::t('events', '[Guest]');
             }
             case 'customerLastName':
             {
-                if (($customer = $this->getCustomer()) && $customer->user) {
-                    return (string)$customer->user->lastName;
+                if (($customer = $this->getCustomer())) {
+                    return (string)$customer->lastName;
                 }
 
                 return Craft::t('events', '[Guest]');
             }
             case 'customerFullName':
             {
-                if (($customer = $this->getCustomer()) && $customer->user) {
-                    return (string)$customer->user->fullName;
+                if (($customer = $this->getCustomer())) {
+                    return (string)$customer->fullName;
                 }
 
                 return Craft::t('events', '[Guest]');
