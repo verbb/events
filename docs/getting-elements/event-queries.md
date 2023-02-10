@@ -552,7 +552,7 @@ See [Searching](https://craftcms.com/docs/4.x/searching.html) for a full explana
 ::: code
 ```twig Twig
 {# Get the search query from the 'q' query string param #}
-{% set searchQuery = craft.request.getQueryParam('q') %}
+{% set searchQuery = craft.app.request.getQueryParam('q') %}
 
 {# Fetch all events that match the search query #}
 {% set events = craft.events.events()
