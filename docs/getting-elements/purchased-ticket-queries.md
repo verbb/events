@@ -77,16 +77,18 @@ Narrows the query results to only purchased tickets that have been purchased by 
 
 ::: code
 ```twig Twig
-{# Fetch purchased tickets that have been purchased by a customer #}
+{# Fetch purchased tickets that have been purchased by the current user #}
 {% set purchasedTickets = craft.events.purchasedTickets()
-    .customer(craft.commerce.getCarts().getCart().customer)
+    .customer(currentUser)
     .all() %}
 ```
 
 ```php PHP
 // Fetch purchased tickets that have been purchased by a customer
+$currentUser = Craft::$app->getUser()->getIdentity();
+
 $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
-    ->customer($customer)
+    ->customer($currentUser)
     ->all();
 ````
 :::
