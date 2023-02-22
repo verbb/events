@@ -89,9 +89,9 @@ class TicketType extends Element
     // Public Methods
     // =========================================================================
 
-    public function rules(): array
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['handle'], 'required'];
         $rules[] = [['handle'], 'string', 'max' => 255];

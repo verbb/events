@@ -233,9 +233,9 @@ class Ticket extends Purchasable
         return $this->title;
     }
 
-    public function rules(): array
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['sku'], 'string'];
         $rules[] = [['sku', 'price', 'typeId'], 'required'];

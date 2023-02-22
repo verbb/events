@@ -68,9 +68,9 @@ class EventTypeSite extends Model
         return $this->_site;
     }
 
-    public function rules(): array
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         if ($this->uriFormatIsRequired) {
             $rules[] = ['uriFormat', 'required'];

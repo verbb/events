@@ -70,9 +70,9 @@ class EventType extends Model
         ];
     }
 
-    public function rules(): array
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['id', 'fieldLayoutId'], 'number', 'integerOnly' => true];
         $rules[] = [['name', 'handle'], 'required'];

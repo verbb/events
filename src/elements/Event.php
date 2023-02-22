@@ -338,9 +338,9 @@ class Event extends Element implements ExpirableElementInterface
         return null;
     }
 
-    public function rules(): array
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['typeId'], 'number', 'integerOnly' => true];
         $rules[] = [['startDate', 'endDate', 'postDate', 'expiryDate'], DateTimeValidator::class];
