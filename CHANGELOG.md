@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.0-beta.9 - 2023-03-02
+
+### Changed
+- Use `defineRules()` instead of `rules()` to allow validation overrides properly.
+- Update `Endroid\QrCode` code for new `endroid/qr-code` package version.
+- Only admins are now allowed to access plugin settings.
+
+### Fixed
+- Fix expired events still showing their front-end templates.
+- Fix type for `customer()` purchased ticket element query.
+- Fix Customer changeover to User.
+- Fix errors when saving events with invalid tickets.
+
 ## 2.0.0-beta.8 - 2022-12-15
 
 ### Changed
