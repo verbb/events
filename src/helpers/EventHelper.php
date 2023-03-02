@@ -23,7 +23,7 @@ class EventHelper
         $newTicket = str_starts_with($key, 'new');
 
         if ($eventId && !$newTicket) {
-            $ticketModel = Events::$plugin->getTickets()->getTicketById($key, $event->siteId);
+            $ticketModel = Events::$plugin->getTickets()->getTicketById((int)$key, $event->siteId);
 
             if (!$ticketModel) {
                 $ticketModel = new Ticket();
@@ -37,14 +37,14 @@ class EventHelper
         $ticketModel->typeId = $ticket['typeIds'][0] ?? 0;
         $ticketModel->enabled = (bool)($ticket['enabled'] ?? 1);
         $ticketModel->sku = $ticket['sku'] ?? '';
-        $ticketModel->quantity = (int)$ticket['quantity'] ?? null;
-        $ticketModel->price = LocalizationHelper::normalizeNumber($ticket['price']);
+        $ticketModel->quantity = (int)($ticket['quantity'] ?? null);
+        $ticketModel->price = (float)LocalizationHelper::normalizeNumber($ticket['price'] ?? null);
 
-        if (($availableFrom = $ticket['availableFrom']) !== null) {
+        if (($availableFrom = ($ticket['availableFrom'] ?? null)) !== null) {
             $ticketModel->availableFrom = DateTimeHelper::toDateTime($availableFrom) ?: null;
         }
 
-        if (($availableTo = $ticket['availableTo']) !== null) {
+        if (($availableTo = ($ticket['availableTo'] ?? null)) !== null) {
             $ticketModel->availableTo = DateTimeHelper::toDateTime($availableTo) ?: null;
         }
 

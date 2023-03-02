@@ -140,7 +140,7 @@ Craft.Events.TicketEditRow = Garnish.Base.extend({
         var id = 'new' + this.editContainer.totalNewRows;
 
         // Check for an existing ticket ID
-        if (this.id != null) {
+        if (this.id) {
             var ticket = this.editContainer.tickets[this.id];
 
             if (ticket) {
