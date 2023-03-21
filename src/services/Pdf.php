@@ -3,6 +3,8 @@ namespace verbb\events\services;
 
 use verbb\events\Events;
 use verbb\events\models\Settings;
+use verbb\events\events\PdfEvent;
+use verbb\events\events\PdfRenderOptionsEvent;
 
 use Craft;
 use craft\helpers\FileHelper;
@@ -10,13 +12,13 @@ use craft\helpers\UrlHelper;
 use craft\web\View;
 
 use craft\commerce\elements\Order;
-use craft\commerce\events\PdfEvent;
 use craft\commerce\models\LineItem;
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
 use yii\base\Component;
+use yii\base\ErrorException;
 use yii\base\Exception;
 
 class Pdf extends Component
@@ -26,6 +28,8 @@ class Pdf extends Component
 
     public const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
     public const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
+    public const EVENT_MODIFY_RENDER_OPTIONS = 'modifyRenderOptions';
+
 
     // Public Methods
     // =========================================================================
@@ -51,19 +55,26 @@ class Pdf extends Component
     {
         /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();
+        $format = null;
 
         $request = Craft::$app->getRequest();
-        $format = $request->getParam('format');
 
-        if (null === $templatePath) {
+        if (!$request->getIsConsoleRequest()) {
+            $format = $request->getParam('format');
+        }
+
+        if (!$templatePath) {
             $templatePath = $settings->ticketPdfPath;
         }
+
+        $variables = compact('order', 'tickets', 'lineItem', 'option');
 
         // Trigger a 'beforeRenderPdf' event
         $event = new PdfEvent([
             'order' => $order,
             'option' => $option,
             'template' => $templatePath,
+            'variables' => $variables,
         ]);
         $this->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
 
@@ -71,12 +82,16 @@ class Pdf extends Component
             return $event->pdf;
         }
 
+        $variables = $event->variables;
+        $variables['order'] = $event->order;
+        $variables['option'] = $event->option;
+
         // Set Craft to the site template mode
         $view = Craft::$app->getView();
         $oldTemplateMode = $view->getTemplateMode();
         $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
-        if (!$templatePath || !$view->doesTemplateExist($templatePath)) {
+        if (!$event->template || !$view->doesTemplateExist($event->template)) {
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
 
@@ -84,7 +99,7 @@ class Pdf extends Component
         }
 
         try {
-            $html = $view->renderTemplate($templatePath, compact('order', 'tickets', 'lineItem', 'option'));
+            $html = $view->renderTemplate($templatePath, $variables);
         } catch (\Exception $e) {
             // Set the pdf html to the render error.
             if ($order) {
@@ -115,15 +130,15 @@ class Pdf extends Component
         FileHelper::createDirectory($dompdfFontCache);
 
         if (!FileHelper::isWritable($dompdfLogFile)) {
-            throw new Exception("Unable to write to file: $dompdfLogFile");
+            throw new ErrorException("Unable to write to file: $dompdfLogFile");
         }
 
         if (!FileHelper::isWritable($dompdfFontCache)) {
-            throw new Exception("Unable to write to folder: $dompdfFontCache");
+            throw new ErrorException("Unable to write to folder: $dompdfFontCache");
         }
 
         if (!FileHelper::isWritable($dompdfTempDir)) {
-            throw new Exception("Unable to write to folder: $dompdfTempDir");
+            throw new ErrorException("Unable to write to folder: $dompdfTempDir");
         }
 
         $isRemoteEnabled = $settings->pdfAllowRemoteImages;
@@ -134,12 +149,19 @@ class Pdf extends Component
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
 
+        // Set additional render options
+        if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
+            $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([
+                'options' => $options,
+            ]));
+        }
+
+        $dompdf->setOptions($options);
+
         // Paper Size and Orientation
         $pdfPaperSize = $settings->pdfPaperSize;
         $pdfPaperOrientation = $settings->pdfPaperOrientation;
         $dompdf->setPaper($pdfPaperSize, $pdfPaperOrientation);
-
-        $dompdf->setOptions($options);
 
         $dompdf->loadHtml($html);
 
@@ -151,9 +173,10 @@ class Pdf extends Component
 
         // Trigger an 'afterRenderPdf' event
         $event = new PdfEvent([
-            'order' => $order,
-            'option' => $option,
-            'template' => $templatePath,
+            'order' => $event->order,
+            'option' => $event->option,
+            'template' => $event->template,
+            'variables' => $variables,
             'pdf' => $dompdf->output(),
         ]);
         $this->trigger(self::EVENT_AFTER_RENDER_PDF, $event);

@@ -5,12 +5,11 @@ Events can be used to extend the functionality of Events.
 ## Ticket PDF related events
 
 ### The `beforeRenderPdf` event
-
 Event handlers can override Ticket’s PDF generation by setting the `pdf` property on the event to a custom-rendered PDF.
 Plugins can get notified before the PDF or a ticket is being rendered.
 
 ```php
-use craft\commerce\events\PdfEvent;
+use verbb\events\events\PdfEvent;
 use verbb\events\services\Pdf;
 use yii\base\Event;
 
@@ -20,16 +19,28 @@ Event::on(Pdf::class, Pdf::EVENT_BEFORE_RENDER_PDF, function(PdfEvent $event) {
 ```
 
 ### The `afterRenderPdf` event
-
 Plugins can get notified after the PDF or a ticket has been rendered.
 
 ```php
-use craft\commerce\events\PdfEvent;
+use verbb\events\events\PdfEvent;
 use verbb\events\services\Pdf;
 use yii\base\Event;
 
 Event::on(Pdf::class, Pdf::EVENT_AFTER_RENDER_PDF, function(PdfEvent $event) {
      // Add a watermark to the PDF or forward it to the accounting dpt.
+});
+```
+
+### The `modifyRenderOptions` event
+Plugins can get modify the DomPDF render options
+
+```php
+use verbb\events\events\PdfRenderOptionsEvent;
+use verbb\events\services\Pdf;
+use yii\base\Event;
+
+Event::on(Pdf::class, Pdf::EVENT_MODIFY_RENDER_OPTIONS, function(PdfRenderOptionsEvent $event) {
+
 });
 ```
 
