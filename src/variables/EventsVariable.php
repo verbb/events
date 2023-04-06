@@ -57,7 +57,7 @@ class EventsVariable
 
     public function getEventTypeById($id): ?EventType
     {
-        return Events::$plugin->getEventTypes()->getEventTypeById($id);
+        return Events::$plugin->getEventTypes()->getEventTypeById((int)$id);
     }
 
     public function getEventTypeByHandle($handle): ?EventType
