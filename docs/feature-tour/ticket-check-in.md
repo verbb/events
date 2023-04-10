@@ -30,7 +30,7 @@ The returned response (JSON or template) will provide the following variables:
 
 ### Custom Template
 
-The template returned by this controller can be changed to a custom one of your choosing. Use ths [checkinTemplate](https://verbb.io/craft-plugins/events/docs/get-started/configuration) config variable. In this instance, you could provide a template to show the appropriate response in a way that suits your site.
+The template returned by this controller can be changed to a custom one of your choosing. Use this [checkinTemplate](https://verbb.io/craft-plugins/events/docs/get-started/configuration) config variable. In this instance, you could provide a template to show the appropriate response in a way that suits your site.
 
 An example of this template could be the following:
 
