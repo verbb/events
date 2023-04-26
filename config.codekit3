@@ -704,6 +704,22 @@
       "oAP" : "\/src\/events\/EventTypeEvent.php",
       "oF" : 0
     },
+    "\/src\/events\/PdfEvent.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/events\/PdfEvent.php",
+      "oF" : 0
+    },
+    "\/src\/events\/PdfRenderOptionsEvent.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 2,
+      "oAP" : "\/src\/events\/PdfRenderOptionsEvent.php",
+      "oF" : 0
+    },
     "\/src\/events\/TicketTypeEvent.php" : {
       "cB" : 0,
       "ft" : 8192,
