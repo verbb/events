@@ -1,6 +1,6 @@
 # Events Plugin for Craft CMS
 
-<img width="500" src="https://verbb.imgix.net/plugins/events/_800x455_crop_center-center/events-social-card.png">
+<img width="500" src="https://verbb.imgix.net/plugins/events/events-social-card.png">
 
 A full-featured event management and ticketing plugin for Craft Commerce. Sell tickets to events, create tickets, manage attendees and more.
 
