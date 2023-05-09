@@ -197,11 +197,11 @@ class Events extends Plugin
 
     private function _registerElementTypes(): void
     {
-        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e): void {
-            $e->types[] = EventElement::class;
-            $e->types[] = Ticket::class;
-            $e->types[] = TicketType::class;
-            $e->types[] = PurchasedTicket::class;
+        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event): void {
+            $event->types[] = EventElement::class;
+            $event->types[] = Ticket::class;
+            $event->types[] = TicketType::class;
+            $event->types[] = PurchasedTicket::class;
         });
     }
 
@@ -289,8 +289,8 @@ class Events extends Plugin
 
         // Support Feed Me
         if (class_exists(FeedMeElements::class)) {
-            Event::on(FeedMeElements::class, FeedMeElements::EVENT_REGISTER_FEED_ME_ELEMENTS, function(RegisterFeedMeElementsEvent $e) {
-                $e->elements[] = FeedMeEvent::class;
+            Event::on(FeedMeElements::class, FeedMeElements::EVENT_REGISTER_FEED_ME_ELEMENTS, function(RegisterFeedMeElementsEvent $event) {
+                $event->elements[] = FeedMeEvent::class;
             });
         }
 
@@ -308,8 +308,8 @@ class Events extends Plugin
             return;
         }
 
-        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
-            $e->actions['events-events'] = [
+        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $event) {
+            $event->actions['events-events'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
                     
@@ -319,7 +319,7 @@ class Events extends Plugin
                 'helpSummary' => 'Re-saves Events events.',
             ];
 
-            $e->actions['events-tickets'] = [
+            $event->actions['events-tickets'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
 
@@ -329,7 +329,7 @@ class Events extends Plugin
                 'helpSummary' => 'Re-saves Events tickets.',
             ];
 
-            $e->actions['events-tickettypes'] = [
+            $event->actions['events-tickettypes'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
 
@@ -339,7 +339,7 @@ class Events extends Plugin
                 'helpSummary' => 'Re-saves Events ticket types.',
             ];
 
-            $e->actions['events-purchasedtickets'] = [
+            $event->actions['events-purchasedtickets'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
 
