@@ -12,20 +12,20 @@ class KlaviyoConnect extends Component
     // Public Methods
     // =========================================================================
 
-    public function addLineItemCustomProperties(AddLineItemCustomPropertiesEvent $e): void
+    public function addLineItemCustomProperties(AddLineItemCustomPropertiesEvent $event): void
     {
-        $eventName = $e->event;
-        $order = $e->order;
-        $lineItem = $e->lineItem;
+        $eventName = $event->event;
+        $order = $event->order;
+        $lineItem = $event->lineItem;
 
         if (is_a($lineItem->purchasable, Ticket::class)) {
-            $event = $lineItem->purchasable->event ?? [];
+            $eventElement = $lineItem->purchasable->event ?? [];
 
-            if ($event) {
-                $e->properties = [
-                    'ProductName' => $event->title,
+            if ($eventElement) {
+                $event->properties = [
+                    'ProductName' => $eventElement->title,
                     'Slug' => $lineItem->purchasable->event->slug,
-                    'ProductURL' => $event->getUrl(),
+                    'ProductURL' => $eventElement->getUrl(),
                     'ItemPrice' => $lineItem->price,
                     'RowTotal' => $lineItem->subtotal,
                     'Quantity' => $lineItem->qty,
