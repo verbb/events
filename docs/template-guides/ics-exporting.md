@@ -1,5 +1,4 @@
 # ICS Exporting
-
 Events has support for ICS files for single events, entire event types, or for [Event Queries](docs:getting-elements/event-queries). It can also generate the ICS content in its raw fashion, allowing linking directly to the feed, or complete customisation in templates.
 
 For each Event Type, you can define some additional properties for the ICS feeds:

@@ -1,5 +1,4 @@
 # Cart & Order
-
 When you're on your cart page, or on an order summary screen, you'll likely want to tailor the output of purchasing an event differently to other purchasables in your order.
 
 Using the following, you can check to see if a line item is a ticket, and show various things based on that.

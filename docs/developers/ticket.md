@@ -1,5 +1,4 @@
 # Ticket
-
 Whenever you're dealing with a ticket in your template, you're actually working with a `Ticket` object.
 
 ## Attributes

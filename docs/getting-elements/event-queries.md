@@ -1,5 +1,4 @@
 # Event Queries
-
 You can fetch events in your templates or PHP code using **event queries**.
 
 :::code
@@ -21,7 +20,6 @@ See Introduction to [Element Queries](https://craftcms.com/docs/4.x/element-quer
 :::
 
 ## Example
-
 We can display events for a given type by doing the following:
 
 1. Create an event query with `craft.events.events()`.
@@ -49,13 +47,11 @@ By default, only current events will be returned when calling `craft.events.even
 :::
 
 ## Parameters
-
 Event queries support the following parameters:
 
 <!-- BEGIN PARAMS -->
 
 ### `after`
-
 Narrows the query results to only events that were posted on or after a certain date.
 
 Possible values include:
@@ -88,7 +84,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `anyStatus`
-
 Clears out the [status()](https://docs.craftcms.com/api/v4/craft-elements-db-elementquery.html#method-status) and [enabledForSite()](https://docs.craftcms.com/api/v4/craft-elements-db-elementquery.html#method-enabledforsite) parameters.
 
 ::: code
@@ -110,7 +105,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `asArray`
-
 Causes the query to return matching events as arrays of data, rather than [Event](docs:developers/event) objects.
 
 ::: code
@@ -132,7 +126,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `before`
-
 Narrows the query results to only events that were posted before a certain date.
 
 Possible values include:
@@ -165,7 +158,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `customer`
-
 Narrows the query results to only events that have been purchased by a customer.
 
 ::: code
@@ -187,7 +179,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `dateCreated`
-
 Narrows the query results based on the events’ creation dates.
 
 Possible values include:
@@ -223,7 +214,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `dateUpdated`
-
 Narrows the query results based on the events’ last-updated dates.
 
 Possible values include:
@@ -257,7 +247,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `endDate`
-
 Narrows the query results based on the events’ end date.
 
 Possible values include:
@@ -291,7 +280,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `expiryDate`
-
 Narrows the query results based on the events’ expiry dates.
 
 Possible values include:
@@ -325,7 +313,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `fixedOrder`
-
 Causes the query results to be returned in the order specified by [id](#id).
 
 ::: code
@@ -349,7 +336,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `hasTicket`
-
 Narrows the query results to only events that have certain tickets.
 
 Possible values include:
@@ -361,7 +347,6 @@ Possible values include:
 
 
 ### `id`
-
 Narrows the query results based on the events’ IDs.
 
 Possible values include:
@@ -396,7 +381,6 @@ This can be combined with [fixedOrder](#fixedorder) if you want the results to b
 
 
 ### `inReverse`
-
 Causes the query results to be returned in reverse order.
 
 ::: code
@@ -418,7 +402,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `limit`
-
 Determines the number of events that should be returned.
 
 ::: code
@@ -440,7 +423,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `offset`
-
 Determines how many events should be skipped in the results.
 
 ::: code
@@ -462,7 +444,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `orderBy`
-
 Determines the order that the events should be returned in.
 
 ::: code
@@ -484,7 +465,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `postDate`
-
 Narrows the query results based on the events’ post dates.
 
 Possible values include:
@@ -520,7 +500,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `relatedTo`
-
 Narrows the query results to only events that are related to certain other elements.
 
 See [Relations](https://craftcms.com/docs/4.x/relations.html) for a full explanation of how to work with this parameter.
@@ -544,7 +523,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `search`
-
 Narrows the query results to only events that match a search query.
 
 See [Searching](https://craftcms.com/docs/4.x/searching.html) for a full explanation of how to work with this parameter.
@@ -574,7 +552,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `site`
-
 Determines which site the events should be queried in.
 
 The current site will be used by default.
@@ -605,7 +582,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `siteId`
-
 Determines which site the events should be queried in, per the site’s ID.
 
 The current site will be used by default.
@@ -629,7 +605,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `slug`
-
 Narrows the query results based on the events’ slugs.
 
 Possible values include:
@@ -669,7 +644,6 @@ $event = \verbb\events\elements\Event::find()
 
 
 ### `startDate`
-
 Narrows the query results based on the events’ start date.
 
 Possible values include:
@@ -703,7 +677,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `status`
-
 Narrows the query results based on the events’ statuses.
 
 Possible values include:
@@ -735,7 +708,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `title`
-
 Narrows the query results based on the events’ titles.
 
 Possible values include:
@@ -769,7 +741,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `type`
-
 Narrows the query results based on the events’ types.
 
 Possible values include:
@@ -801,7 +772,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `typeId`
-
 Narrows the query results based on the events’ types, per the types’ IDs.
 
 Possible values include:
@@ -832,7 +802,6 @@ $events = \verbb\events\elements\Event::find()
 
 
 ### `uid`
-
 Narrows the query results based on the events’ UIDs.
 
 ::: code
@@ -854,7 +823,6 @@ $event = \verbb\events\elements\Event::find()
 
 
 ### `uri`
-
 Narrows the query results based on the events’ URIs.
 
 Possible values include:
@@ -894,7 +862,6 @@ $event = \verbb\events\elements\Event::find()
 
 
 ### `with`
-
 Causes the query to return matching events eager-loaded with related elements.
 
 See [Eager-Loading Elements](https://craftcms.com/docs/4.x/eager-loading-elements.html) for a full explanation of how to work with this parameter.

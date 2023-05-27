@@ -1,5 +1,4 @@
 # Ticket Check In
-
 Once tickets have been purchased and delivered to the customer, you'll likely need a way to validate their ticket purchase at the venue on the day of the event. This is where the "Check In" functionality comes in handy.
 
 Events provides a simple controller action endpoint for you to trigger. This will also check if a customer has already checked in, preventing ticket re-use.
@@ -17,7 +16,6 @@ actions/events/ticket/checkin?sku=<sku>
 - `<sku>`: This is the ticket SKU which gets generated automatically at the purchase of the ticket. This SKU is unique.
 
 ### Return
-
 The controller will render a simple template with either an error, or a success message. An **error** the response contains a simple error message. On **success** the response contains following:
 
 If making the request via Ajax, a JSON response will be returned.
@@ -29,7 +27,6 @@ The returned response (JSON or template) will provide the following variables:
 - `purchasedTicket`: If successful, a [Purchased Ticket](docs:developers/purchased-ticket).
 
 ### Custom Template
-
 The template returned by this controller can be changed to a custom one of your choosing. Use this [checkinTemplate](https://verbb.io/craft-plugins/events/docs/get-started/configuration) config variable. In this instance, you could provide a template to show the appropriate response in a way that suits your site.
 
 An example of this template could be the following:

@@ -1,9 +1,7 @@
 # Events
-
 Events manage the tickets your customers can purchase. Tickets are very similar to Commerce Products, and in fact are [purchasables](https://craftcommerce.com/docs/purchasables), allowing it to make use of many core Commerce functions.
 
 ### Create an Event
-
 Go to the main section for Events in your control panel main menu. This will list all the events you've created.
 
 :::tip
@@ -11,8 +9,6 @@ Before you can start creating events, you'll first need to set up an [Event Type
 :::
 
 Each field is fairly self-explanatory, but any additional information is provided below.
-
-![Events Edit 3](/docs/screenshots/events-edit-3.png)
 
 - **Title**: Set up a title for your event to easily find it in the CP and display on the front-end.
 - **Start Date**: The event start date.
@@ -25,8 +21,6 @@ Each field is fairly self-explanatory, but any additional information is provide
 :::tip
 Any custom fields you've added to an Event Type will appear as tabs preceding the `Dates/Times` tab.
 :::
-
-![Event Tickets 2](/docs/screenshots/event-tickets-2.png)
 
 - **Total Capacity**: The total capacity controls the total available tickets for this event. You can control this for the entire event, or per-ticket.
 - **Ticket Type**: Select a ticket type this ticket should be associated with.

@@ -1,5 +1,4 @@
 # Purchased Ticket
-
 Whenever you're dealing with a purchased ticket in your template, you're actually working with a `PurchasedTicket` object.
 
 ## Attributes

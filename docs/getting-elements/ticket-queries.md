@@ -1,5 +1,4 @@
 # Ticket Queries
-
 You can fetch tickets in your templates or PHP code using **ticket queries**.
 
 ::: code
@@ -20,7 +19,6 @@ See [Introduction to Element Queries](https://craftcms.com/docs/4.x/element-quer
 :::
 
 ## Example
-
 We can display a specific ticket by its ID by doing the following:
 
 1. Create a ticket query with `craft.events.tickets()`.
@@ -52,7 +50,6 @@ We can display a specific ticket by its ID by doing the following:
 <!-- BEGIN PARAMS -->
 
 ### `anyStatus`
-
 Clears out the [status()](https://docs.craftcms.com/api/v4/craft-elements-db-elementquery.html#method-status) and [enabledForSite()](https://docs.craftcms.com/api/v4/craft-elements-db-elementquery.html#method-enabledforsite) parameters.
 
 ::: code
@@ -74,7 +71,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `asArray`
-
 Causes the query to return matching tickets as arrays of data, rather than [Ticket](docs:developers/ticket) objects.
 
 ::: code
@@ -96,7 +92,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `customer`
-
 Narrows the query results to only tickets that have been purchased by a customer.
 
 ::: code
@@ -118,7 +113,6 @@ $tickets = \verbb\events\elements\Event::find()
 
 
 ### `dateCreated`
-
 Narrows the query results based on the tickets’ creation dates.
 
 Possible values include:
@@ -154,7 +148,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `dateUpdated`
-
 Narrows the query results based on the tickets’ last-updated dates.
 
 Possible values include:
@@ -188,7 +181,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `fixedOrder`
-
 Causes the query results to be returned in the order specified by [id](#id).
 
 ::: code
@@ -212,7 +204,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `hasEvent`
-
 Narrows the query results to only tickets for certain events.
 
 Possible values include:
@@ -224,7 +215,6 @@ Possible values include:
 
 
 ### `id`
-
 Narrows the query results based on the tickets’ IDs.
 
 Possible values include:
@@ -259,7 +249,6 @@ This can be combined with [fixedOrder](#fixedorder) if you want the results to b
 
 
 ### `inReverse`
-
 Causes the query results to be returned in reverse order.
 
 ::: code
@@ -281,7 +270,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `limit`
-
 Determines the number of tickets that should be returned.
 
 ::: code
@@ -303,7 +291,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `offset`
-
 Determines how many tickets should be skipped in the results.
 
 ::: code
@@ -325,7 +312,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `orderBy`
-
 Determines the order that the tickets should be returned in.
 
 ::: code
@@ -347,7 +333,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `price`
-
 Narrows the query results based on the tickets’ price.
 
 Possible values include:
@@ -361,7 +346,6 @@ Possible values include:
 
 
 ### `event`
-
 Narrows the query results based on the tickets’ event.
 
 Possible values include:
@@ -373,7 +357,6 @@ Possible values include:
 
 
 ### `eventId`
-
 Narrows the query results based on the tickets’ events’ IDs.
 
 Possible values include:
@@ -387,7 +370,6 @@ Possible values include:
 
 
 ### `relatedTo`
-
 Narrows the query results to only tickets that are related to certain other elements.
 
 See [Relations](https://craftcms.com/docs/4.x/relations.html) for a full explanation of how to work with this parameter.
@@ -411,7 +393,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `search`
-
 Narrows the query results to only tickets that match a search query.
 
 See [Searching](https://craftcms.com/docs/4.x/searching.html) for a full explanation of how to work with this parameter.
@@ -441,7 +422,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `site`
-
 Determines which site the tickets should be queried in.
 
 The current site will be used by default.
@@ -472,7 +452,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `siteId`
-
 Determines which site the tickets should be queried in, per the site’s ID.
 
 The current site will be used by default.
@@ -496,7 +475,6 @@ $tickets = \verbb\events\elements\Ticket::find()
 
 
 ### `sku`
-
 Narrows the query results based on the tickets’ SKUs.
 
 Possible values include:
@@ -536,7 +514,6 @@ $ticket = \verbb\events\elements\Ticket::find()
 
 
 ### `quantity`
-
 Narrows the query results based on the tickets’ quantity.
 
 Possible values include:
@@ -550,7 +527,6 @@ Possible values include:
 
 
 ### `typeId`
-
 Narrows the query results based on the tickets’ types, per their IDs.
 
 Possible values include:
@@ -564,7 +540,6 @@ Possible values include:
 
 
 ### `uid`
-
 Narrows the query results based on the tickets’ UIDs.
 
 ::: code
@@ -586,7 +561,6 @@ $ticket = \verbb\events\elements\Ticket::find()
 
 
 ### `with`
-
 Causes the query to return matching tickets eager-loaded with related elements.
 
 See [Eager-Loading Elements](https://craftcms.com/docs/4.x/eager-loading-elements.html) for a full explanation of how to work with this parameter.

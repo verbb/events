@@ -1,5 +1,4 @@
 # Purchased Ticket Queries
-
 You can fetch purchased tickets in your templates or PHP code using **purchased ticket queries**.
 
 :::code
@@ -44,13 +43,11 @@ We can display purchased tickets for a given event by doing the following:
 ```
 
 ## Parameters
-
 Purchased Ticket queries support the following parameters:
 
 <!-- BEGIN PARAMS -->
 
 ### `asArray`
-
 Causes the query to return matching purchased tickets as arrays of data, rather than [PurchasedTicket](docs:developers/purchased-ticket) objects.
 
 ::: code
@@ -72,7 +69,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `customer`
-
 Narrows the query results to only purchased tickets that have been purchased by a customer.
 
 ::: code
@@ -96,7 +92,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `dateCreated`
-
 Narrows the query results based on the purchased tickets creation dates.
 
 Possible values include:
@@ -132,7 +127,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `dateUpdated`
-
 Narrows the query results based on the purchased tickets last-updated dates.
 
 Possible values include:
@@ -166,7 +160,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `eventId`
-
 Narrows the query results based on the purchased tickets' event ID.
 
 Possible values include:
@@ -196,7 +189,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `fixedOrder`
-
 Causes the query results to be returned in the order specified by [id](#id).
 
 ::: code
@@ -220,7 +212,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `id`
-
 Narrows the query results based on the purchased tickets IDs.
 
 Possible values include:
@@ -255,7 +246,6 @@ This can be combined with [fixedOrder](#fixedorder) if you want the results to b
 
 
 ### `inReverse`
-
 Causes the query results to be returned in reverse order.
 
 ::: code
@@ -277,7 +267,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `limit`
-
 Determines the number of purchased tickets that should be returned.
 
 ::: code
@@ -299,7 +288,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `lineItemId`
-
 Narrows the query results based on the purchased tickets Commerce line item ID.
 
 Possible values include:
@@ -329,7 +317,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `offset`
-
 Determines how many purchased tickets should be skipped in the results.
 
 ::: code
@@ -351,7 +338,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `orderId`
-
 Narrows the query results based on the purchased tickets Commerce order ID.
 
 Possible values include:
@@ -381,7 +367,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `orderBy`
-
 Determines the order that the purchased tickets should be returned in.
 
 ::: code
@@ -403,7 +388,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `relatedTo`
-
 Narrows the query results to only purchased tickets that are related to certain other elements.
 
 See [Relations](https://craftcms.com/docs/4.x/relations.html) for a full explanation of how to work with this parameter.
@@ -427,7 +411,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `ticketId`
-
 Narrows the query results based on the purchased tickets ticket ID.
 
 Possible values include:
@@ -457,7 +440,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `ticketType`
-
 Narrows the query results based on the purchased tickets ticket type.
 
 Possible values include:
@@ -488,7 +470,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `typeId`
-
 Narrows the query results based on the purchased tickets ticket type IDs.
 
 Possible values include:
@@ -519,7 +500,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `search`
-
 Narrows the query results to only purchased tickets that match a search query.
 
 See [Searching](https://craftcms.com/docs/4.x/searching.html) for a full explanation of how to work with this parameter.
@@ -549,7 +529,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `site`
-
 Determines which site the purchased tickets should be queried in.
 
 The current site will be used by default.
@@ -580,7 +559,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `siteId`
-
 Determines which site the purchased tickets should be queried in, per the site’s ID.
 
 The current site will be used by default.
@@ -604,7 +582,6 @@ $purchasedTickets = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `uid`
-
 Narrows the query results based on the purchased tickets UIDs.
 
 ::: code
@@ -626,7 +603,6 @@ $purchasedTicket = \verbb\events\elements\PurchasedTicket::find()
 
 
 ### `with`
-
 Causes the query to return matching purchased tickets eager-loaded with related elements.
 
 See [Eager-Loading Elements](https://craftcms.com/docs/4.x/eager-loading-elements.html) for a full explanation of how to work with this parameter.

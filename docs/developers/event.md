@@ -1,5 +1,4 @@
 # Event
-
 Whenever you're dealing with an event in your template, you're actually working with a `Event` object.
 
 ## Attributes

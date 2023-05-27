@@ -1,5 +1,4 @@
 # Single Event
-
 Once you've got a list of events, you'll want to allow your customers to drill-into a single event page for more detail. This takes many cues from the single Product page for Commerce.
 
 You'll have access to a `event` variable, which represents the single event you're looking at. You can also interchangeably use `product` if you wish.
@@ -65,7 +64,6 @@ If you wanted to only show the available tickets, and not show sold out ones, yo
 In addition, the check for `event.isAvailable` checks whether all tickets are sold out (or unavailable), and if so, will show a 'Sold Out' notice, that no tickets for this event are available.
 
 ## Adding tickets to your cart
-
 Adding a ticket to your cart works in very much the same way as [Craft Commerce](https://docs.craftcms.com/commerce/v3/adding-to-and-updating-the-cart.html):
 
 ```twig
@@ -89,7 +87,6 @@ Adding a ticket to your cart works in very much the same way as [Craft Commerce]
 ```
 
 ### Line item options
-
 You can also set additional data through [line item options](https://docs.craftcms.com/commerce/v3/adding-to-and-updating-the-cart.html#line-item-options-and-notes). These values can be whatever you like, and very flexible.
 
 ```twig
