@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.25 - 2023-05-27
+
+### Added
+- Add resave commands for events.
+
 ## 1.4.24 - 2022-12-25
 
 ### Added
