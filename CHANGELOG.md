@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0-beta.10 - 2023-05-27
+
+### Fixed
+- Fix an error for Feed Me when no event type is set.
+- Update PDF rendering to use correct events.
+
 ## 2.0.0-beta.9 - 2023-03-02
 
 ### Changed
