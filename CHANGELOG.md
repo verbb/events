@@ -1,76 +1,21 @@
 # Changelog
 
-## 2.0.0-beta.10 - 2023-05-27
-
-### Fixed
-- Fix an error for Feed Me when no event type is set.
-- Update PDF rendering to use correct events.
-
-## 2.0.0-beta.9 - 2023-03-02
-
-### Changed
-- Use `defineRules()` instead of `rules()` to allow validation overrides properly.
-- Update `Endroid\QrCode` code for new `endroid/qr-code` package version.
-- Only admins are now allowed to access plugin settings.
-
-### Fixed
-- Fix expired events still showing their front-end templates.
-- Fix type for `customer()` purchased ticket element query.
-- Fix Customer changeover to User.
-- Fix errors when saving events with invalid tickets.
-
-## 2.0.0-beta.8 - 2022-12-15
-
-### Changed
-- Update `endroid/qr-code:^4.0.0` dependancy.
-
-### Fixed
-- Fix Customer changeover to User (Commerce change).
-
-## 2.0.0-beta.7 - 2022-12-01
-
-### Fixed
-- Fix an error when editing an event with validation errors.
-
-## 2.0.0-beta.6 - 2022-11-30
-
-### Fixed
-- Fix an error when editing an event.
-- Fix an error when creating an event with empty ticket quantities.
-- Fix an error when deleting an event type.
-
-## 2.0.0-beta.5 - 2022-11-22
-
-### Fixed
-- Fix being unable to manage Events and Purchased tickets in the control panel due to Craft 4.3.2 changes.
-
-## 2.0.0-beta.4 - 2022-09-25
+## 2.0.0 - 2023-10-08
 
 ### Added
 - Add missing English Translations.
-
-### Fixed
-- Fix an error when creating an event with an empty capacity.
-- Fix an error running `resave` console commands.
-- Fix querying events by type not working correctly for multiple ticket types.
-- Fix querying purchased tickets by event type not working correctly for multiple ticket types.
-- Fix an error when uninstalling.
-- Fix being unable to view purchased ticket in the control panel.
-
-## 2.0.0-beta.3 - 2022-07-01
-
-### Fixed
-- Fix an incompatibility with SEOmatic.
-- Fix welcome screen icon alignment.
-
-## 2.0.0-beta.2 - 2022-06-08
-
-### Added
 - Add resave console command for elements.
 - Add checks for registering events for performance.
 - Add `archiveTableIfExists()` to install migration.
 
 ### Changed
+- Now requires PHP `^8.0.2`.
+- Now requires Craft `^4.0.0`.
+- Now requires Craft Commerce `^4.0.0`.
+- Update `endroid/qr-code:^4.0.0` dependancy.
+- Use `defineRules()` instead of `rules()` to allow validation overrides properly.
+- Update `Endroid\QrCode` code for new `endroid/qr-code` package version.
+- Only admins are now allowed to access plugin settings.
 - Memoize all services for performance.
 - Rename record classes.
 - Rename base plugin methods.
@@ -78,6 +23,26 @@
 - Now requires Events `1.4.20` in order to update from Craft 3.
 
 ### Fixed
+- Fix an error for Feed Me when no event type is set.
+- Update PDF rendering to use correct events.
+- Fix expired events still showing their front-end templates.
+- Fix type for `customer()` purchased ticket element query.
+- Fix Customer changeover to User.
+- Fix errors when saving events with invalid tickets.
+- Fix Customer changeover to User (Commerce change).
+- Fix an error when editing an event with validation errors.
+- Fix an error when editing an event.
+- Fix an error when creating an event with empty ticket quantities.
+- Fix an error when deleting an event type.
+- Fix being unable to manage Events and Purchased tickets in the control panel due to Craft 4.3.2 changes.
+- Fix an error when creating an event with an empty capacity.
+- Fix an error running `resave` console commands.
+- Fix querying events by type not working correctly for multiple ticket types.
+- Fix querying purchased tickets by event type not working correctly for multiple ticket types.
+- Fix an error when uninstalling.
+- Fix being unable to view purchased ticket in the control panel.
+- Fix an incompatibility with SEOmatic.
+- Fix welcome screen icon alignment.
 - Fix `project-config/rebuild` support.
 - Fix Feed Me support.
 - Fix an error when uninstalling.
@@ -89,13 +54,6 @@
 - Removed `Ticket::getPurchasedTicketsForLineItem`.
 - Update `minVersionRequired`.
 - Remove unneeded migrations.
-
-## 2.0.0-beta.1 - 2022-03-10
-
-### Changed
-- Now requires PHP `^8.0.2`.
-- Now requires Craft `^4.0.0-beta.1`.
-- Now requires Craft Commerce `^4.0.0-beta.1`.
 
 ## 1.4.26 - 2023-10-08
 
