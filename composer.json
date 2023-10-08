@@ -34,7 +34,7 @@
     },
     "autoload": {
         "psr-4": {
-          "verbb\\events\\": "src/"
+            "verbb\\events\\": "src/"
         }
     },
     "extra": {
