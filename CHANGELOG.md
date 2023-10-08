@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.26 - 2023-10-08
+
+### Fixed
+- Fix an issue when creating new sites and not propagating event types correctly.
+
 ## 1.4.25 - 2023-05-27
 
 ### Added
