@@ -97,6 +97,16 @@
 - Now requires Craft `^4.0.0-beta.1`.
 - Now requires Craft Commerce `^4.0.0-beta.1`.
 
+## 1.4.26 - 2023-10-08
+
+### Fixed
+- Fix an issue when creating new sites and not propagating event types correctly.
+
+## 1.4.25 - 2023-05-27
+
+### Added
+- Add resave commands for events.
+
 ## 1.4.24 - 2022-12-25
 
 ### Added
