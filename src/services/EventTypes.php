@@ -11,6 +11,7 @@ use verbb\events\records\EventTypeSiteRecord;
 
 use Craft;
 use craft\db\Query;
+use craft\db\Table;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\FieldEvent;
@@ -590,27 +591,18 @@ class EventTypes extends Component
 
     public function afterSaveSiteHandler(SiteEvent $event)
     {
+        $projectConfig = Craft::$app->getProjectConfig();
+
         if ($event->isNew) {
-            $primarySiteSettings = (new Query())
-                ->select([
-                    'eventTypes.uid eventTypeUid',
-                    'eventtypes_sites.uriFormat',
-                    'eventtypes_sites.template',
-                    'eventtypes_sites.hasUrls',
-                ])
-                ->from(['{{%events_eventtypes_sites}} eventtypes_sites'])
-                ->innerJoin(['{{%events_eventtypes}} eventTypes'], '[[eventtypes_sites.eventTypeId]] = [[eventTypes.id]]')
-                ->where(['siteId' => $event->oldPrimarySiteId])
-                ->one();
+            $oldPrimarySiteUid = Db::uidById(Table::SITES, $event->oldPrimarySiteId);
+            $existingEventTypeSettings = $projectConfig->get(self::CONFIG_EVENTTYPES_KEY);
 
-            if ($primarySiteSettings) {
-                $newSiteSettings = [
-                    'uriFormat' => $primarySiteSettings['uriFormat'],
-                    'template' => $primarySiteSettings['template'],
-                    'hasUrls' => $primarySiteSettings['hasUrls'],
-                ];
-
-                Craft::$app->getProjectConfig()->set(self::CONFIG_EVENTTYPES_KEY . '.' . $primarySiteSettings['eventTypeUid'] . '.siteSettings.' . $event->site->uid, $newSiteSettings);
+            if (!$projectConfig->getIsApplyingYamlChanges() && is_array($existingEventTypeSettings)) {
+                foreach ($existingEventTypeSettings as $eventTypeUid => $settings) {
+                    $primarySiteSettings = $settings['siteSettings'][$oldPrimarySiteUid];
+                    $configPath = self::CONFIG_EVENTTYPES_KEY . '.' . $eventTypeUid . '.siteSettings.' . $event->site->uid;
+                    $projectConfig->set($configPath, $primarySiteSettings);
+                }
             }
         }
     }
