@@ -50,6 +50,11 @@ class PurchasedTicket extends Element
         return 'purchasedTicket';
     }
 
+    public static function trackChanges(): bool
+    {
+        return true;
+    }
+
     public static function hasContent(): bool
     {
         return true;

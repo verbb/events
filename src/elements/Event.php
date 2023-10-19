@@ -60,6 +60,11 @@ class Event extends Element implements ExpirableElementInterface
         return 'event';
     }
 
+    public static function trackChanges(): bool
+    {
+        return true;
+    }
+
     public static function hasContent(): bool
     {
         return true;

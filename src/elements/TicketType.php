@@ -30,6 +30,11 @@ class TicketType extends Element
         return Craft::t('events', 'Ticket Types');
     }
 
+    public static function trackChanges(): bool
+    {
+        return true;
+    }
+
     public static function hasTitles(): bool
     {
         return true;
