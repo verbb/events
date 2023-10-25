@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1 - 2023-10-25
+
+### Fixed
+- Implement `Element::trackChanges()` for Blitz compatibility.
+
 ## 2.0.0 - 2023-10-08
 
 ### Added
