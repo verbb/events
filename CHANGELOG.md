@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2 - 2023-11-14
+
+### Changed
+- Allow event types to customise the Title attribute in field layouts.
+- Allow event types to use UI elements in their field layout.
+
 ## 2.0.1 - 2023-10-25
 
 ### Fixed
