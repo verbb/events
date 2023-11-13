@@ -8,6 +8,7 @@ use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
 use verbb\events\helpers\ProjectConfigData;
 use verbb\events\fields\Events as EventsField;
+use verbb\events\fieldlayoutelements\EventTitleField;
 use verbb\events\integrations\feedme\Event as FeedMeEvent;
 use verbb\events\integrations\seomatic\Event as SeomaticEvent;
 use verbb\events\models\Settings;
@@ -21,12 +22,14 @@ use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\events\DefineConsoleActionsEvent;
+use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Plugins;
@@ -85,6 +88,7 @@ class Events extends Plugin
         $this->_registerVariables();
         $this->_registerElementTypes();
         $this->_registerPurchasableTypes();
+        $this->_registerFieldLayoutElements();
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
             $this->_registerCpRoutes();
@@ -348,6 +352,15 @@ class Events extends Plugin
                 'options' => [],
                 'helpSummary' => 'Re-saves Events purchased tickets.',
             ];
+        });
+    }
+
+    private function _registerFieldLayoutElements(): void
+    {
+        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_NATIVE_FIELDS, static function(DefineFieldLayoutFieldsEvent $event) {
+            if ($event->sender->type === EventElement::class) {
+                $event->fields[] = EventTitleField::class;
+            }
         });
     }
 

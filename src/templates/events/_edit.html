@@ -114,22 +114,6 @@
     {% endif %}
 
     <div id="fields">
-        {% if eventType.hasTitleField or event.hasErrors('title') %}
-            {{ forms.textField({
-                label: eventType.titleLabel | t('site') | e ?: 'Title' | t('app'),
-                siteId: eventType.hasTitleField ? event.siteId,
-                id: 'title',
-                name: 'title',
-                value: event.title,
-                placeholder: 'Enter title' | t('app'),
-                errors: event.getErrors('title'),
-                first: true,
-                autofocus: true,
-                required: eventType.hasTitleField,
-                maxlength: 255,
-            }) }}
-        {% endif %}
-
         <div>
             {% set fieldLayout = eventType.getFieldLayout() %}
 
