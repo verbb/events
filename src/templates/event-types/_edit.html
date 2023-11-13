@@ -213,9 +213,9 @@
     </div>
 
     <div id="event-fields" class="hidden">
-        {% include '_includes/fieldlayoutdesigner' with {
+        {{ forms.fieldLayoutDesignerField({
             fieldLayout: eventType.getEventFieldLayout(),
-        } only %}
+        }) }}
     </div>
 
 {% endblock %}
