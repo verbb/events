@@ -25,6 +25,8 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -642,9 +644,19 @@ class Ticket extends Purchasable
         return $this->getType()->taxCategoryId;
     }
 
+    public function getTaxCategory(): TaxCategory
+    {
+        return $this->getType()->getTaxCategory();
+    }
+
     public function getShippingCategoryId(): int
     {
         return $this->getType()->shippingCategoryId;
+    }
+
+    public function getShippingCategory(): ShippingCategory
+    {
+        return $this->getType()->getShippingCategory();
     }
 
     public function getIsShippable(): bool
