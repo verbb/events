@@ -322,7 +322,7 @@ class Ticket extends Purchasable
         $this->_event = $event;
     }
 
-    public function getType()
+    public function getType(): ?TicketType
     {
         if ($this->_ticketType !== null) {
             return $this->_ticketType;
@@ -341,6 +341,11 @@ class Ticket extends Purchasable
         return $this->_ticketType = $ticketType;
     }
 
+    public function setType(TicketType $type): void
+    {
+        $this->_ticketType = $type;
+    }
+
     public function attributeLabels(): array
     {
         $labels = parent::attributeLabels();
@@ -350,12 +355,6 @@ class Ticket extends Purchasable
 
     public function getIsEditable(): bool
     {
-        /*$event = $this->getEvent();
-
-        if ($event) {
-            return $event->getIsEditable();
-        }*/
-
         return false;
     }
 
