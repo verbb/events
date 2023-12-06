@@ -431,6 +431,22 @@ class Ticket extends Purchasable
     {
         $errors = [];
 
+        $cart = Commerce::getInstance()->getCarts()->getCart();
+
+        // Get the total number of tickets for the same event and ticket type. We can't just rely on quantity
+        // of this line item as there could be tickets with unique options set, which are separate line items.
+        $orderQty = 0;
+
+        foreach ($cart->lineItems as $cartLineItem) {
+            // Check for ticket line items, but don't include _this_ one we're adding
+            if ($cartLineItem->purchasable instanceof self && $cartLineItem->id !== $lineItem->id) {
+                // We should check for the same event and ticket type
+                if ($cartLineItem->purchasable->eventId === $this->eventId && $cartLineItem->purchasable->typeId === $this->typeId) {
+                    $orderQty += $cartLineItem->qty;
+                }
+            }
+        }
+
         if ($lineItem->purchasable === $this) {
             $ticketCapacity = $lineItem->purchasable->quantity;
             $eventCapacity = $lineItem->purchasable->event->capacity;
@@ -460,14 +476,17 @@ class Ticket extends Purchasable
                 $availableTickets = 0;
             }
 
-            if ($lineItem->qty > $availableTickets) {
+            $quantity = $lineItem->qty + $orderQty;
+
+            if ($quantity > $availableTickets) {
+                // Set the line item quantity to the max amount available
                 $lineItem->qty = $availableTickets;
+
                 $errors[] = 'You reached the maximum ticket quantity for ' . $lineItem->purchasable->getDescription();
             }
         }
 
         if ($errors) {
-            $cart = Commerce::getInstance()->getCarts()->getCart();
             $cart->addErrors($errors);
 
             Craft::$app->getSession()->setError(implode(',', $errors));
