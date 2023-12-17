@@ -435,14 +435,20 @@ class Ticket extends Purchasable
 
         // Get the total number of tickets for the same event and ticket type. We can't just rely on quantity
         // of this line item as there could be tickets with unique options set, which are separate line items.
-        $orderQty = 0;
+        // Keep track of both the event-wide and ticket type specific quantities.
+        $eventCapacityOffset = 0;
+        $ticketQuantityOffset = 0;
 
         foreach ($cart->lineItems as $cartLineItem) {
             // Check for ticket line items, but don't include _this_ one we're adding
             if ($cartLineItem->purchasable instanceof self && $cartLineItem->id !== $lineItem->id) {
                 // We should check for the same event and ticket type
-                if ($cartLineItem->purchasable->eventId === $this->eventId && $cartLineItem->purchasable->typeId === $this->typeId) {
-                    $orderQty += $cartLineItem->qty;
+                if ($cartLineItem->purchasable->eventId === $this->eventId) {
+                    $eventCapacityOffset += $cartLineItem->qty;
+
+                    if ($cartLineItem->purchasable->typeId === $this->typeId) {
+                        $ticketQuantityOffset += $cartLineItem->qty;
+                    }
                 }
             }
         }
@@ -468,6 +474,10 @@ class Ticket extends Purchasable
 
             $eventAvailable = $lineItem->purchasable->event->getAvailableCapacity();
 
+            // Factor in offsets for current cart data for other line items
+            $eventAvailable -= $eventCapacityOffset;
+            $ticketCapacity -= $ticketQuantityOffset;
+
             // Find the smallest number, out of the ticket or event capacity
             $availableTickets = min([$ticketCapacity, $eventAvailable]);
 
@@ -476,9 +486,7 @@ class Ticket extends Purchasable
                 $availableTickets = 0;
             }
 
-            $quantity = $lineItem->qty + $orderQty;
-
-            if ($quantity > $availableTickets) {
+            if ($lineItem->qty > $availableTickets) {
                 // Set the line item quantity to the max amount available
                 $lineItem->qty = $availableTickets;
 
