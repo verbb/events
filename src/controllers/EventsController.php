@@ -359,7 +359,7 @@ class EventsController extends Controller
 
         if (empty($variables['tickets'])) {
             if ($variables['event']->id) {
-                $variables['tickets'] = Events::$plugin->getTickets()->getAllTicketsByEventId($variables['event']->id);
+                $variables['tickets'] = Events::$plugin->getTickets()->getAllTicketsByEventId($variables['event']->id, $variables['site']->id);
             } else {
                 // Always have at least one row for new events
                 $variables['tickets'] = [];
