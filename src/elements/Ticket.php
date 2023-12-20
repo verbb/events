@@ -334,7 +334,7 @@ class Ticket extends Purchasable
             return null;
         }
 
-        $ticketType = Events::$plugin->getTicketTypes()->getTicketTypeById($this->typeId);
+        $ticketType = TicketType::find()->id($this->typeId)->siteId($this->siteId)->one();
 
         if ($ticketType === null) {
             // throw new InvalidConfigException('Invalid ticket type ID: ' . $this->typeId);
