@@ -68,7 +68,7 @@ class EventsController extends Controller
         $variables['baseCpEditUrl'] = 'events/events/' . $variables['eventTypeHandle'] . '/{id}-{slug}';
 
         // Set the "Continue Editing" URL
-        $variables['continueEditingUrl'] = $variables['baseCpEditUrl'] . (Craft::$app->getIsMultiSite() && Craft::$app->getSites()->currentSite->id !== $variables['site']->id ? '/' . $variables['site']->handle : '');
+        $variables['continueEditingUrl'] = $variables['baseCpEditUrl'];
 
         $this->_prepVariables($variables);
 
