@@ -37,7 +37,7 @@ class DownloadsController extends Controller
         $order = [];
         $lineItem = null;
 
-        $number = $request->getParam('number');
+        $number = $request->getRequiredParam('number');
         $option = $request->getParam('option', '');
         $lineItemId = $request->getParam('lineItemId', '');
         $ticketId = $request->getParam('ticketId', '');
