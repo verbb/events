@@ -396,10 +396,6 @@ class Event extends Element implements ExpirableElementInterface
         // The slug *might* not be set if this is a Draft, and they've deleted it for whatever reason
         $url = UrlHelper::cpUrl('events/events/' . $eventType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
 
-        if (Craft::$app->getIsMultiSite()) {
-            $url .= '/' . $this->getSite()->handle;
-        }
-
         return $url;
     }
 
