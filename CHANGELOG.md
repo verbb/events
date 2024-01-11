@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.0.3 - 2024-01-12
+
+### Added
+- Add `Ticket::getShippingCategory()`, `Ticket::getTaxCategory()`, `TicketType::getShippingCategory()` and `TicketType::getTaxCategory()`.
+- Add `setType()` for tickets.
+
+### Changed
+- Rename `Share` button to `View` when editing an event in the control panel.
+
+### Fixed
+- Fix duplicated events not duplicating their tickets.
+- Fix incorrect edit link for events.
+- Fix an error when requesting PDF tickets when no order was specified.
+- Fix a Ticket’s Ticket Type not loading the correct site according to the Ticket’s own site.
+- Fix when editing an event - tickets weren’t loaded for the correct site.
+- Fix lack of proper multi-site support when editing events.
+- Fix ticket capacity checks not working for multiple ticket types in cart.
+- Fix incorrectly checking for ticket quantity when using unique ticket line items.
+- Fix being unable to set ticket quantity to `null`.
+
 ## 2.0.2 - 2023-11-14
 
 ### Changed
