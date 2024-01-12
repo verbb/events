@@ -3,6 +3,7 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 use verbb\events\elements\PurchasedTicket;
+use verbb\events\helpers\Locale;
 use verbb\events\models\Settings;
 
 use Craft;
@@ -45,6 +46,15 @@ class DownloadsController extends Controller
         $format = $request->getParam('format');
         $attach = $request->getParam('attach');
 
+        $siteHandle = $request->getParam('site');
+        $site = Craft::$app->getSites()->getPrimarySite();
+
+        if ($siteHandle) {
+            if ($requestedSite = Craft::$app->getSites()->getSiteByHandle($siteHandle)) {
+                $site = $requestedSite;
+            }
+        }
+
         if ($number) {
             $order = Commerce::getInstance()->getOrders()->getOrderByNumber($number);
 
@@ -69,9 +79,18 @@ class DownloadsController extends Controller
 
         $purchasedTickets->all();
 
-        $pdf = Events::$plugin->getPdf()->renderPdf($purchasedTickets, $order, $lineItem, $option);
-        $filenameFormat = $settings->ticketPdfFilenameFormat;
+        // Switch to use the correct site/language
+        $originalLanguage = Craft::$app->language;
+        $originalFormattingLocale = Craft::$app->formattingLocale;
 
+        Locale::switchAppLanguage($site->language);
+
+        $pdf = Events::$plugin->getPdf()->renderPdf($purchasedTickets, $order, $lineItem, $option);
+
+        // Set previous language back
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
+
+        $filenameFormat = $settings->ticketPdfFilenameFormat;
         $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);
 
         if (!$fileName) {
