@@ -375,7 +375,7 @@ class Ticket extends Purchasable
         }
     }
 
-    public function availableQuantity(): bool
+    public function availableQuantity(): mixed
     {
         // Check if the event overall even has anymore to buy - that's a hard-unavailable
         if ($this->event->getAvailableCapacity() < 1) {
