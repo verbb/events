@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.4 - 2024-01-30
+
+### Added
+- PDFs now support using the current site’s locale language and formatting.
+
+### Fixed
+- Fix an error when viewing purchased tickets.
+- Fix type for `Ticket::availableQuantity()`.
+
 ## 2.0.3 - 2024-01-12
 
 ### Added
