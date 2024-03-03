@@ -1,6 +1,7 @@
 <?php
 namespace verbb\events\services;
 
+use verbb\events\Events;
 use verbb\events\elements\Event;
 use verbb\events\errors\EventTypeNotFoundException;
 use verbb\events\events\EventTypeEvent;
@@ -121,7 +122,7 @@ class EventTypes extends Component
         }
 
         if ($runValidation && !$eventType->validate()) {
-            Craft::info('Event type not saved due to validation error.', __METHOD__);
+            Events::info('Event type not saved due to validation error.');
 
             return false;
         }
@@ -280,15 +281,10 @@ class EventTypes extends Component
                 if (!empty($siteData)) {
                     // Drop the old event URIs for any site settings that don't have URLs
                     if (!empty($sitesNowWithoutUrls)) {
-                        $db->createCommand()
-                            ->update(
-                                '{{%elements_sites}}',
-                                ['uri' => null],
-                                [
-                                    'elementId' => $eventIds,
-                                    'siteId' => $sitesNowWithoutUrls,
-                                ])
-                            ->execute();
+                        Db::update('{{%elements_sites}}', ['uri' => null], [
+                            'elementId' => $eventIds,
+                            'siteId' => $sitesNowWithoutUrls,
+                        ]);
                     } else if (!empty($sitesWithNewUriFormats)) {
                         foreach ($eventIds as $eventId) {
                             App::maxPowerCaptain();
@@ -464,7 +460,7 @@ class EventTypes extends Component
     }
 
 
-    // Private methods
+    // Private Methods
     // =========================================================================
 
     private function _eventTypes(): MemoizableArray

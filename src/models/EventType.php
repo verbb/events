@@ -47,17 +47,9 @@ class EventType extends Model
         return $this->handle;
     }
 
-    public function behaviors(): array
+    public function getCpEditUrl(): ?string
     {
-        $behaviors = parent::behaviors();
-
-        $behaviors['eventFieldLayout'] = [
-            'class' => FieldLayoutBehavior::class,
-            'elementType' => Event::class,
-            'idAttribute' => 'fieldLayoutId',
-        ];
-
-        return $behaviors;
+        return UrlHelper::cpUrl('events/event-types/' . $this->id);
     }
 
     public function attributeLabels(): array
@@ -68,42 +60,6 @@ class EventType extends Model
             'titleFormat' => Craft::t('app', 'Title Format'),
             'titleLabel' => Craft::t('app', 'Title Field Label'),
         ];
-    }
-
-    public function defineRules(): array
-    {
-        $rules = parent::defineRules();
-
-        $rules[] = [['id', 'fieldLayoutId'], 'number', 'integerOnly' => true];
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['name', 'handle'], 'string', 'max' => 255];
-
-        $rules[] = [
-            ['handle'],
-            UniqueValidator::class,
-            'targetClass' => EventTypeRecord::class,
-            'targetAttribute' => ['handle'],
-            'message' => 'Not Unique',
-        ];
-
-        $rules[] = [
-            ['handle'],
-            HandleValidator::class,
-            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title'],
-        ];
-
-        if ($this->hasTitleField) {
-            $rules[] = [['titleLabel'], 'required'];
-        } else {
-            $rules[] = [['titleFormat'], 'required'];
-        }
-
-        return $rules;
-    }
-
-    public function getCpEditUrl(): string
-    {
-        return UrlHelper::cpUrl('events/event-types/' . $this->id);
     }
 
     public function getSiteSettings(): array
@@ -212,5 +168,53 @@ class EventType extends Model
         }
 
         return $config;
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+
+        $rules[] = [['id', 'fieldLayoutId'], 'number', 'integerOnly' => true];
+        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [['name', 'handle'], 'string', 'max' => 255];
+
+        $rules[] = [
+            ['handle'],
+            UniqueValidator::class,
+            'targetClass' => EventTypeRecord::class,
+            'targetAttribute' => ['handle'],
+            'message' => 'Not Unique',
+        ];
+
+        $rules[] = [
+            ['handle'],
+            HandleValidator::class,
+            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title'],
+        ];
+
+        if ($this->hasTitleField) {
+            $rules[] = [['titleLabel'], 'required'];
+        } else {
+            $rules[] = [['titleFormat'], 'required'];
+        }
+
+        return $rules;
+    }
+
+    protected function defineBehaviors(): array
+    {
+        $behaviors = parent::defineBehaviors();
+
+        $behaviors['eventFieldLayout'] = [
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Event::class,
+            'idAttribute' => 'fieldLayoutId',
+        ];
+
+        return $behaviors;
     }
 }

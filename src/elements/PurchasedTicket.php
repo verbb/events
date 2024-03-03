@@ -50,11 +50,6 @@ class PurchasedTicket extends Element
         return 'purchasedTicket';
     }
 
-    public static function hasContent(): bool
-    {
-        return true;
-    }
-
     public static function find(): PurchasedTicketQuery
     {
         return new PurchasedTicketQuery(static::class);
@@ -208,11 +203,6 @@ class PurchasedTicket extends Element
     public function canDelete(User $user): bool
     {
         return $user->can('events-managePurchasedTickets');
-    }
-
-    public function getCpEditUrl(): ?string
-    {
-        return UrlHelper::cpUrl('events/purchased-tickets/' . $this->id);
     }
 
     public function canDeleteForSite(User $user): bool
@@ -379,7 +369,7 @@ class PurchasedTicket extends Element
     // Protected Methods
     // =========================================================================
 
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'eventId':
@@ -387,7 +377,7 @@ class PurchasedTicket extends Element
                 $event = $this->getEvent();
 
                 if ($event) {
-                    return "<a href='" . $event->cpEditUrl . "'>" . $event->title . "</a>";
+                    return "<a href='" . $event->getCpEditUrl() . "'>" . $event->title . "</a>";
                 }
 
                 return Craft::t('events', '[Deleted event]');
@@ -397,7 +387,7 @@ class PurchasedTicket extends Element
                 $ticket = $this->getTicket();
 
                 if ($ticket) {
-                    return "<a href='" . $ticket->cpEditUrl . "'>" . $ticket->title . "</a>";
+                    return "<a href='" . $ticket->getCpEditUrl() . "'>" . $ticket->title . "</a>";
                 }
 
                 return Craft::t('events', '[Deleted ticket]');
@@ -407,7 +397,7 @@ class PurchasedTicket extends Element
                 $order = $this->getOrder();
 
                 if ($order) {
-                    return "<a href='" . $order->cpEditUrl . "'>" . $order->reference . "</a>";
+                    return "<a href='" . $order->getCpEditUrl() . "'>" . $order->reference . "</a>";
                 }
 
                 return Craft::t('events', '[Deleted order]');
@@ -454,8 +444,13 @@ class PurchasedTicket extends Element
             }
             default:
             {
-                return parent::tableAttributeHtml($attribute);
+                return parent::attributeHtml($attribute);
             }
         }
+    }
+
+    protected function cpEditUrl(): ?string
+    {
+        return UrlHelper::cpUrl('events/purchased-tickets/' . $this->id);
     }
 }

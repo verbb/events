@@ -76,12 +76,9 @@ class Events extends Plugin
 
         self::$plugin = $this;
 
-        $this->_registerComponents();
-        $this->_registerLogTarget();
         $this->_registerFieldTypes();
-        $this->_registerCraftEventListeners();
-        $this->_registerThirdPartyEventListeners();
-        $this->_registerProjectConfigEventListeners();
+        $this->_registerEventHandlers();
+        $this->_registerProjectConfigEventHandlers();
         $this->_registerVariables();
         $this->_registerElementTypes();
         $this->_registerPurchasableTypes();
@@ -247,12 +244,11 @@ class Events extends Plugin
     private function _registerVariables(): void
     {
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
-            $variable = $event->sender;
-            $variable->set('events', EventsVariable::class);
+            $event->sender->set('events', EventsVariable::class);
         });
     }
 
-    private function _registerProjectConfigEventListeners(): void
+    private function _registerProjectConfigEventHandlers(): void
     {
         $projectConfigService = Craft::$app->getProjectConfig();
 
@@ -268,7 +264,7 @@ class Events extends Plugin
         });
     }
 
-    private function _registerCraftEventListeners(): void
+    private function _registerEventHandlers(): void
     {
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEventTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEvents(), 'afterSaveSiteHandler']);
@@ -279,10 +275,7 @@ class Events extends Plugin
                 throw new Exception('Events required Commerce to be installed.');
             }
         });
-    }
 
-    private function _registerThirdPartyEventListeners(): void
-    {
         if (class_exists(Track::class)) {
             Event::on(Track::class, Track::ADD_LINE_ITEM_CUSTOM_PROPERTIES, [$this->getKlaviyoConnect(), 'addLineItemCustomProperties']);
         }

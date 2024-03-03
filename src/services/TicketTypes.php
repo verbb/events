@@ -60,7 +60,7 @@ class TicketTypes extends Component
     }
 
 
-    // Private methods
+    // Private Methods
     // =========================================================================
 
     private function _ticketTypes(): MemoizableArray

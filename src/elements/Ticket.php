@@ -15,9 +15,11 @@ use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
+use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
 use craft\models\FieldLayout;
 
 use craft\commerce\Plugin as Commerce;
@@ -61,11 +63,6 @@ class Ticket extends Purchasable
     public static function refHandle(): ?string
     {
         return 'ticket';
-    }
-
-    public static function hasContent(): bool
-    {
-        return true;
     }
 
     public static function hasStatuses(): bool
@@ -233,42 +230,6 @@ class Ticket extends Purchasable
         return $this->title;
     }
 
-    public function defineRules(): array
-    {
-        $rules = parent::defineRules();
-
-        $rules[] = [['sku'], 'string'];
-        $rules[] = [['sku', 'price', 'typeId'], 'required'];
-        $rules[] = [['price'], 'number'];
-
-        $rules[] = [
-            ['availableFrom'], function($model) {
-                if ($this->availableFrom >= $this->availableTo) {
-                    $this->addError('availableFrom', Craft::t('events', 'Available From must be before Available To'));
-                }
-            },
-        ];
-
-        $rules[] = [
-            ['availableFrom', 'availableTo'], function($model) {
-                $event = $this->getEvent();
-                $endDate = $event ? $event->endDate : null;
-
-                if ($endDate) {
-                    if ($this->availableFrom >= $endDate) {
-                        $this->addError('availableFrom', Craft::t('events', 'Available From must be before the event End Date'));
-                    }
-
-                    if ($this->availableTo >= $endDate) {
-                        $this->addError('availableTo', Craft::t('events', 'Available To must be before the event End Date'));
-                    }
-                }
-            },
-        ];
-
-        return $rules;
-    }
-
     public function extraFields(): array
     {
         $names = parent::extraFields();
@@ -359,18 +320,13 @@ class Ticket extends Purchasable
         return false;
     }
 
-    public function getCpEditUrl(): ?string
-    {
-        return $this->getEvent() ? $this->getEvent()->getCpEditUrl() : null;
-    }
-
-    public function setEagerLoadedElements(string $handle, array $elements): void
+    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         if ($handle == 'event') {
             $event = $elements[0] ?? null;
             $this->setEvent($event);
         } else {
-            parent::setEagerLoadedElements($handle, $elements);
+            parent::setEagerLoadedElements($handle, $elements, $plan);
         }
     }
 
@@ -476,9 +432,7 @@ class Ticket extends Purchasable
     public function afterOrderComplete(Order $order, LineItem $lineItem): void
     {
         // Reduce quantity
-        Craft::$app->getDb()->createCommand()->update('{{%events_tickets}}',
-            ['quantity' => new Expression('quantity - :qty', [':qty' => $lineItem->qty])],
-            ['id' => $this->id])->execute();
+        Db::update('{{%events_tickets}}', ['quantity' => new Expression('quantity - :qty', [':qty' => $lineItem->qty])], ['id' => $this->id]);
 
         // Update the quantity
         $this->quantity = (new Query())
@@ -686,11 +640,7 @@ class Ticket extends Purchasable
             return false;
         }
 
-        Craft::$app->getDb()->createCommand()
-            ->update('{{%events_tickets}}', [
-                'deletedWithEvent' => $this->deletedWithEvent,
-            ], ['id' => $this->id], [], false)
-            ->execute();
+        Db::update('{{%events_tickets}}', ['deletedWithEvent' => $this->deletedWithEvent], ['id' => $this->id], [], false);
 
         return true;
     }
@@ -714,26 +664,56 @@ class Ticket extends Purchasable
             $this->sku = $this->getSku() . '-1';
 
             // Update ticket table with new SKU
-            Craft::$app->getDb()->createCommand()->update('{{%events_tickets}}',
-                ['sku' => $this->sku],
-                ['id' => $this->getId()]
-            )->execute();
+            Db::update('{{%events_tickets}}', ['sku' => $this->sku], ['id' => $this->getId()]);
 
             // Update purchasable table with new SKU
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_purchasables}}',
-                ['sku' => $this->sku],
-                ['id' => $this->getId()]
-            )->execute();
+            Db::update('{{%commerce_purchasables}}', ['sku' => $this->sku], ['id' => $this->getId()]);
         }
 
         return true;
     }
 
 
-    // Protected methods
+    // Protected Methods
     // =========================================================================
 
-    protected function tableAttributeHtml(string $attribute): string
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+
+        $rules[] = [['sku'], 'string'];
+        $rules[] = [['sku', 'price', 'typeId'], 'required'];
+        $rules[] = [['price'], 'number'];
+
+        $rules[] = [
+            ['availableFrom'], function($model) {
+                if ($this->availableFrom >= $this->availableTo) {
+                    $this->addError('availableFrom', Craft::t('events', 'Available From must be before Available To'));
+                }
+            },
+        ];
+
+        $rules[] = [
+            ['availableFrom', 'availableTo'], function($model) {
+                $event = $this->getEvent();
+                $endDate = $event ? $event->endDate : null;
+
+                if ($endDate) {
+                    if ($this->availableFrom >= $endDate) {
+                        $this->addError('availableFrom', Craft::t('events', 'Available From must be before the event End Date'));
+                    }
+
+                    if ($this->availableTo >= $endDate) {
+                        $this->addError('availableTo', Craft::t('events', 'Available To must be before the event End Date'));
+                    }
+                }
+            },
+        ];
+
+        return $rules;
+    }
+
+    protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'event':
@@ -750,9 +730,14 @@ class Ticket extends Purchasable
 
             default:
             {
-                return parent::tableAttributeHtml($attribute);
+                return parent::attributeHtml($attribute);
             }
         }
+    }
+
+    protected function cpEditUrl(): ?string
+    {
+        return $this->getEvent() ? $this->getEvent()->getCpEditUrl() : null;
     }
 
 }

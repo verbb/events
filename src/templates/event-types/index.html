@@ -28,7 +28,7 @@
     {% set tableData = tableData | merge([{
         id: type.id,
         title: type.name | t('site'),
-        url: editable ? type.cpEditUrl : '',
+        url: editable ? type.getCpEditUrl() : '',
         handle: type.handle | e,
         _showDelete: editable,
     }]) %}

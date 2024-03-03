@@ -10,36 +10,44 @@ use verbb\events\services\PurchasedTickets;
 use verbb\events\services\Tickets;
 use verbb\events\services\TicketTypes;
 
+use verbb\base\LogTrait;
+use verbb\base\helpers\Plugin;
+
 use verbb\events\integrations\klaviyoconnect\KlaviyoConnect;
-use verbb\base\BaseHelper;
-
-use Craft;
-
-use yii\log\Logger;
 
 trait PluginTrait
 {
     // Properties
     // =========================================================================
 
-    public static Events $plugin;
+    public static ?Events $plugin = null;
 
+
+    // Traits
+    // =========================================================================
+
+    use LogTrait;
+    
 
     // Static Methods
     // =========================================================================
 
-    public static function log(string $message, array $params = []): void
+    public static function config(): array
     {
-        $message = Craft::t('events', $message, $params);
+        Plugin::bootstrapPlugin('events');
 
-        Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'events');
-    }
-
-    public static function error(string $message, array $params = []): void
-    {
-        $message = Craft::t('events', $message, $params);
-
-        Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'events');
+        return [
+            'components' => [
+                'events' => EventsService::class,
+                'eventTypes' => EventTypes::class,
+                'ics' => Ics::class,
+                'klaviyoConnect' => KlaviyoConnect::class,
+                'pdf' => Pdf::class,
+                'purchasedTickets' => PurchasedTickets::class,
+                'tickets' => Tickets::class,
+                'ticketTypes' => TicketTypes::class,
+            ],
+        ];
     }
 
 
@@ -84,31 +92,6 @@ trait PluginTrait
     public function getTicketTypes(): TicketTypes
     {
         return $this->get('ticketTypes');
-    }
-
-
-    // Private Methods
-    // =========================================================================
-
-    private function _registerComponents(): void
-    {
-        $this->setComponents([
-            'events' => EventsService::class,
-            'eventTypes' => EventTypes::class,
-            'ics' => Ics::class,
-            'klaviyoConnect' => KlaviyoConnect::class,
-            'pdf' => Pdf::class,
-            'purchasedTickets' => PurchasedTickets::class,
-            'tickets' => Tickets::class,
-            'ticketTypes' => TicketTypes::class,
-        ]);
-
-        BaseHelper::registerModule();
-    }
-
-    private function _registerLogTarget(): void
-    {
-        BaseHelper::setFileLogging('events');
     }
 
 }

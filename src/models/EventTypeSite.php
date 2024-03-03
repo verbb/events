@@ -68,7 +68,11 @@ class EventTypeSite extends Model
         return $this->_site;
     }
 
-    public function defineRules(): array
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function defineRules(): array
     {
         $rules = parent::defineRules();
 

@@ -16,6 +16,11 @@ class Events extends BaseRelationField
         return Craft::t('events', 'Events');
     }
 
+    public static function icon(): string
+    {
+        return '@verbb/events/icon-mask.svg';
+    }
+
     public static function elementType(): string
     {
         return Event::class;

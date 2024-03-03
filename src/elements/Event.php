@@ -13,10 +13,11 @@ use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\base\ExpirableElementInterface;
 use craft\db\Query;
-use craft\elements\User;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
+use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
@@ -58,11 +59,6 @@ class Event extends Element implements ExpirableElementInterface
     public static function refHandle(): ?string
     {
         return 'event';
-    }
-
-    public static function hasContent(): bool
-    {
-        return true;
     }
 
     public static function hasTitles(): bool
@@ -338,41 +334,6 @@ class Event extends Element implements ExpirableElementInterface
         return null;
     }
 
-    public function defineRules(): array
-    {
-        $rules = parent::defineRules();
-
-        $rules[] = [['typeId'], 'number', 'integerOnly' => true];
-        $rules[] = [['startDate', 'endDate', 'postDate', 'expiryDate'], DateTimeValidator::class];
-
-        $rules[] = [
-            ['startDate'], function($model) {
-                if ($this->startDate >= $this->endDate && !$this->allDay) {
-                    $this->addError('startDate', Craft::t('events', 'Start Date must be before End Date'));
-                }
-            },
-        ];
-
-        $rules[] = [
-            ['tickets'], function($model) {
-                foreach ($this->getTickets() as $ticket) {
-                    // Break immediately if no ticket type set, also check for other ticket validation errors
-                    if (!$ticket->typeId) {
-                        $this->addError('tickets', Craft::t('events', 'Ticket type must be set.'));
-
-                        $ticket->addError('typeIds', Craft::t('events', 'Ticket type must be set.'));
-                    } else if (!$ticket->validate()) {
-                        $error = $ticket->getErrors()[0] ?? 'An error occurred';
-
-                        $this->addError('tickets', Craft::t('events', $error));
-                    }
-                }
-            },
-        ];
-
-        return $rules;
-    }
-
     public function getIsEditable(): bool
     {
         if ($this->getType()) {
@@ -382,20 +343,6 @@ class Event extends Element implements ExpirableElementInterface
         }
 
         return false;
-    }
-
-    public function getCpEditUrl(): ?string
-    {
-        $eventType = $this->getType();
-
-        // The slug *might* not be set if this is a Draft, and they've deleted it for whatever reason
-        $url = UrlHelper::cpUrl('events/events/' . $eventType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
-
-        if (Craft::$app->getIsMultiSite()) {
-            $url .= '/' . $this->getSite()->handle;
-        }
-
-        return $url;
     }
 
     public function getFieldLayout(): ?FieldLayout
@@ -417,15 +364,6 @@ class Event extends Element implements ExpirableElementInterface
         }
 
         return $eventTypeSiteSettings[$this->siteId]->uriFormat;
-    }
-
-    public function getSearchKeywords(string $attribute): string
-    {
-        if ($attribute === 'sku') {
-            return implode(' ', ArrayHelper::getColumn($this->getTickets(), 'sku'));
-        }
-
-        return parent::getSearchKeywords($attribute);
     }
 
     public function getType(): EventType
@@ -513,12 +451,12 @@ class Event extends Element implements ExpirableElementInterface
         }
     }
 
-    public function setEagerLoadedElements(string $handle, array $elements): void
+    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         if ($handle == 'tickets') {
             $this->setTickets($elements);
         } else {
-            parent::setEagerLoadedElements($handle, $elements);
+            parent::setEagerLoadedElements($handle, $elements, $plan);
         }
     }
 
@@ -758,8 +696,43 @@ class Event extends Element implements ExpirableElementInterface
     }
 
 
-    // Protected methods
+    // Protected Methods
     // =========================================================================
+
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+
+        $rules[] = [['typeId'], 'number', 'integerOnly' => true];
+        $rules[] = [['startDate', 'endDate', 'postDate', 'expiryDate'], DateTimeValidator::class];
+
+        $rules[] = [
+            ['startDate'], function($model) {
+                if ($this->startDate >= $this->endDate && !$this->allDay) {
+                    $this->addError('startDate', Craft::t('events', 'Start Date must be before End Date'));
+                }
+            },
+        ];
+
+        $rules[] = [
+            ['tickets'], function($model) {
+                foreach ($this->getTickets() as $ticket) {
+                    // Break immediately if no ticket type set, also check for other ticket validation errors
+                    if (!$ticket->typeId) {
+                        $this->addError('tickets', Craft::t('events', 'Ticket type must be set.'));
+
+                        $ticket->addError('typeIds', Craft::t('events', 'Ticket type must be set.'));
+                    } else if (!$ticket->validate()) {
+                        $error = $ticket->getErrors()[0] ?? 'An error occurred';
+
+                        $this->addError('tickets', Craft::t('events', $error));
+                    }
+                }
+            },
+        ];
+
+        return $rules;
+    }
 
     protected function route(): array|string|null
     {
@@ -787,14 +760,37 @@ class Event extends Element implements ExpirableElementInterface
         ];
     }
 
-    protected function tableAttributeHtml(string $attribute): string
+    protected function searchKeywords(string $attribute): string
+    {
+        if ($attribute === 'sku') {
+            return implode(' ', ArrayHelper::getColumn($this->getTickets(), 'sku'));
+        }
+
+        return parent::searchKeywords($attribute);
+    }
+
+    protected function attributeHtml(string $attribute): string
     {
         $eventType = $this->getType();
 
         return match ($attribute) {
             'type' => $eventType ? Craft::t('events', $eventType->name) : '',
-            default => parent::tableAttributeHtml($attribute),
+            default => parent::attributeHtml($attribute),
         };
+    }
+
+    protected function cpEditUrl(): ?string
+    {
+        $eventType = $this->getType();
+
+        // The slug *might* not be set if this is a Draft, and they've deleted it for whatever reason
+        $url = UrlHelper::cpUrl('events/events/' . $eventType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
+
+        if (Craft::$app->getIsMultiSite()) {
+            $url .= '/' . $this->getSite()->handle;
+        }
+
+        return $url;
     }
 
 }

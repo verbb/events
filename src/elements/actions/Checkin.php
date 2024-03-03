@@ -17,9 +17,6 @@ class Checkin extends ElementAction
         return Craft::t('events', 'Check in');
     }
 
-    /**
-     * @inheritdoc
-     */
     public function performAction(ElementQueryInterface $query = null): bool
     {
         if (!$query) {

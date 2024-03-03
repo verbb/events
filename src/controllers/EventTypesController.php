@@ -65,24 +65,22 @@ class EventTypesController extends Controller
 
         $eventType = new EventType();
 
-        $request = Craft::$app->getRequest();
-
-        $eventType->id = $request->getBodyParam('eventTypeId');
-        $eventType->name = $request->getBodyParam('name');
-        $eventType->handle = $request->getBodyParam('handle');
-        $eventType->hasTitleField = (bool)$request->getBodyParam('hasTitleField', $eventType->hasTitleField);
-        $eventType->titleLabel = $request->getBodyParam('titleLabel', $eventType->titleLabel);
-        $eventType->titleFormat = $request->getBodyParam('titleFormat', $eventType->titleFormat);
-        $eventType->hasTickets = (bool)$request->getBodyParam('hasTickets', $eventType->hasTickets);
-        $eventType->icsTimezone = $request->getBodyParam('icsTimezone', $eventType->icsTimezone);
-        $eventType->icsDescriptionFieldHandle = $request->getBodyParam('icsDescriptionFieldHandle', $eventType->icsDescriptionFieldHandle);
-        $eventType->icsLocationFieldHandle = $request->getBodyParam('icsLocationFieldHandle', $eventType->icsLocationFieldHandle);
+        $eventType->id = $this->request->getBodyParam('eventTypeId');
+        $eventType->name = $this->request->getBodyParam('name');
+        $eventType->handle = $this->request->getBodyParam('handle');
+        $eventType->hasTitleField = (bool)$this->request->getBodyParam('hasTitleField', $eventType->hasTitleField);
+        $eventType->titleLabel = $this->request->getBodyParam('titleLabel', $eventType->titleLabel);
+        $eventType->titleFormat = $this->request->getBodyParam('titleFormat', $eventType->titleFormat);
+        $eventType->hasTickets = (bool)$this->request->getBodyParam('hasTickets', $eventType->hasTickets);
+        $eventType->icsTimezone = $this->request->getBodyParam('icsTimezone', $eventType->icsTimezone);
+        $eventType->icsDescriptionFieldHandle = $this->request->getBodyParam('icsDescriptionFieldHandle', $eventType->icsDescriptionFieldHandle);
+        $eventType->icsLocationFieldHandle = $this->request->getBodyParam('icsLocationFieldHandle', $eventType->icsLocationFieldHandle);
 
         // Site-specific settings
         $allSiteSettings = [];
 
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
-            $postedSettings = $request->getBodyParam('sites.' . $site->handle);
+            $postedSettings = $this->request->getBodyParam('sites.' . $site->handle);
 
             $siteSettings = new EventTypeSite();
             $siteSettings->siteId = $site->id;

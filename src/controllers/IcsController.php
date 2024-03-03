@@ -20,9 +20,7 @@ class IcsController extends Controller
 
     public function actionIndex(): void
     {
-        $request = Craft::$app->getRequest();
-
-        $eventId = $request->getParam('eventId');
+        $eventId = $this->request->getParam('eventId');
         $event = Event::find()->id($eventId)->endDate(null)->one();
 
         $exportString = Events::$plugin->getIcs()->getCalendar([$event]);
@@ -41,9 +39,7 @@ class IcsController extends Controller
 
     public function actionEventType(): void
     {
-        $request = Craft::$app->getRequest();
-
-        $typeId = $request->getParam('typeId');
+        $typeId = $this->request->getParam('typeId');
         $events = Event::find()->typeId($typeId)->endDate(null)->all();
 
         $exportString = Events::$plugin->getIcs()->getCalendar($events);

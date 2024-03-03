@@ -28,7 +28,6 @@ class DownloadsController extends Controller
     {
         $attributes = [];
         $ticket = [];
-        $request = Craft::$app->getRequest();
 
         /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();
@@ -37,13 +36,13 @@ class DownloadsController extends Controller
         $order = [];
         $lineItem = null;
 
-        $number = $request->getParam('number');
-        $option = $request->getParam('option', '');
-        $lineItemId = $request->getParam('lineItemId', '');
-        $ticketId = $request->getParam('ticketId', '');
+        $number = $this->request->getParam('number');
+        $option = $this->request->getParam('option', '');
+        $lineItemId = $this->request->getParam('lineItemId', '');
+        $ticketId = $this->request->getParam('ticketId', '');
 
-        $format = $request->getParam('format');
-        $attach = $request->getParam('attach');
+        $format = $this->request->getParam('format');
+        $attach = $this->request->getParam('attach');
 
         if ($number) {
             $order = Commerce::getInstance()->getOrders()->getOrderByNumber($number);

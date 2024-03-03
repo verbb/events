@@ -78,8 +78,6 @@ class EventsPreviewController extends Controller
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-
         $event = EventHelper::populateEventFromPost();
 
         $this->enforceEventPermissions($event);
@@ -90,7 +88,7 @@ class EventsPreviewController extends Controller
         }
 
         if (!Craft::$app->getElements()->saveElement($event)) {
-            if ($request->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,
                     'errors' => $event->getErrors(),
@@ -107,7 +105,7 @@ class EventsPreviewController extends Controller
             return null;
         }
 
-        if ($request->getAcceptsJson()) {
+        if ($this->request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
                 'id' => $event->id,

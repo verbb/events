@@ -57,9 +57,7 @@ class PurchasedTicketsController extends Controller
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-
-        $purchasedTicketId = $request->getParam('id');
+        $purchasedTicketId = $this->request->getParam('id');
 
         if ($purchasedTicketId) {
             $purchasedTicket = Events::$plugin->getPurchasedTickets()->getPurchasedTicketById($purchasedTicketId);
@@ -68,9 +66,9 @@ class PurchasedTicketsController extends Controller
         }
 
         $purchasedTicket->id = $purchasedTicketId;
-        $purchasedTicket->ticketSku = $request->getParam('ticketSku', $purchasedTicket->ticketSku);
-        $purchasedTicket->checkedIn = $request->getParam('checkedIn', $purchasedTicket->checkedIn);
-        $purchasedTicket->checkedInDate = $request->getParam('checkedInDate', $purchasedTicket->checkedInDate);
+        $purchasedTicket->ticketSku = $this->request->getParam('ticketSku', $purchasedTicket->ticketSku);
+        $purchasedTicket->checkedIn = $this->request->getParam('checkedIn', $purchasedTicket->checkedIn);
+        $purchasedTicket->checkedInDate = $this->request->getParam('checkedInDate', $purchasedTicket->checkedInDate);
 
         $purchasedTicket->setFieldValuesFromRequest('fields');
 

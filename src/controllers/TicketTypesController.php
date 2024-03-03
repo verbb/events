@@ -60,9 +60,7 @@ class TicketTypesController extends Controller
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-
-        $ticketTypeId = $request->getParam('ticketTypeId');
+        $ticketTypeId = $this->request->getParam('ticketTypeId');
 
         if ($ticketTypeId) {
             $ticketType = Events::$plugin->getTicketTypes()->getTicketTypeById($ticketTypeId);
@@ -71,10 +69,10 @@ class TicketTypesController extends Controller
         }
 
         $ticketType->id = $ticketTypeId;
-        $ticketType->title = $request->getParam('name');
-        $ticketType->handle = $request->getParam('handle');
-        $ticketType->taxCategoryId = $request->getParam('taxCategoryId');
-        $ticketType->shippingCategoryId = $request->getParam('shippingCategoryId');
+        $ticketType->title = $this->request->getParam('name');
+        $ticketType->handle = $this->request->getParam('handle');
+        $ticketType->taxCategoryId = $this->request->getParam('taxCategoryId');
+        $ticketType->shippingCategoryId = $this->request->getParam('shippingCategoryId');
 
         // Set the ticket type field layout
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();

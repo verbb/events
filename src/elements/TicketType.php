@@ -35,11 +35,6 @@ class TicketType extends Element
         return true;
     }
 
-    public static function hasContent(): bool
-    {
-        return true;
-    }
-
     public static function isLocalized(): bool
     {
         return true;
@@ -89,39 +84,9 @@ class TicketType extends Element
     // Public Methods
     // =========================================================================
 
-    public function defineRules(): array
-    {
-        $rules = parent::defineRules();
-
-        $rules[] = [['handle'], 'required'];
-        $rules[] = [['handle'], 'string', 'max' => 255];
-        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => TicketTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
-        $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
-
-        return $rules;
-    }
-
-    public function getCpEditUrl(): ?string
-    {
-        return UrlHelper::cpUrl('events/ticket-types/' . $this->id);
-    }
-
     public function getFieldLayout(): ?FieldLayout
     {
         return $this->getBehavior('fieldLayout')->getFieldLayout();
-    }
-
-    public function behaviors(): array
-    {
-        $behaviors = parent::behaviors();
-
-        $behaviors['fieldLayout'] = [
-            'class' => FieldLayoutBehavior::class,
-            'elementType' => Ticket::class,
-            'idAttribute' => 'fieldLayoutId',
-        ];
-
-        return $behaviors;
     }
 
     public function getName(): string
@@ -179,5 +144,39 @@ class TicketType extends Element
         }
 
         return true;
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+
+        $rules[] = [['handle'], 'required'];
+        $rules[] = [['handle'], 'string', 'max' => 255];
+        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => TicketTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
+        $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
+
+        return $rules;
+    }
+
+    protected function defineBehaviors(): array
+    {
+        $behaviors = parent::defineBehaviors();
+
+        $behaviors['fieldLayout'] = [
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Ticket::class,
+            'idAttribute' => 'fieldLayoutId',
+        ];
+
+        return $behaviors;
+    }
+
+    protected function cpEditUrl(): ?string
+    {
+        return UrlHelper::cpUrl('events/ticket-types/' . $this->id);
     }
 }

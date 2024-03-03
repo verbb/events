@@ -99,7 +99,7 @@
 
     {% if purchasedTicket.event %}
         <p>
-            <a class="go" href="{{ purchasedTicket.event.cpEditUrl }}">
+            <a class="go" href="{{ purchasedTicket.event.getCpEditUrl() }}">
                 {{ purchasedTicket.event.title }}
             </a>
         </p>
@@ -111,7 +111,7 @@
 
     {% if purchasedTicket.ticket %}
         <p>
-            <a class="go" href="{{ purchasedTicket.ticket.cpEditUrl }}">
+            <a class="go" href="{{ purchasedTicket.ticket.getCpEditUrl() }}">
                 {{ purchasedTicket.ticket.title }}
             </a>
         </p>
@@ -123,7 +123,7 @@
 
     {% if purchasedTicket.order %}
         <p>
-            <a class="go" href="{{ purchasedTicket.order.cpEditUrl }}">
+            <a class="go" href="{{ purchasedTicket.order.getCpEditUrl() }}">
                 {{ purchasedTicket.order.reference }}
             </a>
         </p>
