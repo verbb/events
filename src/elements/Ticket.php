@@ -27,6 +27,8 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -283,7 +285,7 @@ class Ticket extends Purchasable
         $this->_event = $event;
     }
 
-    public function getType()
+    public function getType(): ?TicketType
     {
         if ($this->_ticketType !== null) {
             return $this->_ticketType;
@@ -293,13 +295,18 @@ class Ticket extends Purchasable
             return null;
         }
 
-        $ticketType = Events::$plugin->getTicketTypes()->getTicketTypeById($this->typeId);
+        $ticketType = TicketType::find()->id($this->typeId)->siteId($this->siteId)->one();
 
         if ($ticketType === null) {
             // throw new InvalidConfigException('Invalid ticket type ID: ' . $this->typeId);
         }
 
         return $this->_ticketType = $ticketType;
+    }
+
+    public function setType(TicketType $type): void
+    {
+        $this->_ticketType = $type;
     }
 
     public function attributeLabels(): array
@@ -311,12 +318,6 @@ class Ticket extends Purchasable
 
     public function getIsEditable(): bool
     {
-        /*$event = $this->getEvent();
-
-        if ($event) {
-            return $event->getIsEditable();
-        }*/
-
         return false;
     }
 
@@ -330,7 +331,7 @@ class Ticket extends Purchasable
         }
     }
 
-    public function availableQuantity(): bool
+    public function availableQuantity(): mixed
     {
         // Check if the event overall even has anymore to buy - that's a hard-unavailable
         if ($this->event->getAvailableCapacity() < 1) {
@@ -386,6 +387,28 @@ class Ticket extends Purchasable
     {
         $errors = [];
 
+        $cart = Commerce::getInstance()->getCarts()->getCart();
+
+        // Get the total number of tickets for the same event and ticket type. We can't just rely on quantity
+        // of this line item as there could be tickets with unique options set, which are separate line items.
+        // Keep track of both the event-wide and ticket type specific quantities.
+        $eventCapacityOffset = 0;
+        $ticketQuantityOffset = 0;
+
+        foreach ($cart->lineItems as $cartLineItem) {
+            // Check for ticket line items, but don't include _this_ one we're adding
+            if ($cartLineItem->purchasable instanceof self && $cartLineItem->id !== $lineItem->id) {
+                // We should check for the same event and ticket type
+                if ($cartLineItem->purchasable->eventId === $this->eventId) {
+                    $eventCapacityOffset += $cartLineItem->qty;
+
+                    if ($cartLineItem->purchasable->typeId === $this->typeId) {
+                        $ticketQuantityOffset += $cartLineItem->qty;
+                    }
+                }
+            }
+        }
+
         if ($lineItem->purchasable === $this) {
             $ticketCapacity = $lineItem->purchasable->quantity;
             $eventCapacity = $lineItem->purchasable->event->capacity;
@@ -407,6 +430,10 @@ class Ticket extends Purchasable
 
             $eventAvailable = $lineItem->purchasable->event->getAvailableCapacity();
 
+            // Factor in offsets for current cart data for other line items
+            $eventAvailable -= $eventCapacityOffset;
+            $ticketCapacity -= $ticketQuantityOffset;
+
             // Find the smallest number, out of the ticket or event capacity
             $availableTickets = min([$ticketCapacity, $eventAvailable]);
 
@@ -416,13 +443,14 @@ class Ticket extends Purchasable
             }
 
             if ($lineItem->qty > $availableTickets) {
+                // Set the line item quantity to the max amount available
                 $lineItem->qty = $availableTickets;
+
                 $errors[] = 'You reached the maximum ticket quantity for ' . $lineItem->purchasable->getDescription();
             }
         }
 
         if ($errors) {
-            $cart = Commerce::getInstance()->getCarts()->getCart();
             $cart->addErrors($errors);
 
             Craft::$app->getSession()->setError(implode(',', $errors));
@@ -597,9 +625,19 @@ class Ticket extends Purchasable
         return $this->getType()->taxCategoryId;
     }
 
+    public function getTaxCategory(): TaxCategory
+    {
+        return $this->getType()->getTaxCategory();
+    }
+
     public function getShippingCategoryId(): int
     {
         return $this->getType()->shippingCategoryId;
+    }
+
+    public function getShippingCategory(): ShippingCategory
+    {
+        return $this->getType()->getShippingCategory();
     }
 
     public function getIsShippable(): bool

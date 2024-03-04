@@ -36,7 +36,7 @@ class EventsController extends Controller
         return $this->renderTemplate('events/events/index');
     }
 
-    public function actionEdit(string $eventTypeHandle, int $eventId = null, string $siteHandle = null, Event $event = null): Response
+    public function actionEdit(string $eventTypeHandle, int $eventId = null, string $site = null, Event $event = null): Response
     {
         $variables = [
             'eventTypeHandle' => $eventTypeHandle,
@@ -44,11 +44,11 @@ class EventsController extends Controller
             'event' => $event,
         ];
 
-        if ($siteHandle !== null) {
-            $variables['site'] = Craft::$app->getSites()->getSiteByHandle($siteHandle);
+        if ($site !== null) {
+            $variables['site'] = Craft::$app->getSites()->getSiteByHandle($site);
 
             if (!$variables['site']) {
-                throw new NotFoundHttpException('Invalid site handle: ' . $siteHandle);
+                throw new NotFoundHttpException('Invalid site handle: ' . $site);
             }
         }
 
@@ -68,7 +68,7 @@ class EventsController extends Controller
         $variables['baseCpEditUrl'] = 'events/events/' . $variables['eventTypeHandle'] . '/{id}-{slug}';
 
         // Set the "Continue Editing" URL
-        $variables['continueEditingUrl'] = $variables['baseCpEditUrl'] . (Craft::$app->getIsMultiSite() && Craft::$app->getSites()->currentSite->id !== $variables['site']->id ? '/' . $variables['site']->handle : '');
+        $variables['continueEditingUrl'] = $variables['baseCpEditUrl'];
 
         $this->_prepVariables($variables);
 
@@ -357,7 +357,7 @@ class EventsController extends Controller
 
         if (empty($variables['tickets'])) {
             if ($variables['event']->id) {
-                $variables['tickets'] = Events::$plugin->getTickets()->getAllTicketsByEventId($variables['event']->id);
+                $variables['tickets'] = Events::$plugin->getTickets()->getAllTicketsByEventId($variables['event']->id, $variables['site']->id);
             } else {
                 // Always have at least one row for new events
                 $variables['tickets'] = [];

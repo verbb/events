@@ -34,10 +34,14 @@ class EventHelper
 
         $ticketModel->setEvent($event);
 
+        // Quantity can be null, zero or a number, but ensure it's cast correctly
+        $quantity = $ticket['quantity'] ?? null;
+        $quantity = strlen($quantity) ? (int)$quantity : null;
+
         $ticketModel->typeId = $ticket['typeIds'][0] ?? 0;
         $ticketModel->enabled = (bool)($ticket['enabled'] ?? 1);
         $ticketModel->sku = $ticket['sku'] ?? '';
-        $ticketModel->quantity = (int)($ticket['quantity'] ?? null);
+        $ticketModel->quantity = $quantity;
         $ticketModel->price = (float)LocalizationHelper::normalizeNumber($ticket['price'] ?? null);
 
         if (($availableFrom = ($ticket['availableFrom'] ?? null)) !== null) {

@@ -58,39 +58,6 @@
 
         <hr>
 
-        {{ forms.checkboxField({
-            label: 'Show the Title field' | t('app'),
-            name: 'hasTitleField',
-            toggle: 'titleLabel-container',
-            reverseToggle: 'titleFormat-container',
-            checked: eventType.hasTitleField,
-        }) }}
-
-        <div id="titleLabel-container"{% if not eventType.hasTitleField %} class="hidden"{% endif %}>
-            {{ forms.textField({
-                label: 'Title Field Label' | t('app'),
-                instructions: 'What do you want the Title field to be called?' | t('app'),
-                id: 'titleLabel',
-                name: 'titleLabel',
-                value: eventType.titleLabel,
-                errors: eventType.getErrors('titleLabel'),
-                required: true,
-            }) }}
-        </div>
-
-        <div id="titleFormat-container"{% if eventType.hasTitleField %} class="hidden"{% endif %}>
-            {{ forms.textField({
-                label: 'Title Format' | t('app'),
-                instructions: 'What the auto-generated event titles should look like. You can include tags that output event properties, such as {ex}.' | t('events', { ex: '<code>{myCustomField}</code>' }),
-                id: 'titleFormat',
-                name: 'titleFormat',
-                class: 'code',
-                value: eventType.titleFormat,
-                errors: eventType.getErrors('titleFormat'),
-                required: true,
-            }) }}
-        </div>
-
         {% macro hasUrlsField(eventType) %}
             {% from '_includes/forms' import checkboxField %}
 
@@ -213,9 +180,9 @@
     </div>
 
     <div id="event-fields" class="hidden">
-        {% include '_includes/fieldlayoutdesigner' with {
+        {{ forms.fieldLayoutDesignerField({
             fieldLayout: eventType.getEventFieldLayout(),
-        } only %}
+        }) }}
     </div>
 
 {% endblock %}

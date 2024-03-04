@@ -50,6 +50,16 @@ class PurchasedTicket extends Element
         return 'purchasedTicket';
     }
 
+    public static function trackChanges(): bool
+    {
+        return true;
+    }
+
+    public static function hasContent(): bool
+    {
+        return true;
+    }
+
     public static function find(): PurchasedTicketQuery
     {
         return new PurchasedTicketQuery(static::class);
@@ -405,11 +415,11 @@ class PurchasedTicket extends Element
             case 'customer':
             {
                 if (($customer = $this->getCustomer())) {
-                    return $customer->email;
+                    return (string)$customer->email;
                 }
 
                 if ($order = $this->getOrder()) {
-                    return $order->email;
+                    return (string)$order->email;
                 }
 
                 return '';

@@ -36,18 +36,24 @@ class Pdf extends Component
 
     public function getPdfUrl(Order $order, LineItem $lineItem = null, $option = null): string
     {
+        $currentSite = Craft::$app->getSites()->getCurrentSite();
+
         return UrlHelper::actionUrl('events/downloads/pdf', array_filter([
             'number' => $order->number ?? null,
             'option' => $option ?? null,
             'lineItemId' => $lineItem->id ?? null,
+            'site' => $currentSite->handle,
         ]));
     }
 
     public function getPdfUrlForTicket($ticket, $option = null): string
     {
+        $currentSite = Craft::$app->getSites()->getCurrentSite();
+        
         return UrlHelper::actionUrl('events/downloads/pdf', array_filter([
             'ticketId' => $ticket->id ?? null,
             'option' => $option ?? null,
+            'site' => $currentSite->handle,
         ]));
     }
 

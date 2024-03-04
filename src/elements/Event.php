@@ -61,6 +61,16 @@ class Event extends Element implements ExpirableElementInterface
         return 'event';
     }
 
+    public static function trackChanges(): bool
+    {
+        return true;
+    }
+
+    public static function hasContent(): bool
+    {
+        return true;
+    }
+
     public static function hasTitles(): bool
     {
         return true;
@@ -636,6 +646,26 @@ class Event extends Element implements ExpirableElementInterface
         }
 
         parent::afterSave($isNew);
+    }
+
+    public function afterPropagate(bool $isNew): void
+    {
+        $original = $this->duplicateOf;
+
+        if ($original) {
+            $tickets = Events::$plugin->getTickets()->getAllTicketsByEventId($original->id, $original->siteId);
+            $newTickets = [];
+
+            foreach ($tickets as $ticket) {
+                $sku = TicketHelper::generateTicketSKU();
+                $ticket = Craft::$app->getElements()->duplicateElement($ticket, ['event' => $this, 'sku' => $sku]);
+                $newTickets[] = $ticket;
+            }
+
+            $this->setTickets($newTickets);
+        }
+
+        parent::afterPropagate($isNew);
     }
 
     public function beforeRestore(): bool

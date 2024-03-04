@@ -15,6 +15,10 @@ use craft\validators\UniqueValidator;
 
 use yii\base\Exception;
 
+use craft\commerce\Plugin as Commerce;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
+
 class TicketType extends Element
 {
     // Static Methods
@@ -28,6 +32,11 @@ class TicketType extends Element
     public static function pluralDisplayName(): string
     {
         return Craft::t('events', 'Ticket Types');
+    }
+
+    public static function trackChanges(): bool
+    {
+        return true;
     }
 
     public static function hasTitles(): bool
@@ -87,6 +96,53 @@ class TicketType extends Element
     public function getFieldLayout(): ?FieldLayout
     {
         return $this->getBehavior('fieldLayout')->getFieldLayout();
+    }
+
+    public function getTaxCategory(): TaxCategory
+    {
+        $taxCategory = null;
+
+        if ($this->taxCategoryId) {
+            $taxCategory = Commerce::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+        }
+
+        if (!$taxCategory) {
+            // Use default as we must have a category ID
+            $taxCategory = Commerce::getInstance()->getTaxCategories()->getDefaultTaxCategory();
+            $this->taxCategoryId = $taxCategory->id;
+        }
+
+        return $taxCategory;
+    }
+
+    public function getShippingCategory(): ShippingCategory
+    {
+        $shippingCategory = null;
+        
+        if ($this->shippingCategoryId) {
+            $shippingCategory = Commerce::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
+        }
+
+        if (!$shippingCategory) {
+            // Use default as we must have a category ID
+            $shippingCategory = Commerce::getInstance()->getShippingCategories()->getDefaultShippingCategory();
+            $this->shippingCategoryId = $shippingCategory->id;
+        }
+
+        return $shippingCategory;
+    }
+
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['fieldLayout'] = [
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Ticket::class,
+            'idAttribute' => 'fieldLayoutId',
+        ];
+
+        return $behaviors;
     }
 
     public function getName(): string
