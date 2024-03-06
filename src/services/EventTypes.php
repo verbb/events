@@ -441,7 +441,7 @@ class EventTypes extends Component
             $oldPrimarySiteUid = Db::uidById(Table::SITES, $event->oldPrimarySiteId);
             $existingEventTypeSettings = $projectConfig->get(self::CONFIG_EVENTTYPES_KEY);
 
-            if (!$projectConfig->getIsApplyingYamlChanges() && is_array($existingEventTypeSettings)) {
+            if (!$projectConfig->getIsApplyingExternalChanges() && is_array($existingEventTypeSettings)) {
                 foreach ($existingEventTypeSettings as $eventTypeUid => $settings) {
                     $primarySiteSettings = $settings['siteSettings'][$oldPrimarySiteUid];
                     $configPath = self::CONFIG_EVENTTYPES_KEY . '.' . $eventTypeUid . '.siteSettings.' . $event->site->uid;
