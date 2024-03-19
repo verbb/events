@@ -246,7 +246,10 @@ class Event extends Element
         // A separate loop to sort out any defaults we might have (they need to be applied to each ticket)
         // even though the data supplied for them is only provided once.
         foreach ($ticketMapping as $fieldHandle => $fieldInfo) {
-            foreach ($ticketData as $ticketNumber => $ticketContent) {
+            // We might not have any tickets mapped, but we're mapping defaults
+            $ticketDataAlt = $ticketData ?: [null];
+
+            foreach ($ticketDataAlt as $ticketNumber => $ticketContent) {
                 $node = Hash::get($fieldInfo, 'node');
                 $default = Hash::get($fieldInfo, 'default');
 
