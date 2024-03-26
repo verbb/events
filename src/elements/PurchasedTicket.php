@@ -75,9 +75,9 @@ class PurchasedTicket extends Element
         ];
 
         $eventElements = (new Query())
-            ->select(['elements.id', 'purchasedtickets.eventId', 'content.title', 'eventtypes.name as eventTypeName'])
+            ->select(['elements.id', 'purchasedtickets.eventId', 'elements_sites.title', 'eventtypes.name as eventTypeName'])
             ->from(['{{%elements}} elements'])
-            ->innerJoin('{{%content}} content', '[[content.elementId]] = [[elements.id]]')
+            ->innerJoin('{{%elements_sites}} elements_sites', '[[elements_sites.elementId]] = [[elements.id]]')
             ->innerJoin('{{%events_purchasedtickets}} purchasedtickets', '[[purchasedtickets.eventId]] = [[elements.id]]')
             ->innerJoin('{{%events_events}} events', '[[purchasedtickets.eventId]] = [[events.id]]')
             ->innerJoin('{{%events_eventtypes}} eventtypes', '[[events.typeId]] = [[eventtypes.id]]')
