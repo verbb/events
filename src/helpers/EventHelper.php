@@ -34,10 +34,10 @@ class EventHelper
 
         $ticketModel->setEvent($event);
 
-        $ticketModel->typeId = $ticket['typeIds'][0] ?? 0;
-        $ticketModel->enabled = (bool)($ticket['enabled'] ?? 1);
-        $ticketModel->quantity = $ticket['quantity'] ?? '';
+        $ticketModel->typeId = $ticket['typeIds'][0] ?? $ticketModel->typeId;
+        $ticketModel->enabled = (bool)($ticket['enabled'] ?? $ticketModel->enabled);
         $ticketModel->sku = $ticket['sku'] ?? $ticketModel->sku;
+        $ticketModel->quantity = $ticket['quantity'] ?? $ticketModel->quantity;
         $ticketModel->price = LocalizationHelper::normalizeNumber($ticket['price']);
 
         if (($availableFrom = $ticket['availableFrom']) !== null) {
@@ -83,8 +83,8 @@ class EventHelper
         $event->enabled = (bool)$request->getParam('enabled');
         $event->enabledForSite = (bool)$request->getParam('enabledForSite', $event->enabledForSite);
 
-        $event->allDay = $request->getParam('allDay');
-        $event->capacity = $request->getParam('capacity');
+        $event->allDay = (bool)$request->getParam('allDay');
+        $event->capacity = (int)$request->getParam('capacity');
 
         if (($startDate = $request->getParam('startDate')) !== null) {
             $event->startDate = DateTimeHelper::toDateTime($startDate) ?: null;
