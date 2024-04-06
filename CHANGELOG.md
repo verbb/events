@@ -100,6 +100,13 @@
 - Update `minVersionRequired`.
 - Remove unneeded migrations.
 
+## 1.4.27 - 2024-04-07
+
+### Fixed
+- Fix some validation errors when saving events
+- Fix an error when saving events where ticket SKUs were being re-generated..
+- Fix an issue when creating new sites and not propagating event types correctly.
+
 ## 1.4.26 - 2023-10-08
 
 ### Fixed
