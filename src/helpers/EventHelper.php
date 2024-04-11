@@ -35,14 +35,15 @@ class EventHelper
         $ticketModel->setEvent($event);
 
         // Quantity can be null, zero or a number, but ensure it's cast correctly
+        $ticketModel->enabled = (bool)($ticket['enabled'] ?? $ticketModel->enabled);
         $quantity = $ticket['quantity'] ?? null;
-        $quantity = strlen($quantity) ? (int)$quantity : null;
+        $quantity = strlen($quantity) ? (int)$quantity : $ticketModel->quantity;
 
-        $ticketModel->typeId = $ticket['typeIds'][0] ?? 0;
-        $ticketModel->enabled = (bool)($ticket['enabled'] ?? 1);
-        $ticketModel->sku = $ticket['sku'] ?? '';
+        $ticketModel->typeId = $ticket['typeIds'][0] ?? $ticketModel->typeId;
+        $ticketModel->enabled = (bool)($ticket['enabled'] ?? $ticketModel->enabled);
+        $ticketModel->sku = $ticket['sku'] ?? $ticketModel->sku;
         $ticketModel->quantity = $quantity;
-        $ticketModel->price = (float)LocalizationHelper::normalizeNumber($ticket['price'] ?? null);
+        $ticketModel->price = (float)LocalizationHelper::normalizeNumber($ticket['price'] ?? $ticketModel->price);
 
         if (($availableFrom = ($ticket['availableFrom'] ?? null)) !== null) {
             $ticketModel->availableFrom = DateTimeHelper::toDateTime($availableFrom) ?: null;
