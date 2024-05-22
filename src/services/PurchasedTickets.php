@@ -2,6 +2,7 @@
 namespace verbb\events\services;
 
 use verbb\events\elements\PurchasedTicket;
+use verbb\events\events\PurchasedTicketEvent;
 use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
 
 use Craft;
@@ -13,6 +14,15 @@ use DateTime;
 
 class PurchasedTickets extends Component
 {
+    // Constants
+    // =========================================================================
+
+    public const EVENT_BEFORE_CHECK_IN = 'beforeCheckIn';
+    public const EVENT_AFTER_CHECK_IN = 'afterCheckIn';
+    public const EVENT_BEFORE_CHECK_OUT = 'beforeCheckOut';
+    public const EVENT_AFTER_CHECK_OUT = 'afterCheckOut';
+
+
     // Public Methods
     // =========================================================================
 
@@ -22,19 +32,53 @@ class PurchasedTickets extends Component
         return Craft::$app->getElements()->getElementById($id, PurchasedTicket::class, $siteId);
     }
 
-    public function checkInPurchasedTicket(PurchasedTicket $purchasedTicket): void
+    public function checkInPurchasedTicket(PurchasedTicket $purchasedTicket): bool
     {
         $purchasedTicket->checkedIn = true;
         $purchasedTicket->checkedInDate = new DateTime();
 
-        Craft::$app->getElements()->saveElement($purchasedTicket);
+        // Trigger a 'beforeCheckIn' event
+        $event = new PurchasedTicketEvent([
+            'purchasedTicket' => $purchasedTicket,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_CHECK_IN, $event);
+
+        if (!$event->isValid) {
+            return false;
+        }
+
+        if (!Craft::$app->getElements()->saveElement($event->purchasedTicket)) {
+            return false;
+        }
+
+        // Trigger a 'afterCheckIn' event
+        $this->trigger(self::EVENT_AFTER_CHECK_IN, new PurchasedTicketEvent([
+            'purchasedTicket' => $event->purchasedTicket,
+        ]));
     }
 
-    public function unCheckInPurchasedTicket(PurchasedTicket $purchasedTicket): void
+    public function unCheckInPurchasedTicket(PurchasedTicket $purchasedTicket): bool
     {
         $purchasedTicket->checkedIn = false;
         $purchasedTicket->checkedInDate = null;
 
-        Craft::$app->getElements()->saveElement($purchasedTicket);
+        // Trigger a 'beforeCheckOut' event
+        $event = new PurchasedTicketEvent([
+            'purchasedTicket' => $purchasedTicket,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_CHECK_OUT, $event);
+
+        if (!$event->isValid) {
+            return false;
+        }
+
+        if (!Craft::$app->getElements()->saveElement($event->purchasedTicket)) {
+            return false;
+        }
+
+        // Trigger a 'afterCheckOut' event
+        $this->trigger(self::EVENT_AFTER_CHECK_OUT, new PurchasedTicketEvent([
+            'purchasedTicket' => $event->purchasedTicket,
+        ]));
     }
 }

@@ -317,3 +317,62 @@ Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_AFTER_DELETE, function(
     $purchasedTicket = $event->sender;
 });
 ```
+
+### The `beforeCheckIn` event
+The event that is triggered before a purchased ticket is checked-in.
+
+The `isValid` event property can be set to `false` to prevent the check-in from proceeding.
+
+```php
+use verbb\events\events\PurchasedTicketEvent;
+use verbb\events\services\PurchasedTickets;
+use yii\base\Event;
+
+Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_BEFORE_CHECK_IN, function(PurchasedTicketEvent $event) {
+    $purchasedTicket = $event->purchasedTicket;
+    $event->isValid = false;
+});
+```
+
+### The `afterCheckIn` event
+The event that is triggered after a purchased ticket is checked-in.
+
+```php
+use verbb\events\events\PurchasedTicketEvent;
+use verbb\events\services\PurchasedTickets;
+use yii\base\Event;
+
+Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_AFTER_CHECK_IN, function(PurchasedTicketEvent $event) {
+    $purchasedTicket = $event->purchasedTicket;
+});
+```
+
+### The `beforeCheckOut` event
+The event that is triggered before a purchased ticket is checked-out.
+
+The `isValid` event property can be set to `false` to prevent the check-out from proceeding.
+
+```php
+use verbb\events\events\PurchasedTicketEvent;
+use verbb\events\services\PurchasedTickets;
+use yii\base\Event;
+
+Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_BEFORE_CHECK_OUT, function(PurchasedTicketEvent $event) {
+    $purchasedTicket = $event->purchasedTicket;
+    $event->isValid = false;
+});
+```
+
+### The `afterCheckOut` event
+The event that is triggered after a purchased ticket is checked-out.
+
+```php
+use verbb\events\events\PurchasedTicketEvent;
+use verbb\events\services\PurchasedTickets;
+use yii\base\Event;
+
+Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_AFTER_CHECK_OUT, function(PurchasedTicketEvent $event) {
+    $purchasedTicket = $event->purchasedTicket;
+});
+```
+
