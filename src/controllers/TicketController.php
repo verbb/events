@@ -61,7 +61,12 @@ class TicketController extends Controller
             ]);
         }
 
-        Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket);
+        if (!Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket)) {
+            return $this->_handleResponse([
+                'success' => false,
+                'message' => Craft::t('events', 'Unable to checked in.'),
+            ]);
+        }
 
         return $this->_handleResponse([
             'success' => true,
