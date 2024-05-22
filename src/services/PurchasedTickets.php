@@ -55,6 +55,8 @@ class PurchasedTickets extends Component
         $this->trigger(self::EVENT_AFTER_CHECK_IN, new PurchasedTicketEvent([
             'purchasedTicket' => $event->purchasedTicket,
         ]));
+
+        return true;
     }
 
     public function unCheckInPurchasedTicket(PurchasedTicket $purchasedTicket): bool
@@ -80,5 +82,7 @@ class PurchasedTickets extends Component
         $this->trigger(self::EVENT_AFTER_CHECK_OUT, new PurchasedTicketEvent([
             'purchasedTicket' => $event->purchasedTicket,
         ]));
+
+        return true;
     }
 }
