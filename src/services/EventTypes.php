@@ -23,6 +23,7 @@ use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
+use craft\queue\jobs\ResaveElements;
 
 use yii\base\Component;
 use yii\base\Exception;
@@ -155,6 +156,7 @@ class EventTypes extends Component
     {
         $eventTypeUid = $event->tokenMatches[0];
         $data = $event->newValue;
+        $shouldResaveEvents = false;
 
         // Make sure fields and sites are processed
         ProjectConfigHelper::ensureAllSitesProcessed();
@@ -174,13 +176,27 @@ class EventTypes extends Component
             $eventTypeRecord->uid = $eventTypeUid;
             $eventTypeRecord->name = $data['name'];
             $eventTypeRecord->handle = $data['handle'];
-            $eventTypeRecord->hasTitleField = $data['hasTitleField'];
             $eventTypeRecord->titleLabel = $data['titleLabel'];
-            $eventTypeRecord->titleFormat = $data['titleFormat'];
-            $eventTypeRecord->hasTickets = $data['hasTickets'];
             $eventTypeRecord->icsTimezone = $data['icsTimezone'] ?? null;
             $eventTypeRecord->icsDescriptionFieldHandle = $data['icsDescriptionFieldHandle'] ?? null;
             $eventTypeRecord->icsLocationFieldHandle = $data['icsLocationFieldHandle'] ?? null;
+
+            // Check whether to update events or not
+            $hasTitleField = $data['hasTitleField'];
+            $titleFormat = $data['titleFormat'] ?? 'Title';
+
+            if ($eventTypeRecord->titleFormat != $titleFormat || $eventTypeRecord->hasTitleField != $hasTitleField) {
+                $shouldResaveEvents = true;
+            }
+
+            $eventTypeRecord->hasTitleField = $hasTitleField;
+            $eventTypeRecord->titleFormat = $titleFormat;
+
+            if ($eventTypeRecord->hasTickets != $data['hasTickets']) {
+                $shouldResaveEvents = true;
+            }
+
+            $eventTypeRecord->hasTickets = $data['hasTickets'];
 
             if (!empty($data['eventFieldLayouts']) && !empty($config = reset($data['eventFieldLayouts']))) {
                 // Save the main field layout
@@ -312,6 +328,17 @@ class EventTypes extends Component
             }
 
             $transaction->commit();
+
+            if ($shouldResaveEvents) {
+                Craft::$app->getQueue()->push(new ResaveElements([
+                    'elementType' => Event::class,
+                    'criteria' => [
+                        'siteId' => '*',
+                        'status' => null,
+                        'typeId' => $eventTypeRecord->id,
+                    ],
+                ]));
+            }
         } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
