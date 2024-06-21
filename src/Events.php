@@ -184,7 +184,9 @@ class Events extends Plugin
 
                 'events/events/<eventTypeHandle:{handle}>' => 'events/events/index',
                 'events/events/<eventTypeHandle:{handle}>/new' => 'events/events/edit',
+                'events/events/<eventTypeHandle:{handle}>/new/<siteHandle:{handle}>' => 'events/events/edit',
                 'events/events/<eventTypeHandle:{handle}>/<eventId:\d+><slug:(?:-[^\/]*)?>' => 'events/events/edit',
+                'events/events/<eventTypeHandle:{handle}>/<eventId:\d+><slug:(?:-[^\/]*)?>/<siteHandle:{handle}>' => 'events/events/edit',
 
                 'events/ticket-types/new' => 'events/ticket-types/edit',
                 'events/ticket-types/<ticketTypeId:\d+>' => 'events/ticket-types/edit',
