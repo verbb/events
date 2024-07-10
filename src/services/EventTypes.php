@@ -468,7 +468,7 @@ class EventTypes extends Component
     {
         $projectConfig = Craft::$app->getProjectConfig();
 
-        if ($event->isNew) {
+        if ($event->isNew && isset($event->oldPrimarySiteId)) {
             $oldPrimarySiteUid = Db::uidById(Table::SITES, $event->oldPrimarySiteId);
             $existingEventTypeSettings = $projectConfig->get(self::CONFIG_EVENTTYPES_KEY);
 
