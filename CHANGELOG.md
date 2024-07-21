@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.0.6 - 2024-07-21
+
+### Added
+- Add error handling for when being unable to check in or check out Purchased Ticket.
+- Add before/after check-in/check-out events for Purchased Tickets.
+
+### Changed
+- Update English translations.
+
+### Fixed
+- Fix some validation errors when saving events.
+- Fix an error when saving events where ticket SKUs were being re-generated.
+- Fix an error importing tickets with Feed Me, and only specifying defaults.
+- Fix an error when saving a new site.
+- Fix an error when creating new events for the non-default site.
+- Fix events always being re-saved when updating a site or force-applying project config.
+
 ## 2.0.5 - 2024-03-04
 
 ### Fixed

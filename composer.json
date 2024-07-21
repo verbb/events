@@ -2,7 +2,7 @@
     "name": "verbb/events",
     "description": "A full-featured plugin for event management and ticketing.",
     "type": "craft-plugin",
-    "version": "2.0.5",
+    "version": "2.0.6",
     "keywords": [
         "craft",
         "cms",
