@@ -3,10 +3,6 @@ namespace verbb\events\records;
 
 use craft\db\ActiveRecord;
 use craft\records\Element;
-use craft\records\FieldLayout;
-
-use craft\commerce\records\TaxCategory;
-use craft\commerce\records\ShippingCategory;
 
 use yii\db\ActiveQueryInterface;
 
@@ -17,26 +13,16 @@ class TicketType extends ActiveRecord
 
     public static function tableName(): string
     {
-        return '{{%events_tickettypes}}';
-    }
-
-    public function getFieldLayout(): ActiveQueryInterface
-    {
-        return $this->hasOne(FieldLayout::class, ['id' => 'fieldLayoutId']);
-    }
-
-    public function getTaxCategory(): ActiveQueryInterface
-    {
-        return $this->hasOne(TaxCategory::class, ['id' => 'taxCategoryId']);
-    }
-
-    public function getShippingCategory(): ActiveQueryInterface
-    {
-        return $this->hasOne(ShippingCategory::class, ['id' => 'shippingCategoryId']);
+        return '{{%events_ticket_types}}';
     }
 
     public function getElement(): ActiveQueryInterface
     {
-        return $this->hasOne(Element::class, ['id' => 'id']);
+        return self::hasOne(Element::class, ['id' => 'id']);
+    }
+
+    public function getEvent(): ActiveQueryInterface
+    {
+        return self::hasOne(EventRecord::class, ['id' => 'eventId']);
     }
 }

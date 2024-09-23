@@ -1,5 +1,24 @@
 # Changelog
 
+## 3.0.0-beta.3 - Unreleased
+
+### Added
+- Add Sessions inside events to manage multiple dates per Event.
+- Add recurring Sessions to handle your recurring Events. Pick from Once, Daily, Weekly and Monthly.
+- Add the ability to register your own recurring frequency logic.
+- Add helper to events for checking when to automatically generate new Tickets when Sessions or Ticket Types have changed.
+- Add the ability when editing a Session to pick how to update it (just the occurrence, all, future, etc).
+- Add the ability when deleting a Session to pick how to handle it (just the occurrence, all, future, etc).
+- Add Ticket and Purchased Ticket element index tables as custom fields, if you want to attach them to various element screens.
+
+### Changed
+- Events now no longer house the start/end dates for an event. These are managed in a Session.
+- Ticket Types are now defined in your Event, and have been re-puposed to be more powerful. This replaces what was Tickets in Events 2.x, and is where you define your pricing and capacity.
+- Tickets are now automatically generated for every event, based on the Event Sessions and Ticket Types. Previously, you defined the tickets themselves.
+- Tickets and Ticket Types from Events 2.x have been archived as legacy elements. These are re-created in Events 3.x in their new format.
+- Event capacity is now optional. It can now be used to override the automatically calculated capacity based off Ticket Types.
+- Ticket Type capacity is now required.
+
 ## 3.0.0-beta.2 - 2024-03-18
 
 ### Fixed
@@ -9,7 +28,7 @@
 
 ### Changed
 - Now requires PHP `8.2.0+`.
-- Now requires Craft `5.0.0-beta.1+`.
+- Now requires Craft `5.0.0+`.
 
 ## 2.0.5 - 2024-03-04
 

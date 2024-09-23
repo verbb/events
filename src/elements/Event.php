@@ -2,38 +2,42 @@
 namespace verbb\events\elements;
 
 use verbb\events\Events;
+use verbb\events\assetbundles\EventEditAsset;
 use verbb\events\elements\db\EventQuery;
-use verbb\events\helpers\EventHelper;
-use verbb\events\helpers\TicketHelper;
+use verbb\events\elements\db\SessionQuery;
+use verbb\events\elements\db\TicketQuery;
+use verbb\events\elements\db\TicketTypeQuery;
+use verbb\events\elements\traits\PurchasedTicketTrait;
 use verbb\events\models\EventType;
 use verbb\events\records\Event as EventRecord;
 
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
-use craft\base\ExpirableElementInterface;
 use craft\db\Query;
-use craft\elements\actions\Delete;
-use craft\elements\actions\Duplicate;
+use craft\db\Table;
 use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\NestedElementManager;
 use craft\elements\User;
+use craft\enums\PropagationMethod;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
+use craft\helpers\Html;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use craft\validators\DateTimeValidator;
 
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
-use Jsvrcek\ICS\Model\CalendarEvent;
-use Jsvrcek\ICS\Model\Description\Location;
+use Illuminate\Support\Collection;
 
 use DateTime;
-use DateTimeZone;
 
-class Event extends Element implements ExpirableElementInterface
+class Event extends Element
 {
     // Constants
     // =========================================================================
@@ -42,7 +46,7 @@ class Event extends Element implements ExpirableElementInterface
     public const STATUS_PENDING = 'pending';
     public const STATUS_EXPIRED = 'expired';
 
-    
+
     // Static Methods
     // =========================================================================
 
@@ -61,12 +65,12 @@ class Event extends Element implements ExpirableElementInterface
         return 'event';
     }
 
-    public static function trackChanges(): bool
+    public static function hasDrafts(): bool
     {
         return true;
     }
 
-    public static function hasContent(): bool
+    public static function trackChanges(): bool
     {
         return true;
     }
@@ -94,32 +98,48 @@ class Event extends Element implements ExpirableElementInterface
     public static function statuses(): array
     {
         return [
-            self::STATUS_LIVE => Craft::t('app', 'Live'),
-            self::STATUS_PENDING => Craft::t('app', 'Pending'),
-            self::STATUS_EXPIRED => Craft::t('app', 'Expired'),
-            self::STATUS_DISABLED => Craft::t('app', 'Disabled'),
+            self::STATUS_LIVE => Craft::t('events', 'Live'),
+            self::STATUS_PENDING => Craft::t('events', 'Pending'),
+            self::STATUS_EXPIRED => Craft::t('events', 'Expired'),
+            self::STATUS_DISABLED => Craft::t('events', 'Disabled'),
         ];
     }
 
-    public static function find(): EventQuery
+    public static function find(): ElementQueryInterface
     {
         return new EventQuery(static::class);
     }
 
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
-        if ($handle == 'tickets') {
+        if ($handle == 'sessions') {
             $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
 
             $map = (new Query())
-                ->select('eventId as source, id as target')
-                ->from(['{{%events_tickets}}'])
-                ->where(['in', 'eventId', $sourceElementIds])
+                ->select('ownerId as source, elementId as target')
+                ->from(Table::ELEMENTS_OWNERS)
+                ->where(['ownerId' => $sourceElementIds])
                 ->orderBy('sortOrder asc')
                 ->all();
 
             return [
-                'elementType' => Ticket::class,
+                'elementType' => Session::class,
+                'map' => $map,
+            ];
+        }
+
+        if ($handle == 'ticketTypes') {
+            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
+
+            $map = (new Query())
+                ->select('ownerId as source, elementId as target')
+                ->from(Table::ELEMENTS_OWNERS)
+                ->where(['ownerId' => $sourceElementIds])
+                ->orderBy('sortOrder asc')
+                ->all();
+
+            return [
+                'elementType' => TicketType::class,
                 'map' => $map,
             ];
         }
@@ -127,12 +147,22 @@ class Event extends Element implements ExpirableElementInterface
         return parent::eagerLoadingMap($sourceElements, $handle);
     }
 
+    public static function gqlTypeNameByContext(mixed $context): string
+    {
+        return $context->handle . '_Event';
+    }
+
+    public static function gqlScopesByContext(mixed $context): array
+    {
+        return ['eventTypes.' . $context->uid];
+    }
+
     public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
-        if ($attribute === 'tickets') {
-            $with = $elementQuery->with ?: [];
-            $with[] = 'tickets';
-            $elementQuery->with = $with;
+        if ($attribute === 'sessions') {
+            $elementQuery->andWith('sessions');
+        } else if ($attribute === 'ticketTypes') {
+            $elementQuery->andWith('ticketTypes');
         } else {
             parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
         }
@@ -170,11 +200,11 @@ class Event extends Element implements ExpirableElementInterface
 
         foreach ($eventTypes as $eventType) {
             $key = 'eventType:' . $eventType->uid;
-            $canEditEvents = Craft::$app->getUser()->checkPermission('events-manageEventType:' . $eventType->uid);
+            $canEditEvents = Craft::$app->getUser()->checkPermission('events-editEventType:' . $eventType->uid);
 
             $sources[] = [
                 'key' => $key,
-                'label' => $eventType->name,
+                'label' => Craft::t('site', $eventType->name),
                 'data' => [
                     'handle' => $eventType->handle,
                     'editable' => $canEditEvents,
@@ -183,55 +213,88 @@ class Event extends Element implements ExpirableElementInterface
                     'typeId' => $eventType->id,
                     'editable' => $editable,
                 ],
+                // Get site ids enabled for this product type
+                'sites' => $eventType->getSiteIds(),
             ];
         }
 
         return $sources;
     }
 
-    protected static function defineActions(string $source = null): array
+    protected static function defineFieldLayouts(?string $source): array
     {
-        $actions = [];
+        if ($source === null || $source === '*') {
+            $eventTypes = Events::$plugin->getEventTypes()->getAllEventTypes();
+        } else {
+            $eventTypes = [];
 
-        $actions[] = Craft::$app->getElements()->createAction([
-            'type' => Delete::class,
-            'confirmationMessage' => Craft::t('events', 'Are you sure you want to delete the selected events?'),
-            'successMessage' => Craft::t('events', 'Events deleted.'),
-        ]);
+            if (preg_match('/^eventType:(.+)$/', $source, $matches)) {
+                $eventType = Events::$plugin->getEventTypes()->getEventTypeByUid($matches[1]);
+                
+                if ($eventType) {
+                    $eventTypes[] = $eventType;
+                }
+            }
+        }
 
-        $actions[] = [
-            'type' => Duplicate::class,
-        ];
-
-        return $actions;
+        return array_map(fn(EventType $eventType) => $eventType->getFieldLayout(), $eventTypes);
     }
 
-    protected static function defineSearchableAttributes(): array
+    protected static function includeSetStatusAction(): bool
     {
-        return ['title', 'sku'];
+        return true;
     }
 
     protected static function defineSortOptions(): array
     {
         return [
-            'title' => Craft::t('app', 'Title'),
-            'startDate' => Craft::t('events', 'Start Date'),
-            'endDate' => Craft::t('events', 'End Date'),
-            'postDate' => Craft::t('app', 'Post Date'),
-            'expiryDate' => Craft::t('app', 'Expiry Date'),
+            'title' => Craft::t('events', 'Title'),
+            [
+                'label' => Craft::t('events', 'Post Date'),
+                'orderBy' => 'postDate',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('events', 'Expiry Date'),
+                'orderBy' => 'expiryDate',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('app', 'Date Created'),
+                'orderBy' => 'elements.dateCreated',
+                'attribute' => 'dateCreated',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('app', 'Date Updated'),
+                'orderBy' => 'elements.dateUpdated',
+                'attribute' => 'dateUpdated',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('app', 'ID'),
+                'orderBy' => 'elements.id',
+                'attribute' => 'id',
+            ],
         ];
     }
 
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => ['label' => Craft::t('app', 'Title')],
-            'type' => ['label' => Craft::t('app', 'Type')],
-            'slug' => ['label' => Craft::t('app', 'Slug')],
-            'startDate' => ['label' => Craft::t('events', 'Start Date')],
-            'endDate' => ['label' => Craft::t('events', 'End Date')],
-            'postDate' => ['label' => Craft::t('app', 'Post Date')],
-            'expiryDate' => ['label' => Craft::t('app', 'Expiry Date')],
+            'title' => ['label' => Craft::t('events', 'Event')],
+            'status' => ['label' => Craft::t('events', 'Status')],
+            'id' => ['label' => Craft::t('events', 'ID')],
+            'type' => ['label' => Craft::t('events', 'Type')],
+            'slug' => ['label' => Craft::t('events', 'Slug')],
+            'uri' => ['label' => Craft::t('events', 'URI')],
+            'postDate' => ['label' => Craft::t('events', 'Post Date')],
+            'expiryDate' => ['label' => Craft::t('events', 'Expiry Date')],
+            'link' => ['label' => Craft::t('events', 'Link'), 'icon' => 'world'],
+            'dateCreated' => ['label' => Craft::t('events', 'Date Created')],
+            'dateUpdated' => ['label' => Craft::t('events', 'Date Updated')],
+            'sessions' => ['label' => Craft::t('events', 'Sessions')],
+            'ticketTypes' => ['label' => Craft::t('events', 'Ticket Types')],
         ];
     }
 
@@ -239,39 +302,83 @@ class Event extends Element implements ExpirableElementInterface
     {
         $attributes = [];
 
-        if ($source === '*') {
+        if ($source == '*') {
             $attributes[] = 'type';
         }
 
+        $attributes[] = 'status';
         $attributes[] = 'postDate';
         $attributes[] = 'expiryDate';
+        $attributes[] = 'link';
 
         return $attributes;
     }
 
 
+
+    // Traits
+    // =========================================================================
+
+    use PurchasedTicketTrait;
+
+    
+
     // Properties
     // =========================================================================
 
-    public ?bool $allDay = null;
     public ?int $capacity = null;
-    public ?DateTime $endDate = null;
-    public ?DateTime $expiryDate = null;
-    public ?int $id = null;
     public ?DateTime $postDate = null;
-    public ?DateTime $startDate = null;
+    public ?DateTime $expiryDate = null;
     public ?int $typeId = null;
+    public ?string $ticketsCache = null;
+
+    public bool $updateTickets = false;
+    public ?DateTime $startDate = null;
+    public ?DateTime $endDate = null;
 
     private ?EventType $_eventType = null;
-    private ?array $_tickets = null;
+    private ?SessionCollection $_sessions = null;
+    private ?NestedElementManager $_sessionManager = null;
+    private ?TicketTypeCollection $_ticketTypes = null;
+    private ?NestedElementManager $_ticketTypeManager = null;
+    private ?TicketCollection $_tickets = null;
+    private ?NestedElementManager $_ticketManager = null;
 
 
     // Public Methods
     // =========================================================================
 
+    public function __construct(array $config = [])
+    {
+        unset($config['allDay']);
+
+        parent::__construct($config);
+    }
+
     public function __toString(): string
     {
         return (string)$this->title;
+    }
+
+    public function setAttributes($values, $safeOnly = true): void
+    {
+        // This is needed for Craft.NestedElementManager::markAsDirty()
+        if (isset($values['sessions']) && $values['sessions'] === '*') {
+            $this->setDirtyAttributes(['sessions']);
+            unset($values['sessions']);
+        }
+
+        if (isset($values['tickets']) && $values['tickets'] === '*') {
+            $this->setDirtyAttributes(['tickets']);
+            unset($values['tickets']);
+        }
+
+        if (isset($values['ticketTypes']) && $values['ticketTypes'] === '*') {
+            $this->setDirtyAttributes(['ticketTypes']);
+            unset($values['ticketTypes']);
+        }
+
+        parent::setAttributes($values, $safeOnly);
     }
 
     public function canView(User $user): bool
@@ -286,7 +393,7 @@ class Event extends Element implements ExpirableElementInterface
             return false;
         }
 
-        return $user->can('events-manageEventType:' . $eventType->uid);
+        return $user->can('events-editEventType:' . $eventType->uid);
     }
 
     public function canSave(User $user): bool
@@ -301,7 +408,7 @@ class Event extends Element implements ExpirableElementInterface
             return false;
         }
 
-        return $user->can('events-manageEventType:' . $eventType->uid);
+        return $user->can('events-editEventType:' . $eventType->uid);
     }
 
     public function canDuplicate(User $user): bool
@@ -316,7 +423,7 @@ class Event extends Element implements ExpirableElementInterface
             return false;
         }
 
-        return $user->can('events-manageEventType:' . $eventType->uid);
+        return $user->can('events-editEventType:' . $eventType->uid);
     }
 
     public function canDelete(User $user): bool
@@ -331,12 +438,12 @@ class Event extends Element implements ExpirableElementInterface
             return false;
         }
 
-        return $user->can('events-manageEventType:' . $eventType->uid);
+        return $user->can('events-deleteEvents:' . $eventType->uid);
     }
 
     public function canDeleteForSite(User $user): bool
     {
-        return $this->canDelete($user);
+        return Craft::$app->getElements()->canDelete($this, $user);
     }
 
     public function createAnother(): ?ElementInterface
@@ -344,25 +451,51 @@ class Event extends Element implements ExpirableElementInterface
         return null;
     }
 
-    public function getIsEditable(): bool
+    public function canCreateDrafts(User $user): bool
     {
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
+        // Everyone with view permissions can create drafts
+        return true;
+    }
 
-            return Craft::$app->getUser()->checkPermission('events-manageEventType:' . $uid);
+    public function setScenario($value): void
+    {
+        foreach ($this->getSessions() as $session) {
+            $session->setScenario($value);
         }
 
-        return false;
+        foreach ($this->getTicketTypes() as $ticketType) {
+            $ticketType->setScenario($value);
+        }
+
+        parent::setScenario($value);
+    }
+
+    public function hasRevisions(): bool
+    {
+        return $this->getType()->enableVersioning;
+    }
+
+    public function getPostEditUrl(): ?string
+    {
+        return UrlHelper::cpUrl('events/events');
     }
 
     public function getFieldLayout(): ?FieldLayout
     {
-        return $this->getType()->getEventFieldLayout();
-    }
+        $fieldLayout = parent::getFieldLayout();
 
-    public function getExpiryDate(): ?DateTime
-    {
-        return $this->expiryDate;
+        if ($fieldLayout) {
+            return $fieldLayout;
+        }
+
+        $fieldLayout = $this->getType()->getFieldLayout();
+
+        if ($fieldLayout->id) {
+            $this->fieldLayoutId = $fieldLayout->id;
+            return $fieldLayout;
+        }
+
+        return null;
     }
 
     public function getUriFormat(): ?string
@@ -370,7 +503,7 @@ class Event extends Element implements ExpirableElementInterface
         $eventTypeSiteSettings = $this->getType()->getSiteSettings();
 
         if (!isset($eventTypeSiteSettings[$this->siteId])) {
-            throw new InvalidConfigException('Event’s type (' . $this->getType()->id . ') is not enabled for site ' . $this->siteId);
+            throw new InvalidConfigException('The "' . $this->getType()->name . '" event type is not enabled for the "' . $this->getSite()->name . '" site.');
         }
 
         return $eventTypeSiteSettings[$this->siteId]->uriFormat;
@@ -388,25 +521,132 @@ class Event extends Element implements ExpirableElementInterface
 
         $eventType = Events::$plugin->getEventTypes()->getEventTypeById($this->typeId);
 
-        if (null === $eventType) {
+        if ($eventType === null) {
             throw new InvalidConfigException('Invalid event type ID: ' . $this->typeId);
         }
 
         return $this->_eventType = $eventType;
     }
 
-    public function getSnapshot(): array
+    public function getTotalCapacity(): ?int
     {
-        $data = [
-            'title' => $this->title,
-        ];
+        // Check if we have overridden the capacity at the event level
+        if ($this->capacity) {
+            return $this->capacity;
+        }
 
-        return array_merge($this->getAttributes(), $data);
+        // Thank you Laravel Collections!
+        return $this->getTicketTypes()->sum('capacity');
     }
 
-    public function getProduct(): static
+    public function getSessions(bool $includeDisabled = false): SessionCollection
     {
-        return $this;
+        if (!isset($this->_sessions)) {
+            if (!$this->id) {
+                return SessionCollection::make();
+            }
+
+            $this->_sessions = self::createSessionQuery($this)->status(null)->collect();
+        }
+
+        return $this->_sessions->filter(fn(Session $session) => $includeDisabled || $session->enabled);
+    }
+
+    public function setSessions(SessionCollection|SessionQuery|array $sessions): void
+    {
+        if ($sessions instanceof SessionQuery) {
+            $this->_sessions = null;
+            return;
+        }
+
+        $this->_sessions = $sessions instanceof SessionCollection ? $sessions : SessionCollection::make($sessions);
+    }
+
+    public function getSessionManager(): NestedElementManager
+    {
+        if (!isset($this->_sessionManager)) {
+            $this->_sessionManager = new NestedElementManager(Session::class, fn(Event $event) => self::createSessionQuery($event), [
+                'attribute' => 'sessions',
+                'propagationMethod' => PropagationMethod::All,
+                'valueGetter' => fn(Event $event) => $event->getSessions(true),
+            ]);
+        }
+
+        return $this->_sessionManager;
+    }
+
+    public function getTicketTypes(bool $includeDisabled = false): TicketTypeCollection
+    {
+        if (!isset($this->_ticketTypes)) {
+            if (!$this->id) {
+                return TicketTypeCollection::make();
+            }
+
+            $this->_ticketTypes = self::createTicketTypeQuery($this)->status(null)->collect();
+        }
+
+        return $this->_ticketTypes->filter(fn(TicketType $ticketType) => $includeDisabled || $ticketType->enabled);
+    }
+
+    public function setTicketTypes(TicketTypeCollection|TicketTypeQuery|array $ticketTypes): void
+    {
+        if ($ticketTypes instanceof TicketTypeQuery) {
+            $this->_ticketTypes = null;
+            return;
+        }
+
+        $this->_ticketTypes = $ticketTypes instanceof TicketTypeCollection ? $ticketTypes : TicketTypeCollection::make($ticketTypes);
+    }
+
+    public function getTicketTypeManager(): NestedElementManager
+    {
+        if (!isset($this->_ticketTypeManager)) {
+            $this->_ticketTypeManager = new NestedElementManager(TicketType::class, fn(Event $event) => self::createTicketTypeQuery($event), [
+                'attribute' => 'ticketTypes',
+                'propagationMethod' => PropagationMethod::All,
+                'valueGetter' => fn() => $this->getTicketTypes(true),
+            ]);
+        }
+
+        return $this->_ticketTypeManager;
+    }
+
+    public function getTickets(bool $includeDisabled = false): TicketCollection
+    {
+        if (!isset($this->_tickets)) {
+            if (!$this->id) {
+                return TicketCollection::make();
+            }
+
+            $this->_tickets = self::createTicketQuery($this)->status(null)->collect();
+        }
+
+        return $this->_tickets->filter(fn(Ticket $ticket) => $includeDisabled || $ticket->enabled);
+    }
+
+    public function setTickets(TicketCollection|TicketQuery|array $tickets): void
+    {
+        if ($tickets instanceof TicketQuery) {
+            $this->_tickets = null;
+            return;
+        }
+
+        $this->_tickets = $tickets instanceof TicketCollection ? $tickets : TicketCollection::make($tickets);
+    }
+
+    public function getTicketManager(): NestedElementManager
+    {
+        if (!isset($this->_ticketManager)) {
+            $this->_ticketManager = new NestedElementManager(Ticket::class, fn(Event $event) => self::createTicketQuery($event), [
+                'attribute' => 'tickets',
+                'propagationMethod' => PropagationMethod::All,
+                'valueGetter' => fn() => $this->getTickets(true),
+                'ownerIdParam' => 'eventId',
+                'primaryOwnerIdParam' => 'eventId',
+            ]);
+        }
+
+        return $this->_ticketManager;
     }
 
     public function getStatus(): ?string
@@ -432,158 +672,246 @@ class Event extends Element implements ExpirableElementInterface
         return $status;
     }
 
-    public function getTickets(): array
-    {
-        if (($this->_tickets === null) && $this->id) {
-            $this->setTickets(Events::$plugin->getTickets()->getAllTicketsByEventId($this->id, $this->siteId));
-        }
-
-        return $this->_tickets ?? [];
-    }
-
-    public function setTickets(array $tickets): void
-    {
-        $count = 1;
-
-        if (empty($tickets)) {
-            $this->_tickets = [];
-        }
-
-        foreach ($tickets as $key => $ticket) {
-            if (!$ticket instanceof Ticket) {
-                $ticket = EventHelper::populateEventTicketModel($this, $ticket, $key);
-            }
-
-            $ticket->sortOrder = $count++;
-            $ticket->setEvent($this);
-
-            $this->_tickets[] = $ticket;
-        }
-    }
-
     public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         if ($handle == 'tickets') {
             $this->setTickets($elements);
+        } else if ($handle == 'ticketTypes') {
+            $this->setTicketTypes($elements);
+        } else if ($handle == 'sessions') {
+            $this->setSessions($elements);
         } else {
             parent::setEagerLoadedElements($handle, $elements, $plan);
         }
     }
 
-    public function getIsAvailable(): bool
+    public function hasPendingTicketChanges(): bool
     {
-        return (bool)$this->getAvailableTickets();
+        return !($this->getTicketCacheKey() === $this->ticketsCache);
     }
 
-    public function getAvailableTickets(): array
+    public function getTicketCacheKey(): string
     {
-        $tickets = $this->getTickets();
+        // We only need to update tickets when session or ticket types have been added or removed.
+        $sessionIds = Session::find()->eventId($this->id)->ids();
+        $ticketTypeIds = TicketType::find()->eventId($this->id)->ids();
 
-        foreach ($tickets as $key => $ticket) {
-            if (!$ticket->getIsAvailable()) {
-                unset($tickets[$key]);
+        // But, include tickets, in case they've been deleted through other means
+        $ticketIds = Ticket::find()->eventId($this->id)->ids();
+
+        $data = array_merge($sessionIds, $ticketTypeIds, $ticketIds);
+
+        return hash('sha256', Json::encode($data));
+    }
+
+    public function getSidebarHtml(bool $static): string
+    {
+        $view = Craft::$app->getView();
+        $containerId = 'events-event-pane';
+        $id = $view->namespaceInputId($containerId);
+
+        $view->registerAssetBundle(EventEditAsset::class);
+
+        $js = <<<JS
+            (() => { new Craft.Events.EventEdit('$id'); })();
+        JS;
+
+        $view->registerJs($js, $view::POS_END);
+
+        $html = Html::tag('div', null, ['id' => $containerId]);
+
+        $html .= parent::getSidebarHtml($static);
+
+        $sessions = Session::find()->eventId($this->id)->exists();
+        $ticketTypes = TicketType::find()->eventId($this->id)->exists();
+
+        if ($sessions && $ticketTypes && $this->getIsCanonical()) {
+            if ($this->hasPendingTicketChanges()) {
+                $ticketStatusField = Html::beginTag('div', [
+                    'class' => 'meta',
+                    'style' => [
+                        'background-color' => 'var(--yellow-050) !important',
+                        'box-shadow' => '0 0 0 1px #f6d9b8, 0 2px 12px rgba(205, 216, 228, .5)',
+                        'padding' => '1rem 1.5rem',
+                    ],
+                ]) . 
+                    Html::beginTag('div') . 
+                        Html::beginTag('div', [
+                            'style' => [
+                                'display' => 'flex',
+                            ],
+                        ]) . 
+                            Html::tag('span', null, [
+                                'class' => 'icon',
+                                'aria-hidden' => true,
+                                'data-icon' => 'alert',
+                                'style' => [
+                                    'color' => 'var(--yellow-400)',
+                                    'margin-top' => '-1px',
+                                    'display' => 'block',
+                                    'margin-right' => '0.5rem',
+                                ],
+                            ]) . 
+                            Html::tag('div', Craft::t('events', 'Pending ticket updates'), [
+                                'style' => [
+                                    'color' => 'var(--yellow-800)',
+                                    'font-weight' => '500',
+                                ],
+                            ]) . 
+                        Html::endTag('div') . 
+                        Html::beginTag('div', [
+                            'style' => [
+                                'padding' => '0.5rem 0',
+                            ],
+                        ]) . 
+                            Html::tag('p', Craft::t('events', 'Changes to this event have affected your tickets and updates should be applied.'), [
+                                'style' => [
+                                    'color' => 'var(--yellow-700)',
+                                ],
+                            ]) . 
+                        Html::endTag('div') . 
+
+                        Html::submitButton(Craft::t('events', 'Apply ticket updates'), [
+                            'class' => 'formsubmit btn',
+                            'data-redirect' => Craft::$app->getSecurity()->hashData('{cpEditUrl}'),
+                            'data-params' => [
+                                'updateTickets' => true,
+                            ],
+                            'style' => [
+                                'color' => '#fff',
+                                'background-color' => 'var(--yellow-700)',
+                            ],
+                        ]) . 
+                    Html::endTag('div') . 
+                Html::endTag('div');
+            } else {
+                $ticketStatusField = Html::beginTag('div', [
+                    'class' => 'meta',
+                    'style' => [
+                        'background-color' => 'var(--green-050) !important',
+                        'box-shadow' => '0 0 0 1px #c7e5d2, 0 2px 12px rgba(205, 216, 228, .5)',
+                        'padding' => '1rem 1.5rem',
+                    ],
+                ]) . 
+                    Html::beginTag('div', [
+                        'style' => [
+                            'color' => 'var(--green-700)',
+                            'align-items' => 'flex-start',
+                            'display' => 'flex',
+                            'flex-wrap' => 'nowrap',
+                        ],
+                    ]) . 
+                        Html::tag('span', null, [
+                            'class' => 'icon',
+                            'aria-hidden' => true,
+                            'data-icon' => 'circle-check',
+                            'style' => [
+                                'color' => 'var(--green-500)',
+                                'flex-shrink' => '1',
+                                'margin-top' => '-1px',
+                                'margin-right' => '0.5rem',
+                            ],
+                        ]) . 
+                        Html::tag('span', Craft::t('events', 'No pending ticket updates.')) . 
+                    Html::endTag('div') . 
+                Html::endTag('div');
+            }
+
+            $html .= Html::beginTag('fieldset', ['class' => 'field']) .
+                Html::tag('legend', Craft::t('events', 'Ticket Status'), ['class' => 'h6']) .
+                Html::tag('div', $ticketStatusField) .
+                Html::endTag('fieldset');
+        }
+
+        return $html;
+    }
+
+    public function updateTickets(): void
+    {
+        // Query both sessions and ticket types, including their disabled items to sync tickets against
+        $sessions = Session::find()->eventId($this->id)->status(null)->collect();
+        $ticketTypes = TicketType::find()->eventId($this->id)->status(null)->collect();
+
+        $elementsService = Craft::$app->getElements();
+
+        // Fetch all tickets for this event here for performance. Remember to query disabled tickets too.
+        $currentTickets = Ticket::find()->eventId($this->id)->status(null)->collect();
+
+        // Keep track of any processed tickets to assist with deletion
+        $validTicketIds = Collection::make();
+
+        foreach ($sessions as $session) {
+            foreach ($ticketTypes as $ticketType) {
+                // Find an existing ticket, we don't need to update, as tickets just maintain a reference to things
+                $ticket = $currentTickets->first(function(Ticket $ticket) use ($session, $ticketType) {
+                    return $ticket->sessionId === $session->id && $ticket->typeId === $ticketType->id;
+                });
+
+                if ($ticket) {
+                    // Sync all tickets with their related session/ticket types disabled state. Both have to be enabled for a ticket to be enabled
+                    $newStatus = $session->enabled && $ticketType->enabled;
+
+                    if ($ticket->enabled !== $newStatus) {
+                        Db::update('{{%elements}}', ['enabled' => $newStatus], ['id' => $ticket->id]);
+                    }
+
+                    $validTicketIds[] = $ticket->id;
+
+                    continue;
+                }
+
+                $ticket = new Ticket([
+                    'eventId' => $this->id,
+                    'sessionId' => $session->id,
+                    'typeId' => $ticketType->id,
+                ]);
+
+                $elementsService->saveElement($ticket);
+
+                $validTicketIds[] = $ticket->id;
             }
         }
 
-        return $tickets;
-    }
+        // Delete tickets that are no longer valid
+        $invalidTickets = $currentTickets->filter(function(Ticket $ticket) use ($validTicketIds) {
+            return !$validTicketIds->contains($ticket->id);
+        });
 
-    public function getAvailableCapacity(): float|int
-    {
-        // If we've specifically not set a capacity on the event, treat it like unlimited
-        if ($this->capacity === null) {
-            return PHP_INT_MAX;
+        foreach ($invalidTickets as $ticket) {
+            $elementsService->deleteElement($ticket);
         }
 
-        // Unlike a ticket's quantity, the event's capacity doesn't decrement, so in order to get 
-        // the true capacity of the event, we need to factor in purchased tickets
-        $purchasedTickets = PurchasedTicket::find()
-            ->eventId($this->id)
-            ->count();
-
-        return $this->capacity - $purchasedTickets;
-    }
-
-    public function updateTitle(): void
-    {
-        $eventType = $this->getType();
-
-        if (!$eventType->hasTitleField) {
-            // Make sure that the locale has been loaded in case the title format has any Date/Time fields
-            Craft::$app->getLocale();
-
-            // Set Craft to the event's site's language, in case the title format has any static translations
-            $language = Craft::$app->language;
-            Craft::$app->language = $this->getSite()->language;
-
-            $this->title = Craft::$app->getView()->renderObjectTemplate($eventType->titleFormat, $this);
-            Craft::$app->language = $language;
-        }
-    }
-
-    public function getIcsUrl(): string
-    {
-        return UrlHelper::actionUrl('events/ics', ['eventId' => $this->id]);
-    }
-
-    public function getIcsEvent(): ?CalendarEvent
-    {
-        if (!$this->startDate || !$this->endDate) {
-            return null;
-        }
-
-        $eventType = $this->getType();
-
-        $description = $this->title;
-        $location = '';
-
-        $descriptionFieldHandle = $eventType->icsDescriptionFieldHandle;
-        $locationFieldHandle = $eventType->icsLocationFieldHandle;
-
-        // See if we need to override the timezone for events
-        $icsTimezone = $eventType->icsTimezone ?? '';
-
-        if ($icsTimezone == '') {
-            $startDate = $this->startDate;
-            $endDate = $this->endDate;
-        } else {
-            $timezone = new DateTimeZone($icsTimezone);
-
-            $startDate = $this->startDate->setTimeZone($timezone);
-            $endDate = $this->endDate->setTimeZone($timezone);
-        }
-
-        $event = (new CalendarEvent())
-            ->setStart($startDate)
-            ->setEnd($endDate)
-            ->setCreated($this->dateCreated)
-            ->setLastModified($this->dateUpdated)
-            ->setSummary($this->title)
-            ->setAllDay($this->allDay)
-            ->setStatus($this->status)
-            ->setUrl($this->url)
-            ->setUid($this->uid);
-
-        if ($descriptionFieldHandle && isset($this->{$descriptionFieldHandle})) {
-            $event->setDescription($this->{$descriptionFieldHandle});
-        }
-
-        if ($locationFieldHandle && isset($this->{$locationFieldHandle})) {
-            $location = new Location();
-            $location->setName($this->{$locationFieldHandle});
-
-            $event->addLocation($location);
-        }
-
-        return $event;
+        Db::update('{{%events_events}}', ['ticketsCache' => $this->getTicketCacheKey()], ['id' => $this->id]);
     }
 
     public function beforeSave(bool $isNew): bool
     {
+        // Make sure the event has at least one revision if the event type has versioning enabled
+        if ($this->_shouldSaveRevision()) {
+            $hasRevisions = self::find()
+                ->revisionOf($this)
+                ->site('*')
+                ->status(null)
+                ->exists();
+
+            if (!$hasRevisions) {
+                /** @var self|null $currentProduct */
+                $currentProduct = self::find()
+                    ->id($this->id)
+                    ->site('*')
+                    ->status(null)
+                    ->one();
+
+                // May be null if the event is currently stored as an unpublished draft
+                if ($currentProduct) {
+                    $revisionNotes = 'Revision from ' . Craft::$app->getFormatter()->asDatetime($currentProduct->dateUpdated);
+                    Craft::$app->getRevisions()->createRevision($currentProduct, notes: $revisionNotes);
+                }
+            }
+        }
+
         // Make sure the field layout is set correctly
         $this->fieldLayoutId = $this->getType()->fieldLayoutId;
-
-        $this->updateTitle();
 
         if ($this->enabled && !$this->postDate) {
             // Default the post date to the current date/time
@@ -597,52 +925,31 @@ class Event extends Element implements ExpirableElementInterface
 
     public function afterSave(bool $isNew): void
     {
-        if (!$isNew) {
-            $record = EventRecord::findOne($this->id);
-
-            if (!$record) {
-                throw new Exception('Invalid event id: ' . $this->id);
-            }
-        } else {
-            $record = new EventRecord();
-            $record->id = $this->id;
-        }
-
-        $record->allDay = $this->allDay;
-        $record->capacity = $this->capacity;
-        $record->startDate = $this->startDate;
-        $record->endDate = $this->endDate;
-        $record->postDate = $this->postDate;
-        $record->expiryDate = $this->expiryDate;
-        $record->typeId = $this->typeId;
-
-        $record->save(false);
-
-        $this->id = $record->id;
-
-        // Only save tickets once (since they will propagate themselves the first time).
         if (!$this->propagating) {
-            $keepTicketIds = [];
-            $oldTicketIds = (new Query())
-                ->select('id')
-                ->from('{{%events_tickets}}')
-                ->where(['eventId' => $this->id])
-                ->column();
+            if (!$isNew) {
+                $record = EventRecord::findOne($this->id);
 
-            foreach ($this->getTickets() as $ticket) {
-                if ($isNew) {
-                    $ticket->eventId = $this->id;
-                    $ticket->siteId = $this->siteId;
+                if (!$record) {
+                    throw new Exception('Invalid event id: ' . $this->id);
                 }
-
-                $keepTicketIds[] = $ticket->id;
-
-                Craft::$app->getElements()->saveElement($ticket, false);
+            } else {
+                $record = new EventRecord();
+                $record->id = $this->id;
             }
 
-            foreach (array_diff($oldTicketIds, $keepTicketIds) as $deleteId) {
-                Craft::$app->getElements()->deleteElementById($deleteId);
-            }
+            $record->capacity = $this->capacity;
+            $record->postDate = $this->postDate;
+            $record->expiryDate = $this->expiryDate;
+            $record->typeId = $this->typeId;
+            $record->ticketsCache = $this->ticketsCache;
+
+            // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+            $record->dateUpdated = $this->dateUpdated;
+            $record->dateCreated = $this->dateCreated;
+
+            $record->save(false);
+
+            $this->id = $record->id;
         }
 
         parent::afterSave($isNew);
@@ -650,79 +957,35 @@ class Event extends Element implements ExpirableElementInterface
 
     public function afterPropagate(bool $isNew): void
     {
-        $original = $this->duplicateOf;
-
-        if ($original) {
-            $tickets = Events::$plugin->getTickets()->getAllTicketsByEventId($original->id, $original->siteId);
-            $newTickets = [];
-
-            foreach ($tickets as $ticket) {
-                $sku = TicketHelper::generateTicketSKU();
-                $ticket = Craft::$app->getElements()->duplicateElement($ticket, ['event' => $this, 'sku' => $sku]);
-                $newTickets[] = $ticket;
-            }
-
-            $this->setTickets($newTickets);
-        }
-
+        $this->getSessionManager()->maintainNestedElements($this, $isNew);
+        $this->getTicketTypeManager()->maintainNestedElements($this, $isNew);
+        
         parent::afterPropagate($isNew);
-    }
 
-    public function beforeRestore(): bool
-    {
-        $tickets = Ticket::find()->trashed(null)->eventId($this->id)->status(null)->all();
-        Craft::$app->getElements()->restoreElements($tickets);
-        $this->setTickets($tickets);
-
-        return parent::beforeRestore();
-    }
-
-    public function beforeValidate(): bool
-    {
-        // We need to generate all ticket sku formats before validating the product,
-        // since the event validates the uniqueness of all tickets in memory.
-        $type = $this->getType();
-
-        foreach ($this->getTickets() as $ticket) {
-            if (!$ticket->sku) {
-                $ticket->sku = TicketHelper::generateTicketSKU();
-            }
+        // Save a new revision?
+        if ($this->_shouldSaveRevision()) {
+            Craft::$app->getRevisions()->createRevision($this, notes: $this->revisionNotes);
         }
 
-        return parent::beforeValidate();
+        // Generate tickets based on the sessions and ticket types for this event
+        if ($this->_shouldUpdateTickets()) {
+            $this->updateTickets();
+        }
     }
 
-    public function afterDelete(): void
+    public function beforeDelete(): bool
     {
-        $tickets = Ticket::find()
-            ->eventId($this->id)
-            ->all();
-
-        $elementsService = Craft::$app->getElements();
-
-        foreach ($tickets as $ticket) {
-            $ticket->deletedWithEvent = true;
-            $elementsService->deleteElement($ticket);
+        if (!parent::beforeDelete()) {
+            return false;
         }
 
-        parent::afterDelete();
-    }
+        $this->getSessionManager()->deleteNestedElements($this, $this->hardDelete);
+        $this->getTicketTypeManager()->deleteNestedElements($this, $this->hardDelete);
 
-    public function afterRestore(): void
-    {
-        // Also restore any tickets for this element
-        $tickets = Ticket::find()
-            ->status(null)
-            ->siteId($this->siteId)
-            ->eventId($this->id)
-            ->trashed()
-            ->andWhere(['events_tickets.deletedWithEvent' => true])
-            ->all();
+        Db::update('{{%events_sessions}}', ['deletedWithEvent' => true], ['primaryOwnerId' => $this->id]);
+        Db::update('{{%events_ticket_types}}', ['deletedWithEvent' => true], ['primaryOwnerId' => $this->id]);
 
-        Craft::$app->getElements()->restoreElements($tickets);
-        $this->setTickets($tickets);
-
-        parent::afterRestore();
+        return true;
     }
 
 
@@ -733,33 +996,8 @@ class Event extends Element implements ExpirableElementInterface
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['typeId'], 'number', 'integerOnly' => true];
-        $rules[] = [['startDate', 'endDate', 'postDate', 'expiryDate'], DateTimeValidator::class];
-
-        $rules[] = [
-            ['startDate'], function($model) {
-                if ($this->startDate >= $this->endDate && !$this->allDay) {
-                    $this->addError('startDate', Craft::t('events', 'Start Date must be before End Date'));
-                }
-            },
-        ];
-
-        $rules[] = [
-            ['tickets'], function($model) {
-                foreach ($this->getTickets() as $ticket) {
-                    // Break immediately if no ticket type set, also check for other ticket validation errors
-                    if (!$ticket->typeId) {
-                        $this->addError('tickets', Craft::t('events', 'Ticket type must be set.'));
-
-                        $ticket->addError('typeIds', Craft::t('events', 'Ticket type must be set.'));
-                    } else if (!$ticket->validate()) {
-                        $error = $ticket->getErrors()[0] ?? 'An error occurred';
-
-                        $this->addError('tickets', Craft::t('events', $error));
-                    }
-                }
-            },
-        ];
+        $rules[] = [['capacity'], 'number', 'integerOnly' => true];
+        $rules[] = [['updateTickets'], 'safe'];
 
         return $rules;
     }
@@ -790,37 +1028,170 @@ class Event extends Element implements ExpirableElementInterface
         ];
     }
 
-    protected function searchKeywords(string $attribute): string
+    protected function crumbs(): array
     {
-        if ($attribute === 'sku') {
-            return implode(' ', ArrayHelper::getColumn($this->getTickets(), 'sku'));
+        $eventType = $this->getType();
+
+        $eventTypes = Collection::make(Events::$plugin->getEventTypes()->getEditableEventTypes());
+        
+        /** @var Collection $eventTypeOptions */
+        $eventTypeOptions = $eventTypes
+            ->map(fn(EventType $t) => [
+                'label' => Craft::t('site', $t->name),
+                'url' => "events/events/$t->handle",
+                'selected' => $t->id === $eventType->id,
+            ]);
+
+        return [
+            [
+                'label' => Craft::t('events', 'Events'),
+                'url' => 'events/events',
+            ],
+            [
+                'menu' => [
+                    'label' => Craft::t('events', 'Select event type'),
+                    'items' => $eventTypeOptions->all(),
+                ],
+            ],
+        ];
+    }
+
+    protected function metaFieldsHtml(bool $static): string
+    {
+        $fields = [];
+        $view = Craft::$app->getView();
+
+        // Slug
+        $fields[] = $this->slugFieldHtml($static);
+
+        $fields[] = Cp::textFieldHtml([
+            'status' => $this->getAttributeStatus('capacity'),
+            'label' => Craft::t('events', 'Event Capacity'),
+            'id' => 'capacity',
+            'name' => 'capacity',
+            'value' => $this->capacity,
+            'placeholder' => $this->capacity ? '' : Craft::t('events', 'auto'),
+            'class' => $this->capacity ? '' : 'disabled',
+            'disabled' => !$this->capacity,
+            'errors' => $this->getErrors('capacity'),
+        ]);
+
+        $isDeltaRegistrationActive = $view->getIsDeltaRegistrationActive();
+        $view->setIsDeltaRegistrationActive(true);
+        $view->registerDeltaName('postDate');
+        $view->registerDeltaName('expiryDate');
+        $view->setIsDeltaRegistrationActive($isDeltaRegistrationActive);
+
+        // Post Date
+        $fields[] = Cp::dateTimeFieldHtml([
+            'status' => $this->getAttributeStatus('postDate'),
+            'label' => Craft::t('app', 'Post Date'),
+            'id' => 'postDate',
+            'name' => 'postDate',
+            'value' => $this->postDate,
+            'errors' => $this->getErrors('postDate'),
+            'disabled' => $static,
+        ]);
+
+        // Expiry Date
+        $fields[] = Cp::dateTimeFieldHtml([
+            'status' => $this->getAttributeStatus('expiryDate'),
+            'label' => Craft::t('app', 'Expiry Date'),
+            'id' => 'expiryDate',
+            'name' => 'expiryDate',
+            'value' => $this->expiryDate,
+            'errors' => $this->getErrors('expiryDate'),
+            'disabled' => $static,
+        ]);
+
+        $fields[] = parent::metaFieldsHtml($static);
+
+        return implode("\n", $fields);
+    }
+
+    protected function uiLabel(): ?string
+    {
+        if (!isset($this->title) || trim($this->title) === '') {
+            return Craft::t('app', 'Untitled {type}', [
+                'type' => self::lowerDisplayName(),
+            ]);
         }
 
-        return parent::searchKeywords($attribute);
+        return null;
     }
 
     protected function attributeHtml(string $attribute): string
     {
-        $eventType = $this->getType();
+        if ($attribute === 'type') {
+            $type = $this->getType();
 
-        return match ($attribute) {
-            'type' => $eventType ? Craft::t('events', $eventType->name) : '',
-            default => parent::attributeHtml($attribute),
-        };
+            return $type->name;
+        }
+
+        return parent::attributeHtml($attribute);
+    }
+
+    protected function cacheTags(): array
+    {
+        return [
+            "eventType:$this->typeId",
+        ];
     }
 
     protected function cpEditUrl(): ?string
     {
         $eventType = $this->getType();
 
-        // The slug *might* not be set if this is a Draft, and they've deleted it for whatever reason
-        $url = UrlHelper::cpUrl('events/events/' . $eventType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
+        $path = sprintf('events/events/%s/%s', $eventType->handle, $this->getCanonicalId());
 
-        if (Craft::$app->getIsMultiSite()) {
-            $url .= '/' . $this->getSite()->handle;
+        // Ignore homepage/temp slugs
+        if ($this->slug && !str_starts_with($this->slug, '__')) {
+            $path .= sprintf('-%s', str_replace('/', '-', $this->slug));
         }
 
-        return $url;
+        return $path;
+    }
+
+    protected function cpRevisionsUrl(): ?string
+    {
+        return sprintf('%s/revisions', $this->cpEditUrl());
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _shouldSaveRevision(): bool
+    {
+        return ($this->id && !$this->propagating && !$this->resaving && !$this->getIsDraft() && !$this->getIsRevision() && $this->getType()->enableVersioning);
+    }
+
+    private function _shouldUpdateTickets(): bool
+    {
+        return ($this->id && !$this->propagating && !$this->resaving && !$this->getIsDraft() && !$this->getIsRevision() && $this->updateTickets);
+    }
+
+    private static function createSessionQuery(Event $event): SessionQuery
+    {
+        return Session::find()
+            ->eventId($event->id)
+            ->siteId($event->siteId)
+            ->orderBy(['sortOrder' => SORT_ASC]);
+    }
+
+    private static function createTicketQuery(Event $event): TicketQuery
+    {
+        return Ticket::find()
+            ->eventId($event->id)
+            ->siteId($event->siteId);
+    }
+
+    private static function createTicketTypeQuery(Event $event): TicketTypeQuery
+    {
+        return TicketType::find()
+            ->eventId($event->id)
+            ->siteId($event->siteId)
+            ->orderBy(['sortOrder' => SORT_ASC]);
     }
 
 }

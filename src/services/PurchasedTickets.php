@@ -2,10 +2,8 @@
 namespace verbb\events\services;
 
 use verbb\events\elements\PurchasedTicket;
-use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
 
 use Craft;
-use craft\base\ElementInterface;
 
 use yii\base\Component;
 
@@ -18,7 +16,6 @@ class PurchasedTickets extends Component
 
     public function getPurchasedTicketById(int $id, $siteId = null): ?PurchasedTicket
     {
-        /* @noinspection PhpIncompatibleReturnTypeInspection */
         return Craft::$app->getElements()->getElementById($id, PurchasedTicket::class, $siteId);
     }
 
@@ -30,7 +27,7 @@ class PurchasedTickets extends Component
         Craft::$app->getElements()->saveElement($purchasedTicket);
     }
 
-    public function unCheckInPurchasedTicket(PurchasedTicket $purchasedTicket): void
+    public function checkOutPurchasedTicket(PurchasedTicket $purchasedTicket): void
     {
         $purchasedTicket->checkedIn = false;
         $purchasedTicket->checkedInDate = null;

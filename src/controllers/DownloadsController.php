@@ -3,7 +3,6 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 use verbb\events\elements\PurchasedTicket;
-use verbb\events\helpers\Locale;
 use verbb\events\models\Settings;
 
 use Craft;
@@ -45,7 +44,7 @@ class DownloadsController extends Controller
         $format = $this->request->getParam('format');
         $attach = $this->request->getParam('attach');
 
-        $siteHandle = $request->getParam('site');
+        $siteHandle = $this->request->getParam('site');
         $site = Craft::$app->getSites()->getPrimarySite();
 
         if ($siteHandle) {
@@ -95,9 +94,7 @@ class DownloadsController extends Controller
         if (!$fileName) {
             if ($order) {
                 $fileName = 'Ticket-' . $order->number;
-            } else if ($purchasedTickets) {
-                $fileName = 'Ticket-' . $ticket[0]->ticketSku;
-            }
+            } else $fileName = 'Ticket-' . $ticket[0]->ticketSku;
         }
 
         $options = [

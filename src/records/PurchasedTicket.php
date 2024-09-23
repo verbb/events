@@ -16,31 +16,31 @@ class PurchasedTicket extends ActiveRecord
 
     public static function tableName(): string
     {
-        return '{{%events_purchasedtickets}}';
+        return '{{%events_purchased_tickets}}';
     }
 
     public function getElement(): ActiveQueryInterface
     {
-        return $this->hasOne(Element::class, ['id' => 'id']);
+        return self::hasOne(Element::class, ['id' => 'id']);
     }
 
     public function getEvent(): ActiveQueryInterface
     {
-        return $this->hasOne(Event::class, ['id' => 'eventId']);
+        return self::hasOne(Event::class, ['id' => 'eventId']);
     }
 
     public function getTicket(): ActiveQueryInterface
     {
-        return $this->hasOne(Ticket::class, ['id' => 'ticketId']);
+        return self::hasOne(Ticket::class, ['id' => 'ticketId']);
     }
 
     public function getOrder(): ActiveQueryInterface
     {
-        return $this->hasOne(Order::class, ['id' => 'orderId']);
+        return self::hasOne(Order::class, ['id' => 'orderId']);
     }
 
     public function getLineItem(): ActiveQueryInterface
     {
-        return $this->hasOne(LineItem::class, ['id' => 'lineItemId']);
+        return self::hasOne(LineItem::class, ['id' => 'lineItemId']);
     }
 }

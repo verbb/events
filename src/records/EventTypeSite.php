@@ -13,16 +13,16 @@ class EventTypeSite extends ActiveRecord
 
     public static function tableName(): string
     {
-        return '{{%events_eventtypes_sites}}';
+        return '{{%events_event_types_sites}}';
     }
 
     public function getEventType(): ActiveQueryInterface
     {
-        return $this->hasOne(EventType::class, ['id', 'eventTypeId']);
+        return self::hasOne(EventType::class, ['id', 'eventTypeId']);
     }
 
     public function getSite(): ActiveQueryInterface
     {
-        return $this->hasOne(Site::class, ['id', 'siteId']);
+        return self::hasOne(Site::class, ['id', 'siteId']);
     }
 }

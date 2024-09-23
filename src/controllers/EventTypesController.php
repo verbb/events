@@ -9,8 +9,9 @@ use verbb\events\models\EventTypeSite;
 use Craft;
 use craft\web\Controller;
 
-use yii\web\Response;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 use DateTime;
 use DateTimeZone;
@@ -59,8 +60,14 @@ class EventTypesController extends Controller
         return $this->renderTemplate('events/event-types/_edit', $variables);
     }
 
-    public function actionSave(): ?Response
+    public function actionSave(): void
     {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if (!$currentUser->can('manageEvents')) {
+            throw new HttpException(403, Craft::t('events', 'This action is not allowed for the current user.'));
+        }
+
         $this->requirePostRequest();
 
         $eventType = new EventType();
@@ -68,10 +75,11 @@ class EventTypesController extends Controller
         $eventType->id = $this->request->getBodyParam('eventTypeId');
         $eventType->name = $this->request->getBodyParam('name');
         $eventType->handle = $this->request->getBodyParam('handle');
-        $eventType->hasTitleField = (bool)$this->request->getBodyParam('hasTitleField', $eventType->hasTitleField);
-        $eventType->titleLabel = $this->request->getBodyParam('titleLabel', $eventType->titleLabel);
-        $eventType->titleFormat = $this->request->getBodyParam('titleFormat', $eventType->titleFormat);
-        $eventType->hasTickets = (bool)$this->request->getBodyParam('hasTickets', $eventType->hasTickets);
+        $eventType->enableVersioning = $this->request->getBodyParam('enableVersioning', $eventType->enableVersioning);
+        $eventType->sessionTitleFormat = $this->request->getBodyParam('sessionTitleFormat', $eventType->sessionTitleFormat);
+        $eventType->ticketTitleFormat = $this->request->getBodyParam('ticketTitleFormat', $eventType->ticketTitleFormat);
+        $eventType->ticketSkuFormat = $this->request->getBodyParam('ticketSkuFormat', $eventType->ticketSkuFormat);
+        $eventType->purchasedTicketTitleFormat = $this->request->getBodyParam('purchasedTicketTitleFormat', $eventType->purchasedTicketTitleFormat);
         $eventType->icsTimezone = $this->request->getBodyParam('icsTimezone', $eventType->icsTimezone);
         $eventType->icsDescriptionFieldHandle = $this->request->getBodyParam('icsDescriptionFieldHandle', $eventType->icsDescriptionFieldHandle);
         $eventType->icsLocationFieldHandle = $this->request->getBodyParam('icsLocationFieldHandle', $eventType->icsLocationFieldHandle);
@@ -82,9 +90,15 @@ class EventTypesController extends Controller
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
             $postedSettings = $this->request->getBodyParam('sites.' . $site->handle);
 
+            // Skip disabled sites if this is a multi-site install
+            if (Craft::$app->getIsMultiSite() && empty($postedSettings['enabled'])) {
+                continue;
+            }
+
             $siteSettings = new EventTypeSite();
             $siteSettings->siteId = $site->id;
             $siteSettings->hasUrls = !empty($postedSettings['uriFormat']);
+            $siteSettings->enabledByDefault = (bool)$postedSettings['enabledByDefault'];
 
             if ($siteSettings->hasUrls) {
                 $siteSettings->uriFormat = $postedSettings['uriFormat'];
@@ -102,23 +116,34 @@ class EventTypesController extends Controller
         // Set the event type field layout
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
         $fieldLayout->type = Event::class;
-        $eventType->setFieldLayout($fieldLayout);
+        $behavior = $eventType->getBehavior('eventFieldLayout');
+        $behavior->setFieldLayout($fieldLayout);
+
+        // Set the session field layout
+        $sessionFieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('sessionLayout');
+        $sessionFieldLayout->type = Variant::class;
+        $behavior = $eventType->getBehavior('sessionFieldLayout');
+        $behavior->setFieldLayout($sessionFieldLayout);
+
+        // Set the ticket field layout
+        $ticketFieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('ticketLayout');
+        $ticketFieldLayout->type = Variant::class;
+        $behavior = $eventType->getBehavior('ticketFieldLayout');
+        $behavior->setFieldLayout($ticketFieldLayout);
 
         // Save it
         if (Events::$plugin->getEventTypes()->saveEventType($eventType)) {
-            Craft::$app->getSession()->setNotice(Craft::t('events', 'Event type saved.'));
+            $this->setSuccessFlash(Craft::t('events', 'Event type saved.'));
 
-            return $this->redirectToPostedUrl($eventType);
+            $this->redirectToPostedUrl($eventType);
+        } else {
+            $this->setFailFlash(Craft::t('events', 'Couldn’t save event type.'));
         }
-
-        Craft::$app->getSession()->setError(Craft::t('events', 'Couldn’t save event type.'));
 
         // Send the eventType back to the template
         Craft::$app->getUrlManager()->setRouteParams([
             'eventType' => $eventType,
         ]);
-
-        return null;
     }
 
     public function actionDelete(): Response
@@ -129,7 +154,7 @@ class EventTypesController extends Controller
         $eventTypeId = Craft::$app->getRequest()->getRequiredParam('id');
         Events::$plugin->getEventTypes()->deleteEventTypeById($eventTypeId);
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
 

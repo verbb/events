@@ -18,11 +18,11 @@ class Event extends ActiveRecord
 
     public function getType(): ActiveQueryInterface
     {
-        return $this->hasOne(EventType::class, ['id' => 'typeId']);
+        return self::hasOne(EventType::class, ['id' => 'typeId']);
     }
 
     public function getElement(): ActiveQueryInterface
     {
-        return $this->hasOne(Element::class, ['id' => 'id']);
+        return self::hasOne(Element::class, ['id' => 'id']);
     }
 }

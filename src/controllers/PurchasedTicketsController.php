@@ -43,7 +43,7 @@ class PurchasedTicketsController extends Controller
         }
 
         if (!empty($variables['purchasedTicketId'])) {
-            $variables['title'] = $variables['purchasedTicket']->ticketSku;
+            $variables['title'] = $variables['purchasedTicket']->title;
         } else {
             $variables['title'] = Craft::t('events', 'Create a Purchased Ticket');
         }
@@ -66,7 +66,7 @@ class PurchasedTicketsController extends Controller
         }
 
         $purchasedTicket->id = $purchasedTicketId;
-        $purchasedTicket->ticketSku = $this->request->getParam('ticketSku', $purchasedTicket->ticketSku);
+        $purchasedTicket->enabled = $this->request->getParam('enabled', $purchasedTicket->enabled);
         $purchasedTicket->checkedIn = $this->request->getParam('checkedIn', $purchasedTicket->checkedIn);
         $purchasedTicket->checkedInDate = $this->request->getParam('checkedInDate', $purchasedTicket->checkedInDate);
 
@@ -122,7 +122,7 @@ class PurchasedTicketsController extends Controller
         return $this->redirectToPostedUrl($purchasedTicket);
     }
 
-    public function actionCheckin(): ?Response
+    public function actionCheckIn(): ?Response
     {
         $this->requirePostRequest();
 
@@ -154,7 +154,7 @@ class PurchasedTicketsController extends Controller
         return $this->redirectToPostedUrl($purchasedTicket);
     }
 
-    public function actionUncheckin(): Response
+    public function actionCheckOut(): Response
     {
         $this->requirePostRequest();
 
@@ -165,7 +165,7 @@ class PurchasedTicketsController extends Controller
             throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
         }
 
-        Events::$plugin->getPurchasedTickets()->unCheckInPurchasedTicket($purchasedTicket);
+        Events::$plugin->getPurchasedTickets()->checkOutPurchasedTicket($purchasedTicket);
 
         Craft::$app->getSession()->setNotice(Craft::t('events', 'Ticket un-checked in.'));
 

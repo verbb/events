@@ -18,16 +18,16 @@ class Ticket extends ActiveRecord
 
     public function getElement(): ActiveQueryInterface
     {
-        return $this->hasOne(Element::class, ['id' => 'id']);
+        return self::hasOne(Element::class, ['id' => 'id']);
     }
 
     public function getEvent(): ActiveQueryInterface
     {
-        return $this->hasOne(EventRecord::class, ['id' => 'eventId']);
+        return self::hasOne(EventRecord::class, ['id' => 'eventId']);
     }
 
     public function getType(): ActiveQueryInterface
     {
-        return $this->hasOne(TicketTypeRecord::class, ['id' => 'typeId']);
+        return self::hasOne(TicketTypeRecord::class, ['id' => 'typeId']);
     }
 }

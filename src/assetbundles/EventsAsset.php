@@ -13,19 +13,11 @@ class EventsAsset extends AssetBundle
 
     public function init(): void
     {
-        $this->sourcePath = "@verbb/events/resources/dist";
+        $this->sourcePath = '@verbb/events/resources/dist';
 
         $this->depends = [
             VerbbCpAsset::class,
             CpAsset::class,
-        ];
-
-        $this->css = [
-            'css/events.css',
-        ];
-
-        $this->js = [
-            'js/events.js',
         ];
 
         parent::init();

@@ -4,9 +4,9 @@ namespace verbb\events\services;
 use verbb\events\elements\Event;
 
 use Craft;
-use craft\base\ElementInterface;
 use craft\events\SiteEvent;
-use craft\queue\jobs\ResaveElements;
+use craft\helpers\Queue;
+use craft\queue\jobs\PropagateElements;
 
 use yii\base\Component;
 
@@ -15,27 +15,21 @@ class Events extends Component
     // Public Methods
     // =========================================================================
 
-    public function getEventById(int $id, $siteId = null): ?Event
+    public function getEventById(int $id, int $siteId = null): ?Event
     {
-        /* @noinspection PhpIncompatibleReturnTypeInspection */
         return Craft::$app->getElements()->getElementById($id, Event::class, $siteId);
     }
 
     public function afterSaveSiteHandler(SiteEvent $event): void
     {
-        $queue = Craft::$app->getQueue();
-        $siteId = $event->oldPrimarySiteId;
-        $elementTypes = [
-            Event::class,
-        ];
-
-        foreach ($elementTypes as $elementType) {
-            $queue->push(new ResaveElements([
-                'elementType' => $elementType,
+        if ($event->isNew && isset($event->oldPrimarySiteId)) {
+            Queue::push(new PropagateElements([
+                'elementType' => Event::class,
                 'criteria' => [
-                    'siteId' => $siteId,
+                    'siteId' => $event->oldPrimarySiteId,
                     'status' => null,
                 ],
+                'siteId' => $event->site->id,
             ]));
         }
     }

@@ -9,7 +9,6 @@ class Settings extends Model
     // =========================================================================
 
     public string $pluginName = 'Events';
-    public int $ticketSKULength = 10;
     public string $ticketPdfPath = 'shop/_pdf/tickets';
     public string $ticketPdfFilenameFormat = 'Tickets-{number}';
     public bool $checkinLogin = false;

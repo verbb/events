@@ -3,6 +3,8 @@ namespace verbb\events\services;
 
 use verbb\events\Events;
 use verbb\events\elements\Event;
+use verbb\events\elements\Session;
+use verbb\events\elements\TicketType;
 use verbb\events\errors\EventTypeNotFoundException;
 use verbb\events\events\EventTypeEvent;
 use verbb\events\models\EventType;
@@ -14,9 +16,9 @@ use Craft;
 use craft\base\MemoizableArray;
 use craft\db\Query;
 use craft\db\Table;
+use craft\elements\User;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
-use craft\events\FieldEvent;
 use craft\events\SiteEvent;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
@@ -25,8 +27,8 @@ use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 
+use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
-use yii\base\Exception;
 
 use Throwable;
 
@@ -76,16 +78,30 @@ class EventTypes extends Component
 
     public function getEditableEventTypes(): array
     {
-        $userSession = Craft::$app->getUser();
+        $user = Craft::$app->getUser()->getIdentity();
         
-        return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($userSession) {
-            return $userSession->checkPermission("events-manageEventType:$eventType->uid");
+        return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
+            return $this->hasPermission($user, $eventType, 'events-manageEventType');
         }, true, true, false);
     }
 
     public function getEditableEventTypeIds(): array
     {
         return ArrayHelper::getColumn($this->getEditableEventTypes(), 'id', false);
+    }
+
+    public function getCreatableEventTypes(): array
+    {
+        $user = Craft::$app->getUser()->getIdentity();
+        
+        return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
+            return $this->hasPermission($user, $eventType, 'events-createEvents');
+        }, true, true, false);
+    }
+
+    public function getCreatableEventTypeIds(): array
+    {
+        return ArrayHelper::getColumn($this->getCreatableEventTypes(), 'id', false);
     }
 
     public function getEventTypeSites(int $eventTypeId): array
@@ -146,7 +162,7 @@ class EventTypes extends Component
         Craft::$app->getProjectConfig()->set($configPath, $eventType->getConfig());
 
         if ($isNewEventType) {
-            $eventType->id = Db::idByUid('{{%events_eventtypes}}', $eventType->uid);
+            $eventType->id = Db::idByUid('{{%events_event_types}}', $eventType->uid);
         }
 
         return true;
@@ -156,6 +172,8 @@ class EventTypes extends Component
     {
         $eventTypeUid = $event->tokenMatches[0];
         $data = $event->newValue;
+        $shouldResaveEvents = false;
+        $shouldResaveEventSessions = false;
 
         // Make sure fields and sites are processed
         ProjectConfigHelper::ensureAllSitesProcessed();
@@ -175,13 +193,25 @@ class EventTypes extends Component
             $eventTypeRecord->uid = $eventTypeUid;
             $eventTypeRecord->name = $data['name'];
             $eventTypeRecord->handle = $data['handle'];
-            $eventTypeRecord->hasTitleField = $data['hasTitleField'];
-            $eventTypeRecord->titleLabel = $data['titleLabel'];
-            $eventTypeRecord->titleFormat = $data['titleFormat'];
-            $eventTypeRecord->hasTickets = $data['hasTickets'];
+            $eventTypeRecord->enableVersioning = $data['enableVersioning'];
             $eventTypeRecord->icsTimezone = $data['icsTimezone'] ?? null;
             $eventTypeRecord->icsDescriptionFieldHandle = $data['icsDescriptionFieldHandle'] ?? null;
             $eventTypeRecord->icsLocationFieldHandle = $data['icsLocationFieldHandle'] ?? null;
+
+            // Changing titles for things will mean we need to resave elements
+            $sessionTitleFormat = $data['sessionTitleFormat'] ?? '{dateSummary}';
+            $ticketTitleFormat = $data['ticketTitleFormat'] ?? '{type.title} - {session.title}';
+            $ticketSkuFormat = $data['ticketSkuFormat'] ?? '';
+            $purchasedTicketTitleFormat = $data['purchasedTicketTitleFormat'] ?? '{event.title} - {ticket.title}';
+
+            if ($eventTypeRecord->sessionTitleFormat != $sessionTitleFormat) {
+                $shouldResaveEventSessions = true;
+            }
+
+            $eventTypeRecord->sessionTitleFormat = $sessionTitleFormat;
+            $eventTypeRecord->ticketTitleFormat = $ticketTitleFormat;
+            $eventTypeRecord->ticketSkuFormat = $ticketSkuFormat;
+            $eventTypeRecord->purchasedTicketTitleFormat = $purchasedTicketTitleFormat;
 
             if (!empty($data['eventFieldLayouts']) && !empty($config = reset($data['eventFieldLayouts']))) {
                 // Save the main field layout
@@ -190,13 +220,45 @@ class EventTypes extends Component
                 $layout->type = Event::class;
                 $layout->uid = key($data['eventFieldLayouts']);
 
-                $fieldsService->saveLayout($layout);
+                $fieldsService->saveLayout($layout, false);
 
                 $eventTypeRecord->fieldLayoutId = $layout->id;
             } else if ($eventTypeRecord->fieldLayoutId) {
                 // Delete the main field layout
                 $fieldsService->deleteLayoutById($eventTypeRecord->fieldLayoutId);
                 $eventTypeRecord->fieldLayoutId = null;
+            }
+
+            if (!empty($data['sessionFieldLayouts']) && !empty($config = reset($data['sessionFieldLayouts']))) {
+                // Save the session field layout
+                $layout = FieldLayout::createFromConfig($config);
+                $layout->id = $eventTypeRecord->sessionFieldLayoutId;
+                $layout->type = Session::class;
+                $layout->uid = key($data['sessionFieldLayouts']);
+
+                $fieldsService->saveLayout($layout, false);
+
+                $eventTypeRecord->sessionFieldLayoutId = $layout->id;
+            } elseif ($eventTypeRecord->sessionFieldLayoutId) {
+                // Delete the session field layout
+                $fieldsService->deleteLayoutById($eventTypeRecord->sessionFieldLayoutId);
+                $eventTypeRecord->sessionFieldLayoutId = null;
+            }
+
+            if (!empty($data['ticketFieldLayouts']) && !empty($config = reset($data['ticketFieldLayouts']))) {
+                // Save the ticket field layout
+                $layout = FieldLayout::createFromConfig($config);
+                $layout->id = $eventTypeRecord->ticketTypeFieldLayoutId;
+                $layout->type = TicketType::class;
+                $layout->uid = key($data['ticketFieldLayouts']);
+
+                $fieldsService->saveLayout($layout, false);
+
+                $eventTypeRecord->ticketTypeFieldLayoutId = $layout->id;
+            } elseif ($eventTypeRecord->ticketTypeFieldLayoutId) {
+                // Delete the ticket field layout
+                $fieldsService->deleteLayoutById($eventTypeRecord->ticketTypeFieldLayoutId);
+                $eventTypeRecord->ticketTypeFieldLayoutId = null;
             }
 
             $eventTypeRecord->save(false);
@@ -231,6 +293,8 @@ class EventTypes extends Component
                     $siteSettingsRecord->siteId = $siteId;
                 }
 
+                $siteSettingsRecord->enabledByDefault = (bool)($siteSettings['enabledByDefault'] ?? true);
+
                 if ($siteSettingsRecord->hasUrls = $siteSettings['hasUrls']) {
                     $siteSettingsRecord->uriFormat = $siteSettings['uriFormat'];
                     $siteSettingsRecord->template = $siteSettings['template'];
@@ -263,6 +327,7 @@ class EventTypes extends Component
                     $siteUid = array_search($siteId, $siteIdMap, false);
                     if (!in_array($siteUid, $affectedSiteUids, false)) {
                         $siteSettingsRecord->delete();
+                        $shouldResaveEvents = true;
                     }
                 }
             }
@@ -308,6 +373,28 @@ class EventTypes extends Component
             }
 
             $transaction->commit();
+
+            if ($shouldResaveEvents) {
+                Craft::$app->getQueue()->push(new ResaveElements([
+                    'elementType' => Event::class,
+                    'criteria' => [
+                        'siteId' => '*',
+                        'status' => null,
+                        'typeId' => $eventTypeRecord->id,
+                    ],
+                ]));
+            }
+
+            if ($shouldResaveEventSessions) {
+                Craft::$app->getQueue()->push(new ResaveElements([
+                    'elementType' => Session::class,
+                    'criteria' => [
+                        'siteId' => '*',
+                        'status' => null,
+                        'eventId' => Event::find()->typeId($eventTypeRecord->id)->status(null)->ids(),
+                    ],
+                ]));
+            }
         } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
@@ -358,6 +445,14 @@ class EventTypes extends Component
                 Craft::$app->getFields()->deleteLayoutById($fieldLayoutId);
             }
 
+            if ($sessionFieldLayoutId = $eventTypeRecord->sessionFieldLayoutId) {
+                Craft::$app->getFields()->deleteLayoutById($sessionFieldLayoutId);
+            }
+
+            if ($ticketTypeFieldLayoutId = $eventTypeRecord->ticketTypeFieldLayoutId) {
+                Craft::$app->getFields()->deleteLayoutById($ticketTypeFieldLayoutId);
+            }
+
             $eventTypeRecord->delete();
             $transaction->commit();
         } catch (Throwable $e) {
@@ -385,42 +480,18 @@ class EventTypes extends Component
         }
     }
 
-    public function pruneDeletedField(FieldEvent $event): void
-    {
-        $field = $event->field;
-        $fieldUid = $field->uid;
-
-        $projectConfig = Craft::$app->getProjectConfig();
-        $eventTypes = $projectConfig->get(self::CONFIG_EVENTTYPES_KEY);
-
-        // Loop through the event types and prune the UID from field layouts.
-        if (is_array($eventTypes)) {
-            foreach ($eventTypes as $eventTypeUid => $eventType) {
-                if (!empty($eventType['eventFieldLayouts'])) {
-                    foreach ($eventType['eventFieldLayouts'] as $layoutUid => $layout) {
-                        if (!empty($layout['tabs'])) {
-                            foreach ($layout['tabs'] as $tabUid => $tab) {
-                                $projectConfig->remove(self::CONFIG_EVENTTYPES_KEY . '.' . $eventTypeUid . '.eventFieldLayouts.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public function isEventTypeTemplateValid(EventType $eventType, int $siteId): bool
     {
         $eventTypeSiteSettings = $eventType->getSiteSettings();
 
-        if (isset($eventTypeSiteSettings[$siteId]) && $eventTypeSiteSettings[$siteId]->hasUrls) {
+        if (isset($eventTypeSiteSettings[$siteId]) && $eventTypeSiteSettings[$siteId]->hasUrls && $eventTypeSiteSettings[$siteId]->template) {
             // Set Craft to the site template mode
             $view = Craft::$app->getView();
             $oldTemplateMode = $view->getTemplateMode();
             $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
 
             // Does the template exist?
-            $templateExists = Craft::$app->getView()->doesTemplateExist((string)$eventTypeSiteSettings[$siteId]->template);
+            $templateExists = Craft::$app->getView()->doesTemplateExist($eventTypeSiteSettings[$siteId]->template);
 
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
@@ -435,10 +506,9 @@ class EventTypes extends Component
 
     public function afterSaveSiteHandler(SiteEvent $event): void
     {
-        $projectConfig = Craft::$app->getProjectConfig();
-
-        if ($event->isNew) {
+        if ($event->isNew && isset($event->oldPrimarySiteId)) {
             $oldPrimarySiteUid = Db::uidById(Table::SITES, $event->oldPrimarySiteId);
+            $projectConfig = Craft::$app->getProjectConfig();
             $existingEventTypeSettings = $projectConfig->get(self::CONFIG_EVENTTYPES_KEY);
 
             if (!$projectConfig->getIsApplyingExternalChanges() && is_array($existingEventTypeSettings)) {
@@ -449,6 +519,30 @@ class EventTypes extends Component
                 }
             }
         }
+    }
+
+    public function hasPermission(User $user, EventType $eventType, ?string $checkPermissionName = null): bool
+    {
+        if ($user->admin) {
+            return true;
+        }
+
+        $permissions = Craft::$app->getUserPermissions()->getPermissionsByUserId($user->id);
+
+        $suffix = ':' . $eventType->uid;
+
+        // Required for create and delete permission.
+        $editEventType = strtolower('events-editEventType' . $suffix);
+
+        if ($checkPermissionName !== null) {
+            $checkPermissionName = strtolower($checkPermissionName . $suffix);
+        }
+
+        if (!in_array($editEventType, $permissions) || ($checkPermissionName !== null && !in_array(strtolower($checkPermissionName), $permissions))) {
+            return false;
+        }
+
+        return true;
     }
 
 
@@ -476,18 +570,21 @@ class EventTypes extends Component
             ->select([
                 'eventTypes.id',
                 'eventTypes.fieldLayoutId',
+                'eventTypes.sessionFieldLayoutId',
+                'eventTypes.ticketTypeFieldLayoutId',
                 'eventTypes.name',
                 'eventTypes.handle',
-                'eventTypes.hasTitleField',
-                'eventTypes.titleLabel',
-                'eventTypes.titleFormat',
-                'eventTypes.hasTickets',
+                'eventTypes.enableVersioning',
+                'eventTypes.sessionTitleFormat',
+                'eventTypes.ticketTitleFormat',
+                'eventTypes.ticketSkuFormat',
+                'eventTypes.purchasedTicketTitleFormat',
                 'eventTypes.icsTimezone',
                 'eventTypes.icsDescriptionFieldHandle',
                 'eventTypes.icsLocationFieldHandle',
                 'eventTypes.uid',
             ])
-            ->from(['{{%events_eventtypes}} eventTypes']);
+            ->from(['{{%events_event_types}} eventTypes']);
     }
 
     private function _getEventTypeRecord(string $uid): EventTypeRecord

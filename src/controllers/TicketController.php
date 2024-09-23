@@ -22,7 +22,7 @@ class TicketController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function actionCheckin(array $variables = []): Response|string
+    public function actionCheckIn(array $variables = []): Response|string
     {
         /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();

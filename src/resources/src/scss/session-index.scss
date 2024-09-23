@@ -1,0 +1,31 @@
+// ==========================================================================
+
+// Events for Craft CMS
+// Author: Verbb - https://verbb.io/
+
+// ==========================================================================
+
+// ==========================================================================
+// Framework - Instance
+// ==========================================================================
+
+.delete-session-modal {
+    .date-container {
+        background-color: var(--gray-050);
+        padding: 16px 24px;
+        margin: 0 -24px;
+    }
+
+    .options {
+        label {
+            display: inline-block;
+            line-height: 30px;
+        }
+    }
+
+    .buttons {
+        .spinner {
+            margin-inline-end: -20px;
+        }
+    }
+}

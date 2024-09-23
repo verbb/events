@@ -20,10 +20,6 @@ class EventTitleField extends TitleField
             throw new InvalidArgumentException('EventTitleField can only be used in event field layouts.');
         }
 
-        if (!$element->getType()->hasTitleField && !$element->hasErrors('title')) {
-            return null;
-        }
-
         return parent::inputHtml($element, $static);
     }
 

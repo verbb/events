@@ -4,11 +4,20 @@ namespace verbb\events;
 use verbb\events\base\PluginTrait;
 use verbb\events\elements\Event as EventElement;
 use verbb\events\elements\PurchasedTicket;
+use verbb\events\elements\Session;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
+use verbb\events\gql\interfaces\EventInterface;
+use verbb\events\gql\interfaces\SessionInterface;
+use verbb\events\gql\interfaces\TicketTypeInterface;
+use verbb\events\gql\interfaces\TicketInterface;
+use verbb\events\gql\queries\EventQuery;
+use verbb\events\gql\queries\SessionQuery;
+use verbb\events\gql\queries\TicketTypeQuery;
+use verbb\events\gql\queries\TicketQuery;
 use verbb\events\helpers\ProjectConfigData;
 use verbb\events\fields\Events as EventsField;
-use verbb\events\fieldlayoutelements\EventTitleField;
+use verbb\events\fieldlayoutelements as LayoutFields;
 use verbb\events\integrations\feedme\Event as FeedMeEvent;
 use verbb\events\integrations\seomatic\Event as SeomaticEvent;
 use verbb\events\models\Settings;
@@ -16,7 +25,6 @@ use verbb\events\services\EventTypes;
 use verbb\events\variables\EventsVariable;
 
 use Craft;
-use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
@@ -26,12 +34,17 @@ use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterGqlQueriesEvent;
+use craft\events\RegisterGqlSchemaComponentsEvent;
+use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\Gc;
+use craft\services\Gql;
 use craft\services\Plugins;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
@@ -60,7 +73,7 @@ class Events extends Plugin
 
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '1.0.13';
+    public string $schemaVersion = '1.1.0';
     public string $minVersionRequired = '1.4.20';
 
 
@@ -139,13 +152,6 @@ class Events extends Plugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('events-manageTicketTypes')) {
-            $nav['subnav']['ticketTypes'] = [
-                'label' => Craft::t('events', 'Ticket Types'),
-                'url' => 'events/ticket-types',
-            ];
-        }
-
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $nav['subnav']['settings'] = [
                 'label' => Craft::t('events', 'Settings'),
@@ -172,25 +178,21 @@ class Events extends Plugin
     private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            $event->rules = array_merge($event->rules, [
-                'events/purchased-tickets' => 'events/purchased-tickets',
-                'events/purchased-tickets/<purchasedTicketId:\d+>' => 'events/purchased-tickets/edit',
+            $event->rules['events/events'] = 'events/events/index';
+            $event->rules['events/events/<eventTypeHandle:{handle}>'] = 'events/events/index';
+            $event->rules['events/events/<eventType:{handle}>/new'] = 'events/events/create';
+            $event->rules['events/events/<eventTypeHandle:{handle}>/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
 
-                'events/event-types/new' => 'events/event-types/edit',
-                'events/event-types/<eventTypeId:\d+>' => 'events/event-types/edit',
+            $event->rules['events/sessions/<elementId:\d+>'] = 'elements/edit';
+            $event->rules['events/ticket-types/<elementId:\d+>'] = 'elements/edit';
 
-                'events/events/<eventTypeHandle:{handle}>' => 'events/events/index',
-                'events/events/<eventTypeHandle:{handle}>/new' => 'events/events/edit',
-                'events/events/<eventTypeHandle:{handle}>/<eventId:\d+><slug:(?:-[^\/]*)?>' => 'events/events/edit',
+            $event->rules['events/purchased-tickets'] = 'events/purchased-tickets';
+            $event->rules['events/purchased-tickets/<purchasedTicketId:\d+>'] = 'events/purchased-tickets/edit';
 
-                'events/ticket-types/new' => 'events/ticket-types/edit',
-                'events/ticket-types/<ticketTypeId:\d+>' => 'events/ticket-types/edit',
+            $event->rules['events/event-types/new'] = 'events/event-types/edit';
+            $event->rules['events/event-types/<eventTypeId:\d+>'] = 'events/event-types/edit';
 
-                'events/tickets/new' => 'events/tickets/edit',
-                'events/tickets/<ticketId:\d+>' => 'events/tickets/edit',
-
-                'events/settings' => 'events/base/settings',
-            ]);
+            $event->rules['events/settings'] = 'events/base/settings';
         });
     }
 
@@ -198,9 +200,10 @@ class Events extends Plugin
     {
         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event): void {
             $event->types[] = EventElement::class;
+            $event->types[] = PurchasedTicket::class;
+            $event->types[] = Session::class;
             $event->types[] = Ticket::class;
             $event->types[] = TicketType::class;
-            $event->types[] = PurchasedTicket::class;
         });
     }
 
@@ -227,17 +230,26 @@ class Events extends Plugin
 
             foreach ($eventTypes as $eventType) {
                 $suffix = ':' . $eventType->uid;
-                $eventTypePermissions['events-manageEventType' . $suffix] = ['label' => Craft::t('events', 'Manage “{type}” events', ['type' => $eventType->name])];
+
+                $eventTypePermissions['events-editEventType' . $suffix] = [
+                    'label' => Craft::t('events', 'Edit “{type}” events', ['type' => $eventType->name]),
+                    'nested' => [
+                        "events-createEvents$suffix" => [
+                            'label' => Craft::t('events', 'Create events'),
+                        ],
+                        "events-deleteEvents$suffix" => [
+                            'label' => Craft::t('events', 'Delete events'),
+                        ],
+                    ],
+                ];
             }
 
             $event->permissions[] = [
                 'heading' => Craft::t('events', 'Events'),
-                'permissions' => [
+                'permissions' => $eventTypePermissions + [
                     'events-manageEventTypes' => ['label' => Craft::t('events', 'Manage event types')],
-                    'events-manageEvents' => ['label' => Craft::t('events', 'Manage events'), 'nested' => $eventTypePermissions],
-                    'events-manageTicketTypes' => ['label' => Craft::t('events', 'Manage ticket types')],
                     'events-managePurchasedTickets' => ['label' => Craft::t('events', 'Manage purchased tickets')],
-                    'events-checkInTickets' => ['label' => Craft::t('events', 'Check-in tickets')],
+                    'events-checkInTickets' => ['label' => Craft::t('events', 'Check in tickets')],
                 ],
             ];
         });
@@ -258,7 +270,6 @@ class Events extends Plugin
         $projectConfigService->onAdd(EventTypes::CONFIG_EVENTTYPES_KEY . '.{uid}', [$eventTypeService, 'handleChangedEventType'])
             ->onUpdate(EventTypes::CONFIG_EVENTTYPES_KEY . '.{uid}', [$eventTypeService, 'handleChangedEventType'])
             ->onRemove(EventTypes::CONFIG_EVENTTYPES_KEY . '.{uid}', [$eventTypeService, 'handleDeletedEventType']);
-        Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$eventTypeService, 'pruneDeletedField']);
         Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$eventTypeService, 'pruneDeletedSite']);
 
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
@@ -314,6 +325,26 @@ class Events extends Plugin
                 'helpSummary' => 'Re-saves Events events.',
             ];
 
+            $event->actions['events-sessions'] = [
+                'action' => function(): int {
+                    $controller = Craft::$app->controller;
+
+                    return $controller->resaveElements(Session::class);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves Events sessions.',
+            ];
+
+            $event->actions['events-ticket-types'] = [
+                'action' => function(): int {
+                    $controller = Craft::$app->controller;
+
+                    return $controller->resaveElements(TicketType::class);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves Events ticket types.',
+            ];
+
             $event->actions['events-tickets'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
@@ -324,17 +355,7 @@ class Events extends Plugin
                 'helpSummary' => 'Re-saves Events tickets.',
             ];
 
-            $event->actions['events-tickettypes'] = [
-                'action' => function(): int {
-                    $controller = Craft::$app->controller;
-
-                    return $controller->resaveElements(TicketType::class);
-                },
-                'options' => [],
-                'helpSummary' => 'Re-saves Events ticket types.',
-            ];
-
-            $event->actions['events-purchasedtickets'] = [
+            $event->actions['events-purchased-tickets'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
 
@@ -350,7 +371,26 @@ class Events extends Plugin
     {
         Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_NATIVE_FIELDS, static function(DefineFieldLayoutFieldsEvent $event) {
             if ($event->sender->type === EventElement::class) {
-                $event->fields[] = EventTitleField::class;
+                $event->fields[] = LayoutFields\EventTitleField::class;
+                $event->fields[] = LayoutFields\SessionsField::class;
+                $event->fields[] = LayoutFields\TicketTypesField::class;
+                $event->fields[] = LayoutFields\TicketsField::class;
+                $event->fields[] = LayoutFields\PurchasedTicketsField::class;
+            }
+
+            if ($event->sender->type === Session::class) {
+                $event->fields[] = LayoutFields\SessionStartDateTimeField::class;
+                $event->fields[] = LayoutFields\SessionEndDateTimeField::class;
+                $event->fields[] = LayoutFields\SessionAllDayField::class;
+                $event->fields[] = LayoutFields\SessionFrequencyField::class;
+                $event->fields[] = LayoutFields\PurchasedTicketsField::class;
+            }
+
+            if ($event->sender->type === TicketType::class) {
+                $event->fields[] = LayoutFields\TicketTypeTitleField::class;
+                $event->fields[] = LayoutFields\TicketTypeCapacityField::class;
+                $event->fields[] = LayoutFields\TicketTypePriceField::class;
+                $event->fields[] = LayoutFields\PurchasedTicketsField::class;
             }
         });
     }

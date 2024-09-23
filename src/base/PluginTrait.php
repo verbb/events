@@ -7,8 +7,8 @@ use verbb\events\services\EventTypes;
 use verbb\events\services\Ics;
 use verbb\events\services\Pdf;
 use verbb\events\services\PurchasedTickets;
+use verbb\events\services\Sessions;
 use verbb\events\services\Tickets;
-use verbb\events\services\TicketTypes;
 
 use verbb\base\LogTrait;
 use verbb\base\helpers\Plugin;
@@ -44,8 +44,8 @@ trait PluginTrait
                 'klaviyoConnect' => KlaviyoConnect::class,
                 'pdf' => Pdf::class,
                 'purchasedTickets' => PurchasedTickets::class,
+                'sessions' => Sessions::class,
                 'tickets' => Tickets::class,
-                'ticketTypes' => TicketTypes::class,
             ],
         ];
     }
@@ -84,14 +84,14 @@ trait PluginTrait
         return $this->get('purchasedTickets');
     }
 
+    public function getSessions(): Sessions
+    {
+        return $this->get('sessions');
+    }
+
     public function getTickets(): Tickets
     {
         return $this->get('tickets');
-    }
-
-    public function getTicketTypes(): TicketTypes
-    {
-        return $this->get('ticketTypes');
     }
 
 }

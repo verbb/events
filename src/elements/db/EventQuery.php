@@ -8,12 +8,9 @@ use verbb\events\models\EventType;
 use Craft;
 use craft\db\Query;
 use craft\db\QueryAbortedException;
-use craft\elements\User;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
-
-use craft\commerce\db\Table as CommerceTable;
 
 use DateTime;
 
@@ -24,16 +21,10 @@ class EventQuery extends ElementQuery
 
     public bool $editable = false;
     public mixed $typeId = null;
-    public mixed $startDate = null;
-    public mixed $endDate = null;
     public mixed $postDate = null;
     public mixed $expiryDate = null;
 
-    public mixed $before = null;
-    public mixed $after = null;
-    public mixed $customerId = null;
-
-    protected array $defaultOrderBy = ['events_events.startDate' => SORT_ASC];
+    protected array $defaultOrderBy = ['events_events.postDate' => SORT_DESC];
 
 
     // Public Methods
@@ -51,15 +42,10 @@ class EventQuery extends ElementQuery
 
     public function __set($name, $value)
     {
-        switch ($name) {
-            case 'type':
-                $this->type($value);
-                break;
-            case 'customer':
-                $this->customer($value);
-                break;
-            default:
-                parent::__set($name, $value);
+        if ($name === 'type') {
+            $this->type($value);
+        } else {
+            parent::__set($name, $value);
         }
     }
 
@@ -70,25 +56,13 @@ class EventQuery extends ElementQuery
         } else if ($value !== null) {
             $this->typeId = (new Query())
                 ->select(['id'])
-                ->from(['{{%events_eventtypes}}'])
+                ->from(['{{%events_event_types}}'])
                 ->where(Db::parseParam('handle', $value))
                 ->column();
         } else {
             $this->typeId = null;
         }
 
-        return $this;
-    }
-
-    public function before($value): static
-    {
-        $this->before = $value;
-        return $this;
-    }
-
-    public function after($value): static
-    {
-        $this->after = $value;
         return $this;
     }
 
@@ -104,44 +78,9 @@ class EventQuery extends ElementQuery
         return $this;
     }
 
-    public function startDate($value): static
+    public function status(array|string|null $value): static
     {
-        $this->startDate = $value;
-        return $this;
-    }
-
-    public function endDate($value): static
-    {
-        $this->endDate = $value;
-        return $this;
-    }
-
-    public function postDate($value): static
-    {
-        $this->postDate = $value;
-        return $this;
-    }
-
-    public function expiryDate($value): static
-    {
-        $this->expiryDate = $value;
-        return $this;
-    }
-
-    public function customer(?User $value = null): static
-    {
-        if ($value) {
-            $this->customerId = $value->id;
-        } else {
-            $this->customerId = null;
-        }
-
-        return $this;
-    }
-
-    public function customerId($value): static
-    {
-        $this->customerId = $value;
+        parent::status($value);
         return $this;
     }
 
@@ -163,48 +102,30 @@ class EventQuery extends ElementQuery
         $this->query->select([
             'events_events.id',
             'events_events.typeId',
-            'events_events.allDay',
             'events_events.capacity',
-            'events_events.startDate',
-            'events_events.endDate',
             'events_events.postDate',
             'events_events.expiryDate',
+            'events_events.ticketsCache',
+        
+            // Get the earliest startDate and latest endDate from the sessions table
+            'sessions.startDate',
+            'sessions.endDate',
         ]);
 
-        if ($this->startDate) {
-            $this->subQuery->andWhere(Db::parseDateParam('events_events.startDate', $this->startDate));
-        }
+        // Subquery for sessions aggregation, to get around GROUPBY issues
+        $sessionsQuery = (new Query())
+            ->select([
+                'primaryOwnerId AS eventId',
+                'MIN(startDate) AS startDate',
+                'MAX(endDate) AS endDate',
+            ])
+            ->from('{{%events_sessions}}')
+            ->groupBy('primaryOwnerId');
 
-        if ($this->endDate) {
-            $this->subQuery->andWhere(Db::parseDateParam('events_events.endDate', $this->endDate));
-        }
+        $this->query->leftJoin(['sessions' => $sessionsQuery], '[[sessions.eventId]] = [[events_events.id]]');
 
-        if ($this->postDate) {
-            $this->subQuery->andWhere(Db::parseDateParam('events_events.postDate', $this->postDate));
-        } else {
-            if ($this->before) {
-                $this->subQuery->andWhere(Db::parseDateParam('events_events.postDate', $this->before, '<'));
-            }
-            if ($this->after) {
-                $this->subQuery->andWhere(Db::parseDateParam('events_events.postDate', $this->after, '>='));
-            }
-        }
-
-        if ($this->expiryDate) {
-            $this->subQuery->andWhere(Db::parseDateParam('events_events.expiryDate', $this->expiryDate));
-        }
-
-        if ($this->typeId) {
-            $this->subQuery->andWhere(Db::parseParam('events_events.typeId', $this->typeId));
-        }
-
-        if ($this->customerId) {
-            $this->subQuery->innerJoin('{{%events_tickets}} tickets', '[[tickets.eventId]] = [[events_events.id]]');
-            $this->subQuery->innerJoin(CommerceTable::LINEITEMS . ' lineitems', '[[tickets.id]] = [[lineitems.purchasableId]]');
-            $this->subQuery->innerJoin(CommerceTable::ORDERS . ' orders', '[[lineitems.orderId]] = [[orders.id]]');
-            $this->subQuery->andWhere(['=', '[[orders.customerId]]', $this->customerId]);
-            $this->subQuery->andWhere(['=', '[[orders.isCompleted]]', true]);
-            $this->subQuery->groupBy(['events_events.id']);
+        if (isset($this->typeId)) {
+            $this->subQuery->andWhere(['events_events.typeId' => $this->typeId]);
         }
 
         $this->_applyEditableParam();
@@ -215,9 +136,7 @@ class EventQuery extends ElementQuery
 
     protected function statusCondition(string $status): mixed
     {
-        $now = new DateTime();
-        $now->setTime((int)$now->format('H'), (int)$now->format('i'), 59);
-        $currentTimeDb = Db::prepareDateForDb($now);
+        $currentTimeDb = Db::prepareDateForDb(new DateTime());
 
         return match ($status) {
             Event::STATUS_LIVE => [
@@ -254,22 +173,20 @@ class EventQuery extends ElementQuery
         };
     }
 
+
     // Private Methods
     // =========================================================================
 
-    /**
-     * Normalizes the typeId param to an array of IDs or null
-     */
     private function _normalizeTypeId(): void
     {
         if (empty($this->typeId)) {
-            $this->typeId = null;
+            $this->typeId = is_array($this->typeId) ? [] : null;
         } else if (is_numeric($this->typeId)) {
             $this->typeId = [$this->typeId];
         } else if (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
             $this->typeId = (new Query())
                 ->select(['id'])
-                ->from(['{{%events_eventtypes}}'])
+                ->from(['{{%events_event_types}}'])
                 ->where(Db::parseParam('id', $this->typeId))
                 ->column();
         }
@@ -312,9 +229,10 @@ class EventQuery extends ElementQuery
                 } else {
                     $condition[] = [
                         'and',
-                        Db::parseParam('events_eventtypes.handle', $parts[0]),
+                        Db::parseParam('events_event_types.handle', $parts[0]),
                         Db::parseParam('elements_sites.slug', $parts[1]),
                     ];
+                    
                     $joinSections = true;
                 }
             }
@@ -323,7 +241,7 @@ class EventQuery extends ElementQuery
         $this->subQuery->andWhere($condition);
 
         if ($joinSections) {
-            $this->subQuery->innerJoin('{{%events_eventtypes}} events_eventtypes', '[[eventtypes.id]] = [[events.typeId]]');
+            $this->subQuery->innerJoin('{{%events_event_types}} events_event_types', '[[events_event_types.id]] = [[events.typeId]]');
         }
     }
 }

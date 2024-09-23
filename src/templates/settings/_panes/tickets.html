@@ -1,16 +1,8 @@
 {% import '_includes/forms' as forms %}
 {% import 'verbb-base/_macros' as macros %}
 
-{{ forms.textField({
-    first: true,
-    label: 'Ticket SKU Length' | t('events'),
-    instructions: 'Length of the generated ticket SKU.' | t('events'),
-    name: 'ticketSKULength',
-    value: settings.ticketSKULength,
-    warning: macros.configWarning('ticketSKULength', 'events'),
-}) }}
-
 {{ forms.autosuggestField({
+    first: true,
     label: 'Ticket PDF Template' | t('events'),
     instructions: 'The path to the template used for generating purchased ticket PDFs.' | t('events'),
     required: true,

@@ -13,11 +13,11 @@ class EventType extends ActiveRecord
 
     public static function tableName(): string
     {
-        return '{{%events_eventtypes}}';
+        return '{{%events_event_types}}';
     }
 
     public function getFieldLayout(): ActiveQueryInterface
     {
-        return $this->hasOne(FieldLayout::class, ['id' => 'fieldLayoutId']);
+        return self::hasOne(FieldLayout::class, ['id' => 'fieldLayoutId']);
     }
 }

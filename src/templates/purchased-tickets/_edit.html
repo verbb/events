@@ -10,11 +10,7 @@
 {% set selectedSubnavItem = 'purchasedTickets' %}
 {% set element = purchasedTicket %}
 
-{% set selectedTab = 'details' %}
-
-{% set tabs = {
-	details: { label: 'Details' | t('events'), url: '#ticket-details' },
-} %}
+{% set tabs = [] %}
 
 {% if fieldLayout %}
     {% for tab in fieldLayout.getTabs() %}
@@ -59,34 +55,14 @@
 <input type="hidden" name="id" value="{{ purchasedTicket.id }}">
 
 <div id="fields">
-    <div id="ticket-details">
-        {{ forms.textField({
-            first: true,
-            label: 'Ticket SKU' | t('events'),
-            id: 'ticketSku',
-            name: 'ticketSku',
-            value: purchasedTicket.ticketSku ?? '',
-            errors: purchasedTicket.getErrors('ticketSku') ?? '',
-        }) }}
-
-        <hr>
-
-        <p>
-            <strong>{{ 'Check-in QR Code' | t('events') }}</strong><br>
-
-            {% set url = actionUrl('events/ticket/checkin', { sku: purchasedTicket.ticketSku }) %}
-            {% set url = url | replace(craft.app.config.general.cpTrigger ~ '/', '') %}
-
-            <a href="{{ url }}" target="_blank">
-                {{ 'Check in URL' | t('events') }}
-            </a>
-        </p>
-
-        <img width="150px" src="{{ purchasedTicket.qrCode }}" />
-    </div>
-
     {% if fieldLayout %}
-        {{ fieldLayout.createForm(purchasedTicket).render(false) | raw }}
+        {% for tab in fieldLayout.getTabs() %}
+            {% for fieldElement in tab.getElements() %}
+                {% if fieldElement is instance of('craft\\fieldlayoutelements\\CustomField') %}
+                    {{ fieldElement.formHtml(purchasedTicket) | raw }}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
     {% endif %}
 </div>
 
@@ -94,73 +70,204 @@
 
 {% block details %}
 
-<div class="meta events-meta">
-    <h5 class="first">{{ "Event" | t('events') }}</h5>
-
-    {% if purchasedTicket.event %}
-        <p>
-            <a class="go" href="{{ purchasedTicket.event.getCpEditUrl() }}">
-                {{ purchasedTicket.event.title }}
-            </a>
-        </p>
-    {% endif %}
-
-    <hr>
-
-    <h5>{{ 'Ticket' | t('events') }}</h5>
-
-    {% if purchasedTicket.ticket %}
-        <p>
-            <a class="go" href="{{ purchasedTicket.ticket.getCpEditUrl() }}">
-                {{ purchasedTicket.ticket.title }}
-            </a>
-        </p>
-    {% endif %}
-
-    <hr>
-
-    <h5>{{ 'Order' | t('events') }}</h5>
-
-    {% if purchasedTicket.order %}
-        <p>
-            <a class="go" href="{{ purchasedTicket.order.getCpEditUrl() }}">
-                {{ purchasedTicket.order.reference }}
-            </a>
-        </p>
-    {% endif %}
-
-    <hr>
-
-    <h5>{{ 'Checked In' | t('events') }}</h5>
-
-    <p>
-        <span class="status {{ purchasedTicket.checkedIn ? 'live' : 'disabled' }}"></span> 
-		{% if purchasedTicket.checkedIn %}
-			<a class="formsubmit btn small" data-action="events/purchased-tickets/uncheckin">
-				{{ 'Un-Check in' | t('events') }}
-			</a>
-		{% else %}
-			<a class="formsubmit btn small" data-action="events/purchased-tickets/checkin">
-				{{ 'Check in' | t('events') }}
-			</a>
-		{% endif %}
-    </p>
-
-    <h5>{{ 'Checked In Date' | t('events') }}</h5>
-
-    {% if purchasedTicket.checkedInDate %}
-        <p>{{ purchasedTicket.checkedInDate | date('short') }} {{ purchasedTicket.checkedInDate | time('short') }}</p>
-    {% else %}
-        <p>-</p>
-    {% endif %}
-
-    <hr>
-
-    <h5>{{ 'Created Date' | t('events') }}</h5>
-    <p>{{ purchasedTicket.dateCreated | date('short') }} {{ purchasedTicket.dateCreated | time('short') }}</p>
-
-    <h5>{{ 'Updated Date' | t('events') }}</h5>
-    <p>{{ purchasedTicket.dateUpdated | date('short') }} {{ purchasedTicket.dateUpdated | time('short') }}</p>
+<div class="meta">
+    {{ forms.elementSelectField({
+        label: 'Event' | t('events'),
+        id: 'eventId',
+        name: 'eventId',
+        elementType: 'verbb\\events\\elements\\Event',
+        limit: 1,
+        elements: (purchasedTicket.getEvent() is defined and purchasedTicket.getEvent() ? [purchasedTicket.getEvent()]),
+    }) }}
+    
+    {{ forms.elementSelectField({
+        label: 'Session' | t('events'),
+        id: 'sessionId',
+        name: 'sessionId',
+        elementType: 'verbb\\events\\elements\\Session',
+        limit: 1,
+        elements: (purchasedTicket.getSession() is defined and purchasedTicket.getSession() ? [purchasedTicket.getSession()]),
+    }) }}
+    
+    {{ forms.elementSelectField({
+        label: 'Ticket' | t('events'),
+        id: 'ticketId',
+        name: 'ticketId',
+        elementType: 'verbb\\events\\elements\\Ticket',
+        limit: 1,
+        elements: (purchasedTicket.getTicket() is defined and purchasedTicket.getTicket() ? [purchasedTicket.getTicket()]),
+    }) }}
+    
+    {{ forms.elementSelectField({
+        label: 'Ticket Type' | t('events'),
+        id: 'ticketTypeId',
+        name: 'ticketTypeId',
+        elementType: 'verbb\\events\\elements\\TicketType',
+        limit: 1,
+        elements: (purchasedTicket.getTicketType() is defined and purchasedTicket.getTicketType() ? [purchasedTicket.getTicketType()]),
+    }) }}
+    
+    {{ forms.elementSelectField({
+        label: 'Order' | t('events'),
+        id: 'orderId',
+        name: 'orderId',
+        elementType: 'craft\\commerce\\elements\\Order',
+        limit: 1,
+        elements: (purchasedTicket.getOrder() is defined and purchasedTicket.getOrder() ? [purchasedTicket.getOrder()]),
+    }) }}
 </div>
+
+<fieldset>
+    <legend class="h6">{{ 'Status' | t('events') }}</legend>
+
+    <div class="meta">
+        {{ forms.lightswitchField({
+            label: 'Enabled' | t('events'),
+            id: 'enabled',
+            name: 'enabled',
+            on: purchasedTicket.enabled,
+            first: true,
+        }) }}
+    </div>
+</fieldset>
+
+<fieldset>
+    <legend class="h6">{{ 'Check In' | t('events') }}</legend>
+
+    <div class="meta">
+        {% set checkedIn %}
+            <div class="flex flex-nowrap gap-xs">
+                <span class="status {{ purchasedTicket.checkedIn ? 'live' : 'disabled' }}"></span> 
+                
+                {% if purchasedTicket.checkedIn %}
+                    <a class="formsubmit btn small" data-action="events/purchased-tickets/check-out">
+                        {{ 'Check out' | t('events') }}
+                    </a>
+                {% else %}
+                    <a class="formsubmit btn small" data-action="events/purchased-tickets/check-in">
+                        {{ 'Check in' | t('events') }}
+                    </a>
+                {% endif %}
+            </div>
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Check In' | t('events'),
+        }, checkedIn) }}
+
+        {% set checkedInDate %}
+            {% if purchasedTicket.checkedInDate %}
+                {{ purchasedTicket.checkedInDate | date('short') }} {{ purchasedTicket.checkedInDate | time('short') }}
+            {% else %}
+                -
+            {% endif %}
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Check In Date' | t('events'),
+        }, checkedInDate) }}
+
+        {% set checkedInDate %}
+            <a class="external" target="_blank" href="{{ purchasedTicket.getCheckInUrl() }}">
+                <span class="flex flex-nowrap gap-xs">
+                    <span>{{ 'View URL' | t('events') }}</span>
+                    <span data-icon="external" data-icon-size="puny" role="img" aria-label="{{ 'Opens in a new window' | t('app') }}"></span>
+                </span>
+            </a>
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Check In URL' | t('events'),
+        }, checkedInDate) }}
+
+        {% set qrCode %}
+            <a class="btn small" href="#open-modal">{{ 'Show QR Code' | t('events') }}</a>
+
+            <div id="open-modal" class="inline-modal-window">
+                <div>
+                    <a href="#" title="Close" class="inline-modal-close">{{ 'Close' | t('events') }}</a>
+
+                    <img width="180px" height="180px" src="{{ purchasedTicket.qrCode }}" />
+                </div>
+            </div>
+        {% endset %}
+
+        {{ forms.field({
+            label: 'QR Code' | t('events'),
+        }, qrCode) }}
+    </div>
+</fieldset>
+
+{% css %}
+
+.inline-modal-window {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.25);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 9999999999;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+}
+
+.inline-modal-window:target {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.inline-modal-window > div {
+    width: 250px;
+    height: 250px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2.5rem;
+}
+
+.inline-modal-close {
+    color: #666;
+    line-height: 50px;
+    font-size: 80%;
+    position: absolute;
+    right: 13px;
+    text-align: center;
+    top: -5px;
+    text-decoration: none;
+}
+
+{% endcss %}
+
+<dl class="meta read-only">
+    <div class="data">
+        <dt class="heading">{{ 'ID' | t('app') }}</dt>
+        <dd class="value">{{ purchasedTicket.id }}</dd>
+    </div>
+
+    <div class="data">
+        <dt class="heading">{{ 'Status' | t('app') }}</dt>
+        <dd class="value">
+            <span class="status {{ purchasedTicket.enabled ? 'enabled' : 'disabled' }}"></span>
+            <span>{{ (purchasedTicket.enabled ? 'Enabled' : 'Disabled') | t('app') }}</span>
+        </dd>
+    </div>
+    
+    <div class="data">
+        <dt class="heading">{{ 'Created at' | t('app') }}</dt>
+        <dd class="value">{{ purchasedTicket.dateCreated | date('short') }} {{ purchasedTicket.dateCreated | time('short') }}</dd>
+    </div>
+    
+    <div class="data">
+        <dt class="heading">{{ 'Updated at' | t('app') }}</dt>
+        <dd class="value">{{ purchasedTicket.dateUpdated | date('short') }} {{ purchasedTicket.dateUpdated | time('short') }}</dd>
+    </div>
+</dl>
 
 {% endblock %}

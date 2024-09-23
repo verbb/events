@@ -1,30 +1,14 @@
 {% extends '_layouts/elementindex' %}
 
-{% set title = craft.events.getPluginName() | t('events') %}
-{% set docTitle = title ~ ' - ' ~ craft.events.getPluginName() %}
+{% set title = 'Events' | t('events') %}
+{% set docTitle = title ~ ' - Events' %}
 {% set elementType = 'verbb\\events\\elements\\Event' %}
+{% set selectedTab = 'events' %}
 {% set selectedSubnavItem = 'events' %}
+{% set bodyClass = (bodyClass is defined ? bodyClass ~ ' ' : '') ~ 'events eventsindex' %}
 
-{% js %}
-    if (typeof Craft.Events === 'undefined') {
-        Craft.Events = {};
-    }
-
-    {% set eventTypes = [] %}
-
-    {% for eventType in craft.events.getEditableEventTypes() %}
-        {% set eventTypes = eventTypes | merge([{
-            id: eventType.uid,
-            name: eventType.name,
-            handle: eventType.handle,
-        }]) %}
-    {% endfor %}
-
-    Craft.Events.editableEventTypes = {{ eventTypes | json_encode | raw }};
-
-    {% if eventTypeHandle is defined %}
+{% if eventTypeHandle is defined %}
+    {% js %}
         window.defaultEventTypeHandle = '{{ eventTypeHandle }}';
-    {% endif %}
-{% endjs %}
-
-{% do view.registerAssetBundle('verbb\\events\\assetbundles\\EventsAsset') -%}
+    {% endjs %}
+{% endif %}

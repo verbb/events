@@ -20,6 +20,7 @@ class EventTypeSite extends Model
     public ?bool $hasUrls = null;
     public ?string $uriFormat = null;
     public ?string $template = null;
+    public bool $enabledByDefault = true;
     public bool $uriFormatIsRequired = true;
 
     private ?EventType $_eventType = null;

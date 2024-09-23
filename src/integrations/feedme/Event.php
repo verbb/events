@@ -6,7 +6,6 @@ use verbb\events\elements\Event as EventElement;
 use verbb\events\elements\Ticket as TicketElement;
 
 use Craft;
-use craft\base\ElementInterface;
 use craft\helpers\Json;
 
 use craft\feedme\Plugin as FeedMe;
@@ -18,7 +17,6 @@ use craft\feedme\services\Process;
 use yii\base\Event as YiiEvent;
 
 use Cake\Utility\Hash;
-use Carbon\Carbon;
 use DateTime;
 use Exception;
 
@@ -156,7 +154,7 @@ class Event extends Element
 
         // We need to re-arrange the feed-mapping from using ticket-* to putting all these in a
         // tickets[] array for easy management later. If we don't do this, it'll start processing
-        // attributes and fields based on the top-level event, which is incorrect..
+        // attributes and fields based on the top-level event, which is incorrect.
         foreach ($feed['fieldMapping'] as $fieldHandle => $fieldInfo) {
             if (str_contains($fieldHandle, 'ticket-')) {
                 // Add it to tickets[]

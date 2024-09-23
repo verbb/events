@@ -85,7 +85,7 @@ class Event implements SeoElementInterface
         // Install only for non-console Control Panel requests
         if ($request->getIsCpRequest() && !$request->getIsConsoleRequest()) {
             // Events sidebar
-            Craft::$app->view->hook('events.edit.details', function(&$context) {
+            Craft::$app->view->hook('events.edit.details', function($context) {
                 $html = '';
 
                 Seomatic::$view->registerAssetBundle(SeomaticAsset::class);
@@ -150,9 +150,7 @@ class Event implements SeoElementInterface
             try {
                 $eventType = $events->getEventTypes()->getEventTypeByHandle($sourceHandle);
 
-                if ($eventType) {
-                    $layoutId = $eventType->getFieldLayoutId();
-                }
+                $layoutId = $eventType?->getFieldLayoutId();
             } catch (Exception $e) {
                 $layoutId = null;
             }
@@ -175,9 +173,7 @@ class Event implements SeoElementInterface
         $eventType = null;
         $events = EventsPlugin::getInstance();
 
-        if ($events !== null) {
-            $eventType = $events->getEventTypes()->getEventTypeById($sourceId);
-        }
+        $eventType = $events?->getEventTypes()->getEventTypeById($sourceId);
 
         return $eventType;
     }
@@ -187,9 +183,7 @@ class Event implements SeoElementInterface
         $eventType = null;
         $events = EventsPlugin::getInstance();
 
-        if ($events !== null) {
-            $eventType = $events->getEventTypes()->getEventTypeByHandle($sourceHandle);
-        }
+        $eventType = $events?->getEventTypes()->getEventTypeByHandle($sourceHandle);
 
         return $eventType;
     }

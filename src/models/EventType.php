@@ -3,6 +3,8 @@ namespace verbb\events\models;
 
 use verbb\events\Events;
 use verbb\events\elements\Event;
+use verbb\events\elements\Session;
+use verbb\events\elements\TicketType;
 use verbb\events\records\EventType as EventTypeRecord;
 
 use Craft;
@@ -16,8 +18,6 @@ use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 
-use Exception;
-
 class EventType extends Model
 {
     // Properties
@@ -27,10 +27,13 @@ class EventType extends Model
     public ?string $name = null;
     public ?string $handle = null;
     public ?int $fieldLayoutId = null;
-    public bool $hasTitleField = true;
-    public string $titleLabel = 'Title';
-    public ?string $titleFormat = null;
-    public bool $hasTickets = true;
+    public ?int $sessionFieldLayoutId = null;
+    public ?int $ticketTypeFieldLayoutId = null;
+    public bool $enableVersioning = false;
+    public string $sessionTitleFormat = '{dateSummary}';
+    public string $ticketTitleFormat = '{type.title} - {session.title}';
+    public string $ticketSkuFormat = '';
+    public string $purchasedTicketTitleFormat = '{event.title} - {ticket.title}';
     public ?string $icsTimezone = null;
     public ?string $icsDescriptionFieldHandle = null;
     public ?string $icsLocationFieldHandle = null;
@@ -42,6 +45,13 @@ class EventType extends Model
     // Public Methods
     // =========================================================================
 
+    public function __construct(array $config = [])
+    {
+        unset($config['hasTitleField'], $config['titleLabel'], $config['titleFormat']);
+
+        parent::__construct($config);
+    }
+
     public function __toString(): string
     {
         return $this->handle;
@@ -52,19 +62,32 @@ class EventType extends Model
         return UrlHelper::cpUrl('events/event-types/' . $this->id);
     }
 
+    public function getCpEditSessionUrl(): string
+    {
+        return UrlHelper::cpUrl('events/event-types/' . $this->id . '/session');
+    }
+
+    public function getCpEditTicketUrl(): string
+    {
+        return UrlHelper::cpUrl('events/event-types/' . $this->id . '/ticket');
+    }
+
     public function attributeLabels(): array
     {
         return [
             'handle' => Craft::t('app', 'Handle'),
             'name' => Craft::t('app', 'Name'),
-            'titleFormat' => Craft::t('app', 'Title Format'),
-            'titleLabel' => Craft::t('app', 'Title Field Label'),
         ];
+    }
+
+    public function getSiteIds(): array
+    {
+        return array_keys($this->getSiteSettings());
     }
 
     public function getSiteSettings(): array
     {
-        if ($this->_siteSettings !== null) {
+        if (isset($this->_siteSettings)) {
             return $this->_siteSettings;
         }
 
@@ -88,7 +111,57 @@ class EventType extends Model
 
     public function getEventFieldLayout(): ?FieldLayout
     {
-        return $this->getBehavior('eventFieldLayout')->getFieldLayout();
+        /** @var FieldLayoutBehavior $behavior */
+        $behavior = $this->getBehavior('eventFieldLayout');
+        return $behavior->getFieldLayout();
+    }
+
+    public function validateFieldLayout(): void
+    {
+        $fieldLayout = $this->getFieldLayout();
+
+        $fieldLayout->reservedFieldHandles = [
+            'sessions',
+            'tickets',
+        ];
+
+        if (!$fieldLayout->validate()) {
+            $this->addModelErrors($fieldLayout, 'fieldLayout');
+        }
+    }
+
+    public function validateSessionFieldLayout(): void
+    {
+        $sessionFieldLayout = $this->getSessionFieldLayout();
+
+        if (!$sessionFieldLayout->validate()) {
+            $this->addModelErrors($sessionFieldLayout, 'sessionFieldLayout');
+        }
+    }
+
+    public function getSessionFieldLayout(): FieldLayout
+    {
+        /** @var FieldLayoutBehavior $behavior */
+        $behavior = $this->getBehavior('sessionFieldLayout');
+        
+        return $behavior->getFieldLayout();
+    }
+
+    public function validateTicketFieldLayout(): void
+    {
+        $ticketFieldLayout = $this->getTicketTypeFieldLayout();
+
+        if (!$ticketFieldLayout->validate()) {
+            $this->addModelErrors($ticketFieldLayout, 'ticketFieldLayout');
+        }
+    }
+
+    public function getTicketTypeFieldLayout(): FieldLayout
+    {
+        /** @var FieldLayoutBehavior $behavior */
+        $behavior = $this->getBehavior('ticketFieldLayout');
+        
+        return $behavior->getFieldLayout();
     }
 
     public function getEventFieldHandles(): array
@@ -119,10 +192,11 @@ class EventType extends Model
         $config = [
             'name' => $this->name,
             'handle' => $this->handle,
-            'hasTitleField' => $this->hasTitleField,
-            'titleLabel' => $this->titleLabel,
-            'titleFormat' => $this->titleFormat,
-            'hasTickets' => $this->hasTickets,
+            'enableVersioning' => $this->enableVersioning,
+            'sessionTitleFormat' => $this->sessionTitleFormat,
+            'ticketTitleFormat' => $this->ticketTitleFormat,
+            'ticketSkuFormat' => $this->ticketSkuFormat,
+            'purchasedTicketTitleFormat' => $this->purchasedTicketTitleFormat,
             'icsTimezone' => $this->icsTimezone,
             'icsDescriptionFieldHandle' => $this->icsDescriptionFieldHandle,
             'icsLocationFieldHandle' => $this->icsLocationFieldHandle,
@@ -147,21 +221,15 @@ class EventType extends Model
         };
 
         $config['eventFieldLayouts'] = $generateLayoutConfig($this->getFieldLayout());
+        $config['sessionFieldLayouts'] = $generateLayoutConfig($this->getSessionFieldLayout());
+        $config['ticketFieldLayouts'] = $generateLayoutConfig($this->getTicketTypeFieldLayout());
 
         // Get the site settings
-        $allSiteSettings = $this->getSiteSettings();
-
-        // Make sure they're all there
-        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
-            if (!isset($allSiteSettings[$siteId])) {
-                throw new Exception('Tried to save a event type that is missing site settings');
-            }
-        }
-
-        foreach ($allSiteSettings as $siteId => $settings) {
+        foreach ($this->getSiteSettings() as $siteId => $settings) {
             $siteUid = Db::uidById('{{%sites}}', $siteId);
             $config['siteSettings'][$siteUid] = [
                 'hasUrls' => $settings['hasUrls'],
+                'enabledByDefault' => $settings['enabledByDefault'],
                 'uriFormat' => $settings['uriFormat'],
                 'template' => $settings['template'],
             ];
@@ -178,29 +246,16 @@ class EventType extends Model
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['id', 'fieldLayoutId'], 'number', 'integerOnly' => true];
-        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [['id', 'fieldLayoutId', 'sessionFieldLayoutId', 'ticketTypeFieldLayoutId'], 'number', 'integerOnly' => true];
+        $rules[] = [['name', 'handle', 'sessionTitleFormat', 'ticketTitleFormat','purchasedTicketTitleFormat'], 'required'];
         $rules[] = [['name', 'handle'], 'string', 'max' => 255];
 
-        $rules[] = [
-            ['handle'],
-            UniqueValidator::class,
-            'targetClass' => EventTypeRecord::class,
-            'targetAttribute' => ['handle'],
-            'message' => 'Not Unique',
-        ];
+        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => EventTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
+        $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
 
-        $rules[] = [
-            ['handle'],
-            HandleValidator::class,
-            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title'],
-        ];
-
-        if ($this->hasTitleField) {
-            $rules[] = [['titleLabel'], 'required'];
-        } else {
-            $rules[] = [['titleFormat'], 'required'];
-        }
+        $rules[] = ['fieldLayout', 'validateFieldLayout'];
+        $rules[] = ['sessionFieldLayoutId', 'validateSessionFieldLayout'];
+        $rules[] = ['ticketTypeFieldLayoutId', 'validateTicketFieldLayout'];
 
         return $rules;
     }
@@ -213,6 +268,18 @@ class EventType extends Model
             'class' => FieldLayoutBehavior::class,
             'elementType' => Event::class,
             'idAttribute' => 'fieldLayoutId',
+        ];
+
+        $behaviors['sessionFieldLayout'] = [
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Session::class,
+            'idAttribute' => 'sessionFieldLayoutId',
+        ];
+
+        $behaviors['ticketFieldLayout'] = [
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => TicketType::class,
+            'idAttribute' => 'ticketTypeFieldLayoutId',
         ];
 
         return $behaviors;

@@ -4,7 +4,6 @@ namespace verbb\events\controllers;
 use verbb\events\Events;
 use verbb\events\elements\Event;
 
-use Craft;
 use craft\web\Controller;
 
 class IcsController extends Controller

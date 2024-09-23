@@ -1,7 +1,6 @@
 <?php
 namespace verbb\events\elements;
 
-use verbb\events\Events;
 use verbb\events\elements\db\TicketQuery;
 use verbb\events\events\CustomizeEventSnapshotDataEvent;
 use verbb\events\events\CustomizeEventSnapshotFieldsEvent;
@@ -12,31 +11,19 @@ use verbb\events\records\Ticket as TicketRecord;
 
 use Craft;
 use craft\base\Element;
-use craft\base\ElementInterface;
-use craft\db\Query;
-use craft\db\Table;
-use craft\elements\db\EagerLoadPlan;
-use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\Db;
-use craft\models\FieldLayout;
+use craft\helpers\Html;
+use craft\helpers\StringHelper;
 
-use craft\commerce\Plugin as Commerce;
 use craft\commerce\base\Purchasable;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\TaxCategory;
 
 use yii\base\Exception;
-use yii\base\InvalidConfigException;
-use yii\base\Model;
-use yii\db\Expression;
 
 use Throwable;
-use DateTime;
 
 class Ticket extends Purchasable
 {
@@ -72,133 +59,71 @@ class Ticket extends Purchasable
         return true;
     }
 
-    public static function isSelectable(): bool
-    {
-        return true;
-    }
-
-    public static function isLocalized(): bool
-    {
-        return true;
-    }
-
     public static function find(): TicketQuery
     {
         return new TicketQuery(static::class);
     }
 
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
+    protected static function defineFieldLayouts(?string $source): array
     {
-        if ($handle == 'event') {
-            // Get the source element IDs
-            $sourceElementIds = [];
-
-            foreach ($sourceElements as $sourceElement) {
-                $sourceElementIds[] = $sourceElement->id;
-            }
-
-            $map = (new Query())
-                ->select('id as source, eventId as target')
-                ->from('events_tickets')
-                ->where(['in', 'id', $sourceElementIds])
-                ->all();
-
-            return [
-                'elementType' => Event::class,
-                'map' => $map,
-            ];
-        }
-
-        return parent::eagerLoadingMap($sourceElements, $handle);
+        // Being attached to an event element means we always have context, so improve performance
+        // by not loading in all field layouts for this element type.
+        return [];
     }
 
     protected static function defineSources(string $context = null): array
     {
-        $sources = [
+        return [
             [
                 'key' => '*',
-                'label' => Craft::t('events', 'All events'),
-                'defaultSort' => ['postDate', 'desc'],
+                'label' => Craft::t('events', 'All tickets'),
             ],
         ];
-
-        $events = Event::find()->all();
-
-        $type = null;
-
-        foreach ($events as $event) {
-            if ($event->type->name != $type) {
-                $type = $event->type->name;
-                $sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $event->type->name])];
-            }
-            $key = 'event:' . $event->id;
-
-            $sources[] = [
-                'key' => $key,
-                'label' => $event->title,
-                'criteria' => [
-                    'eventId' => $event->id,
-                ],
-            ];
-        }
-
-        return $sources;
     }
 
     protected static function defineSearchableAttributes(): array
     {
-        return ['sku', 'price'];
+        return ['sku', 'price', 'capacity'];
     }
 
     protected static function defineSortOptions(): array
     {
         return [
-            'title' => Craft::t('app', 'Title'),
+            'title' => Craft::t('events', 'Title'),
+            'sku' => Craft::t('events', 'SKU'),
+            // 'price' => Craft::t('events', 'Price'),
+            // 'capacity' => Craft::t('events', 'Capacity'),
         ];
     }
 
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => ['label' => Craft::t('app', 'Title')],
             'event' => ['label' => Craft::t('events', 'Event')],
-            'sku' => ['label' => Craft::t('commerce', 'SKU')],
-            'price' => ['label' => Craft::t('commerce', 'Price')],
-            'quantity' => ['label' => Craft::t('events', 'Quantity')],
+            'session' => ['label' => Craft::t('events', 'Session')],
+            'type' => ['label' => Craft::t('events', 'Type')],
+            'sku' => ['label' => Craft::t('events', 'SKU')],
+            'price' => ['label' => Craft::t('events', 'Price')],
+            'capacity' => ['label' => Craft::t('events', 'Capacity')],
         ];
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = [];
-
-        if ($source === '*') {
-            $attributes[] = 'event';
-        }
-
-        $attributes[] = 'title';
-        $attributes[] = 'sku';
-        $attributes[] = 'price';
-
-        return $attributes;
+        return ['price', 'capacity'];
     }
 
 
     // Properties
     // =========================================================================
 
-    public ?DateTime $availableFrom = null;
-    public ?DateTime $availableTo = null;
-    public bool $deletedWithEvent = false;
     public ?int $eventId = null;
-    public ?float $price = null;
-    public ?int $quantity = null;
-    public ?string $sku = null;
-    public ?int $sortOrder = null;
+    public ?int $sessionId = null;
     public ?int $typeId = null;
 
     private ?Event $_event = null;
-    private ?TicketType $_ticketType = null;
+    private ?Session $_session = null;
+    private ?TicketType $_type = null;
 
 
     // Public Methods
@@ -206,279 +131,170 @@ class Ticket extends Purchasable
 
     public function init(): void
     {
+        // Always enable tracking of stock (for now)
+        $this->inventoryTracked = true;
+
+        if ($eventType = $this->getEvent()?->getType()) {
+            try {
+                // Title and SKU are dynamic
+                $this->title = $this->getDescription();
+
+                if (!$this->sku && $eventType->ticketSkuFormat) {
+                    $this->sku = Craft::$app->getView()->renderObjectTemplate($eventType->ticketSkuFormat, $this);
+                }
+            } catch (Throwable $e) {
+            }
+        }
+
         parent::init();
-
-        $this->title = $this->getType()->title ?? '';
     }
 
-    public function __toString(): string
+    public function behaviors(): array
     {
-        $event = $this->getEvent();
+        $behaviors = parent::behaviors();
 
-        if ($event) {
-            return "{$this->event}: {$this->getName()}";
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'currencyAttributes' => $this->currencyAttributes(),
+        ];
+
+        return $behaviors;
+    }
+
+    public function getDescription(): string
+    {
+        if ($eventType = $this->getEvent()?->getType()) {
+            try {
+                return Craft::$app->getView()->renderObjectTemplate($eventType->ticketTitleFormat, $this);
+            } catch (Throwable $e) {
+            }
         }
 
-        return parent::__toString();
+        return parent::getDescription();
     }
 
-    public function getTitle(): ?string
+    public function getEvent(): ?Event
     {
-        return $this->title;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->title;
-    }
-
-    public function extraFields(): array
-    {
-        $names = parent::extraFields();
-        $names[] = 'event';
-        return $names;
-    }
-
-    public function getFieldLayout(): ?FieldLayout
-    {
-        if ($this->getType()) {
-            return $this->getType()->getFieldLayout();
+        if (!$this->_event) {
+            if ($this->eventId) {
+                $this->_event = Event::find()->id($this->eventId)->one();
+            } else {
+                return null;
+            }
         }
 
-        return null;
-    }
-
-    public function getEvent(): ElementInterface
-    {
-        if ($this->_event !== null) {
-            return $this->_event;
-        }
-
-        if ($this->eventId === null) {
-            throw new InvalidConfigException('Ticket is missing its event');
-        }
-
-        $event = Event::find()
-            ->id($this->eventId)
-            ->siteId($this->siteId)
-            ->status(null)
-            ->trashed(null)
-            ->one();
-
-        if ($event === null) {
-            throw new InvalidConfigException('Invalid event ID: ' . $this->eventId);
-        }
-
-        return $this->_event = $event;
+        return $this->_event;
     }
 
     public function setEvent(Event $event): void
     {
-        if ($event->siteId) {
-            $this->siteId = $event->siteId;
-        }
-
-        if ($event->id) {
-            $this->eventId = $event->id;
-        }
-
         $this->_event = $event;
+        $this->eventId = $event->id;
+    }
+
+    public function getSession(): ?Session
+    {
+        if (!$this->_session) {
+            if ($this->sessionId) {
+                $this->_session = Session::find()->id($this->sessionId)->one();
+            } else {
+                return null;
+            }
+        }
+
+        return $this->_session;
+    }
+
+    public function setSession(Session $session): void
+    {
+        $this->_session = $session;
+        $this->sessionId = $session->id;
     }
 
     public function getType(): ?TicketType
     {
-        if ($this->_ticketType !== null) {
-            return $this->_ticketType;
+        if (!$this->_type) {
+            if ($this->typeId) {
+                $this->_type = TicketType::find()->id($this->typeId)->one();
+            } else {
+                return null;
+            }
         }
 
-        if ($this->typeId === null) {
-            return null;
-        }
-
-        $ticketType = TicketType::find()->id($this->typeId)->siteId($this->siteId)->one();
-
-        if ($ticketType === null) {
-            // throw new InvalidConfigException('Invalid ticket type ID: ' . $this->typeId);
-        }
-
-        return $this->_ticketType = $ticketType;
+        return $this->_type;
     }
 
     public function setType(TicketType $type): void
     {
-        $this->_ticketType = $type;
+        $this->_type = $type;
+        $this->typeId = $type->id;
     }
 
-    public function attributeLabels(): array
+    public function getBasePrice(): ?float
     {
-        $labels = parent::attributeLabels();
-
-        return array_merge($labels, ['sku' => 'SKU']);
+        return $this->getType()->price ?? null;
     }
 
-    public function getIsEditable(): bool
+    public function getStock(): int
     {
-        return false;
+        // Available to purchase is capacity (event or ticket) - purchased tickets
+        $capacity = $this->getCapacity();
+        $purchased = PurchasedTicket::find()->ticketId($this->id)->count();
+        
+        return $capacity - $purchased;
     }
 
-    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
+    public function getCapacity(): int
     {
-        if ($handle == 'event') {
-            $event = $elements[0] ?? null;
-            $this->setEvent($event);
-        } else {
-            parent::setEagerLoadedElements($handle, $elements, $plan);
-        }
-    }
+        $ticketCapacity = $this->getType()->capacity ?? 0;
 
-    public function availableQuantity(): mixed
-    {
-        // Check if the event overall even has anymore to buy - that's a hard-unavailable
-        if ($this->event->getAvailableCapacity() < 1) {
-            return false;
+        if ($event = $this->getEvent()) {
+            if ($this->event->capacity) {
+                return min($this->event->capacity, $ticketCapacity);
+            }
         }
 
-        // If we've specifically not set a quantity on the ticket, treat it like unlimited
-        return $this->quantity ?? $this->event->getAvailableCapacity();
+        return $ticketCapacity;
     }
 
     public function getIsAvailable(): bool
     {
-        if ($this->getStatus() !== Element::STATUS_ENABLED) {
-            return false;
-        }
+        if ($type = $this->getType()) {
+            $currentTime = DateTimeHelper::currentTimeStamp();
 
-        $currentTime = DateTimeHelper::currentTimeStamp();
+            if ($type->availableFrom) {
+                $availableFrom = $type->availableFrom->getTimestamp();
 
-        if ($this->availableFrom) {
-            $availableFrom = $this->availableFrom->getTimestamp();
-
-            if ($availableFrom > $currentTime) {
-                return false;
+                if ($availableFrom > $currentTime) {
+                    return false;
+                }
             }
-        }
 
-        if ($this->availableTo) {
-            $availableTo = $this->availableTo->getTimestamp();
+            if ($type->availableTo) {
+                $availableTo = $type->availableTo->getTimestamp();
 
-            if ($availableTo < $currentTime) {
-                return false;
-            }
-        }
-
-        // Check if there are any tickets left
-        return $this->availableQuantity() >= 1;
-    }
-
-    public function getStatus(): ?string
-    {
-        $status = parent::getStatus();
-
-        $eventStatus = $this->getEvent()->getStatus();
-
-        if ($eventStatus != Event::STATUS_LIVE) {
-            return Element::STATUS_DISABLED;
-        }
-
-        return $status;
-    }
-
-    public function populateLineItem(LineItem $lineItem): void
-    {
-        $errors = [];
-
-        $cart = Commerce::getInstance()->getCarts()->getCart();
-
-        // Get the total number of tickets for the same event and ticket type. We can't just rely on quantity
-        // of this line item as there could be tickets with unique options set, which are separate line items.
-        // Keep track of both the event-wide and ticket type specific quantities.
-        $eventCapacityOffset = 0;
-        $ticketQuantityOffset = 0;
-
-        foreach ($cart->lineItems as $cartLineItem) {
-            // Check for ticket line items, but don't include _this_ one we're adding
-            if ($cartLineItem->purchasable instanceof self && $cartLineItem->id !== $lineItem->id) {
-                // We should check for the same event and ticket type
-                if ($cartLineItem->purchasable->eventId === $this->eventId) {
-                    $eventCapacityOffset += $cartLineItem->qty;
-
-                    if ($cartLineItem->purchasable->typeId === $this->typeId) {
-                        $ticketQuantityOffset += $cartLineItem->qty;
-                    }
+                if ($availableTo < $currentTime) {
+                    return false;
                 }
             }
         }
 
-        if ($lineItem->purchasable === $this) {
-            $ticketCapacity = $lineItem->purchasable->quantity;
-            $eventCapacity = $lineItem->purchasable->event->capacity;
-
-            // If no ticket quantity provided, use the event's capacity
-            if ($ticketCapacity === null) {
-                $ticketCapacity = $eventCapacity;
-            }
-
-            // If no event capacity set (but a ticket quantity set), that's actually easy to process
-            if ($eventCapacity === null) {
-                $eventCapacity = $ticketCapacity;
-            }
-
-            // Just in case both are empty - then it's an unlimited free-for-all!
-            if ($ticketCapacity === null && $eventCapacity === null) {
-                return;
-            }
-
-            $eventAvailable = $lineItem->purchasable->event->getAvailableCapacity();
-
-            // Factor in offsets for current cart data for other line items
-            $eventAvailable -= $eventCapacityOffset;
-            $ticketCapacity -= $ticketQuantityOffset;
-
-            // Find the smallest number, out of the ticket or event capacity
-            $availableTickets = min([$ticketCapacity, $eventAvailable]);
-
-            // Sanity check for negative values thrown SQL errors
-            if ($availableTickets < 1) {
-                $availableTickets = 0;
-            }
-
-            if ($lineItem->qty > $availableTickets) {
-                // Set the line item quantity to the max amount available
-                $lineItem->qty = $availableTickets;
-
-                $errors[] = 'You reached the maximum ticket quantity for ' . $lineItem->purchasable->getDescription();
-            }
-        }
-
-        if ($errors) {
-            $cart->addErrors($errors);
-
-            Craft::$app->getSession()->setError(implode(',', $errors));
-        }
+        return true;
     }
 
     public function afterOrderComplete(Order $order, LineItem $lineItem): void
     {
-        // Reduce quantity
-        Db::update('{{%events_tickets}}', ['quantity' => new Expression('quantity - :qty', [':qty' => $lineItem->qty])], ['id' => $this->id]);
-
-        // Update the quantity
-        $this->quantity = (new Query())
-            ->select(['quantity'])
-            ->from('{{%events_tickets}}')
-            ->where('id = :ticketId', [':ticketId' => $this->id])
-            ->scalar();
-
         // Generate purchased tickets
         $elementsService = Craft::$app->getElements();
 
         for ($i = 0; $i < $lineItem->qty; $i++) {
             $purchasedTicket = new PurchasedTicket();
             $purchasedTicket->eventId = $this->eventId;
+            $purchasedTicket->sessionId = $this->sessionId;
             $purchasedTicket->ticketId = $this->id;
+            $purchasedTicket->ticketTypeId = $this->typeId;
             $purchasedTicket->orderId = $order->id;
             $purchasedTicket->lineItemId = $lineItem->id;
-            $purchasedTicket->ticketSku = TicketHelper::generateTicketSKU();
 
             // Set the field values from the ticket (handle defaults, and values set on the ticket)
             $purchasedTicket->setFieldValues($this->getSerializedFieldValues());
@@ -497,23 +313,9 @@ class Ticket extends Purchasable
         }
     }
 
-    public function getPurchasedTickets(LineItem $lineItem)
-    {
-        return PurchasedTicket::find()
-            ->orderId($lineItem->order->id)
-            ->lineItemId($lineItem->id)
-            ->all();
-    }
-
-    public function getPurchasableId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getSnapshot(): array
     {
-        $data = [];
-        $data['onSale'] = $this->getOnSale();
+        $data = parent::getSnapshot();
         $data['cpEditUrl'] = $this->getCpEditUrl();
 
         // Default Event custom field handles
@@ -605,44 +407,19 @@ class Ticket extends Purchasable
         return array_merge($ticketDataEvent->fieldData, $data);
     }
 
-    public function getOnSale(): bool
+    public function beforeSave(bool $isNew): bool
     {
-        return null === $this->salePrice ? false : (Currency::round($this->salePrice) != Currency::round($this->price));
-    }
+        $event = $this->getEvent();
 
-    public function getPrice(): float
-    {
-        return $this->price;
-    }
+        if (!$this->sku) {
+            $this->sku = StringHelper::randomString(10);
+        }
 
-    public function getSku(): string
-    {
-        return $this->sku;
-    }
+        // Set the field layout
+        $eventType = $event->getType();
+        $this->fieldLayoutId = $eventType->sessionFieldLayoutId;
 
-    public function getTaxCategoryId(): int
-    {
-        return $this->getType()->taxCategoryId;
-    }
-
-    public function getTaxCategory(): TaxCategory
-    {
-        return $this->getType()->getTaxCategory();
-    }
-
-    public function getShippingCategoryId(): int
-    {
-        return $this->getType()->shippingCategoryId;
-    }
-
-    public function getShippingCategory(): ShippingCategory
-    {
-        return $this->getType()->getShippingCategory();
-    }
-
-    public function getIsShippable(): bool
-    {
-        return Events::$plugin->getSettings()->ticketsShippable;
+        return parent::beforeSave($isNew);
     }
 
     public function afterSave(bool $isNew): void
@@ -659,123 +436,24 @@ class Ticket extends Purchasable
         }
 
         $record->eventId = $this->eventId;
+        $record->sessionId = $this->sessionId;
         $record->typeId = $this->typeId;
-        $record->sku = $this->sku;
-        $record->quantity = $this->quantity;
-        $record->price = $this->price;
-        $record->availableFrom = $this->availableFrom;
-        $record->availableTo = $this->availableTo;
-        $record->sortOrder = $this->sortOrder;
 
         $record->save(false);
 
         parent::afterSave($isNew);
     }
 
-    public function beforeDelete(): bool
-    {
-        if (!parent::beforeDelete()) {
-            return false;
-        }
-
-        Db::update('{{%events_tickets}}', ['deletedWithEvent' => $this->deletedWithEvent], ['id' => $this->id], [], false);
-
-        return true;
-    }
-
-    public function beforeRestore(): bool
-    {
-        if (!parent::beforeDelete()) {
-            return false;
-        }
-
-        // Check to see if any other purchasable has the same SKU and update this one before restore
-        $found = (new Query())->select(['[[p.sku]]', '[[e.id]]'])
-            ->from('{{%commerce_purchasables}} p')
-            ->leftJoin(Table::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
-            ->where(['[[e.dateDeleted]]' => null, '[[p.sku]]' => $this->getSku()])
-            ->andWhere(['not', ['[[e.id]]' => $this->getId()]])
-            ->count();
-
-        if ($found) {
-            // Set new SKU in memory
-            $this->sku = $this->getSku() . '-1';
-
-            // Update ticket table with new SKU
-            Db::update('{{%events_tickets}}', ['sku' => $this->sku], ['id' => $this->getId()]);
-
-            // Update purchasable table with new SKU
-            Db::update('{{%commerce_purchasables}}', ['sku' => $this->sku], ['id' => $this->getId()]);
-        }
-
-        return true;
-    }
-
 
     // Protected Methods
     // =========================================================================
 
-    protected function defineRules(): array
-    {
-        $rules = parent::defineRules();
-
-        $rules[] = [['sku'], 'string'];
-        $rules[] = [['sku', 'price', 'typeId'], 'required'];
-        $rules[] = [['price'], 'number'];
-
-        $rules[] = [
-            ['availableFrom'], function($model) {
-                if ($this->availableFrom >= $this->availableTo) {
-                    $this->addError('availableFrom', Craft::t('events', 'Available From must be before Available To'));
-                }
-            },
-        ];
-
-        $rules[] = [
-            ['availableFrom', 'availableTo'], function($model) {
-                $event = $this->getEvent();
-                $endDate = $event ? $event->endDate : null;
-
-                if ($endDate) {
-                    if ($this->availableFrom >= $endDate) {
-                        $this->addError('availableFrom', Craft::t('events', 'Available From must be before the event End Date'));
-                    }
-
-                    if ($this->availableTo >= $endDate) {
-                        $this->addError('availableTo', Craft::t('events', 'Available To must be before the event End Date'));
-                    }
-                }
-            },
-        ];
-
-        return $rules;
-    }
-
     protected function attributeHtml(string $attribute): string
     {
-        switch ($attribute) {
-            case 'event':
-            {
-                return $this->event->title;
-            }
-
-            case 'price':
-            {
-                $code = Commerce::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
-            }
-
-            default:
-            {
-                return parent::attributeHtml($attribute);
-            }
-        }
+        return match ($attribute) {
+            'sku' => Html::encode($this->getSkuAsText()),
+            'price' => $this->basePriceAsCurrency,
+            default => Element::attributeHtml($attribute),
+        };
     }
-
-    protected function cpEditUrl(): ?string
-    {
-        return $this->getEvent() ? $this->getEvent()->getCpEditUrl() : null;
-    }
-
 }

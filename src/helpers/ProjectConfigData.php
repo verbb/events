@@ -3,9 +3,6 @@ namespace verbb\events\helpers;
 
 use verbb\events\Events;
 
-use Craft;
-use craft\db\Query;
-
 class ProjectConfigData
 {
     // Static Methods

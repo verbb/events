@@ -8,13 +8,13 @@ use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
-use craft\db\Query;
 use craft\elements\User;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
-use craft\elements\db\ElementQueryInterface;
+use craft\helpers\Cp;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use craft\models\FieldLayoutTab;
 
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\models\LineItem;
@@ -60,6 +60,11 @@ class PurchasedTicket extends Element
         return true;
     }
 
+    public static function hasStatuses(): bool
+    {
+        return true;
+    }
+
     public static function find(): PurchasedTicketQuery
     {
         return new PurchasedTicketQuery(static::class);
@@ -74,45 +79,52 @@ class PurchasedTicket extends Element
             ],
         ];
 
-        $eventElements = (new Query())
-            ->select(['elements.id', 'purchasedtickets.eventId', 'elements_sites.title', 'eventtypes.name as eventTypeName'])
-            ->from(['{{%elements}} elements'])
-            ->innerJoin('{{%elements_sites}} elements_sites', '[[elements_sites.elementId]] = [[elements.id]]')
-            ->innerJoin('{{%events_purchasedtickets}} purchasedtickets', '[[purchasedtickets.eventId]] = [[elements.id]]')
-            ->innerJoin('{{%events_events}} events', '[[purchasedtickets.eventId]] = [[events.id]]')
-            ->innerJoin('{{%events_eventtypes}} eventtypes', '[[events.typeId]] = [[eventtypes.id]]')
-            ->groupBy(['typeId', 'eventId', 'eventTypeName', 'title', 'elements.id'])
-            ->all();
-
-        $type = null;
-
-        foreach ($eventElements as $element) {
-            if ($element['eventTypeName'] != $type) {
-                $type = $element['eventTypeName'];
-                $sources[] = ['heading' => Craft::t('events', '{name} Events', ['name' => $element['eventTypeName']])];
-            }
-
-            $sources['elements:' . $element['eventId']] = [
-                'key' => 'elements:' . $element['eventId'],
-                'label' => $element['title'],
-                'criteria' => [
-                    'eventId' => $element['eventId'],
-                ],
+        foreach (Events::$plugin->getEventTypes()->getAllEventTypes() as $eventType) {
+            $sources[] = [
+                'heading' => Craft::t('events', '{name} Events', [
+                    'name' => $eventType->name,
+                ]),
             ];
+
+            foreach (Event::find()->typeId($eventType->id)->all() as $event) {
+                $key = "eventType:$eventType->uid:event:$event->id";
+
+                $sources[$key] = [
+                    'key' => $key,
+                    'label' => $event->title,
+                    'criteria' => [
+                        'eventId' => $event->id,
+                    ],
+                ];
+
+                foreach (Session::find()->ownerId($event->id)->all() as $session) {
+                    $sources[$key]['nested'][] = [
+                        'key' => "$key:session:$session->id",
+                        'label' => $session->title,
+                        'criteria' => [
+                            'sessionId' => $session->id,
+                        ],
+                    ];
+                }
+            }
         }
 
         return $sources;
     }
 
+    protected static function includeSetStatusAction(): bool
+    {
+        return true;
+    }
+
     protected static function defineSearchableAttributes(): array
     {
-        return ['ticketSku', 'event', 'ticket', 'order'];
+        return ['event', 'ticket', 'order'];
     }
 
     protected static function defineSortOptions(): array
     {
         return [
-            'ticketSku' => Craft::t('events', 'Ticket SKU'),
             'checkedIn' => Craft::t('events', 'Checked In?'),
             'checkedInDate' => Craft::t('events', 'Checked In Date'),
             'dateCreated' => Craft::t('events', 'Date Created'),
@@ -122,10 +134,11 @@ class PurchasedTicket extends Element
 
     protected static function defineTableAttributes(): array
     {
-        $attributes = [
-            'ticketSku' => Craft::t('events', 'Ticket SKU'),
+        return [
             'eventId' => Craft::t('events', 'Event'),
+            'sessionId' => Craft::t('events', 'Session'),
             'ticketId' => Craft::t('events', 'Ticket'),
+            'ticketTypeId' => Craft::t('events', 'Ticket Type'),
             'orderId' => Craft::t('events', 'Order'),
             'customer' => Craft::t('events', 'Customer'),
             'customerFirstName' => Craft::t('events', 'Customer First Name'),
@@ -136,17 +149,11 @@ class PurchasedTicket extends Element
             'dateCreated' => Craft::t('events', 'Date Created'),
             'dateUpdated' => Craft::t('events', 'Date Updated'),
         ];
-
-        return $attributes;
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
         return [
-            'ticketSku',
-            'eventId',
-            'ticketId',
-            'orderId',
             'checkedIn',
             'dateCreated',
         ];
@@ -176,23 +183,37 @@ class PurchasedTicket extends Element
     public ?bool $checkedIn = null;
     public ?DateTime $checkedInDate = null;
     public ?int $eventId = null;
+    public ?int $sessionId = null;
+    public ?int $ticketId = null;
+    public ?int $ticketTypeId = null;
     public ?int $lineItemId = null;
     public ?int $orderId = null;
-    public ?int $ticketId = null;
-    public ?string $ticketSku = null;
-    private ?User $_customer = null;
+    // public ?string $ticketSku = null;
+
     private ?Event $_event = null;
+    private ?Session $_session = null;
+    private ?Ticket $_ticket = null;
+    private ?TicketType $_ticketType = null;
+    private ?User $_customer = null;
     private ?LineItem $_lineItem = null;
     private ?Order $_order = null;
-    private ?Ticket $_ticket = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function __toString(): string
+    public function init(): void
     {
-        return $this->ticketSku ?? '';
+        // Title is dynamic
+        if ($eventType = $this->getEvent()?->getType()) {
+            try {
+                // Title is dynamic
+                $this->title = Craft::$app->getView()->renderObjectTemplate($eventType->purchasedTicketTitleFormat, $this);
+            } catch (Throwable $e) {
+            }
+        }
+
+        parent::init();
     }
 
     public function canView(User $user): bool
@@ -227,8 +248,23 @@ class PurchasedTicket extends Element
 
     public function getFieldLayout(): ?FieldLayout
     {
-        if ($ticket = $this->getTicket()) {
-            return $ticket->getFieldLayout();
+        if ($ticketType = $this->getTicketType()) {
+            if ($ticketTypeFieldLayout = $ticketType->getFieldLayout()) {
+                // Return a new field layout for just the custom fields
+                $fields = $ticketTypeFieldLayout->getCustomFieldElements();
+
+                $fieldLayout = new FieldLayout([
+                    'type' => self::class,
+                ]);
+
+                // Populate the field layout
+                $tab1 = new FieldLayoutTab(['name' => 'Content']);
+                $tab1->setLayout($fieldLayout);
+                $tab1->setElements($fields);
+                $fieldLayout->setTabs([$tab1]);
+
+                return $fieldLayout;
+            }
         }
 
         return null;
@@ -241,7 +277,20 @@ class PurchasedTicket extends Element
         }
 
         if ($this->eventId) {
-            return $this->_event = Events::$plugin->getEvents()->getEventById($this->eventId);
+            return $this->_event = Event::find()->id($this->eventId)->one();
+        }
+
+        return null;
+    }
+
+    public function getSession(): ?Session
+    {
+        if ($this->_session) {
+            return $this->_session;
+        }
+
+        if ($this->sessionId) {
+            return $this->_session = Session::find()->id($this->sessionId)->one();
         }
 
         return null;
@@ -254,7 +303,20 @@ class PurchasedTicket extends Element
         }
 
         if ($this->ticketId) {
-            return $this->_ticket = Events::$plugin->getTickets()->getTicketById($this->ticketId);
+            return $this->_ticket = Ticket::find()->id($this->ticketId)->one();
+        }
+
+        return null;
+    }
+
+    public function getTicketType(): ?TicketType
+    {
+        if ($this->_ticketType) {
+            return $this->_ticketType;
+        }
+
+        if ($this->ticketTypeId) {
+            return $this->_ticketType = TicketType::find()->id($this->ticketTypeId)->one();
         }
 
         return null;
@@ -303,37 +365,17 @@ class PurchasedTicket extends Element
     {
         $event = $this->getEvent();
 
-        if ($event) {
-            return $event->getEventType();
-        }
-
-        return null;
+        return $event?->getEventType();
     }
 
-    public function getTicketType()
+    public function getCheckInUrl(): string
     {
-        $ticket = $this->getTicket();
-
-        if ($ticket) {
-            return $ticket->getType();
-        }
-
-        return null;
-    }
-
-    public function getEventName()
-    {
-        return $this->getEvent()->getTitle();
-    }
-
-    public function getTicketName()
-    {
-        return $this->getTicket()->getName();
+        return UrlHelper::actionUrl("events/ticket/check-in/{$this->uid}");
     }
 
     public function getQrCode(): string
     {
-        $url = UrlHelper::actionUrl('events/ticket/checkin', ['sku' => $this->ticketSku]);
+        $url = $this->getCheckInUrl();
 
         $qrCode = QrCode::create($url)
             ->setEncoding(new Encoding('UTF-8'))
@@ -363,10 +405,11 @@ class PurchasedTicket extends Element
         }
 
         $purchasedTicketRecord->eventId = $this->eventId;
+        $purchasedTicketRecord->sessionId = $this->sessionId;
         $purchasedTicketRecord->ticketId = $this->ticketId;
+        $purchasedTicketRecord->ticketTypeId = $this->ticketTypeId;
         $purchasedTicketRecord->orderId = $this->orderId;
         $purchasedTicketRecord->lineItemId = $this->lineItemId;
-        $purchasedTicketRecord->ticketSku = $this->ticketSku;
         $purchasedTicketRecord->checkedIn = $this->checkedIn;
         $purchasedTicketRecord->checkedInDate = $this->checkedInDate;
 
@@ -381,82 +424,77 @@ class PurchasedTicket extends Element
 
     protected function attributeHtml(string $attribute): string
     {
-        switch ($attribute) {
-            case 'eventId':
-            {
-                $event = $this->getEvent();
+        if ($attribute === 'eventId') {
+            $event = $this->getEvent();
 
-                if ($event) {
-                    return "<a href='" . $event->getCpEditUrl() . "'>" . $event->title . "</a>";
-                }
-
-                return Craft::t('events', '[Deleted event]');
-            }
-            case 'ticketId':
-            {
-                $ticket = $this->getTicket();
-
-                if ($ticket) {
-                    return "<a href='" . $ticket->getCpEditUrl() . "'>" . $ticket->title . "</a>";
-                }
-
-                return Craft::t('events', '[Deleted ticket]');
-            }
-            case 'orderId':
-            {
-                $order = $this->getOrder();
-
-                if ($order) {
-                    return "<a href='" . $order->getCpEditUrl() . "'>" . $order->reference . "</a>";
-                }
-
-                return Craft::t('events', '[Deleted order]');
-            }
-            case 'customer':
-            {
-                if (($customer = $this->getCustomer())) {
-                    return (string)$customer->email;
-                }
-
-                if ($order = $this->getOrder()) {
-                    return (string)$order->email;
-                }
-
-                return '';
-            }
-            case 'customerFirstName':
-            {
-                if (($customer = $this->getCustomer())) {
-                    return (string)$customer->firstName;
-                }
-
-                return Craft::t('events', '[Guest]');
-            }
-            case 'customerLastName':
-            {
-                if (($customer = $this->getCustomer())) {
-                    return (string)$customer->lastName;
-                }
-
-                return Craft::t('events', '[Guest]');
-            }
-            case 'customerFullName':
-            {
-                if (($customer = $this->getCustomer())) {
-                    return (string)$customer->fullName;
-                }
-
-                return Craft::t('events', '[Guest]');
-            }
-            case 'checkedIn':
-            {
-                return '<span class="status ' . ($this->checkedIn ? 'live' : 'disabled') . '"></span>';
-            }
-            default:
-            {
-                return parent::attributeHtml($attribute);
-            }
+            return $event ? Cp::elementChipHtml($event) : '';
         }
+
+        if ($attribute === 'sessionId') {
+            $session = $this->getSession();
+
+            return $session ? Cp::elementChipHtml($session) : '';
+        }
+
+        if ($attribute === 'ticketId') {
+            $ticket = $this->getTicket();
+
+            return $ticket ? Cp::elementChipHtml($ticket) : '';
+        }
+
+        if ($attribute === 'ticketTypeId') {
+            $ticketType = $this->getTicketType();
+
+            return $ticketType ? Cp::elementChipHtml($ticketType) : '';
+        }
+
+        if ($attribute === 'orderId') {
+            $order = $this->getOrder();
+
+            return $order ? Cp::elementChipHtml($order) : '';
+        }
+
+        if ($attribute === 'customer') {
+            if (($customer = $this->getCustomer())) {
+                return (string)$customer->email;
+            }
+
+            if ($order = $this->getOrder()) {
+                return $order->email;
+            }
+
+            return '';
+        }
+
+        if ($attribute === 'customerFirstName') {
+            if (($customer = $this->getCustomer())) {
+                return (string)$customer->firstName;
+            }
+
+            return Craft::t('events', '[Guest]');
+        }
+
+        if ($attribute === 'customerLastName') {
+            if (($customer = $this->getCustomer())) {
+                return (string)$customer->lastName;
+            }
+
+            return Craft::t('events', '[Guest]');
+        }
+
+        if ($attribute === 'customerFullName') {
+            if (($customer = $this->getCustomer())) {
+                return (string)$customer->fullName;
+            }
+
+            return Craft::t('events', '[Guest]');
+        }
+
+        if ($attribute === 'checkedIn') {
+            return '<span class="status ' . ($this->checkedIn ? 'live' : 'disabled') . '"></span>';
+        }
+
+        return parent::attributeHtml($attribute);
     }
 
     protected function cpEditUrl(): ?string

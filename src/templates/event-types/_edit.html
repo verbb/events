@@ -7,6 +7,7 @@
 ] %}
 
 {% set fullPageForm = true %}
+{% set headlessMode = craft.app.config.general.headlessMode %}
 
 {% set selectedTab = 'eventTypeSettings' %}
 {% import '_includes/forms' as forms %}
@@ -14,6 +15,8 @@
 {% set tabs = {
     eventTypeSettings: { label: 'Settings' | t('app'), url: '#event-type-settings' },
     eventFields: { label: 'Event Fields' | t('events'), url: '#event-fields' },
+    sessionFields: { label: 'Session Fields' | t('events'), url: '#session-fields' },
+    ticketFields: { label: 'Ticket Type Fields' | t('events'), url: '#ticket-type-fields' },
 } %}
 
 {% block blockContent %}
@@ -47,13 +50,56 @@
         }) }}
 
         {{ forms.lightswitchField({
-            label: 'Has Tickets' | t('events'),
-            instructions: 'Whether this event type should be ticketed.' | t('events'),
-            id: 'hasTickets',
-            name: 'hasTickets',
-            value: 1,
-            on: eventType.hasTickets,
-            errors: eventType.getErrors('hasTickets'),
+            label: 'Event Versioning' | t('events'),
+            instructions: 'Whether events should support revisions.' | t('events'),
+            id: 'enableVersioning',
+            name: 'enableVersioning',
+            on: eventType.enableVersioning,
+            errors: eventType.getErrors('enableVersioning'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Session Title Format' | t('events'),
+            instructions: 'What the auto-generated session titles should look like. You can include tags that output session properties, such as {ex1}. All custom fields used must be set to required.' | t('events', { ex1: '<code>{myCustomField}</code>' }),
+            id: 'sessionTitleFormat',
+            name: 'sessionTitleFormat',
+            required: true,
+            class: 'code ltr',
+            value: eventType.sessionTitleFormat,
+            errors: eventType.getErrors('sessionTitleFormat'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Ticket Title Format' | t('events'),
+            instructions: 'What the auto-generated ticket titles should look like. You can include tags that output ticket properties, such as {ex1}. All custom fields used must be set to required.' | t('events', { ex1: '<code>{myCustomField}</code>' }),
+            id: 'ticketTitleFormat',
+            name: 'ticketTitleFormat',
+            required: true,
+            class: 'code ltr',
+            value: eventType.ticketTitleFormat,
+            errors: eventType.getErrors('ticketTitleFormat'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Ticket SKU Format' | t('events'),
+            instructions: 'What the auto-generated ticket SKUs should look like. You can include tags that output ticket properties, such as {ex1}. All custom fields used must be set to required.' | t('events', { ex1: '<code>{myCustomField}</code>' }),
+            id: 'ticketSkuFormat',
+            name: 'ticketSkuFormat',
+            class: 'code ltr',
+            placeholder: '{randomString(10)}',
+            value: eventType.ticketSkuFormat,
+            errors: eventType.getErrors('ticketSkuFormat'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Purchased Ticket Title Format' | t('events'),
+            instructions: 'What purchased ticket titles should look like. You can include tags that output purchased ticket properties, such as {ex1}. All custom fields used must be set to required.' | t('events', { ex1: '<code>{myCustomField}</code>' }),
+            id: 'purchasedTicketTitleFormat',
+            name: 'purchasedTicketTitleFormat',
+            required: true,
+            class: 'code ltr',
+            value: eventType.purchasedTicketTitleFormat,
+            errors: eventType.getErrors('purchasedTicketTitleFormat'),
         }) }}
 
         <hr>
@@ -75,7 +121,7 @@
 
             {{ textField({
                 label: 'Event Template' | t('events'),
-                instructions: 'The template to use when a event’s URL is requested.' | t('events'),
+                instructions: 'The template to use when an event’s URL is requested.' | t('events'),
                 id: 'template',
                 class: 'ltr',
                 name: 'template',
@@ -85,8 +131,6 @@
         {% endmacro %}
 
         {% from _self import hasUrlsField, templateField %}
-
-        <hr>
 
         {% set siteRows = [] %}
         {% set siteErrors = eventType.getErrors('siteSettings') %}
@@ -102,53 +146,73 @@
 
             {% set siteRows = siteRows | merge({
                 (site.handle): {
-                    heading: site.name | t('site'),
+                    heading: site.name | t('site') | e,
+                    enabled: include('_includes/forms/lightswitch.twig', {
+                        name: 'sites[' ~ site.handle ~ '][enabled]',
+                        on: brandNewEventType or siteSettings,
+                        value: site.id,
+                        small: true,
+                    }),
                     uriFormat: {
-                        value: siteSettings.uriFormat ?? null,
-                        hasErrors: siteSettings.hasErrors('uriFormat') ?? false
+                        value: siteSettings ? siteSettings.uriFormat,
+                        hasErrors: (siteSettings ? siteSettings.hasErrors('uriFormat'))
                     },
-                    template: {
-                        value: siteSettings.template ?? null,
-                        hasErrors: siteSettings.hasErrors('template') ?? false,
-                    }
+                    template: not headlessMode ? {
+                        value: siteSettings ? siteSettings.template,
+                        hasErrors: siteSettings ? siteSettings.hasErrors('template'),
+                    },
+                    enabledByDefault: siteSettings ? siteSettings.enabledByDefault : true,
                 }
             }) %}
         {% endfor %}
 
         {{ forms.editableTableField({
             label: 'Site Settings' | t('app'),
-            instructions: 'Configure the event types’s site-specific settings.' | t('app'),
+            instructions: 'Choose which sites this event type should be available in, and configure the site-specific settings.' | t('events'),
             id: 'sites',
             name: 'sites',
             cols: {
                 heading: {
                     type: 'heading',
                     heading: 'Site' | t('app'),
-                    class: 'thin'
+                    class: 'thin',
+                },
+                enabled: {
+                    type: 'heading',
+                    thin: true,
+                    class: not craft.app.getIsMultiSite() ? 'hidden',
                 },
                 uriFormat: {
                     type: 'singleline',
-                    heading: 'Event Type URI Format' | t('app'),
-                    info: 'What event type URIs should look like for the site.' | t('app'),
-                    placeholder: 'Leave blank if events don’t have URLs' | t('app'),
-                    code: true
+                    heading: 'Event URI Format' | t('events'),
+                    info: 'What event URIs should look like for the site.' | t('events'),
+                    placeholder: 'Leave blank if events don’t have URLs' | t('events'),
+                    code: true,
                 },
                 template: {
-                    type: 'singleline',
+                    type: 'template',
                     heading: 'Template' | t('app'),
-                    info: 'Which template should be loaded when an event’s URL is requested.' | t('app'),
-                    code: true
+                    info: 'Which template should be loaded when an event’s URL is requested.' | t('events'),
+                    code: true,
                 },
-            },
+                enabledByDefault: {
+                    type: 'lightswitch',
+                    heading: 'Default Status' | t('app'),
+                    thin: true,
+                    class: ['type-channel', 'type-structure'] | filter,
+                },
+            } | filter,
             rows: siteRows,
-            staticRows: true,
+            fullWidth: true,
+            allowAdd: false,
+            allowDelete: false,
+            allowReorder: false,
             errors: siteErrors | unique,
-            allowAdd: true,
-            allowDelete: true,
-            allowReorder: true,
         }) }}
 
         <hr>
+
+        <h3>{{ 'iCalendar Subscription (ICS)' | t('events') }}</h3>
 
         {{ forms.selectField({
             label: 'Forced ICS Event Timezone' | t('events'),
@@ -183,6 +247,22 @@
         {{ forms.fieldLayoutDesignerField({
             fieldLayout: eventType.getEventFieldLayout(),
         }) }}
+    </div>
+
+    <div id="session-fields" class="hidden">
+        {% namespace 'sessionLayout' %}
+            {{ forms.fieldLayoutDesignerField({
+                fieldLayout: eventType.getSessionFieldLayout(),
+            }) }}
+        {% endnamespace %}
+    </div>
+
+    <div id="ticket-type-fields" class="hidden">
+        {% namespace 'ticketLayout' %}
+            {{ forms.fieldLayoutDesignerField({
+                fieldLayout: eventType.getTicketTypeFieldLayout(),
+            }) }}
+        {% endnamespace %}
     </div>
 
 {% endblock %}

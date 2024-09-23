@@ -2,12 +2,16 @@
 namespace verbb\events\elements\db;
 
 use verbb\events\elements\TicketType;
+use verbb\events\elements\PurchasedTicketCollection;
 
+use Craft;
 use craft\db\Query;
 use craft\elements\User;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+
+use yii\db\Connection;
 
 use craft\commerce\db\Table as CommerceTable;
 
@@ -17,17 +21,17 @@ class PurchasedTicketQuery extends ElementQuery
     // =========================================================================
 
     public mixed $eventId = null;
+    public mixed $sessionId = null;
     public mixed $ticketId = null;
+    public mixed $ticketTypeId = null;
     public mixed $orderId = null;
     public mixed $lineItemId = null;
-    public mixed $ticketSku = null;
     public mixed $checkedIn = null;
     public mixed $checkedInDate = null;
-
+    
     public mixed $customerId = null;
-    public mixed $ticketTypeId = null;
 
-    protected array $defaultOrderBy = ['events_purchasedtickets.dateCreated' => SORT_DESC];
+    protected array $defaultOrderBy = ['events_purchased_tickets.dateCreated' => SORT_DESC];
 
 
     // Public Methods
@@ -68,12 +72,6 @@ class PurchasedTicketQuery extends ElementQuery
         return $this;
     }
 
-    public function ticketSku($value): static
-    {
-        $this->ticketSku = $value;
-        return $this;
-    }
-
     public function checkedIn($value): static
     {
         $this->checkedIn = $value;
@@ -88,11 +86,7 @@ class PurchasedTicketQuery extends ElementQuery
 
     public function customer(User $value = null): static
     {
-        if ($value) {
-            $this->customerId = $value->id;
-        } else {
-            $this->customerId = null;
-        }
+        $this->customerId = $value?->id;
 
         return $this;
     }
@@ -110,7 +104,7 @@ class PurchasedTicketQuery extends ElementQuery
         } else if ($value !== null) {
             $this->ticketTypeId = (new Query())
                 ->select(['id'])
-                ->from(['{{%events_tickettypes}}'])
+                ->from(['{{%events_ticket_types}}'])
                 ->where(Db::parseParam('handle', $value))
                 ->column();
         } else {
@@ -126,6 +120,11 @@ class PurchasedTicketQuery extends ElementQuery
         return $this;
     }
 
+    public function collect(?Connection $db = null): PurchasedTicketCollection
+    {
+        return PurchasedTicketCollection::make(parent::collect($db));
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -139,42 +138,83 @@ class PurchasedTicketQuery extends ElementQuery
             return false;
         }
 
-        $this->joinElementTable('events_purchasedtickets');
+        $this->joinElementTable('events_purchased_tickets');
 
         $this->query->select([
-            'events_purchasedtickets.eventId',
-            'events_purchasedtickets.ticketId',
-            'events_purchasedtickets.orderId',
-            'events_purchasedtickets.lineItemId',
-            'events_purchasedtickets.ticketSku',
-            'events_purchasedtickets.checkedIn',
-            'events_purchasedtickets.checkedInDate',
-            'events_purchasedtickets.dateCreated',
-            'events_purchasedtickets.dateUpdated',
+            'events_purchased_tickets.eventId',
+            'events_purchased_tickets.sessionId',
+            'events_purchased_tickets.ticketId',
+            'events_purchased_tickets.ticketTypeId',
+            'events_purchased_tickets.orderId',
+            'events_purchased_tickets.lineItemId',
+            'events_purchased_tickets.checkedIn',
+            'events_purchased_tickets.checkedInDate',
+            'events_purchased_tickets.dateCreated',
+            'events_purchased_tickets.dateUpdated',
         ]);
 
-        $this->addWhere('eventId', 'events_purchasedtickets.eventId');
-        $this->addWhere('ticketId', 'events_purchasedtickets.ticketId');
-        $this->addWhere('orderId', 'events_purchasedtickets.orderId');
-        $this->addWhere('lineItemId', 'events_purchasedtickets.lineItemId');
-        $this->addWhere('ticketSku', 'events_purchasedtickets.ticketSku');
-        $this->addWhere('checkedIn', 'events_purchasedtickets.checkedIn');
-        $this->addDateWhere('checkedInDate', 'events_purchasedtickets.checkedInDate');
-        $this->addDateWhere('dateCreated', 'events_purchasedtickets.dateCreated');
-        $this->addDateWhere('dateUpdated', 'events_purchasedtickets.dateUpdated');
+        if (isset($this->eventId)) {
+            $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.eventId', $this->eventId));
+        }
+
+        if (isset($this->sessionId)) {
+            $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.sessionId', $this->sessionId));
+        }
+
+        if (isset($this->ticketId)) {
+            $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.ticketId', $this->ticketId));
+        }
+
+        if (isset($this->ticketTypeId)) {
+            $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.ticketTypeId', $this->ticketTypeId));
+        }
+
+        if (isset($this->orderId)) {
+            $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.orderId', $this->orderId));
+        }
+
+        if (isset($this->ticketId)) {
+            $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.ticketId', $this->ticketId));
+        }
+
+        if (isset($this->orderId)) {
+            $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.orderId', $this->orderId));
+        }
+
+        if (isset($this->lineItemId)) {
+            $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.lineItemId', $this->lineItemId));
+        }
+
+        if (isset($this->checkedIn)) {
+            $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.checkedIn', $this->checkedIn));
+        }
+
+        if (isset($this->checkedInDate)) {
+            $this->subQuery->andWhere(Db::parseDateParam('events_purchased_tickets.checkedInDate', $this->checkedInDate));
+        }
 
         if ($this->customerId) {
-            $this->subQuery->innerJoin(CommerceTable::ORDERS . ' orders', '[[orders.id]] = [[events_purchasedtickets.orderId]]');
+            $this->subQuery->innerJoin(CommerceTable::ORDERS . ' orders', '[[orders.id]] = [[events_purchased_tickets.orderId]]');
             $this->subQuery->andWhere(['=', '[[orders.customerId]]', $this->customerId]);
             $this->subQuery->andWhere(['=', '[[orders.isCompleted]]', true]);
         }
 
         if (isset($this->ticketTypeId)) {
-            $this->subQuery->innerJoin('{{%events_tickets}} events_tickets', '[[events_tickets.id]] = [[events_purchasedtickets.ticketId]]');
+            $this->subQuery->innerJoin('{{%events_tickets}} events_tickets', '[[events_tickets.id]] = [[events_purchased_tickets.ticketId]]');
             $this->subQuery->andWhere(['[[events_tickets.typeId]]' => $this->ticketTypeId]);
         }
 
         return parent::beforePrepare();
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+    
+    protected function fieldLayouts(): array
+    {
+        // Ensure element queries know that we use another element's layout
+        return Craft::$app->getFields()->getLayoutsByType(TicketType::class);
     }
 
 
@@ -193,23 +233,9 @@ class PurchasedTicketQuery extends ElementQuery
         } else if (!is_array($this->ticketTypeId) || !ArrayHelper::isNumeric($this->ticketTypeId)) {
             $this->ticketTypeId = (new Query())
                 ->select(['id'])
-                ->from(['{{%events_tickettypes}}'])
+                ->from(['{{%events_ticket_types}}'])
                 ->where(Db::parseParam('id', $this->ticketTypeId))
                 ->column();
-        }
-    }
-
-    private function addWhere(string $property, string $column): void
-    {
-        if ($this->{$property}) {
-            $this->subQuery->andWhere(Db::parseParam($column, $this->{$property}));
-        }
-    }
-
-    private function addDateWhere(string $property, string $column): void
-    {
-        if ($this->{$property}) {
-            $this->subQuery->andWhere(Db::parseDateParam($column, $this->{$property}));
         }
     }
 }
