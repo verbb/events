@@ -51,6 +51,8 @@ trait PurchasedTicketTrait
     {
         // Handle this trait being used in a few different elements
         if (!isset($this->_purchasedTicketManager)) {
+            $query = fn(ElementInterface $owner) => self::createPurchasedTicketQuery($owner);
+
             $params = [
                 'attribute' => 'purchasedTickets',
                 'propagationMethod' => PropagationMethod::All,
@@ -58,18 +60,12 @@ trait PurchasedTicketTrait
             ];
 
             if ($element instanceof Event) {
-                $query = fn(ElementInterface $owner) => self::createPurchasedTicketTypeQuery($owner)->eventId($element->id);
-
                 $params['ownerIdParam'] = 'eventId';
                 $params['primaryOwnerIdParam'] = 'eventId';
             } else if ($element instanceof Session) {
-                $query = fn(ElementInterface $owner) => self::createPurchasedTicketTypeQuery($owner)->sessionId($element->id);
-
                 $params['ownerIdParam'] = 'sessionId';
                 $params['primaryOwnerIdParam'] = 'sessionId';
             } else if ($element instanceof TicketType) {
-                $query = fn(ElementInterface $owner) => self::createPurchasedTicketTypeQuery($owner)->ticketTypeId($element->id);
-
                 $params['ownerIdParam'] = 'ticketTypeId';
                 $params['primaryOwnerIdParam'] = 'ticketTypeId';
             }
@@ -84,10 +80,18 @@ trait PurchasedTicketTrait
     // Private Methods
     // =========================================================================
 
-    private static function createPurchasedTicketTypeQuery(ElementInterface $element): PurchasedTicketTypeQuery
+    private static function createPurchasedTicketQuery(ElementInterface $element): PurchasedTicketQuery
     {
-        return PurchasedTicket::find()
-            ->siteId($element->siteId)
-            ->orderBy(['sortOrder' => SORT_ASC]);
+        $query = PurchasedTicket::find()->siteId($element->siteId);
+
+        if ($element instanceof Event) {
+            $query->eventId($element->id);
+        } else if ($element instanceof Session) {
+            $query->sessionId($element->id);
+        } else if ($element instanceof TicketType) {
+            $query->ticketTypeId($element->id);
+        }
+
+        return $query;
     }
 }

@@ -8,10 +8,12 @@ use verbb\events\elements\Session;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
 use verbb\events\gql\interfaces\EventInterface;
+use verbb\events\gql\interfaces\PurchasedTicketInterface;
 use verbb\events\gql\interfaces\SessionInterface;
 use verbb\events\gql\interfaces\TicketTypeInterface;
 use verbb\events\gql\interfaces\TicketInterface;
 use verbb\events\gql\queries\EventQuery;
+use verbb\events\gql\queries\PurchasedTicketQuery;
 use verbb\events\gql\queries\SessionQuery;
 use verbb\events\gql\queries\TicketTypeQuery;
 use verbb\events\gql\queries\TicketQuery;
@@ -99,6 +101,8 @@ class Events extends Plugin
         $this->_registerElementTypes();
         $this->_registerPurchasableTypes();
         $this->_registerFieldLayoutElements();
+        $this->_registerGraphQl();
+        $this->_registerGarbageCollection();
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
             $this->_registerCpRoutes();
@@ -364,6 +368,48 @@ class Events extends Plugin
                 'options' => [],
                 'helpSummary' => 'Re-saves Events purchased tickets.',
             ];
+        });
+    }
+
+    private function _registerGarbageCollection(): void
+    {
+        Event::on(Gc::class, Gc::EVENT_RUN, function(Event $event) {
+            
+        });
+    }
+
+    private function _registerGraphQl(): void
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
+            $event->types[] = EventInterface::class;
+            $event->types[] = SessionInterface::class;
+            $event->types[] = TicketTypeInterface::class;
+            $event->types[] = TicketInterface::class;
+            $event->types[] = PurchasedTicketInterface::class;
+        });
+
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
+            $event->queries = array_merge(
+                $event->queries,
+                EventQuery::getQueries(),
+                SessionQuery::getQueries(),
+                TicketTypeQuery::getQueries(),
+                TicketQuery::getQueries(),
+                PurchasedTicketQuery::getQueries()
+            );
+        });
+
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, function(RegisterGqlSchemaComponentsEvent $event) {
+            $eventTypes = Events::$plugin->getEventTypes()->getAllEventTypes();
+
+            if (!empty($eventTypes)) {
+                $label = Craft::t('events', 'Events');
+
+                foreach ($eventTypes as $eventType) {
+                    $suffix = 'eventsEventTypes.' . $eventType->uid;
+                    $event->queries[$label][$suffix . ':read'] = ['label' => Craft::t('events', 'View “{eventType}” events', ['eventType' => Craft::t('site', $eventType->name)])];
+                }
+            }
         });
     }
 

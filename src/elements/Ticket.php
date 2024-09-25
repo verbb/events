@@ -64,6 +64,16 @@ class Ticket extends Purchasable
         return new TicketQuery(static::class);
     }
 
+    public static function gqlTypeNameByContext(mixed $context): string
+    {
+        return $context->handle . '_Ticket';
+    }
+
+    public static function gqlScopesByContext(mixed $context): array
+    {
+        return ['eventsEventTypes.' . $context->uid];
+    }
+
     protected static function defineFieldLayouts(?string $source): array
     {
         // Being attached to an event element means we always have context, so improve performance
@@ -405,6 +415,23 @@ class Ticket extends Purchasable
         }
 
         return array_merge($ticketDataEvent->fieldData, $data);
+    }
+
+    public function getGqlTypeName(): string
+    {
+        $event = $this->getEvent();
+
+        if (!$event) {
+            return 'Ticket';
+        }
+
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return 'Ticket';
+        }
+
+        return static::gqlTypeNameByContext($eventType);
     }
 
     public function beforeSave(bool $isNew): bool

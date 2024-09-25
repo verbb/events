@@ -83,6 +83,16 @@ class Session extends Element implements NestedElementInterface
         return new SessionQuery(static::class);
     }
 
+    public static function gqlTypeNameByContext(mixed $context): string
+    {
+        return $context->handle . '_Session';
+    }
+
+    public static function gqlScopesByContext(mixed $context): array
+    {
+        return ['eventsEventTypes.' . $context->uid];
+    }
+
     protected static function defineFieldLayouts(?string $source): array
     {
         // Being attached to an event element means we always have context, so improve performance
@@ -459,6 +469,23 @@ class Session extends Element implements NestedElementInterface
         }
 
         return implode(' ', $parts);
+    }
+
+    public function getGqlTypeName(): string
+    {
+        $event = $this->getOwner();
+
+        if (!$event) {
+            return 'Session';
+        }
+
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return 'Session';
+        }
+
+        return static::gqlTypeNameByContext($eventType);
     }
 
     public function beforeValidate(): bool

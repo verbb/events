@@ -2,13 +2,20 @@
 namespace verbb\events\services;
 
 use verbb\events\base\FrequencyInterface;
+use verbb\events\elements\Session;
 use verbb\events\frequencies;
+use verbb\events\helpers\Gql as GqlHelper;
 
+use Craft;
 use craft\base\Event;
+use craft\base\GqlInlineFragmentFieldInterface;
 use craft\events\RegisterComponentTypesEvent;
+use craft\gql\types\QueryArgument;
 use craft\helpers\Component as ComponentHelper;
 
 use yii\base\Component;
+
+use GraphQL\Type\Definition\Type;
 
 class Sessions extends Component
 {
@@ -55,10 +62,58 @@ class Sessions extends Component
     // =========================================================================
 
     private array $_frequencies = [];
+    private array $_contentFieldCache = [];
 
 
     // Public Methods
     // =========================================================================
+
+    public function getAllSessionsByEventId(int $eventId, int $siteId = null, bool $includeDisabled = true): array
+    {
+        $sessionQuery = Session::find()
+            ->eventId($eventId)
+            ->limit(null)
+            ->siteId($siteId);
+
+        if ($includeDisabled) {
+            $sessionQuery->status(null);
+        }
+
+        return $sessionQuery->all();
+    }
+
+    public function getSessionById(int $sessionId, int $siteId = null): ?Session
+    {
+        return Craft::$app->getElements()->getElementById($sessionId, Session::class, $siteId);
+    }
+
+    public function getSessionGqlContentArguments(): array
+    {
+        if (empty($this->_contentFieldCache)) {
+            $contentArguments = [];
+
+            foreach (Events::$plugin->getEventTypes()->getAllEventTypes() as $eventType) {
+                if (!GqlCommerceHelper::isSchemaAwareOf(Session::gqlScopesByContext($eventType))) {
+                    continue;
+                }
+
+                $fieldLayout = $eventType->getSessionFieldLayout();
+
+                foreach ($fieldLayout->getCustomFields() as $contentField) {
+                    if (!$contentField instanceof GqlInlineFragmentFieldInterface) {
+                        $contentArguments[$contentField->handle] = [
+                            'name' => $contentField->handle,
+                            'type' => Type::listOf(QueryArgument::getType()),
+                        ];
+                    }
+                }
+            }
+
+            $this->_contentFieldCache = $contentArguments;
+        }
+
+        return $this->_contentFieldCache;
+    }
 
     public function getFrequencies(): array
     {

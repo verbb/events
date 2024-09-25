@@ -70,6 +70,16 @@ class TicketType extends Element implements NestedElementInterface
         return new TicketTypeQuery(static::class);
     }
 
+    public static function gqlTypeNameByContext(mixed $context): string
+    {
+        return $context->handle . '_TicketType';
+    }
+
+    public static function gqlScopesByContext(mixed $context): array
+    {
+        return ['eventsEventTypes.' . $context->uid];
+    }
+
     protected static function defineFieldLayouts(?string $source): array
     {
         // Being attached to an event element means we always have context, so improve performance
@@ -338,6 +348,23 @@ class TicketType extends Element implements NestedElementInterface
     public function getTickets(): array
     {
         return Ticket::find()->eventId($this->primaryOwnerId)->typeId($this->id)->all();
+    }
+
+    public function getGqlTypeName(): string
+    {
+        $event = $this->getOwner();
+
+        if (!$event) {
+            return 'TicketType';
+        }
+
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return 'TicketType';
+        }
+
+        return static::gqlTypeNameByContext($eventType);
     }
 
     public function beforeSave(bool $isNew): bool

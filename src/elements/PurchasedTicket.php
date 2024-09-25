@@ -70,6 +70,16 @@ class PurchasedTicket extends Element
         return new PurchasedTicketQuery(static::class);
     }
 
+    public static function gqlTypeNameByContext(mixed $context): string
+    {
+        return $context->handle . '_PurchasedTicket';
+    }
+
+    public static function gqlScopesByContext(mixed $context): array
+    {
+        return ['eventsEventTypes.' . $context->uid];
+    }
+
     protected static function defineSources(string $context = null): array
     {
         $sources = [
@@ -389,6 +399,23 @@ class PurchasedTicket extends Element
         $result = $writer->write($qrCode);
 
         return $result->getDataUri();
+    }
+
+    public function getGqlTypeName(): string
+    {
+        $event = $this->getEvent();
+
+        if (!$event) {
+            return 'PurchasedTicket';
+        }
+
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return 'PurchasedTicket';
+        }
+
+        return static::gqlTypeNameByContext($eventType);
     }
 
     public function afterSave(bool $isNew): void

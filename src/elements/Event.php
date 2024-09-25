@@ -154,7 +154,7 @@ class Event extends Element
 
     public static function gqlScopesByContext(mixed $context): array
     {
-        return ['eventTypes.' . $context->uid];
+        return ['eventsEventTypes.' . $context->uid];
     }
 
     public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
@@ -882,6 +882,11 @@ class Event extends Element
         }
 
         Db::update('{{%events_events}}', ['ticketsCache' => $this->getTicketCacheKey()], ['id' => $this->id]);
+    }
+
+    public function getGqlTypeName(): string
+    {
+        return static::gqlTypeNameByContext($this->getType());
     }
 
     public function beforeSave(bool $isNew): bool
