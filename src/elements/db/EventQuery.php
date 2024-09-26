@@ -21,6 +21,8 @@ class EventQuery extends ElementQuery
 
     public bool $editable = false;
     public mixed $typeId = null;
+    public mixed $startDate = null;
+    public mixed $endDate = null;
     public mixed $postDate = null;
     public mixed $expiryDate = null;
 
@@ -84,6 +86,18 @@ class EventQuery extends ElementQuery
         return $this;
     }
 
+    public function startDate($value): static
+    {
+        $this->startDate = $value;
+        return $this;
+    }
+
+    public function endDate($value): static
+    {
+        $this->endDate = $value;
+        return $this;
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -126,6 +140,14 @@ class EventQuery extends ElementQuery
 
         if (isset($this->typeId)) {
             $this->subQuery->andWhere(['events_events.typeId' => $this->typeId]);
+        }
+
+        if (isset($this->startDate)) {
+            $this->query->andWhere(Db::parseDateParam('sessions.startDate', $this->startDate));
+        }
+
+        if (isset($this->endDate)) {
+            $this->query->andWhere(Db::parseDateParam('sessions.endDate', $this->endDate));
         }
 
         $this->_applyEditableParam();
