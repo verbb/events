@@ -1,19 +1,37 @@
 # Event Types
-Event types act to group your events, and depending on your needs, you may only require a single event type. This is where you also define the templates and URL structure used by events. Custom fields can be added to event types, providing each individual event additional fields.
+**Event Types** help you categorize and differentiate between various kinds of events. Think of them like sections or categories in Craft CMS, but specifically for events. Each event type can have its own unique settings, and you can use it to organize and manage different kinds of events in your system.
 
-Go to the main section for Events in your control panel main menu, and select **Event Types**. This will list all the event types you've created.
+For example, you might create event types like:
+- Concerts
+- Conferences
+- Workshops
+- Meetups
 
-The **Delete** icon deletes already created event types. Created events for this event type will also be deleted. Already purchased tickets still remain in the database.
+Each event type can have its own field layout, which allows you to customize the fields and layout specific to that type. This is great for tailoring the experience depending on the type of event you’re organizing.
 
-### Create an Event Type
-Each field is fairly self-explanatory, but any additional information is provided below.
+For example, a “Concert” event type might need specific fields like the artist lineup or genre, while a “Workshop” might include fields for the instructor’s name or required materials. With event types, you can set up unique layouts to reflect these differences.
 
-- **Name**: What this event type will be called in the CP.
-- **Handle**: How you’ll refer to this event type in the templates.
+## Event Fields
+You can define what sort of fields should be available to your events.
 
-If you ticked **Events of this type have their own URLs**, the following fields appear:
+Mandatory fields are:
+- Title
+- Sessions
+- Ticket Types
 
-- **Event URL Format**: What the event URLs should look like. You can include tags that output event properties, such as {slug} or {publishDate|date("Y")}.
-- **Event Template**: The template to use when an event’s URL is requested.
+## Session Fields
+You can define what sort of fields should be available to your sessions.
 
-Be sure to check out our [Template Guide →](docs:template-guides/events-index) to get started quickly to show events.
+Mandatory fields are:
+- Start Date
+- End Date
+- All Day
+- Frequency
+
+## Ticket Type Fields
+You can define what sort of fields should be available to your ticket types.
+
+Mandatory fields are:
+- Title
+- Price
+- Capacity

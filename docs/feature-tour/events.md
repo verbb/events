@@ -1,35 +1,18 @@
 # Events
-Events manage the tickets your customers can purchase. Tickets are very similar to Commerce Products, and in fact are [purchasables](https://craftcommerce.com/docs/purchasables), allowing it to make use of many core Commerce functions.
+At the core of the plugin is the **Event** element. Think of an event as the main container for everything related to your gathering, from dates and sessions to tickets and check-ins. If you’re organizing a concert, a conference, or even a single workshop, that’s an Event.
 
-### Create an Event
-Go to the main section for Events in your control panel main menu. This will list all the events you've created.
+Events can have one or more [Sessions](docs:feature-tour/sessions) which define the date(s) of the event, and one or more [Ticket Types](docs:feature-tour/ticket-types) which define tickets, pricing, and capacities.
 
-:::tip
-Before you can start creating events, you'll first need to set up an [Event Type →](docs:feature-tour/event-types)
-:::
+In the same way that Craft’s native element types each share a set of common attributes, every event has a **Title**, **Slug**, **Post Date**, **Expiry Date**, and per-site status options.
 
-Each field is fairly self-explanatory, but any additional information is provided below.
+## Event Capacity
+While each [Ticket Type](docs:feature-tour/ticket-types) sets its own capacity (e.g., how many VIP tickets or General Admission tickets are available), you can also override the overall capacity at the Event level. This is useful if you have a hard limit on the number of attendees, regardless of how many tickets or types you’re selling.
 
-- **Title**: Set up a title for your event to easily find it in the CP and display on the front-end.
-- **Start Date**: The event start date.
-- **End Date**: The event end date.
-- **All Day Event**: Whether this event should span the whole day. This will automatically set the start and end date times to midnight on the respective days.
-- **Slug**: The slug for this event.
-- **Enable**: Enable or disable this event.
-- **Delete**: The delete button deletes the event. Already purchased tickets for this event remain in the database.
+By default, the event’s capacity is calculated by summing the total capacities of all enabled ticket types. But if you want to enforce a strict maximum, you can manually set the **Event Capacity**.
 
-:::tip
-Any custom fields you've added to an Event Type will appear as tabs preceding the `Dates/Times` tab.
-:::
+Let’s say you have an event with 200 General Admission tickets and 50 VIP tickets. By default, the event capacity will be set to 250 (200 + 50). However, if the venue can only hold 230 people, you could override the capacity at the event level to ensure you don’t oversell.
 
-- **Total Capacity**: The total capacity controls the total available tickets for this event. You can control this for the entire event, or per-ticket.
-- **Ticket Type**: Select a ticket type this ticket should be associated with.
-- **Quantity**: Set a quantity for this ticket type.
-- **Price**: Specify a price for this ticket type.
-- **Available From**: Optionally set a date from which this ticket can only be purchased after.
-- **Available To**: Optionally set a date from which this ticket can only be purchased until.
-- **Delete Ticket Type**: You can remove this ticket from the event. Already purchased tickets remain in the database.
+Once the overall capacity is hit, tickets will no longer be available for purchase, even if individual ticket types still have availability.
 
-:::tip
-Any custom fields you've added to a Ticket Type will appear as fields below the `Available To` field.
-:::
+## Ticket Status
+Ticket generation in this plugin is a dynamic process. Whenever you add or remove [Sessions](docs:feature-tour/sessions) or [Ticket Types](docs:feature-tour/ticket-types), the **Ticket Status** will notify you if the tickets need to be regenerated. Making changes like pricing, capacity or start/end dates **does not** require you to regenerate tickets, as that's all dynamic.

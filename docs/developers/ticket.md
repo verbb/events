@@ -1,30 +1,26 @@
 # Ticket
-Whenever you're dealing with a ticket in your template, you're actually working with a `Ticket` object.
+Whenever you’re dealing with a ticket in your template, you’re actually working with a `Ticket` object.
 
 ## Attributes
 
 Attribute | Description
 --- | ---
-`id` | ID of the ticket.
-`title` | The ticket name/title.
-`name` | The ticket name/title.
-`purchasableId` | Returns this ticket id - as ticket's are purchasables.
-`event` | The ticket's [Event](docs:developers/event).
-`eventId` | The ticket's event ID
-`type` | The ticket's ticket type.
-`typeId` | The ticket's ticket type ID
-`sku` | The sku of the ticket.
-`quantity` | The quantity of the ticket.
+`id` | The ID of the ticket.
+`title` | The ticket title.
+`event` | The ticket’s associated [Event](docs:developers/event).
+`eventId` | The ID of the event this ticket belongs to.
+`type` | The ticket’s associated ticket type.
+`typeId` | The ID of the ticket’s type.
+`sku` | The SKU (Stock Keeping Unit) of the ticket.
+`quantity` | The quantity of this ticket.
 `price` | The listing price of the ticket.
-`availableFrom` | The date this ticket is available for sale.
-`availableTo` | The date this ticket will no longer be available for sale.
-`taxCategory` | The tax category this ticket uses when their tax calculations are made.
-`shippingCategory` | The shipping category this ticket uses when their shipping calculations are made.
-`isAvailable` | Whether this ticket is available for purchase. This will be true, unless the 'Available To/From' date ranges (when set) do not fit the current time. Will also check for purchased tickets for this ticket.
+`availableFrom` | The date from which this ticket is available for sale.
+`availableTo` | The date until which this ticket is available for sale.
+`isAvailable` | Whether this ticket is available for purchase. This will be `true` unless the 'Available From/To' dates do not match the current time, or if the ticket has been fully purchased.
 
 ## Methods
 
 Method | Description
 --- | ---
-`getCpEditUrl()` | The url to edit this ticket in the control panel.
-`getPurchasedTickets(lineItem)` | Get all [Purchased Ticket's](docs:developers/purchased-ticket) for this ticket.
+`getCpEditUrl()` | Returns the URL to edit this ticket in the control panel.
+`getPurchasedTickets(lineItem)` | Returns all [Purchased Tickets](docs:developers/purchased-ticket) associated with this ticket for a given line item.

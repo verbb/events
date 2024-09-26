@@ -14,8 +14,9 @@
         "collapsable": false,
         "children": [
             "feature-tour/events",
-            "feature-tour/event-types",
+            "feature-tour/sessions",
             "feature-tour/ticket-types",
+            "feature-tour/tickets",
             "feature-tour/pdf-ticket",
             "feature-tour/ticket-check-in"
         ]
@@ -46,6 +47,8 @@
         "collapsable": false,
         "children": [
             "developers/event",
+            "developers/session",
+            "developers/ticket-type",
             "developers/ticket",
             "developers/purchased-ticket",
             "developers/events"
