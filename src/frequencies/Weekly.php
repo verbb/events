@@ -41,7 +41,7 @@ class Weekly extends Frequency
     // Public Methods
     // =========================================================================
 
-    public function setNextRecurringDate(DateTime $startDate, DateTime &$endDate, int $occurrences): void
+    public function setNextRecurringDate(DateTime &$startDate, DateTime &$endDate, int $occurrences): void
     {
         // Convert repeat days to numeric values (0 = Monday, ..., 6 = Sunday)
         $dayMap = ['sunday' => 0, 'monday' => 1, 'tuesday' => 2, 'wednesday' => 3, 'thursday' => 4, 'friday' => 5, 'saturday' => 6];

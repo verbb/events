@@ -35,7 +35,7 @@ class Daily extends Frequency
     // Public Methods
     // =========================================================================
 
-    public function setNextRecurringDate(DateTime $startDate, DateTime $endDate, int $occurrences): void
+    public function setNextRecurringDate(DateTime &$startDate, DateTime &$endDate, int $occurrences): void
     {
         $dateModify = '+' . ($occurrences * $this->repeatCount) . ' days';
 
