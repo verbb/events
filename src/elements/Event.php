@@ -539,6 +539,24 @@ class Event extends Element
         return $this->getTicketTypes()->sum('capacity');
     }
 
+    public function getIsAvailable(): bool
+    {
+        return (bool)$this->getAvailableTickets();
+    }
+
+    public function getAvailableTickets(): TicketCollection
+    {
+        $tickets = $this->getTickets();
+
+        foreach ($tickets as $key => $ticket) {
+            if (!$ticket->getIsAvailable()) {
+                unset($tickets[$key]);
+            }
+        }
+
+        return $tickets;
+    }
+
     public function getSessions(bool $includeDisabled = false): SessionCollection
     {
         if (!isset($this->_sessions)) {
