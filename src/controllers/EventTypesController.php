@@ -55,8 +55,6 @@ class EventTypesController extends Controller
             $variables['title'] = Craft::t('events', 'Create a Event Type');
         }
 
-        $variables['timezoneOptions'] = $this->_getTimezoneOptions();
-
         return $this->renderTemplate('events/event-types/_edit', $variables);
     }
 
@@ -155,57 +153,6 @@ class EventTypesController extends Controller
         Events::$plugin->getEventTypes()->deleteEventTypeById($eventTypeId);
 
         return $this->asSuccess();
-    }
-
-
-    // Private Methods
-    // =========================================================================
-
-    private function _getTimezoneOptions(): array
-    {
-        // Assemble the timezone options array (Technique adapted from http://stackoverflow.com/a/7022536/1688568)
-        $timezoneOptions = [];
-
-        $utc = new DateTime();
-        $offsets = [];
-        $timezoneIds = [];
-
-        foreach (DateTimeZone::listIdentifiers() as $timezoneId) {
-            $timezone = new DateTimeZone($timezoneId);
-            $transition = $timezone->getTransitions($utc->getTimestamp(), $utc->getTimestamp());
-            $abbr = $transition[0]['abbr'];
-
-            $offset = round($timezone->getOffset($utc) / 60);
-
-            if ($offset) {
-                $hour = floor($offset / 60);
-                $minutes = floor(abs($offset) % 60);
-
-                $format = sprintf('%+d', $hour);
-
-                if ($minutes) {
-                    $format .= ':' . sprintf('%02u', $minutes);
-                }
-            } else {
-                $format = '';
-            }
-
-            $offsets[] = $offset;
-            $timezoneIds[] = $timezoneId;
-            $timezoneOptions[] = [
-                'value' => $timezoneId,
-                'label' => 'UTC' . $format . ($abbr !== 'UTC' ? " ({$abbr})" : '') . ($timezoneId !== 'UTC' ? ' – ' . $timezoneId : ''),
-            ];
-        }
-
-        array_multisort($offsets, $timezoneIds, $timezoneOptions);
-
-        $appended[] = [
-            'value' => '',
-            'label' => Craft::t('events', 'Floating Timezone (recommended)'),
-        ];
-
-        return array_merge($appended, $timezoneOptions);
     }
 
 }

@@ -218,8 +218,9 @@
             label: 'Forced ICS Event Timezone' | t('events'),
             instructions: 'Choose a timezone that will be forced upon exported ICS event dates.' | t('events'),
             name: 'icsTimezone',
+            options: eventType.getTimezoneOptions(),
             value: eventType.icsTimezone,
-            options: timezoneOptions,
+            errors: eventType.getErrors('icsTimezone'),
         }) }}
 
         {{ forms.selectField({
