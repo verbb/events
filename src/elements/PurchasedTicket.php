@@ -380,7 +380,7 @@ class PurchasedTicket extends Element
 
     public function getCheckInUrl(): string
     {
-        return UrlHelper::actionUrl("events/ticket/check-in/{$this->uid}");
+        return UrlHelper::actionUrl('events/tickets/check-in', ['uid' => $this->uid]);
     }
 
     public function getQrCode(): string

@@ -31,6 +31,19 @@ You'll need to regenerate any tickets when you add or remove sessions or ticket 
 ## Templates
 With the introduction of sessions and ticket types, you may want to alter your templates. However, things should be backward compatible other than some minor changes with model properties (as detailed below).
 
+## Check In URL
+The URL for checking in a purchased ticket has changed. We no longer use the SKU for the purchased ticket, instead we use the UID.
+
+```
+// Events 2
+https://my-site.test/actions/events/ticket/checkin?sku=3dmMKPGUJu
+
+// Events 3
+https://my-site.test/actions/events/tickets/check-in?uid=0907288f-143f-4716-a89f-a35e125fb561
+```
+
+In addition, hitting this URL will not automatically check in a user anymore. This prevents accidential checking in when scanning the QR code for example. This will now load your check in template (Events plugin default, or your own), with an action (and warning) for the user to check in.
+
 ## Changed Properties
 The following properties have been changed.
 

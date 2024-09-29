@@ -167,7 +167,7 @@ class PurchasedTicketsController extends Controller
 
         Events::$plugin->getPurchasedTickets()->checkOutPurchasedTicket($purchasedTicket);
 
-        Craft::$app->getSession()->setNotice(Craft::t('events', 'Ticket un-checked in.'));
+        Craft::$app->getSession()->setNotice(Craft::t('events', 'Ticket checked out.'));
 
         return $this->redirectToPostedUrl($purchasedTicket);
     }

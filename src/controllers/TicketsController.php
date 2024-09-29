@@ -11,7 +11,7 @@ use craft\web\View;
 
 use yii\web\Response;
 
-class TicketController extends Controller
+class TicketsController extends Controller
 {
     // Properties
     // =========================================================================
@@ -27,44 +27,38 @@ class TicketController extends Controller
         /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();
 
-        $sku = Craft::$app->request->getParam('sku');
+        $uid = $this->request->getRequiredParam('uid');
 
         if ($settings->checkinLogin && !Craft::$app->getUser()->checkPermission('events-checkInTickets')) {
             return $this->_handleResponse([
-                'success' => false,
-                'message' => Craft::t('events', 'You do not have permission to check in tickets.'),
+                'error' => Craft::t('events', 'You do not have permission to check in tickets.'),
             ]);
         }
 
-        if (!$sku) {
-            return $this->_handleResponse([
-                'success' => false,
-                'message' => Craft::t('events', 'Missing required ticket SKU.'),
-            ]);
-        }
-
-        $purchasedTicket = PurchasedTicket::find()
-            ->ticketSku($sku)
-            ->one();
+        $purchasedTicket = PurchasedTicket::find()->uid($uid)->one();
 
         if (!$purchasedTicket) {
             return $this->_handleResponse([
-                'success' => false,
-                'message' => Craft::t('events', 'Could not find ticket SKU.'),
+                'error' => Craft::t('events', 'Could not find ticket SKU.'),
             ]);
         }
 
         if ($purchasedTicket->checkedIn) {
             return $this->_handleResponse([
-                'success' => false,
-                'message' => Craft::t('events', 'Ticket already checked in.'),
+                'error' => Craft::t('events', 'Ticket already checked in.'),
             ]);
         }
 
-        Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket);
+        if ($this->request->getParam('confirm')) {
+            Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket);
+
+            return $this->_handleResponse([
+                'success' => true,
+                'purchasedTicket' => $purchasedTicket,
+            ]);
+        }
 
         return $this->_handleResponse([
-            'success' => true,
             'purchasedTicket' => $purchasedTicket,
         ]);
     }
@@ -72,7 +66,7 @@ class TicketController extends Controller
     // Private Methods
     // =========================================================================
 
-    private function _handleResponse($variables): Response|string
+    private function _handleResponse(array $variables): Response|string
     {
         /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();
@@ -83,16 +77,6 @@ class TicketController extends Controller
 
         $user = Craft::$app->getUser();
 
-        if (Craft::$app->getRequest()->getIsCpRequest() && $user->checkPermission('accessCp') && $user->checkPermission('accessCpWhenSystemIsOff') && $user->checkPermission('events-managePurchasedTickets')) {
-            if ($variables['success']) {
-                Craft::$app->getSession()->setNotice(Craft::t('events', 'Ticket checked in.'));
-            } else {
-                Craft::$app->getSession()->setError(Craft::t('events', $variables['message']));
-            }
-
-            return $this->redirect('events/purchased-tickets');
-        }
-
         $oldMode = Craft::$app->getView()->getTemplateMode();
         $templateMode = View::TEMPLATE_MODE_CP;
         $template = 'events/check-in';
@@ -102,10 +86,6 @@ class TicketController extends Controller
             $template = $settings->checkinTemplate;
         }
 
-        Craft::$app->getView()->setTemplateMode($templateMode);
-        $html = Craft::$app->getView()->renderTemplate($template, $variables);
-        Craft::$app->getView()->setTemplateMode($oldMode);
-
-        return $html;
+        return Craft::$app->getView()->renderTemplate($template, $variables, $templateMode);
     }
 }
