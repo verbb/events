@@ -44,7 +44,7 @@ class TicketsField extends BaseNativeField
     protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Event) {
-            throw new InvalidArgumentException('TicketsField can only be used in event field layouts.');
+            throw new InvalidArgumentException(static::class . ' can only be used in event field layouts.');
         }
 
         if ($element->getIsDraft()) {

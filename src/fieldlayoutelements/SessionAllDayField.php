@@ -35,7 +35,7 @@ class SessionAllDayField extends BaseNativeField
     protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Session) {
-            throw new InvalidArgumentException('SessionAllDayField can only be used in session field layouts.');
+            throw new InvalidArgumentException(static::class . ' can only be used in session field layouts.');
         }
 
         return Cp::lightswitchHtml([

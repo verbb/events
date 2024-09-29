@@ -46,7 +46,7 @@ class PurchasedTicketsField extends BaseNativeField
     protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!($element instanceof Event || $element instanceof Session || $element instanceof TicketType)) {
-            throw new InvalidArgumentException('PurchasedTicketsField can only be used in event field layouts.');
+            throw new InvalidArgumentException(static::class . ' can only be used in event field layouts.');
         }
 
         if ($element->getIsDraft()) {

@@ -55,7 +55,7 @@ class SessionEndDateTimeField extends BaseNativeField
     protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Session) {
-            throw new InvalidArgumentException('SessionEndDateTimeField can only be used in session field layouts.');
+            throw new InvalidArgumentException(static::class . ' can only be used in session field layouts.');
         }
 
         // Annoyingly, we need to construct the date/time input ourselves to have a separate date/time default value.

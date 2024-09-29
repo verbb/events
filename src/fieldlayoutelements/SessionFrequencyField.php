@@ -40,7 +40,7 @@ class SessionFrequencyField extends BaseNativeField
         $view = Craft::$app->getView();
 
         if (!$element instanceof Session) {
-            throw new InvalidArgumentException('SessionFrequencyField can only be used in session field layouts.');
+            throw new InvalidArgumentException(static::class . ' can only be used in session field layouts.');
         }
 
         $containerId = 'events-session-frequency-field';

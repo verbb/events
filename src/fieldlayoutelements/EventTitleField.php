@@ -17,7 +17,7 @@ class EventTitleField extends TitleField
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Event) {
-            throw new InvalidArgumentException('EventTitleField can only be used in event field layouts.');
+            throw new InvalidArgumentException(static::class . ' can only be used in event field layouts.');
         }
 
         return parent::inputHtml($element, $static);

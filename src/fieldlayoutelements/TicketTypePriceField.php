@@ -37,7 +37,7 @@ class TicketTypePriceField extends BaseNativeField
     protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!($element instanceof TicketType || $element instanceof PurchasedTicket)) {
-            throw new InvalidArgumentException('TicketPriceField can only be used in ticket field layouts.');
+            throw new InvalidArgumentException(static::class . ' can only be used in ticket field layouts.');
         }
 
         return Cp::moneyInputHtml([
