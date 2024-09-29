@@ -1,18 +1,57 @@
-<html>
+<!doctype html>
+<html class="h-full">
 <head>
-    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="p-4">
+<body class="flex min-h-full flex-col">
 
-{% if not success %}
-    <div role="alert" class="border px-4 py-3 rounded bg-red-100 border-red-400 text-red-700">
-        {{ message }}
+<div class="grow bg-gray-100">
+    <div class="mx-auto max-w-2xl py-12 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-3xl">
+            <div class="bg-white text-center shadow sm:rounded-lg">
+                {% if error is defined %}
+                    <div class="sm:rounded-lg bg-red-50 p-4">
+                        <h3 class="text-sm font-medium text-red-800">{{ error }}</h3>
+                    </div>
+                {% elseif success is defined %}
+                    <div class="sm:rounded-lg bg-green-50 p-4">
+                        <h3 class="text-sm font-medium text-green-800">
+                            {{ 'Success! Checked in at {date}' | t('events', { date: purchasedTicket.checkedInDate | date('short') }) }}
+                        </h3>
+                    </div>
+                {% else %}
+                    <form method="post" accept-charset="UTF-8" class="px-4 py-5 sm:p-6">
+                        {{ actionInput('events/tickets/check-in') }}
+                        {{ hiddenInput('confirm', true) }}
+                        {{ csrfInput() }}
+
+                        <h3 class="text-xl font-semibold leading-6 text-gray-900">{{ 'Check In' | t('events') }}</h3>
+                        
+                        <div class="mt-2 text-sm text-gray-500">
+                            <p>{{ 'You are about to check in to the following event:' | t('events') }}</p>
+                        </div>
+                        
+                        <div class="mt-2 text-sm text-gray-500">
+                            <p>{{ purchasedTicket.title }}</p>
+                        </div>
+
+                        <div class="rounded-md bg-yellow-50 p-4 m-4">
+                            <div class="text-sm text-yellow-700">
+                                <p>{{ 'This should only be performed by the event organiser.' | t('events') }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-5">
+                            <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">{{ 'Confirm Check In' | t('events') }}</button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
     </div>
-{% else %}
-    <div role="alert" class="border px-4 py-3 rounded bg-green-100 border-green-400 text-green-500">
-        Success! Checked in at {{ purchasedTicket.checkedInDate | date('short') }}
-    </div>
-{% endif %}
+</div>
 
 </body>
 </html>
