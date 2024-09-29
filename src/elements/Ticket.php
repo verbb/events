@@ -156,6 +156,10 @@ class Ticket extends Purchasable
             }
         }
 
+        // Set purchasable properties from the ticket type
+        $this->minQty = $this->getType()?->minQty ?? null;
+        $this->maxQty = $this->getType()?->maxQty ?? null;
+
         parent::init();
     }
 
@@ -242,7 +246,7 @@ class Ticket extends Purchasable
 
     public function getBasePrice(): ?float
     {
-        return $this->getType()->price ?? null;
+        return $this->getType()?->price ?? null;
     }
 
     public function getStock(): int
@@ -256,7 +260,7 @@ class Ticket extends Purchasable
 
     public function getCapacity(): int
     {
-        $ticketCapacity = $this->getType()->capacity ?? 0;
+        $ticketCapacity = $this->getType()?->capacity ?? 0;
 
         if ($event = $this->getEvent()) {
             if ($this->event->capacity) {
