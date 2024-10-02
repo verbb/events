@@ -13,6 +13,8 @@ use craft\commerce\Plugin as Commerce;
 
 use yii\web\HttpException;
 
+use verbb\base\helpers\Locale as LocaleHelper;
+
 class DownloadsController extends Controller
 {
     // Properties
@@ -67,26 +69,22 @@ class DownloadsController extends Controller
             $attributes['lineItemId'] = $lineItem->id;
         }
 
-        $purchasedTickets = PurchasedTicket::find();
+        $query = PurchasedTicket::find();
 
         if ($ticketId) {
-            $purchasedTickets->id($ticketId);
+            $query->id($ticketId);
         } else {
-            $purchasedTickets->orderId($order->id);
+            $query->orderId($order->id);
         }
 
-        $purchasedTickets->all();
+        $purchasedTickets = $query->all();
+
+        $pdf = null;
 
         // Switch to use the correct site/language
-        $originalLanguage = Craft::$app->language;
-        $originalFormattingLocale = Craft::$app->formattingLocale;
-
-        Locale::switchAppLanguage($site->language);
-
-        $pdf = Events::$plugin->getPdf()->renderPdf($purchasedTickets, $order, $lineItem, $option);
-
-        // Set previous language back
-        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
+        LocaleHelper::switchAppLanguage($site->language, null, function() use (&$pdf, $purchasedTickets, $order, $lineItem, $option) {
+            $pdf = Events::$plugin->getPdf()->renderPdf($purchasedTickets, $order, $lineItem, $option);
+        });
 
         $filenameFormat = $settings->ticketPdfFilenameFormat;
         $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);

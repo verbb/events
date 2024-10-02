@@ -131,6 +131,26 @@
     </div>
 </fieldset>
 
+{% if purchasedTicket.order and purchasedTicket.lineItem %}
+    <fieldset>
+        <legend class="h6">{{ 'Tickets' | t('events') }}</legend>
+
+        <div class="meta">
+            {% set download %}
+                <div class="flex flex-nowrap gap-xs">
+                    <a class="formsubmit btn small" href="{{ craft.events.plugin.pdf.getPdfUrl(purchasedTicket.order, purchasedTicket.lineItem) }}">
+                        {{ 'Download' | t('events') }}
+                    </a>
+                </div>
+            {% endset %}
+
+            {{ forms.field({
+                label: 'PDF Ticket' | t('events'),
+            }, download) }}
+        </div>
+    </fieldset>
+{% endif %}
+
 <fieldset>
     <legend class="h6">{{ 'Check In' | t('events') }}</legend>
 

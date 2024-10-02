@@ -2,9 +2,10 @@
 namespace verbb\events\services;
 
 use verbb\events\Events;
-use verbb\events\models\Settings;
+use verbb\events\elements\Ticket;
 use verbb\events\events\PdfEvent;
 use verbb\events\events\PdfRenderOptionsEvent;
+use verbb\events\models\Settings;
 
 use Craft;
 use craft\helpers\FileHelper;
@@ -42,17 +43,6 @@ class Pdf extends Component
             'number' => $order->number ?? null,
             'option' => $option ?? null,
             'lineItemId' => $lineItem->id ?? null,
-            'site' => $currentSite->handle,
-        ]));
-    }
-
-    public function getPdfUrlForTicket(Ticket $ticket, ?string $option = null): string
-    {
-        $currentSite = Craft::$app->getSites()->getCurrentSite();
-        
-        return UrlHelper::actionUrl('events/downloads/pdf', array_filter([
-            'ticketId' => $ticket->id ?? null,
-            'option' => $option ?? null,
             'site' => $currentSite->handle,
         ]));
     }
@@ -106,7 +96,7 @@ class Pdf extends Component
 
         try {
             $html = $view->renderTemplate($templatePath, $variables);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Set the pdf html to the render error.
             if ($order) {
                 Craft::error('Ticket PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
