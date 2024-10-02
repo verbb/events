@@ -14,6 +14,7 @@ class Settings extends Model
     public bool $checkinLogin = false;
     public string $checkinTemplate = '';
     public bool $ticketsShippable = false;
+    public array $attachPdfToEmails = [];
 
     public bool $pdfAllowRemoteImages = false;
     public string $pdfPaperSize = 'letter';

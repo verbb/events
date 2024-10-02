@@ -34,7 +34,7 @@ class Pdf extends Component
     // Public Methods
     // =========================================================================
 
-    public function getPdfUrl(Order $order, LineItem $lineItem = null, $option = null): string
+    public function getPdfUrl(Order $order, LineItem $lineItem = null, ?string $option = null): string
     {
         $currentSite = Craft::$app->getSites()->getCurrentSite();
 
@@ -46,7 +46,7 @@ class Pdf extends Component
         ]));
     }
 
-    public function getPdfUrlForTicket($ticket, $option = null): string
+    public function getPdfUrlForTicket(Ticket $ticket, ?string $option = null): string
     {
         $currentSite = Craft::$app->getSites()->getCurrentSite();
         
@@ -57,7 +57,7 @@ class Pdf extends Component
         ]));
     }
 
-    public function renderPdf($tickets, Order $order = null, $lineItem = null, $option = '', $templatePath = null): string
+    public function renderPdf(array $tickets, Order $order = null, ?LineItem $lineItem = null, ?string $option = '', ?string $templatePath = null): string
     {
         /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();

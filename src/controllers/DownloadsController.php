@@ -94,7 +94,9 @@ class DownloadsController extends Controller
         if (!$fileName) {
             if ($order) {
                 $fileName = 'Ticket-' . $order->number;
-            } else $fileName = 'Ticket-' . $ticket[0]->ticketSku;
+            } else {
+                $fileName = 'Ticket';
+            }
         }
 
         $options = [

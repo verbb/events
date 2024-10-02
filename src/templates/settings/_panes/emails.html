@@ -1,0 +1,46 @@
+{% import '_includes/forms' as forms %}
+{% import 'verbb-base/_macros' as macros %}
+
+{% set emails = craft.commerce.getEmails.getAllEmails() %}
+
+{% if emails | length %}
+    <p>{{ 'Use the below options to select which emails (if any) you‘d like to attach PDF tickets to. This will be in addition to any PDF‘s already setup for your email.' | t('events') }}</p>
+
+    <table class="data fullwidth">
+        <thead>
+            <tr>
+                <th scope="col">{{ 'Email' | t('events') }}</th>
+                <th scope="col">{{ 'Attach PDF?' | t('events') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for email in emails %}
+                <tr data-id="{{ email.id }}">
+                    <th>
+                        <span class="status {{ email.enabled ? 'enabled' }}"></span>
+
+                        <a href="{{ url('commerce/settings/emails/' ~ email.id) }}">
+                            {{ email.name | t('site') }}
+                        </a>
+                    </th>
+
+                    <td>
+                        {{ forms.lightswitchField({
+                            name: 'attachPdfToEmails[' ~ email.uid ~ ']',
+                            value: 1,
+                            on: settings.attachPdfToEmails[email.uid] ?? false,
+                        }) }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if craft.app.config.getConfigFromFile('events')['attachPdfToEmails'] is defined %}
+        <p class="warning with-icon">
+            {{ macros.configWarning('attachPdfToEmails', 'events') | md | striptags('<code>') | raw }}
+        </p>
+    {% endif %}
+{% else %}
+    <div class="zilch">{{ 'No Commerce emails yet.' | t('events') }}</div>
+{% endif %}

@@ -54,6 +54,7 @@ use craft\services\UserPermissions;
 use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
 
+use craft\commerce\services\Emails;
 use craft\commerce\services\Purchasables;
 
 use yii\base\Event;
@@ -285,6 +286,10 @@ class Events extends Plugin
     {
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEventTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEvents(), 'afterSaveSiteHandler']);
+
+        // Potentially add the PDF to an email
+        Event::on(Emails::class, Emails::EVENT_BEFORE_SEND_MAIL, [$this->getTickets(), 'onBeforeSendEmail']);
+        Event::on(Emails::class, Emails::EVENT_AFTER_SEND_MAIL, [$this->getTickets(), 'onAfterSendEmail']);
 
         // Ensure Commerce is installed
         Event::on(Plugins::class, Plugins::EVENT_BEFORE_INSTALL_PLUGIN, function(PluginEvent $event) {
