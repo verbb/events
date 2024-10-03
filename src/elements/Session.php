@@ -202,7 +202,13 @@ class Session extends Element implements NestedElementInterface
             return false;
         }
 
-        return $event->canView($user);
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-viewSessions:{$eventType->uid}");
     }
 
     public function canSave(User $user): bool
@@ -217,7 +223,13 @@ class Session extends Element implements NestedElementInterface
             return false;
         }
 
-        return $event->canSave($user);
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-editSessions:{$eventType->uid}");
     }
 
     public function canDelete(User $user): bool
@@ -226,7 +238,19 @@ class Session extends Element implements NestedElementInterface
             return true;
         }
 
-        return $this->canSave($user);
+        $event = $this->getOwner();
+
+        if ($event === null) {
+            return false;
+        }
+
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-deleteSessions:{$eventType->uid}");
     }
 
     public function canDuplicate(User $user): bool

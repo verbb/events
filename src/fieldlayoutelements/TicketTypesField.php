@@ -47,10 +47,14 @@ class TicketTypesField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in event field layouts.');
         }
 
+        if (!$element->canViewTicketTypes()) {
+            return null;
+        }
+        
         Craft::$app->getView()->registerDeltaName($this->attribute());
 
         return $element->getTicketTypeManager()->getIndexHtml($element, [
-            'canCreate' => true,
+            'canCreate' => $element->canCreateTicketTypes(),
             'allowedViewModes' => [ElementIndexViewMode::Table],
             'sortable' => true,
             'fieldLayouts' => [$element->getType()->getTicketTypeFieldLayout()],

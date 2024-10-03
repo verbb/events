@@ -134,30 +134,24 @@ class Events extends Plugin
 
         $nav['label'] = $this->getPluginName();
 
-        if (count($this->getEventTypes()->getEditableEventTypes()) > 0) {
-            if (Craft::$app->getUser()->checkPermission('events-manageEvents')) {
-                $nav['subnav']['events'] = [
-                    'label' => Craft::t('events', 'Events'),
-                    'url' => 'events/events',
-                ];
-            }
-        }
+        $nav['subnav']['events'] = [
+            'label' => Craft::t('events', 'Events'),
+            'url' => 'events/events',
+        ];
 
-        if (Craft::$app->getUser()->checkPermission('events-managePurchasedTickets')) {
+        if (Craft::$app->getUser()->checkPermission('events-viewPurchasedTickets')) {
             $nav['subnav']['purchasedTickets'] = [
                 'label' => Craft::t('events', 'Purchased Tickets'),
                 'url' => 'events/purchased-tickets',
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('events-manageEventTypes')) {
+        if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $nav['subnav']['eventTypes'] = [
                 'label' => Craft::t('events', 'Event Types'),
                 'url' => 'events/event-types',
             ];
-        }
 
-        if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $nav['subnav']['settings'] = [
                 'label' => Craft::t('events', 'Settings'),
                 'url' => 'events/settings',
@@ -236,14 +230,45 @@ class Events extends Plugin
             foreach ($eventTypes as $eventType) {
                 $suffix = ':' . $eventType->uid;
 
-                $eventTypePermissions['events-editEventType' . $suffix] = [
-                    'label' => Craft::t('events', 'Edit “{type}” events', ['type' => $eventType->name]),
+                $eventTypePermissions['events-viewEvents' . $suffix] = [
+                    'label' => Craft::t('events', 'View “{type}” events', ['type' => $eventType->name]),
                     'nested' => [
                         "events-createEvents$suffix" => [
                             'label' => Craft::t('events', 'Create events'),
                         ],
+                        "events-editEvents$suffix" => [
+                            'label' => Craft::t('events', 'Edit events'),
+                        ],
                         "events-deleteEvents$suffix" => [
                             'label' => Craft::t('events', 'Delete events'),
+                        ],
+                        "events-viewSessions$suffix" => [
+                            'label' => Craft::t('events', 'View sessions'),
+                            'nested' => [
+                                "events-createSessions$suffix" => [
+                                    'label' => Craft::t('events', 'Create sessions'),
+                                ],
+                                "events-editSessions$suffix" => [
+                                    'label' => Craft::t('events', 'Edit sessions'),
+                                ],
+                                "events-deleteSessions$suffix" => [
+                                    'label' => Craft::t('events', 'Delete sessions'),
+                                ],
+                            ],
+                        ],
+                        "events-viewTicketTypes$suffix" => [
+                            'label' => Craft::t('events', 'View ticket types'),
+                            'nested' => [
+                                "events-createTicketTypes$suffix" => [
+                                    'label' => Craft::t('events', 'Create ticket types'),
+                                ],
+                                "events-editTicketTypes$suffix" => [
+                                    'label' => Craft::t('events', 'Edit ticket types'),
+                                ],
+                                "events-deleteTicketTypes$suffix" => [
+                                    'label' => Craft::t('events', 'Delete ticket types'),
+                                ],
+                            ],
                         ],
                     ],
                 ];
@@ -252,9 +277,18 @@ class Events extends Plugin
             $event->permissions[] = [
                 'heading' => Craft::t('events', 'Events'),
                 'permissions' => $eventTypePermissions + [
-                    'events-manageEventTypes' => ['label' => Craft::t('events', 'Manage event types')],
-                    'events-managePurchasedTickets' => ['label' => Craft::t('events', 'Manage purchased tickets')],
-                    'events-checkInTickets' => ['label' => Craft::t('events', 'Check in tickets')],
+                    'events-viewPurchasedTickets' => [
+                        'label' => Craft::t('events', 'View purchased tickets'),
+                        'nested' => [
+                            'events-editPurchasedTickets' => [
+                                'label' => Craft::t('events', 'Edit purchased tickets'),
+                            ],
+                            'events-deletePurchasedTickets' => [
+                                'label' => Craft::t('events', 'Delete purchased tickets'),
+                            ],
+                        ],
+                    ],
+                    'events-checkInTickets' => ['label' => Craft::t('events', 'Check in purchased tickets')],
                 ],
             ];
         });

@@ -81,7 +81,7 @@ class EventTypes extends Component
         $user = Craft::$app->getUser()->getIdentity();
         
         return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
-            return $this->hasPermission($user, $eventType, 'events-manageEventType');
+            return $user->can("events-editEvents:{$eventType->uid}");
         }, true, true, false);
     }
 
@@ -90,12 +90,26 @@ class EventTypes extends Component
         return ArrayHelper::getColumn($this->getEditableEventTypes(), 'id', false);
     }
 
+    public function getViewableEventTypes(): array
+    {
+        $user = Craft::$app->getUser()->getIdentity();
+        
+        return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
+            return $user->can("events-viewEvents:{$eventType->uid}");
+        }, true, true, false);
+    }
+
+    public function getViewableEventTypeIds(): array
+    {
+        return ArrayHelper::getColumn($this->getViewableEventTypes(), 'id', false);
+    }
+
     public function getCreatableEventTypes(): array
     {
         $user = Craft::$app->getUser()->getIdentity();
         
         return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
-            return $this->hasPermission($user, $eventType, 'events-createEvents');
+            return $user->can("events-createEvents:{$eventType->uid}");
         }, true, true, false);
     }
 
@@ -519,30 +533,6 @@ class EventTypes extends Component
                 }
             }
         }
-    }
-
-    public function hasPermission(User $user, EventType $eventType, ?string $checkPermissionName = null): bool
-    {
-        if ($user->admin) {
-            return true;
-        }
-
-        $permissions = Craft::$app->getUserPermissions()->getPermissionsByUserId($user->id);
-
-        $suffix = ':' . $eventType->uid;
-
-        // Required for create and delete permission.
-        $editEventType = strtolower('events-editEventType' . $suffix);
-
-        if ($checkPermissionName !== null) {
-            $checkPermissionName = strtolower($checkPermissionName . $suffix);
-        }
-
-        if (!in_array($editEventType, $permissions) || ($checkPermissionName !== null && !in_array(strtolower($checkPermissionName), $permissions))) {
-            return false;
-        }
-
-        return true;
     }
 
 

@@ -170,13 +170,7 @@ class Event extends Element
 
     protected static function defineSources(string $context = null): array
     {
-        if ($context == 'index') {
-            $eventTypes = Events::$plugin->getEventTypes()->getEditableEventTypes();
-            $editable = true;
-        } else {
-            $eventTypes = Events::$plugin->getEventTypes()->getAllEventTypes();
-            $editable = false;
-        }
+        $eventTypes = Events::$plugin->getEventTypes()->getViewableEventTypes();
 
         $eventTypeIds = [];
 
@@ -190,7 +184,6 @@ class Event extends Element
                 'label' => Craft::t('events', 'All events'),
                 'criteria' => [
                     'typeId' => $eventTypeIds,
-                    'editable' => $editable,
                 ],
                 'defaultSort' => ['postDate', 'desc'],
             ],
@@ -200,18 +193,15 @@ class Event extends Element
 
         foreach ($eventTypes as $eventType) {
             $key = 'eventType:' . $eventType->uid;
-            $canEditEvents = Craft::$app->getUser()->checkPermission('events-editEventType:' . $eventType->uid);
 
             $sources[] = [
                 'key' => $key,
                 'label' => Craft::t('site', $eventType->name),
                 'data' => [
                     'handle' => $eventType->handle,
-                    'editable' => $canEditEvents,
                 ],
                 'criteria' => [
                     'typeId' => $eventType->id,
-                    'editable' => $editable,
                 ],
                 // Get site ids enabled for this product type
                 'sites' => $eventType->getSiteIds(),
@@ -393,7 +383,7 @@ class Event extends Element
             return false;
         }
 
-        return $user->can('events-editEventType:' . $eventType->uid);
+        return $user->can("events-viewEvents:{$eventType->uid}");
     }
 
     public function canSave(User $user): bool
@@ -408,7 +398,7 @@ class Event extends Element
             return false;
         }
 
-        return $user->can('events-editEventType:' . $eventType->uid);
+        return $user->can("events-editEvents:{$eventType->uid}");
     }
 
     public function canDuplicate(User $user): bool
@@ -423,7 +413,7 @@ class Event extends Element
             return false;
         }
 
-        return $user->can('events-editEventType:' . $eventType->uid);
+        return $user->can("events-editEvents:{$eventType->uid}");
     }
 
     public function canDelete(User $user): bool
@@ -438,7 +428,7 @@ class Event extends Element
             return false;
         }
 
-        return $user->can('events-deleteEvents:' . $eventType->uid);
+        return $user->can("events-deleteEvents:{$eventType->uid}");
     }
 
     public function canDeleteForSite(User $user): bool
@@ -453,8 +443,59 @@ class Event extends Element
 
     public function canCreateDrafts(User $user): bool
     {
-        // Everyone with view permissions can create drafts
-        return true;
+        return $this->canSave($user);
+    }
+
+    public function canViewSessions(): bool
+    {
+        $user = Craft::$app->getUser()->getIdentity();
+
+        try {
+            $eventType = $this->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-viewSessions:{$eventType->uid}");
+    }
+
+    public function canCreateSessions(): bool
+    {
+        $user = Craft::$app->getUser()->getIdentity();
+
+        try {
+            $eventType = $this->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-createSessions:{$eventType->uid}");
+    }
+
+    public function canViewTicketTypes(): bool
+    {
+        $user = Craft::$app->getUser()->getIdentity();
+
+        try {
+            $eventType = $this->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-viewTicketTypes:{$eventType->uid}");
+    }
+
+    public function canCreateTicketTypes(): bool
+    {
+        $user = Craft::$app->getUser()->getIdentity();
+
+        try {
+            $eventType = $this->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-createTicketTypes:{$eventType->uid}");
     }
 
     public function setScenario($value): void
@@ -1055,7 +1096,7 @@ class Event extends Element
     {
         $eventType = $this->getType();
 
-        $eventTypes = Collection::make(Events::$plugin->getEventTypes()->getEditableEventTypes());
+        $eventTypes = Collection::make(Events::$plugin->getEventTypes()->getViewableEventTypes());
         
         /** @var Collection $eventTypeOptions */
         $eventTypeOptions = $eventTypes

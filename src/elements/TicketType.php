@@ -176,7 +176,13 @@ class TicketType extends Element implements NestedElementInterface
             return false;
         }
 
-        return $event->canView($user);
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-viewTicketTypes:{$eventType->uid}");
     }
 
     public function canSave(User $user): bool
@@ -191,7 +197,13 @@ class TicketType extends Element implements NestedElementInterface
             return false;
         }
 
-        return $event->canSave($user);
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-editTicketTypes:{$eventType->uid}");
     }
 
     public function canDelete(User $user): bool
@@ -200,7 +212,19 @@ class TicketType extends Element implements NestedElementInterface
             return true;
         }
 
-        return $this->canSave($user);
+        $event = $this->getOwner();
+
+        if ($event === null) {
+            return false;
+        }
+
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-deleteTicketTypes:{$eventType->uid}");
     }
 
     public function canDuplicate(User $user): bool

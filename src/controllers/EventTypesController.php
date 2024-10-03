@@ -21,13 +21,6 @@ class EventTypesController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function init(): void
-    {
-        $this->requirePermission('events-manageEventTypes');
-
-        parent::init();
-    }
-
     public function actionEdit(int $eventTypeId = null, EventType $eventType = null): Response
     {
         $variables = [
@@ -61,10 +54,6 @@ class EventTypesController extends Controller
     public function actionSave(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
-
-        if (!$currentUser->can('manageEvents')) {
-            throw new HttpException(403, Craft::t('events', 'This action is not allowed for the current user.'));
-        }
 
         $this->requirePostRequest();
 

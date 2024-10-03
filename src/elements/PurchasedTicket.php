@@ -228,22 +228,22 @@ class PurchasedTicket extends Element
 
     public function canView(User $user): bool
     {
-        return $user->can('events-managePurchasedTickets');
+        return $user->can('events-viewPurchasedTickets');
     }
 
     public function canSave(User $user): bool
     {
-        return $user->can('events-managePurchasedTickets');
+        return $user->can('events-editPurchasedTickets');
     }
 
     public function canDuplicate(User $user): bool
     {
-        return $user->can('events-managePurchasedTickets');
+        return $user->can('events-editPurchasedTickets');
     }
 
     public function canDelete(User $user): bool
     {
-        return $user->can('events-managePurchasedTickets');
+        return $user->can('events-deletePurchasedTickets');
     }
 
     public function canDeleteForSite(User $user): bool
@@ -526,6 +526,12 @@ class PurchasedTicket extends Element
 
     protected function cpEditUrl(): ?string
     {
-        return UrlHelper::cpUrl('events/purchased-tickets/' . $this->id);
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if (!$user->can('events-editPurchasedTickets')) {
+            return null;
+        }
+
+        return UrlHelper::cpUrl("events/purchased-tickets/{$this->id}");
     }
 }

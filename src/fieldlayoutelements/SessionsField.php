@@ -47,10 +47,14 @@ class SessionsField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in event field layouts.');
         }
 
+        if (!$element->canViewSessions()) {
+            return null;
+        }
+
         Craft::$app->getView()->registerDeltaName($this->attribute());
 
         return $element->getSessionManager()->getIndexHtml($element, [
-            'canCreate' => true,
+            'canCreate' => $element->canCreateSessions(),
             'allowedViewModes' => [ElementIndexViewMode::Table],
             'sortable' => false,
             'fieldLayouts' => [$element->getType()->getSessionFieldLayout()],
