@@ -134,6 +134,12 @@ class EventQuery extends ElementQuery
                 'MAX(endDate) AS endDate',
             ])
             ->from('{{%events_sessions}}')
+            ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[events_sessions.id]]')
+            ->where([
+                // Only count live and non-deleted session elements
+                'elements.enabled' => true,
+                'elements.dateDeleted' => null,
+            ])
             ->groupBy('primaryOwnerId');
 
         $this->query->leftJoin(['sessions' => $sessionsQuery], '[[sessions.eventId]] = [[events_events.id]]');
