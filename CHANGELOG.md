@@ -1,15 +1,25 @@
 # Changelog
 
-## 3.0.0-beta.3 - Unreleased
+## 3.0.0-beta.3 - 2024-10-04
+> {warning} This release introduces Sessions and re-purposed Ticket Types. As such, it's a major architectural change to how you structure events, which should be largely intuitive. All your existing events and tickets will be migrated. Read through the changes [here](https://github.com/verbb/events/blob/craft-5/docs/get-started/upgrading-from-v2.md).
 
 ### Added
 - Add Sessions inside events to manage multiple dates per Event.
 - Add recurring Sessions to handle your recurring Events. Pick from Once, Daily, Weekly and Monthly.
+- Add GraphQL support.
 - Add the ability to register your own recurring frequency logic.
 - Add helper to events for checking when to automatically generate new Tickets when Sessions or Ticket Types have changed.
 - Add the ability when editing a Session to pick how to update it (just the occurrence, all, future, etc).
 - Add the ability when deleting a Session to pick how to handle it (just the occurrence, all, future, etc).
 - Add Ticket and Purchased Ticket element index tables as custom fields, if you want to attach them to various element screens.
+- Add the ability to set a default time for sessions.
+- Add allowed quantity to tickets types to control the minimum or maximum number of tickets to be purchased.
+- Add download button to purchased ticket interface.
+- Add the ability to attach ticket PDFs to Commerce emails.
+- Add the ability to set the timezone on start/end dates for sessions.
+- Add Events element conditions.
+- Add Purchased Ticket element conditions.
+- Add Promotable field to Ticket Types to control whether tickets should be promotable.
 
 ### Changed
 - Events now no longer house the start/end dates for an event. These are managed in a Session.
@@ -18,6 +28,13 @@
 - Tickets and Ticket Types from Events 2.x have been archived as legacy elements. These are re-created in Events 3.x in their new format.
 - Event capacity is now optional. It can now be used to override the automatically calculated capacity based off Ticket Types.
 - Ticket Type capacity is now required.
+- Checking in a ticket now shows a prompt to check in, rather than automatically checking in a user.
+- Updated the look and content of the check in template.
+- Revamp permissions, include event/session/ticket type view/create/edit/delete permissions.
+- Event element cards now show the event type and start/end date/times of events
+
+### Fixed
+- Fix tickets not being promotable.
 
 ## 3.0.0-beta.2 - 2024-03-18
 
