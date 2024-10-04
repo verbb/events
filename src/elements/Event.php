@@ -3,6 +3,8 @@ namespace verbb\events\elements;
 
 use verbb\events\Events;
 use verbb\events\assetbundles\EventEditAsset;
+use verbb\events\elements\conditions\events\EventCondition;
+use verbb\events\elements\conditions\events\EventTypeConditionRule;
 use verbb\events\elements\db\EventQuery;
 use verbb\events\elements\db\SessionQuery;
 use verbb\events\elements\db\TicketQuery;
@@ -16,6 +18,7 @@ use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\db\Query;
 use craft\db\Table;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\NestedElementManager;
@@ -110,6 +113,11 @@ class Event extends Element
         return new EventQuery(static::class);
     }
 
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(EventCondition::class, [static::class]);
+    }
+
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'sessions') {
@@ -166,6 +174,30 @@ class Event extends Element
         } else {
             parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
         }
+    }
+
+    public static function modifyCustomSource(array $config): array
+    {
+        try {
+            $condition = Craft::$app->getConditions()->createCondition($config['condition']);
+        } catch (InvalidConfigException) {
+            return $config;
+        }
+
+        $rules = $condition->getConditionRules();
+
+        $eventTypeRule = ArrayHelper::firstWhere($rules, fn($rule) => $rule instanceof EventTypeConditionRule);
+        $eventTypeOptions = $eventTypeRule?->getValues();
+
+        if ($eventTypeOptions && count($eventTypeOptions) === 1) {
+            $eventType = Events::$plugin->getEventTypes()->getEventTypeByUid(reset($eventTypeOptions));
+            
+            if ($eventType) {
+                $config['data']['handle'] = $eventType->handle;
+            }
+        }
+
+        return $config;
     }
 
     protected static function defineSources(string $context = null): array
