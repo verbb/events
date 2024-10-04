@@ -31,6 +31,7 @@ use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\i18n\Locale;
 use craft\models\FieldLayout;
 
 use yii\base\Exception;
@@ -738,6 +739,52 @@ class Event extends Element
         }
 
         return $this->_ticketManager;
+    }
+
+    public function getChipLabelHtml(): string
+    {
+        $html = parent::getChipLabelHtml();
+
+        if ($html !== '') {
+            return $html;
+        }
+
+        $formatter = Craft::$app->getFormatter();
+
+        $dates = implode('&mdash;', [
+            $formatter->asDatetime($this->startDate, Locale::LENGTH_SHORT),
+            $formatter->asDatetime($this->endDate, Locale::LENGTH_SHORT),
+        ]);
+
+        return implode('', [
+            Html::tag('em', Craft::t('site', $this->getType()->name), [
+                'class' => 'light',
+            ]),
+            Html::tag('em', $dates, [
+                'class' => 'light',
+            ]),
+        ]);
+    }
+
+    public function getCardBodyHtml(): ?string
+    {
+        $html = parent::getCardBodyHtml();
+
+        if ($html === '') {
+            $formatter = Craft::$app->getFormatter();
+
+            $dates = implode('&mdash;', [
+                $formatter->asDatetime($this->startDate, Locale::LENGTH_SHORT),
+                $formatter->asDatetime($this->endDate, Locale::LENGTH_SHORT),
+            ]);
+
+            return implode('', [
+                Html::tag('div', Html::tag('em', Craft::t('site', $this->getType()->name))),
+                Html::tag('div', Html::tag('em', $dates)),
+            ]);
+        }
+
+        return $html;
     }
 
     public function getStatus(): ?string
