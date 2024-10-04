@@ -1,6 +1,9 @@
 <?php
 namespace verbb\events\elements\db;
 
+use verbb\events\elements\Event;
+use verbb\events\elements\Session;
+use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
 use verbb\events\elements\PurchasedTicketCollection;
 
@@ -54,9 +57,45 @@ class PurchasedTicketQuery extends ElementQuery
         return $this;
     }
 
+    public function event(mixed $value): static
+    {
+        if ($value instanceof Event) {
+            $this->eventId = [$value->id];
+        } else {
+            $this->eventId = $value;
+        }
+        return $this;
+    }
+
+    public function sessionId($value): static
+    {
+        $this->sessionId = $value;
+        return $this;
+    }
+
+    public function session(mixed $value): static
+    {
+        if ($value instanceof Session) {
+            $this->sessionId = [$value->id];
+        } else {
+            $this->sessionId = $value;
+        }
+        return $this;
+    }
+
     public function ticketId($value): static
     {
         $this->ticketId = $value;
+        return $this;
+    }
+
+    public function ticket(mixed $value): static
+    {
+        if ($value instanceof Ticket) {
+            $this->ticketId = [$value->id];
+        } else {
+            $this->ticketId = $value;
+        }
         return $this;
     }
 

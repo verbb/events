@@ -89,12 +89,34 @@ class TicketType extends Element implements NestedElementInterface
 
     protected static function defineSources(string $context = null): array
     {
-        return [
+        $eventTypes = Events::$plugin->getEventTypes()->getViewableEventTypes();
+
+        $sources = [
             [
                 'key' => '*',
                 'label' => Craft::t('events', 'All ticket types'),
             ],
         ];
+
+        foreach ($eventTypes as $eventType) {
+            $sources[] = ['heading' => $eventType->name];
+
+            $events = Event::find()->typeId($eventType->id)->all();
+
+            foreach ($events as $event) {
+                $key = 'event:' . $event->uid;
+
+                $sources[] = [
+                    'key' => $key,
+                    'label' => $event->title,
+                    'criteria' => [
+                        'eventId' => $event->id,
+                    ],
+                ];
+            }
+        }
+
+        return $sources;
     }
 
     protected static function includeSetStatusAction(): bool

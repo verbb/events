@@ -2,6 +2,7 @@
 namespace verbb\events\elements;
 
 use verbb\events\Events;
+use verbb\events\elements\conditions\purchasedtickets\PurchasedTicketCondition;
 use verbb\events\elements\db\PurchasedTicketQuery;
 use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
 
@@ -11,6 +12,7 @@ use craft\base\ElementInterface;
 use craft\elements\User;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Cp;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -68,6 +70,11 @@ class PurchasedTicket extends Element
     public static function find(): PurchasedTicketQuery
     {
         return new PurchasedTicketQuery(static::class);
+    }
+
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(PurchasedTicketCondition::class, [static::class]);
     }
 
     public static function gqlTypeNameByContext(mixed $context): string
