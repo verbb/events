@@ -1,11 +1,11 @@
 # Available Variables
 The following methods are available to call in your Twig templates:
 
-### `craft.events.events({ endDate: '>= now' })`
+### `craft.events.events.endDate('>= now')`
 Returns an [Event Query](docs:getting-elements/event-queries) for you to modify and output events.
 
 :::warning
-By default, only current events will be returned when calling `craft.events.events()`. To change this, use the `craft.events.events({ endDate: null })`. Events are also ordered from the oldest startDate to the newest, which you can also change with the `orderBy` parameter.
+By default, only current events will be returned when calling `craft.events.events()`. To change this, use the `craft.events.events.endDate(null)`. Events are also ordered from the oldest startDate to the newest, which you can also change with the `orderBy` parameter.
 :::
 
 ### `craft.events.tickets()`

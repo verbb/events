@@ -1,11 +1,15 @@
-# Upgrading from v1
+# Upgrading from v2
 While the [changelog](https://github.com/verbb/events/blob/craft-5/CHANGELOG.md) is the most comprehensive list of changes, this guide provides high-level overview and organizes changes by category.
 
 ## Architecture
 The biggest change to Events 3 is the major change in content architecture for the plugin and managing events. It's best to familiarise yourself with the change in behaviour, particularly if you customise or extend the Events plugin.
 
+Events 3 will migrate everything for you seamlessly, with only minimal breaking changes.
+
 ### Events
-Events no longer define the start and end dates for an event. They still exist as elements, but act as a container around your Sessions and Ticket Types.
+Events no longer define the start and end dates for an event. Events still exist as elements, but act as a container around your Sessions and Ticket Types.
+
+This is despite `startDate` and `endDate` still existing on an Event as properties and available as [query params](docs:getting-elements/event-queries), but these now reflect the start and end dates of your collection of Sessions. For any Events created on Events 2, there will be no change in behaviour as Events 2 events will only have a single Session, migrated from the previous architecture.
 
 ### Sessions
 Sessions are where you define your dates for an event. Events can have multiple sessions. While sessions can be set to be recurring, coming from Events 2, you'll have a single session based off your old event dates.
@@ -17,7 +21,7 @@ For example, you might have defined two Tickets in Events 2 for an event:
 - Adult, 100 capacity, $55 each
 - Child, 100 capacity, $25 each
 
-These were defined as purchasables, but with the introduction of recurring sessions, you no longer have the ability to create tickets manually. Instead, you define this content exactly as above, but as Ticket Types.
+These were defined as purchasables, but with the introduction of recurring sessions, you no longer have the ability to create tickets manually. Instead, you define this content exactly as above, but as Ticket Types. As such, you can think of Ticket Types as rules and settings that are used to generate tickets.
 
 This is because unlike in Events 2, Tickets are now automatically generated based on the event sessions and ticket types.
 
@@ -51,22 +55,3 @@ Old | What to do instead
 --- | ---
 | `verbb\events\elements\Ticket::name` | `verbb\events\elements\Ticket::title`
 | `verbb\events\elements\Ticket::purchasableId` | `verbb\events\elements\Ticket::id`
-
-## Renamed Classes
-The following classes have been renamed.
-
-Old | What to do instead
---- | ---
-| `verbb\events\records\EventRecord` | `verbb\events\records\Event`
-| `verbb\events\records\EventTypeRecord` | `verbb\events\records\EventType`
-| `verbb\events\records\EventTypeSiteRecord` | `verbb\events\records\EventTypeSite`
-| `verbb\events\records\PurchasedTicketRecord` | `verbb\events\records\PurchasedTicket`
-| `verbb\events\records\TicketRecord` | `verbb\events\records\Ticket`
-| `verbb\events\records\TicketTypeRecord` | `verbb\events\records\TicketType`
-
-## Removed Methods
-The following methods have been removed.
-
-Old | What to do instead
---- | ---
-| `Ticket::getPurchasedTicketsForLineItem(item)` | Use `Ticket::getPurchasedTickets(item)` instead

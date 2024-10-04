@@ -213,7 +213,7 @@ Below we've prepared a ready-to-go template, complete with provided CSS to get y
             <span id="ticket-num" class="value">#{{ ticket }}</span>
 
             <div id="attendee-info">
-                <span class="label">1 {{ ticket.ticketName }} Pass</span>
+                <span class="label">1 {{ ticket.title }} Pass</span>
 
                 {# Order details #}
                 {% if order.customer.user %}

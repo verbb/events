@@ -30,9 +30,7 @@ You can also generate an ICS feed for arbitrary [Event Queries](docs:getting-ele
 For example, you might have the following in a `templates/events/export.html` template file:
 
 ```twig
-{% set events = craft.events.events({
-    type: 'general',
-}).all() %}
+{% set events = craft.events.events.type('general').all() %}
 
 {{ craft.events.getIcsFeed(events) }}
 ```
@@ -40,9 +38,7 @@ For example, you might have the following in a `templates/events/export.html` te
 Which would output the raw ICS data. You could also change this to force downloading of the ICS file, by adding some PHP headers with Twig:
 
 ```twig
-{% set events = craft.events.events({
-    type: 'general',
-}).all() %}
+{% set events = craft.events.events.type('general').all() %}
 
 {% header "Content-Type: application/octet-stream" %}
 {% header "Content-Transfer-Encoding: binary" %}

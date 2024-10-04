@@ -4,47 +4,28 @@ Once you've got a list of events, you'll want to allow your customers to drill-i
 You'll have access to a `event` variable, which represents the single event you're looking at. You can also interchangeably use `product` if you wish.
 
 ```twig
-{% extends 'shop/_layouts/main' %}
+<h1>{{ event.title }}</h1>
 
-{% block main %}
-    <div class="mt-8">
-        <a href="{{ url('shop/products') }}">&larr; All products</a>
-    </div>
+{% if event.isAvailable %}
+    <form method="POST">
+        {{ actionInput('commerce/cart/update-cart') }}
+        {{ csrfInput() }}
 
-    <div class="flex -mx-6 mt-8 product-details">
-        <div class="w-1/2 mx-6 p-8">
+        <input type="number" name="qty" value="1">
 
-        </div>
-        <div class="w-1/2 mx-6 p-8">
-            <h1>{{ event.title }}</h1>
+        <select name="purchasableId">
+            {% for ticket in event.getTickets() %}
+                <option value="{{ ticket.id }}" {% if not ticket.isAvailable %}disabled{% endif %}>
+                    {{ ticket.title }} - {{ ticket.price | commerceCurrency(cart.currency) }}
+                </option>
+            {% endfor %}
+        </select>
 
-            {% if event.isAvailable %}
-                <form method="POST">
-                    <input type="hidden" name="action" value="commerce/cart/update-cart">
-                    {{ redirectInput('shop/cart') }}
-                    {{ csrfInput() }}
-
-                    <input type="number" name="qty" value="1">
-
-                    <div class="field">
-                        <select name="purchasableId">
-                            {% for ticket in event.tickets %}
-                                <option value="{{ ticket.purchasableId }}" {% if not ticket.isAvailable %}disabled{% endif %}>
-                                    {{ ticket.name }} - {{ ticket.price | commerceCurrency(cart.currency) }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="buttons">
-                        <input type="submit" value="Add to cart" class="button"/>
-                    </div>
-                </form>
-            {% else %}
-                <strong>Sold out</strong>
-            {% endif %}
-        </div>
-    </div>
-{% endblock %}
+        <button type="submit">Add to cart</button>
+    </form>
+{% else %}
+    <strong>Sold out</strong>
+{% endif %}
 ```
 
 The above shows all tickets for an event, whether they're available or not. We use `ticket.isAvailable` to see if we can purchase this ticket, as it could be sold out.
@@ -54,8 +35,8 @@ If you wanted to only show the available tickets, and not show sold out ones, yo
 ```twig
 <select>
     {%- for ticket in event.availableTickets() -%}
-        <option value="{{ ticket.purchasableId }}">
-            {{ ticket.name }} - {{ ticket.price | commerceCurrency(cart.currency) }}
+        <option value="{{ ticket.id }}">
+            {{ ticket.title }} - {{ ticket.price | commerceCurrency(cart.currency) }}
         </option>
     {% endfor %}
 </select>
@@ -68,21 +49,20 @@ Adding a ticket to your cart works in very much the same way as [Craft Commerce]
 
 ```twig
 <form method="POST">
-    <input type="hidden" name="action" value="commerce/cart/update-cart">
-    {{ redirectInput('shop/cart') }}
+    {{ actionInput('commerce/cart/update-cart') }}
     {{ csrfInput() }}
 
     <input type="number" name="qty" value="1">
 
     <select name="purchasableId">
-        {% for ticket in event.tickets %}
-            <option value="{{ ticket.purchasableId }}" {% if not ticket.isAvailable %}disabled{% endif %}>
-                {{ ticket.name }} - {{ ticket.price | commerceCurrency(cart.currency) }}
+        {% for ticket in event.getTickets() %}
+            <option value="{{ ticket.id }}" {% if not ticket.isAvailable %}disabled{% endif %}>
+                {{ ticket.title }} - {{ ticket.price | commerceCurrency(cart.currency) }}
             </option>
         {% endfor %}
     </select>
 
-    <input type="submit" value="Add to cart" class="button">
+    <button type="submit">Add to cart</button>
 </form>
 ```
 
@@ -91,16 +71,15 @@ You can also set additional data through [line item options](https://docs.craftc
 
 ```twig
 <form method="POST">
-    <input type="hidden" name="action" value="commerce/cart/update-cart">
-    {{ redirectInput('shop/cart') }}
+    {{ actionInput('commerce/cart/update-cart') }}
     {{ csrfInput() }}
 
     <input type="number" name="qty" value="1">
 
     <select name="purchasableId">
-        {% for ticket in event.tickets %}
-            <option value="{{ ticket.purchasableId }}" {% if not ticket.isAvailable %}disabled{% endif %}>
-                {{ ticket.name }} - {{ ticket.price | commerceCurrency(cart.currency) }}
+        {% for ticket in event.getTickets() %}
+            <option value="{{ ticket.id }}" {% if not ticket.isAvailable %}disabled{% endif %}>
+                {{ ticket.title }} - {{ ticket.price | commerceCurrency(cart.currency) }}
             </option>
         {% endfor %}
     </select>
@@ -109,7 +88,7 @@ You can also set additional data through [line item options](https://docs.craftc
     <input type="text" name="options[includeSwagBag]" value="Yes">
     <input type="text" name="options[numberOfExtraGuests]" value="3">
 
-    <input type="submit" value="Add to cart" class="button">
+    <button type="submit">Add to cart</button>
 </form>
 ```
 
@@ -119,15 +98,14 @@ For example, let's say you have a 'Child' ticket type setup, with a custom field
 
 ```twig
 <form method="POST">
-    <input type="hidden" name="action" value="commerce/cart/update-cart">
-    {{ redirectInput('shop/cart') }}
+    {{ actionInput('commerce/cart/update-cart') }}
     {{ csrfInput() }}
 
     ...
 
     <input type="text" name="options[age]" value="16">
 
-    <input type="submit" value="Add to cart" class="button">
+    <button type="submit">Add to cart</button>
 </form>
 ```
 
