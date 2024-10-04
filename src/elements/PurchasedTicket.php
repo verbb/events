@@ -57,11 +57,6 @@ class PurchasedTicket extends Element
         return true;
     }
 
-    public static function hasContent(): bool
-    {
-        return true;
-    }
-
     public static function hasStatuses(): bool
     {
         return true;
