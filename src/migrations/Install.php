@@ -118,6 +118,7 @@ class Install extends Migration
             'availableTo' => $this->dateTime(),
             'minQty' => $this->integer(),
             'maxQty' => $this->integer(),
+            'promotable' => $this->boolean()->notNull()->defaultValue(true),
             'legacyTicketId' => $this->string(),
             'legacyTicketTypeId' => $this->string(),
             'deletedWithEvent' => $this->boolean()->notNull()->defaultValue(false),

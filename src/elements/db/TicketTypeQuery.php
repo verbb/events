@@ -154,6 +154,7 @@ class TicketTypeQuery extends ElementQuery
             'events_ticket_types.availableTo',
             'events_ticket_types.minQty',
             'events_ticket_types.maxQty',
+            'events_ticket_types.promotable',
             'events_elements_sites.slug as eventSlug',
             'events_event_types.handle as eventTypeHandle',
         ]);

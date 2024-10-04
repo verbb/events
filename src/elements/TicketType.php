@@ -153,6 +153,7 @@ class TicketType extends Element implements NestedElementInterface
     public ?DateTime $availableTo = null;
     public ?int $minQty = null;
     public ?int $maxQty = null;
+    public bool $promotable = true;
     public ?int $sortOrder = null;
     public bool $deletedWithEvent = false;
     
@@ -425,6 +426,7 @@ class TicketType extends Element implements NestedElementInterface
             $record->availableTo = $this->availableTo;
             $record->minQty = $this->minQty;
             $record->maxQty = $this->maxQty;
+            $record->promotable = $this->promotable;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
@@ -522,7 +524,7 @@ class TicketType extends Element implements NestedElementInterface
             },
         ];
 
-        $rules[] = [['ownerId', 'primaryOwnerId'], 'safe'];
+        $rules[] = [['ownerId', 'primaryOwnerId', 'promotable'], 'safe'];
 
         return $rules;
     }

@@ -141,9 +141,6 @@ class Ticket extends Purchasable
 
     public function init(): void
     {
-        // Allow tickets to be promotable
-        $this->promotable = true;
-
         // Always enable tracking of stock (for now)
         $this->inventoryTracked = true;
 
@@ -160,6 +157,7 @@ class Ticket extends Purchasable
         }
 
         // Set purchasable properties from the ticket type
+        $this->promotable = $this->getType()?->promotable ?? true;
         $this->minQty = $this->getType()?->minQty ?? null;
         $this->maxQty = $this->getType()?->maxQty ?? null;
 
