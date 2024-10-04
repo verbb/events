@@ -190,21 +190,19 @@ class OccurrenceRange extends Model
             ],
         ]);
 
-        $html .= Html::beginTag('div', [
+        $html .= Html::tag('div', $startDateField . $endDateField, [
             'id' => 'apply-changes--custom',
             'class' => [
                 'meta',
                 'apply-changes--custom',
                 ($this->type !== self::TYPE_CUSTOM ? 'hidden' : ''),
             ],
-        ]) .
-            $startDateField . $endDateField . 
-            Html::endTag('div');
+        ]);
 
         $html .= Html::beginTag('p', ['class' => 'notice hidden has-icon occurrence-hint']) . 
             Html::tag('span', null, ['class' => 'icon', 'aria-hidden' => true]) . 
             Html::tag('span', null, ['class' => 'hint-text']) . 
-        Html::endTag('div');
+        Html::endTag('p');
 
         return $html;
     }
