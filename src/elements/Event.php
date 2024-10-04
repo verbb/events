@@ -235,7 +235,7 @@ class Event extends Element
                 'criteria' => [
                     'typeId' => $eventType->id,
                 ],
-                // Get site ids enabled for this product type
+                // Get site ids enabled for this event type
                 'sites' => $eventType->getSiteIds(),
             ];
         }
@@ -991,17 +991,16 @@ class Event extends Element
                 ->exists();
 
             if (!$hasRevisions) {
-                /** @var self|null $currentProduct */
-                $currentProduct = self::find()
+                $currentEvent = self::find()
                     ->id($this->id)
                     ->site('*')
                     ->status(null)
                     ->one();
 
                 // May be null if the event is currently stored as an unpublished draft
-                if ($currentProduct) {
-                    $revisionNotes = 'Revision from ' . Craft::$app->getFormatter()->asDatetime($currentProduct->dateUpdated);
-                    Craft::$app->getRevisions()->createRevision($currentProduct, notes: $revisionNotes);
+                if ($currentEvent) {
+                    $revisionNotes = 'Revision from ' . Craft::$app->getFormatter()->asDatetime($currentEvent->dateUpdated);
+                    Craft::$app->getRevisions()->createRevision($currentEvent, notes: $revisionNotes);
                 }
             }
         }
