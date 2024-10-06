@@ -116,12 +116,14 @@ class Ticket extends Purchasable
             'sku' => ['label' => Craft::t('events', 'SKU')],
             'price' => ['label' => Craft::t('events', 'Price')],
             'capacity' => ['label' => Craft::t('events', 'Capacity')],
+            'purchased' => ['label' => Craft::t('events', 'Purchased')],
+            'available' => ['label' => Craft::t('events', 'Available')],
         ];
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        return ['price', 'capacity'];
+        return ['price', 'capacity', 'purchased', 'available'];
     }
 
 
@@ -254,10 +256,7 @@ class Ticket extends Purchasable
     public function getStock(): int
     {
         // Available to purchase is capacity (event or ticket) - purchased tickets
-        $capacity = $this->getCapacity();
-        $purchased = PurchasedTicket::find()->ticketId($this->id)->count();
-        
-        return $capacity - $purchased;
+        return $this->getCapacity() - $this->getPurchasedTicketsCount();
     }
 
     public function getCapacity(): int
@@ -271,6 +270,11 @@ class Ticket extends Purchasable
         }
 
         return $ticketCapacity;
+    }
+
+    public function getPurchasedTicketsCount(): int
+    {
+        return PurchasedTicket::find()->ticketId($this->id)->count();
     }
 
     public function getIsAvailable(): bool
@@ -483,10 +487,22 @@ class Ticket extends Purchasable
 
     protected function attributeHtml(string $attribute): string
     {
-        return match ($attribute) {
-            'sku' => Html::encode($this->getSkuAsText()),
-            'price' => $this->basePriceAsCurrency,
-            default => Element::attributeHtml($attribute),
-        };
+        if ($attribute === 'sku') {
+            return Html::encode($this->getSkuAsText());
+        }
+
+        if ($attribute === 'price') {
+            return $this->basePriceAsCurrency;
+        }
+
+        if ($attribute === 'purchased') {
+            return $this->getPurchasedTicketsCount();
+        }
+
+        if ($attribute === 'available') {
+            return $this->enabled ? $this->getStock() : 0;
+        }
+
+        return Element::attributeHtml($attribute);
     }
 }
