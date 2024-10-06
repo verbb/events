@@ -481,6 +481,16 @@ class Ticket extends Purchasable
         parent::afterSave($isNew);
     }
 
+    public function beforeDelete(): bool
+    {
+        // If there are any purchased tickets for this ticket, then it cannot be deleted
+        if ($this->getPurchasedTicketsCount()) {
+            return false;
+        }
+
+        return parent::beforeDelete();
+    }
+
 
     // Protected Methods
     // =========================================================================
