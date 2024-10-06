@@ -36,9 +36,15 @@ Craft.Events.SessionEdit = Garnish.Base.extend({
         this.$occurrenceTypeEndDate = this.$container.find('[data-attribute="occurrence-range-end-date"]');
         this.$occurrenceTypeEndDateInput = this.$occurrenceTypeEndDate.find('.datewrapper input[type="text"]');
 
+        this.$allDay = this.$container.find('[data-attribute="allDay"] .lightswitch');
+
         // Store the current dates in case we modify them to determine a diff
         this.currentStartDate = this.getDate(this.$startDate);
+        this.currentStartTime = this.getTime(this.$startDate);
         this.currentEndDate = this.getDate(this.$endDate);
+        this.currentEndTime = this.getTime(this.$endDate);
+
+        this.addListener(this.$allDay, 'change', 'checkAllDay');
 
         // Week "Repeat On" values must include the current day
         this.addListener(this.$startDateInput, 'change', 'updateWeekRepeatOptions');
@@ -70,6 +76,7 @@ Craft.Events.SessionEdit = Garnish.Base.extend({
         this.$startDateInput.trigger('change');
         this.$endDateInput.trigger('change');
         this.$occurrenceType.trigger('change');
+        this.$allDay.trigger('change');
     },
 
     updateOffsets(e) {
@@ -293,6 +300,20 @@ Craft.Events.SessionEdit = Garnish.Base.extend({
         return null;
     },
 
+    getTime($el) {
+        if (!$el || !$el.length) {
+            return null;
+        }
+
+        const $timeInput = $el.find('.timewrapper input[type="text"]');
+
+        if ($timeInput.length) {
+            return $timeInput.val();
+        }
+
+        return null;
+    },
+
     getDaySuffix(day) {
         // Helper function to get day suffix (st, nd, rd, th)
         if (day > 3 && day < 21) return 'th';
@@ -387,6 +408,36 @@ Craft.Events.SessionEdit = Garnish.Base.extend({
         }
 
         return parts.join('');
+    },
+
+    checkAllDay: function() {
+        if (this.$allDay.hasClass('on')) {
+            this.hideTime();
+        } else {
+            this.showTime();
+        }
+    },
+
+    hideTime: function() {
+        this.$startTimeInput.addClass('disabled');
+        this.$startTimeInput.prop('disabled', true);
+        this.currentStartTime = this.$startTimeInput.val();
+        this.$startTimeInput.val('12:00 AM');
+
+        this.$endTimeInput.addClass('disabled');
+        this.$endTimeInput.prop('disabled', true);
+        this.currentEndTime = this.$endTimeInput.val();
+        this.$endTimeInput.val('12:00 AM');
+    },
+
+    showTime: function() {
+        this.$startTimeInput.removeClass('disabled');
+        this.$startTimeInput.prop('disabled', false);
+        this.$startTimeInput.val(this.currentStartTime);
+        
+        this.$endTimeInput.removeClass('disabled');
+        this.$endTimeInput.prop('disabled', false);
+        this.$endTimeInput.val(this.currentEndTime);
     },
 });
 

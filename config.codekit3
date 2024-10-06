@@ -370,6 +370,30 @@
       "oAP" : "\/src\/gql\/types\/generators\/TicketTypeGenerator-output.php",
       "oF" : 0
     },
+    "\/src\/gql\/types\/input\/EventInputType.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 1,
+      "oAP" : "\/src\/gql\/types\/input\/EventInputType-output.php",
+      "oF" : 0
+    },
+    "\/src\/gql\/types\/input\/SessionInputType.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 1,
+      "oAP" : "\/src\/gql\/types\/input\/SessionInputType-output.php",
+      "oF" : 0
+    },
+    "\/src\/gql\/types\/input\/TicketTypeInputType.php" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 1,
+      "oAP" : "\/src\/gql\/types\/input\/TicketTypeInputType-output.php",
+      "oF" : 0
+    },
     "\/src\/gql\/types\/PurchasedTicketType.php" : {
       "cB" : 0,
       "ft" : 8192,
