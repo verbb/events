@@ -37,7 +37,7 @@ class SessionDateTimeField extends BaseNativeField
             'instructions' => Craft::t('events', 'Set a default time for this field for brand-new sessions.'),
             'id' => 'default-time',
             'name' => 'defaultTime',
-            'value' => $this->defaultTime ? $this->defaultTime->format('c') : null,
+            'value' => $this->defaultTime?->format('c'),
         ]);
 
         $html .= Cp::lightswitchFieldHtml([
