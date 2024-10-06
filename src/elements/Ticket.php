@@ -164,6 +164,12 @@ class Ticket extends Purchasable
         $this->minQty = $this->getType()?->minQty ?? null;
         $this->maxQty = $this->getType()?->maxQty ?? null;
 
+        // Protect against an invalid event/session/type - these must be set to be purchasable
+        if (!$this->getEvent() || !$this->getSession() || !$this->getType()) {
+            $this->enabled = false;
+            $this->title = sprintf('%s %s', static::displayName(), $this->id);
+        }
+
         parent::init();
     }
 
