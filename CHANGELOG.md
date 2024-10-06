@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.0.0-beta.4 - 2024-10-06
+
+### Added
+- Add the ability to set a “Seats per Ticket” setting for tickets.
+- Add `Purchased` and `Available` columns for Ticket elements.
+
+### Changed
+- Deleting a Ticket element is now prevented if any purchased tickets exist.
+
+### Fixed
+- Handle Ticket elements missing their event, session or type.
+- Fix ticket status pane not appearing when still tickets on an event (bit missing either sessions or ticket types).
+
 ## 3.0.0-beta.3 - 2024-10-04
 > {warning} This release introduces Sessions and re-purposed Ticket Types. As such, it's a major architectural change to how you structure events, which should be largely intuitive. All your existing events and tickets will be migrated. Read through the changes [here](https://github.com/verbb/events/blob/craft-5/docs/get-started/upgrading-from-v2.md).
 
