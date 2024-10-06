@@ -862,8 +862,9 @@ class Event extends Element
 
         $sessions = Session::find()->eventId($this->id)->exists();
         $ticketTypes = TicketType::find()->eventId($this->id)->exists();
+        $tickets = Ticket::find()->eventId($this->id)->exists();
 
-        if ($sessions && $ticketTypes && $this->getIsCanonical()) {
+        if ((($sessions && $ticketTypes) || $tickets) && $this->getIsCanonical()) {
             if ($this->hasPendingTicketChanges()) {
                 $ticketStatusField = Html::beginTag('div', [
                     'class' => 'meta',
