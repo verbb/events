@@ -76,7 +76,7 @@ class Events extends Plugin
 
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '1.1.2';
+    public string $schemaVersion = '1.1.3';
     public string $minVersionRequired = '1.4.20';
 
 
@@ -477,6 +477,7 @@ class Events extends Plugin
                 $event->fields[] = LayoutFields\TicketTypePriceField::class;
                 $event->fields[] = LayoutFields\TicketTypeAllowedQtyField::class;
                 $event->fields[] = LayoutFields\TicketTypePromotableField::class;
+                $event->fields[] = LayoutFields\TicketTypeSeatsPerTicketField::class;
                 $event->fields[] = LayoutFields\PurchasedTicketsField::class;
             }
         });

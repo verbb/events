@@ -177,6 +177,7 @@ class TicketType extends Element implements NestedElementInterface
     public ?int $minQty = null;
     public ?int $maxQty = null;
     public bool $promotable = true;
+    public int $seatsPerTicket = 1;
     public ?int $sortOrder = null;
     public bool $deletedWithEvent = false;
     
@@ -450,6 +451,7 @@ class TicketType extends Element implements NestedElementInterface
             $record->minQty = $this->minQty;
             $record->maxQty = $this->maxQty;
             $record->promotable = $this->promotable;
+            $record->seatsPerTicket = $this->seatsPerTicket;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
@@ -527,7 +529,7 @@ class TicketType extends Element implements NestedElementInterface
 
         $rules[] = [['price'], 'required', 'on' => self::SCENARIO_LIVE];
         $rules[] = [['capacity'], 'number', 'integerOnly' => true];
-        $rules[] = [['minQty', 'maxQty'], 'number', 'integerOnly' => true, 'skipOnEmpty' => true];
+        $rules[] = [['minQty', 'maxQty', 'seatsPerTicket'], 'number', 'integerOnly' => true, 'skipOnEmpty' => true];
         $rules[] = [['price'], 'number'];
         $rules[] = [['availableFrom', 'availableTo'], DateTimeValidator::class];
 

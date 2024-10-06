@@ -280,7 +280,7 @@ class Ticket extends Purchasable
 
     public function getPurchasedTicketsCount(): int
     {
-        return PurchasedTicket::find()->ticketId($this->id)->count();
+        return PurchasedTicket::find()->ticketId($this->id)->count() * ($this->getType()?->seatsPerTicket ?? 1);
     }
 
     public function getIsAvailable(): bool
