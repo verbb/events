@@ -1,6 +1,7 @@
 <?php
 namespace verbb\events\elements;
 
+use verbb\events\Events;
 use verbb\events\elements\db\TicketQuery;
 use verbb\events\events\CustomizeEventSnapshotDataEvent;
 use verbb\events\events\CustomizeEventSnapshotFieldsEvent;

@@ -1,6 +1,7 @@
 <?php
 namespace verbb\events\elements;
 
+use verbb\events\Events;
 use verbb\events\elements\db\TicketTypeQuery;
 use verbb\events\elements\traits\PurchasedTicketTrait;
 use verbb\events\helpers\TicketHelper;
