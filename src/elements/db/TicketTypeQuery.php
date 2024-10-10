@@ -152,13 +152,36 @@ class TicketTypeQuery extends ElementQuery
             'events_ticket_types.capacity',
             'events_ticket_types.availableFrom',
             'events_ticket_types.availableTo',
-            'events_ticket_types.minQty',
-            'events_ticket_types.maxQty',
-            'events_ticket_types.promotable',
-            'events_ticket_types.seatsPerTicket',
             'events_elements_sites.slug as eventSlug',
             'events_event_types.handle as eventTypeHandle',
         ]);
+
+        // Use column checks, rather than PC `schemaVersion` checks for performance
+        $db = Craft::$app->getDb();
+
+        if ($db->columnExists('events_ticket_types', 'minQty')) {
+            $this->query->addSelect([
+                'events_ticket_types.minQty',
+            ]);
+        }
+
+        if ($db->columnExists('events_ticket_types', 'maxQty')) {
+            $this->query->addSelect([
+                'events_ticket_types.maxQty',
+            ]);
+        }
+
+        if ($db->columnExists('events_ticket_types', 'promotable')) {
+            $this->query->addSelect([
+                'events_ticket_types.promotable',
+            ]);
+        }
+
+        if ($db->columnExists('events_ticket_types', 'seatsPerTicket')) {
+            $this->query->addSelect([
+                'events_ticket_types.seatsPerTicket',
+            ]);
+        }
 
         // Join in the elements_owners table
         $ownersCondition = [

@@ -448,10 +448,23 @@ class TicketType extends Element implements NestedElementInterface
             $record->price = $this->price;
             $record->availableFrom = $this->availableFrom;
             $record->availableTo = $this->availableTo;
-            $record->minQty = $this->minQty;
-            $record->maxQty = $this->maxQty;
-            $record->promotable = $this->promotable;
-            $record->seatsPerTicket = $this->seatsPerTicket;
+
+            // Use property checks, rather than PC `schemaVersion` checks for performance
+            if (property_exists($record, 'minQty')) {
+                $record->minQty = $this->minQty;
+            }
+
+            if (property_exists($record, 'maxQty')) {
+                $record->maxQty = $this->maxQty;
+            }
+
+            if (property_exists($record, 'promotable')) {
+                $record->promotable = $this->promotable;
+            }
+
+            if (property_exists($record, 'seatsPerTicket')) {
+                $record->seatsPerTicket = $this->seatsPerTicket;
+            }
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
