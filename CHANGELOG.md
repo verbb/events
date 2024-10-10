@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0-beta.5 - 2024-10-11
+
+### Fixed
+- Fix an error when migrating from `3.0.0-beta.2`.
+
 ## 3.0.0-beta.4 - 2024-10-06
 
 ### Added
