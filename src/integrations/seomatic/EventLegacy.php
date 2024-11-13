@@ -9,7 +9,6 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\base\Model;
 use craft\elements\db\ElementQueryInterface;
-use craft\models\Site;
 
 use nystudio107\seomatic\assetbundles\seomatic\SeomaticAsset;
 use nystudio107\seomatic\helpers\PluginTemplate;
@@ -20,23 +19,24 @@ use nystudio107\seomatic\helpers\Config as ConfigHelper;
 use nystudio107\seomatic\models\MetaBundle;
 
 use yii\base\Event as YiiEvent;
+use Exception;
 
-class Event implements SeoElementInterface
+class EventLegacy implements SeoElementInterface
 {
     // Constants
     // =========================================================================
 
-    const META_BUNDLE_TYPE = 'event';
+    public const META_BUNDLE_TYPE = 'event';
 
-    const ELEMENT_CLASSES = [
+    public const ELEMENT_CLASSES = [
         EventElement::class,
     ];
 
-    const REQUIRED_PLUGIN_HANDLE = 'events';
-    const CONFIG_FILE_PATH = 'eventmeta/Bundle';
+    public const REQUIRED_PLUGIN_HANDLE = 'events';
+    public const CONFIG_FILE_PATH = 'eventmeta/Bundle';
 
 
-    // Public Static Methods
+    // Static Methods
     // =========================================================================
 
     public static function getMetaBundleType(): string
@@ -54,12 +54,12 @@ class Event implements SeoElementInterface
         return EventElement::refHandle() ?? 'event';
     }
 
-    public static function getRequiredPluginHandle()
+    public static function getRequiredPluginHandle(): string
     {
         return self::REQUIRED_PLUGIN_HANDLE;
     }
 
-    public static function installEventHandlers()
+    public static function installEventHandlers(): void
     {
         $request = Craft::$app->getRequest();
 
@@ -85,16 +85,16 @@ class Event implements SeoElementInterface
         // Install only for non-console Control Panel requests
         if ($request->getIsCpRequest() && !$request->getIsConsoleRequest()) {
             // Events sidebar
-            Craft::$app->getView()->hook('events.edit.details', function (&$context) {
+            Craft::$app->view->hook('events.edit.details', function(&$context) {
                 $html = '';
-                
+
                 Seomatic::$view->registerAssetBundle(SeomaticAsset::class);
-                
+
                 $event = $context[self::getElementRefHandle()] ?? null;
-                
+
                 if ($event !== null && $event->uri !== null) {
                     Seomatic::$plugin->metaContainers->previewMetaContainers($event->uri, $event->siteId, true);
-                    
+
                     // Render our preview sidebar template
                     if (Seomatic::$settings->displayPreviewSidebar) {
                         $html .= PluginTemplate::renderPluginTemplate('_sidebars/event-preview.twig');
@@ -103,21 +103,18 @@ class Event implements SeoElementInterface
 
                 return $html;
             });
-
         }
     }
 
     public static function sitemapElementsQuery(MetaBundle $metaBundle): ElementQueryInterface
     {
-        $query = EventElement::find()
+        return EventElement::find()
             ->type($metaBundle->sourceHandle)
             ->siteId($metaBundle->sourceSiteId)
             ->limit($metaBundle->metaSitemapVars->sitemapLimit);
-
-        return $query;
     }
 
-    public static function sitemapAltElement(MetaBundle $metaBundle, int $elementId, int $siteId)
+    public static function sitemapAltElement(MetaBundle $metaBundle, int $elementId, int $siteId): ElementInterface|\yii\base\Model|array|null
     {
         return EventElement::find()
             ->id($elementId)
@@ -126,7 +123,7 @@ class Event implements SeoElementInterface
             ->one();
     }
 
-    public static function previewUri(string $sourceHandle, $siteId, $typeId = null): ?string
+    public static function previewUri(string $sourceHandle, $siteId)
     {
         $uri = null;
 
@@ -142,7 +139,7 @@ class Event implements SeoElementInterface
         return $uri;
     }
 
-    public static function fieldLayouts(string $sourceHandle, $typeId = null): array
+    public static function fieldLayouts(string $sourceHandle): array
     {
         $layouts = [];
         $events = EventsPlugin::getInstance();
@@ -156,7 +153,7 @@ class Event implements SeoElementInterface
                 if ($eventType) {
                     $layoutId = $eventType->getFieldLayoutId();
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $layoutId = null;
             }
 
@@ -231,18 +228,19 @@ class Event implements SeoElementInterface
         return null;
     }
 
-    public static function sourceHandleFromElement(ElementInterface $element)
+    public static function sourceHandleFromElement(ElementInterface $element): string
     {
         $sourceHandle = '';
 
         try {
             $sourceHandle = $element->getType()->handle;
-        } catch (\Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         return $sourceHandle;
     }
 
-    public static function createContentMetaBundle(Model $sourceModel)
+    public static function createContentMetaBundle(Model $sourceModel): void
     {
         $sites = Craft::$app->getSites()->getAllSites();
 
@@ -252,7 +250,7 @@ class Event implements SeoElementInterface
         }
     }
 
-    public static function createAllContentMetaBundles()
+    public static function createAllContentMetaBundles(): void
     {
         $events = EventsPlugin::getInstance();
 

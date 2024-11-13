@@ -10,6 +10,7 @@ use verbb\events\helpers\ProjectConfigData;
 use verbb\events\fields\Events as EventsField;
 use verbb\events\integrations\feedme\Event as FeedMeEvent;
 use verbb\events\integrations\seomatic\Event as SeomaticEvent;
+use verbb\events\integrations\seomatic\EventLegacy as SeomaticLegacyEvent;
 use verbb\events\models\Settings;
 use verbb\events\services\EventTypes;
 use verbb\events\variables\EventsVariable;
@@ -284,7 +285,13 @@ class Events extends Plugin
         // Support SEOmatic
         if (class_exists(SeoElements::class)) {
             Event::on(SeoElements::class, SeoElements::EVENT_REGISTER_SEO_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
-                $event->types[] = SeomaticEvent::class;
+                $version = \Composer\InstalledVersions::getVersion('nystudio107/craft-seomatic');
+
+                if (version_compare($version, '4.1.6', '>=')) {
+                    $event->types[] = SeomaticEvent::class;
+                } else {
+                    $event->types[] = SeomaticLegacyEvent::class;
+                }
             });
         }
     }
