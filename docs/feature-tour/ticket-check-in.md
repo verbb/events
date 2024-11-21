@@ -8,12 +8,12 @@ Additionally, if producing a PDF template using our example, a QR code will be g
 Visit the following action URL in your templates:
 
 ```
-actions/events/ticket/checkin?sku=<sku>
+actions/events/ticket/checkin?uid=<uid>
 ```
 
 ### Parameter
 
-- `<sku>`: This is the ticket SKU which gets generated automatically at the purchase of the ticket. This SKU is unique.
+- `<uid>`: This is the ticket UID which gets generated automatically at the purchase of the ticket.
 
 ### Return
 The controller will render a simple template with either an error, or a success message. An **error** the response contains a simple error message. On **success** the response contains following:
@@ -70,7 +70,7 @@ In addition to the QR code in PDF tickets, you can also set up a form on your si
     <input type="hidden" name="action" value="events/ticket/checkin">
     {{ csrfInput() }}
     
-    <input type="text" name="sku">
+    <input type="text" name="uid">
     <input type="submit" value="Check in to event">
 </form>
 ```

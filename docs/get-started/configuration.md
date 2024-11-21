@@ -9,7 +9,6 @@ The below shows the defaults already used by Events, so you don't need to add th
 return [
     '*' => [
         'pluginName' => 'Events',
-        'ticketSKULength' => 10,
         'ticketPdfPath' => 'shop/_pdf/tickets',
         'ticketPdfFilenameFormat' => 'Tickets-{number}',
         'checkinTemplate' => 'events/check-in',

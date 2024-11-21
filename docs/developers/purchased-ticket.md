@@ -21,6 +21,5 @@ Attribute | Description
 `eventName` | The name of the event the purchased ticket is generated for.
 `ticketName` | The name of the ticket the purchased ticket is generated for.
 `qrCode` | A QR code with a URL to the controller, including the ticket SKU, to easily check in a ticket for the event.
-`ticketSku` | The generated ticket SKU.
 `checkedIn` | `True` or `false` depending on whether the ticket has been checked in for the event.
 `checkedInDate` | The date this ticket was checked in.
