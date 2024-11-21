@@ -5,6 +5,7 @@ use verbb\events\Events;
 use verbb\events\elements\db\TicketTypeQuery;
 use verbb\events\elements\traits\PurchasedTicketTrait;
 use verbb\events\helpers\TicketHelper;
+use verbb\events\models\EventType;
 use verbb\events\records\TicketType as TicketTypeRecord;
 
 use Craft;
@@ -121,9 +122,21 @@ class TicketType extends Element implements NestedElementInterface
 
     protected static function defineFieldLayouts(?string $source): array
     {
-        // Being attached to an event element means we always have context, so improve performance
-        // by not loading in all field layouts for this element type.
-        return [];
+        if ($source === null || $source === '*') {
+            $eventTypes = Events::$plugin->getEventTypes()->getAllEventTypes();
+        } else {
+            $eventTypes = [];
+
+            if (preg_match('/^eventType:(.+)$/', $source, $matches)) {
+                $eventType = Events::$plugin->getEventTypes()->getEventTypeByUid($matches[1]);
+                
+                if ($eventType) {
+                    $eventTypes[] = $eventType;
+                }
+            }
+        }
+
+        return array_map(fn(EventType $eventType) => $eventType->getTicketTypeFieldLayout(), $eventTypes);
     }
 
     protected static function defineSources(string $context = null): array
