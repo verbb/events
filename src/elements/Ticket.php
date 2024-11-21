@@ -303,6 +303,10 @@ class Ticket extends Purchasable
     public function getIsAvailable(): bool
     {
         if ($type = $this->getType()) {
+            if (!$this->getStock()) {
+                return false; 
+            }
+
             $currentTime = DateTimeHelper::currentTimeStamp();
 
             if ($type->availableFrom) {
