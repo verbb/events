@@ -540,7 +540,7 @@ class PurchasedTicket extends Element
     {
         $user = Craft::$app->getUser()->getIdentity();
 
-        if (!$user->can('events-editPurchasedTickets')) {
+        if ($user && !$user->can('events-editPurchasedTickets')) {
             return null;
         }
 
