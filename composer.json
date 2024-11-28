@@ -42,11 +42,5 @@
         "handle": "events",
         "changelogUrl": "https://raw.githubusercontent.com/verbb/events/craft-5/CHANGELOG.md",
         "class": "verbb\\events\\Events"
-    },
-    "config": {
-        "allow-plugins": {
-            "yiisoft/yii2-composer": false,
-            "craftcms/plugin-installer": false
-        }
     }
 }
