@@ -1,6 +1,7 @@
 <?php
 namespace verbb\events\services;
 
+use verbb\events\Events;
 use verbb\events\base\FrequencyInterface;
 use verbb\events\elements\Session;
 use verbb\events\frequencies;
