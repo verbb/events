@@ -94,7 +94,7 @@ class Sessions extends Component
             $contentArguments = [];
 
             foreach (Events::$plugin->getEventTypes()->getAllEventTypes() as $eventType) {
-                if (!GqlCommerceHelper::isSchemaAwareOf(Session::gqlScopesByContext($eventType))) {
+                if (!GqlHelper::isSchemaAwareOf(Session::gqlScopesByContext($eventType))) {
                     continue;
                 }
 

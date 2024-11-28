@@ -49,7 +49,7 @@ class TicketTypes extends Component
             $contentArguments = [];
 
             foreach (Events::$plugin->getEventTypes()->getAllEventTypes() as $eventType) {
-                if (!GqlCommerceHelper::isSchemaAwareOf(TicketType::gqlScopesByContext($eventType))) {
+                if (!GqlHelper::isSchemaAwareOf(TicketType::gqlScopesByContext($eventType))) {
                     continue;
                 }
 
