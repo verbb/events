@@ -213,7 +213,10 @@ class Ticket extends Purchasable
     {
         if (!$this->_event) {
             if ($this->eventId) {
-                $this->_event = Event::find()->id($this->eventId)->one();
+                // Only while in the CP, we often want to get disabled elements
+                $status = Craft::$app->getRequest()->getIsCpRequest() ? null : self::STATUS_ENABLED;
+
+                $this->_event = Event::find()->id($this->eventId)->status($status)->one();
             } else {
                 return null;
             }
@@ -232,7 +235,10 @@ class Ticket extends Purchasable
     {
         if (!$this->_session) {
             if ($this->sessionId) {
-                $this->_session = Session::find()->id($this->sessionId)->one();
+                // Only while in the CP, we often want to get disabled elements
+                $status = Craft::$app->getRequest()->getIsCpRequest() ? null : self::STATUS_ENABLED;
+
+                $this->_session = Session::find()->id($this->sessionId)->status($status)->one();
             } else {
                 return null;
             }
@@ -251,7 +257,10 @@ class Ticket extends Purchasable
     {
         if (!$this->_type) {
             if ($this->typeId) {
-                $this->_type = TicketType::find()->id($this->typeId)->one();
+                // Only while in the CP, we often want to get disabled elements
+                $status = Craft::$app->getRequest()->getIsCpRequest() ? null : self::STATUS_ENABLED;
+
+                $this->_type = TicketType::find()->id($this->typeId)->status($status)->one();
             } else {
                 return null;
             }
