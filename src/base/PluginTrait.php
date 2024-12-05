@@ -47,7 +47,7 @@ trait PluginTrait
                 'purchasedTickets' => PurchasedTickets::class,
                 'sessions' => Sessions::class,
                 'tickets' => Tickets::class,
-                'ticketTypes' => TicketsTypes::class,
+                'ticketTypes' => TicketTypes::class,
             ],
         ];
     }
