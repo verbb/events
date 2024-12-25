@@ -21,6 +21,6 @@ Method | Description
 --- | ---
 `getCpEditUrl()` | Returns the URL to edit this ticket type in the control panel.
 `getTickets()` | Returns a collection of [Ticket](docs:developers/ticket) objects for this ticket type.
-`isAvailable()` | Returns true if this ticket type is available for sale based on the `availableFrom` and `availableTo` dates.
+`getIsAvailable()` | Returns true if this ticket type is available for sale based on the `availableFrom` and `availableTo` dates.
 `getCapacity()` | Returns the total capacity for this ticket type, or `null` if no capacity is set.
 `getPrice()` | Returns the price for this ticket type.

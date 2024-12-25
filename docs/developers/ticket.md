@@ -16,7 +16,6 @@ Attribute | Description
 `price` | The listing price of the ticket.
 `availableFrom` | The date from which this ticket is available for sale.
 `availableTo` | The date until which this ticket is available for sale.
-`isAvailable` | Whether this ticket is available for purchase. This will be `true` unless the 'Available From/To' dates do not match the current time, or if the ticket has been fully purchased.
 
 ## Methods
 
@@ -24,3 +23,4 @@ Method | Description
 --- | ---
 `getCpEditUrl()` | Returns the URL to edit this ticket in the control panel.
 `getPurchasedTickets(lineItem)` | Returns all [Purchased Tickets](docs:developers/purchased-ticket) associated with this ticket for a given line item.
+`getIsAvailable()` | Whether this ticket is available for purchase. This will be `true` unless the 'Available From/To' dates do not match the current time, or if the ticket has been fully purchased.

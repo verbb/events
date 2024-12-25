@@ -12,7 +12,6 @@ Attribute | Description
 `typeId` | The ID of the event’s type.
 `status` | The current status of the event: `live`, `pending`, or `expired`, determined based on `startDate`, `endDate`, `postDate`, and `expiryDate`.
 `enabled` | Whether the event is enabled (`true` or `false`).
-`isAvailable` | Indicates if the event is available for purchase. This will be `false` if there are no tickets available for sale, meaning the event is completely sold out.
 `capacity` | The total capacity of tickets available for this event.
 `startDate` | The start date of the event (based on the first session).
 `endDate` | The end date of the event (based on the last session).
@@ -29,3 +28,4 @@ Method | Description
 `getTickets()` | Returns a collection of [Ticket](docs:developers/ticket) objects generated for this event.
 `getAvailableTickets()` | Returns a collection of available [Ticket](docs:developers/ticket) objects for sale. This respects the 'Available From/To' dates, along with ticket capacity and sales status.
 `getIcsUrl()` | Returns a URL to download the ICS (iCalendar) file for this single event.
+`getIsAvailable()` | Indicates if the event is available for purchase. This will be `false` if there are no tickets available for sale, meaning the event is completely sold out.
