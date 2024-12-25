@@ -6,7 +6,7 @@ You'll have access to a `event` variable, which represents the single event you'
 ```twig
 <h1>{{ event.title }}</h1>
 
-{% if event.isAvailable %}
+{% if event.getIsAvailable() %}
     <form method="POST">
         {{ actionInput('commerce/cart/update-cart') }}
         {{ csrfInput() }}
@@ -15,7 +15,7 @@ You'll have access to a `event` variable, which represents the single event you'
 
         <select name="purchasableId">
             {% for ticket in event.getTickets() %}
-                <option value="{{ ticket.id }}" {% if not ticket.isAvailable %}disabled{% endif %}>
+                <option value="{{ ticket.id }}" {% if not ticket.getIsAvailable() %}disabled{% endif %}>
                     {{ ticket.title }} - {{ ticket.price | commerceCurrency(cart.currency) }}
                 </option>
             {% endfor %}
@@ -28,7 +28,7 @@ You'll have access to a `event` variable, which represents the single event you'
 {% endif %}
 ```
 
-The above shows all tickets for an event, whether they're available or not. We use `ticket.isAvailable` to see if we can purchase this ticket, as it could be sold out.
+The above shows all tickets for an event, whether they're available or not. We use `ticket.getIsAvailable()` to see if we can purchase this ticket, as it could be sold out.
 
 If you wanted to only show the available tickets, and not show sold out ones, you could loop through `event.availableTickets()` instead.
 
@@ -42,7 +42,7 @@ If you wanted to only show the available tickets, and not show sold out ones, yo
 </select>
 ```
 
-In addition, the check for `event.isAvailable` checks whether all tickets are sold out (or unavailable), and if so, will show a 'Sold Out' notice, that no tickets for this event are available.
+In addition, the check for `event.getIsAvailable()` checks whether all tickets are sold out (or unavailable), and if so, will show a 'Sold Out' notice, that no tickets for this event are available.
 
 ## Adding tickets to your cart
 Adding a ticket to your cart works in very much the same way as [Craft Commerce](https://docs.craftcms.com/commerce/v3/adding-to-and-updating-the-cart.html):
@@ -56,7 +56,7 @@ Adding a ticket to your cart works in very much the same way as [Craft Commerce]
 
     <select name="purchasableId">
         {% for ticket in event.getTickets() %}
-            <option value="{{ ticket.id }}" {% if not ticket.isAvailable %}disabled{% endif %}>
+            <option value="{{ ticket.id }}" {% if not ticket.getIsAvailable() %}disabled{% endif %}>
                 {{ ticket.title }} - {{ ticket.price | commerceCurrency(cart.currency) }}
             </option>
         {% endfor %}
@@ -78,7 +78,7 @@ You can also set additional data through [line item options](https://docs.craftc
 
     <select name="purchasableId">
         {% for ticket in event.getTickets() %}
-            <option value="{{ ticket.id }}" {% if not ticket.isAvailable %}disabled{% endif %}>
+            <option value="{{ ticket.id }}" {% if not ticket.getIsAvailable() %}disabled{% endif %}>
                 {{ ticket.title }} - {{ ticket.price | commerceCurrency(cart.currency) }}
             </option>
         {% endfor %}

@@ -5,7 +5,7 @@ Create a file named `index.html` file in your `templates/shop/events` folder. Th
 {% for event in craft.events.events.all() %}
     <h3>{{ event.title }}</h3
 
-    {% if event.isAvailable %}
+    {% if event.getIsAvailable() %}
         <form method="POST" class="add-to-cart-form">
             {{ actionInput('commerce/cart/update-cart') }}
             {{ csrfInput() }}
@@ -14,7 +14,7 @@ Create a file named `index.html` file in your `templates/shop/events` folder. Th
 
             <select name="purchasableId">
                 {%- for ticket in event.getTickets() -%}
-                    <option value="{{ ticket.id }}" {% if not ticket.isAvailable %}disabled{% endif %}>
+                    <option value="{{ ticket.id }}" {% if not ticket.getIsAvailable() %}disabled{% endif %}>
                         {{ ticket.title }} - {{ ticket.price | commerceCurrency(cart.currency) }}
                     </option>
                 {%- endfor -%}
