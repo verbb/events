@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.4 - 2024-12-27
+
+- Fix Ticket generation when Events, Sessions or Ticket Types were disabled.
+- Fix some misc typos and dependency issues.
+- Fix an error when downloading event PDFs.
+- Fix Session and Ticket Type custom fields not working for indexes.
+- Fix stock availability checks. (thanks @kennethormandy).
+
 ## 3.0.3 - 2024-11-19
 
 ### Changed
