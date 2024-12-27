@@ -2,6 +2,7 @@
 
 ## 3.0.4 - 2024-12-27
 
+### Fixed
 - Fix Ticket generation when Events, Sessions or Ticket Types were disabled.
 - Fix some misc typos and dependency issues.
 - Fix an error when downloading event PDFs.
