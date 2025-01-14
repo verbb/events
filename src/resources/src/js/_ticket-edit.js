@@ -114,8 +114,8 @@ Craft.Events.TicketEditRow = Garnish.Base.extend({
 
         this.$ticketTypeFields = this.$container.find('.ticket-type-fields');
         this.$elementSelect = this.$container.find('.elementselect');
-        this.$settingsBtn = this.$container.find('.settings.icon');
-        this.$deleteBtn = this.$container.find('.delete.icon.button');
+        this.$settingsBtn = this.$container.find('.create-tickets-row .settings.icon');
+        this.$deleteBtn = this.$container.find('.create-tickets-row .delete.icon.button');
         this.$capacity = $('body').find('#capacity');
         this.$quantity = this.$container.find('.ticket-quantity');
 
