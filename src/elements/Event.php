@@ -1278,7 +1278,7 @@ class Event extends Element
         if ($attribute === 'type') {
             $type = $this->getType();
 
-            return $type->name;
+            return Html::encode($type->name);
         }
 
         return parent::attributeHtml($attribute);

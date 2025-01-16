@@ -14,6 +14,7 @@ use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Cp;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\models\FieldLayoutTab;
@@ -495,11 +496,11 @@ class PurchasedTicket extends Element
 
         if ($attribute === 'customer') {
             if (($customer = $this->getCustomer())) {
-                return (string)$customer->email;
+                return Html::encode((string)$customer->email);
             }
 
             if ($order = $this->getOrder()) {
-                return $order->email;
+                return Html::encode($order->email);
             }
 
             return '';
@@ -507,7 +508,7 @@ class PurchasedTicket extends Element
 
         if ($attribute === 'customerFirstName') {
             if (($customer = $this->getCustomer())) {
-                return (string)$customer->firstName;
+                return Html::encode((string)$customer->firstName);
             }
 
             return Craft::t('events', '[Guest]');
@@ -515,7 +516,7 @@ class PurchasedTicket extends Element
 
         if ($attribute === 'customerLastName') {
             if (($customer = $this->getCustomer())) {
-                return (string)$customer->lastName;
+                return Html::encode((string)$customer->lastName);
             }
 
             return Craft::t('events', '[Guest]');
@@ -523,7 +524,7 @@ class PurchasedTicket extends Element
 
         if ($attribute === 'customerFullName') {
             if (($customer = $this->getCustomer())) {
-                return (string)$customer->fullName;
+                return Html::encode((string)$customer->fullName);
             }
 
             return Craft::t('events', '[Guest]');
