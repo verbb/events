@@ -88,7 +88,7 @@ class EventHelper
         // allow capacity to be set to null - otherwise, force int
         $capacity = $request->getParam('capacity');
         if ($capacity !== null) {
-            $capacity = (int)$capacity;
+            $capacity = intval($capacity);
         }
         $event->capacity = $capacity;
 
