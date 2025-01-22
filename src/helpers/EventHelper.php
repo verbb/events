@@ -85,11 +85,13 @@ class EventHelper
 
         $event->allDay = (bool)$request->getParam('allDay');
 
-        // allow capacity to be set to null - otherwise, force int
+        // Allow capacity to be set to null - otherwise, force int
         $capacity = $request->getParam('capacity');
+
         if ($capacity !== null) {
             $capacity = (int)$capacity;
         }
+
         $event->capacity = $capacity;
 
         if (($startDate = $request->getParam('startDate')) !== null) {
