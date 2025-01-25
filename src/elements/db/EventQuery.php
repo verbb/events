@@ -130,8 +130,8 @@ class EventQuery extends ElementQuery
         $sessionsQuery = (new Query())
             ->select([
                 'primaryOwnerId AS eventId',
-                'MIN(startDate) AS startDate',
-                'MAX(endDate) AS endDate',
+                'MIN([[startDate]]) AS startDate',
+                'MAX([[endDate]]) AS endDate',
             ])
             ->from('{{%events_sessions}} events_sessions')
             ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[events_sessions.id]]')
