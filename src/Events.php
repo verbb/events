@@ -287,7 +287,7 @@ class Events extends Plugin
             Event::on(SeoElements::class, SeoElements::EVENT_REGISTER_SEO_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
                 $version = \Composer\InstalledVersions::getVersion('nystudio107/craft-seomatic');
 
-                if (version_compare($version, '4.1.6', '>=')) {
+                if (version_compare($version, '3.5.6', '>=')) {
                     $event->types[] = SeomaticEvent::class;
                 } else {
                     $event->types[] = SeomaticLegacyEvent::class;
