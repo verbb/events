@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.28 - 2025-01-28
+
+### Fixed
+- Fix an issue where event ticket types couldn’t be removed.
+- Fix an issue where Ticket Types with a Matrix field couldn’t using the Matrix block settings.
+- Fix compatibility with `nystudio107/craft-seomatic` 3.5.6+.
+
 ## 1.4.27 - 2024-04-07
 
 ### Fixed
