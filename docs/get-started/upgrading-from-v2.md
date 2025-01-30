@@ -55,3 +55,4 @@ Old | What to do instead
 --- | ---
 | `verbb\events\elements\Ticket::name` | `verbb\events\elements\Ticket::title`
 | `verbb\events\elements\Ticket::purchasableId` | `verbb\events\elements\Ticket::id`
+| `verbb\events\elements\Ticket::quantity` | `verbb\events\elements\Ticket::capacity`
