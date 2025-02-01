@@ -309,6 +309,11 @@ class Ticket extends Purchasable
         return PurchasedTicket::find()->ticketId($this->id)->count() * ($this->getType()?->seatsPerTicket ?? 1);
     }
 
+    public function getIsShippable(): bool
+    {
+        return Events::$plugin->getSettings()->ticketsShippable;
+    }
+
     public function getIsAvailable(): bool
     {
         if ($type = $this->getType()) {
