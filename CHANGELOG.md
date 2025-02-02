@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.5 - 2025-02-02
+
+### Fixed
+- Fix tickets being marked as shippable, and not respecting the `ticketsShippable` config setting.
+- Fix an error with Postgres when querying events.
+- Fix Purchased Tickets element table not escaping some values correctly.
+- Fix an issue where querying events by `startDate` or `endDate` wouldn’t work correctly in some scenarios.
+- Fix Post and Expiry Date values not saving correctly for Events.
+
 ## 3.0.4 - 2024-12-27
 
 ### Fixed
