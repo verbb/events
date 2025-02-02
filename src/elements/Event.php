@@ -33,6 +33,8 @@ use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\FieldLayout;
+use craft\validators\DateCompareValidator;
+use craft\validators\DateTimeValidator;
 
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -1151,6 +1153,17 @@ class Event extends Element
 
         $rules[] = [['capacity'], 'number', 'integerOnly' => true];
         $rules[] = [['updateTickets'], 'safe'];
+
+        $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
+        $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
+        $rules[] = [
+            ['postDate'],
+            DateCompareValidator::class,
+            'operator' => '<',
+            'compareAttribute' => 'expiryDate',
+            'when' => fn() => $this->postDate && $this->expiryDate,
+            'on' => self::SCENARIO_LIVE,
+        ];
 
         return $rules;
     }
