@@ -142,6 +142,9 @@ class EventQuery extends ElementQuery
             ])
             ->groupBy('primaryOwnerId');
 
+        // Join both the `subQuery` and `query` to ensure pagination/limit/etc works correctly (`subQuery`), and
+        // that the `startDate` and `endDate` are available on the Event model (`query`).
+        $this->subQuery->leftJoin(['sessions' => $sessionsQuery], '[[sessions.eventId]] = [[events_events.id]]');
         $this->query->leftJoin(['sessions' => $sessionsQuery], '[[sessions.eventId]] = [[events_events.id]]');
 
         if (isset($this->typeId)) {
@@ -149,11 +152,11 @@ class EventQuery extends ElementQuery
         }
 
         if (isset($this->startDate)) {
-            $this->query->andWhere(Db::parseDateParam('sessions.startDate', $this->startDate));
+            $this->subQuery->andWhere(Db::parseDateParam('sessions.startDate', $this->startDate));
         }
 
         if (isset($this->endDate)) {
-            $this->query->andWhere(Db::parseDateParam('sessions.endDate', $this->endDate));
+            $this->subQuery->andWhere(Db::parseDateParam('sessions.endDate', $this->endDate));
         }
 
         $this->_applyEditableParam();
