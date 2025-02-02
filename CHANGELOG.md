@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.8 - 2025-02-02
+
+### Fixed
+- Allow capacity to be set to null.
+- Fix an issue where event ticket types couldn’t be removed.
+- Fix an issue where Ticket Types with a Matrix field couldn’t using the Matrix block settings.
+
 ## 2.0.7 - 2024-11-13
 
 ### Fixed
