@@ -730,6 +730,12 @@ class Event extends Element
         return $this->_ticketTypes->filter(fn(TicketType $ticketType) => $includeDisabled || ($ticketType->getStatus() === self::STATUS_ENABLED));
     }
 
+    public function getAllTicketTypes(): TicketTypeCollection
+    {
+        // TODO: Remove this once we have a nested element manager provider interface in core.
+        return $this->getTicketTypes(true);
+    }
+
     public function setTicketTypes(TicketTypeCollection|TicketTypeQuery|array $ticketTypes): void
     {
         if ($ticketTypes instanceof TicketTypeQuery) {
@@ -744,9 +750,9 @@ class Event extends Element
     {
         if (!isset($this->_ticketTypeManager)) {
             $this->_ticketTypeManager = new NestedElementManager(TicketType::class, fn(Event $event) => self::createTicketTypeQuery($event), [
-                'attribute' => 'ticketTypes',
+                'attribute' => 'allTicketTypes', // TODO: can change this back to 'ticketTypes' once we have a nested element manager provider in core.
                 'propagationMethod' => PropagationMethod::All,
-                'valueGetter' => fn(Event $event) => $event->getTicketTypes(true),
+                'valueSetter' => fn($ticketTypes) => $this->setTicketTypes($ticketTypes), // TODO: can change this back to 'ticketTypes' once we have a nested element manager provider in core.
             ]);
         }
 
