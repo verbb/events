@@ -672,6 +672,12 @@ class Event extends Element
         return $this->_sessions->filter(fn(Session $session) => $includeDisabled || ($session->getStatus() === self::STATUS_ENABLED));
     }
 
+    public function getAllSessions(): SessionCollection
+    {
+        // TODO: Remove this once we have a nested element manager provider interface in core.
+        return $this->getSessions(true);
+    }
+
     public function setSessions(SessionCollection|SessionQuery|array $sessions): void
     {
         if ($sessions instanceof SessionQuery) {
@@ -686,9 +692,9 @@ class Event extends Element
     {
         if (!isset($this->_sessionManager)) {
             $this->_sessionManager = new NestedElementManager(Session::class, fn(Event $event) => self::createSessionQuery($event), [
-                'attribute' => 'sessions',
+                'attribute' => 'allSessions', // TODO: can change this back to 'sessions' once we have a nested element manager provider in core.
                 'propagationMethod' => PropagationMethod::All,
-                'valueGetter' => fn(Event $event) => $event->getSessions(true),
+                'valueSetter' => fn($sessions) => $this->setSessions($sessions), // TODO: can change this back to 'sessions' once we have a nested element manager provider in core.
             ]);
         }
 
