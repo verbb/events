@@ -30,6 +30,7 @@ use craft\commerce\helpers\Currency;
 
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 use DateTime;
 use Money\Money;
@@ -399,12 +400,27 @@ class TicketType extends Element implements NestedElementInterface
     {
         $fieldLayout = parent::getFieldLayout();
 
-        if (!$fieldLayout && $this->getOwnerId()) {
-            $fieldLayout = $this->getOwner()->getType()->getTicketTypeFieldLayout();
-            $this->fieldLayoutId = $fieldLayout->id;
+        if ($fieldLayout) {
+            // Ticket Type field layouts are stored on the event type so retrieving the field layout by ID does not set the provider
+            $eventType = collect(Events::$plugin->getEventTypes()->getAllEventTypes())->firstWhere('ticketTypeFieldLayoutId', $fieldLayout->id);
+            
+            if ($eventType) {
+                $fieldLayout->provider = $eventType;
+
+                return $fieldLayout;
+            }
         }
 
-        return $fieldLayout;
+        try {
+            if ($this->getOwner() === null) {
+                return parent::getFieldLayout();
+            }
+
+            return $this->getOwner()->getType()->getTicketTypeFieldLayout();
+        } catch (InvalidConfigException) {
+            // The event type was probably deleted
+            return null;
+        }
     }
 
     public function setPrimaryOwner(?ElementInterface $owner): void

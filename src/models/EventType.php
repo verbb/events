@@ -9,6 +9,7 @@ use verbb\events\records\EventType as EventTypeRecord;
 
 use Craft;
 use craft\base\Model;
+use craft\base\FieldLayoutProviderInterface;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
@@ -21,7 +22,7 @@ use craft\validators\UniqueValidator;
 use DateTime;
 use DateTimeZone;
 
-class EventType extends Model
+class EventType extends Model implements FieldLayoutProviderInterface
 {
     // Properties
     // =========================================================================
@@ -56,6 +57,11 @@ class EventType extends Model
     }
 
     public function __toString(): string
+    {
+        return $this->handle;
+    }
+
+    public function getHandle(): ?string
     {
         return $this->handle;
     }
@@ -112,10 +118,16 @@ class EventType extends Model
         }
     }
 
+    public function getFieldLayout(): FieldLayout
+    {
+        return $this->getEventFieldLayout();
+    }
+
     public function getEventFieldLayout(): ?FieldLayout
     {
         /** @var FieldLayoutBehavior $behavior */
         $behavior = $this->getBehavior('eventFieldLayout');
+
         return $behavior->getFieldLayout();
     }
 
