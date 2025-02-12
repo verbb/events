@@ -736,4 +736,9 @@ class TicketType extends Element implements NestedElementInterface
         return UrlHelper::cpUrl('events/ticket-types/' . $this->id);
     }
 
+    protected function ownerType(): ?string
+    {
+        return Event::class;
+    }
+
 }

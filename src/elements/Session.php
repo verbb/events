@@ -909,4 +909,9 @@ class Session extends Element implements NestedElementInterface
         return UrlHelper::cpUrl('events/sessions/' . $this->id);
     }
 
+    protected function ownerType(): ?string
+    {
+        return Event::class;
+    }
+
 }
