@@ -651,6 +651,22 @@ class Event extends Element
             }
 
             $this->_sessions = self::createSessionQuery($this)->status(null)->collect();
+
+            $this->_sessions->map(function(Session $session) {
+                if (!$this->id) {
+                    return $session;
+                }
+
+                if ($session->primaryOwnerId === $this->id) {
+                    $session->setPrimaryOwner($this);
+                }
+
+                if ($session->ownerId === $this->id) {
+                    $session->setOwner($this);
+                }
+
+                return $session;
+            });
         }
 
         return $this->_sessions->filter(fn(Session $session) => $includeDisabled || ($session->getStatus() === self::STATUS_ENABLED));
@@ -687,6 +703,22 @@ class Event extends Element
             }
 
             $this->_ticketTypes = self::createTicketTypeQuery($this)->status(null)->collect();
+
+            $this->_ticketTypes->map(function(TicketType $ticketType) {
+                if (!$this->id) {
+                    return $ticketType;
+                }
+
+                if ($ticketType->primaryOwnerId === $this->id) {
+                    $ticketType->setPrimaryOwner($this);
+                }
+
+                if ($ticketType->ownerId === $this->id) {
+                    $ticketType->setOwner($this);
+                }
+
+                return $ticketType;
+            });
         }
 
         return $this->_ticketTypes->filter(fn(TicketType $ticketType) => $includeDisabled || ($ticketType->getStatus() === self::STATUS_ENABLED));

@@ -455,6 +455,56 @@ class Session extends Element implements NestedElementInterface
         $this->traitSetOwner($owner);
     }
 
+    public function getPrimaryOwner(): ?Event
+    {
+        // TODO remove implementation when `NestedElementTrait::getOwner()` is updated
+        if (!isset($this->_primaryOwner)) {
+            $primaryOwnerId = $this->getPrimaryOwnerId();
+
+            if (!$primaryOwnerId) {
+                return null;
+            }
+
+            $this->_primaryOwner = Craft::$app->getElements()->getElementById($primaryOwnerId, Event::class, $this->siteId, [
+                'trashed' => null,
+            ]) ?? false;
+
+            if (!$this->_primaryOwner) {
+                throw new InvalidConfigException("Invalid owner ID: $primaryOwnerId");
+            }
+        }
+
+        /** @phpstan-ignore-next-line */
+        return $this->_primaryOwner ?: null;
+    }
+
+    public function getOwner(): ?Event
+    {
+        // TODO remove implementation when `NestedElementTrait::getOwner()` is updated
+        if (!isset($this->_owner)) {
+            $ownerId = $this->getOwnerId();
+
+            if (!$ownerId) {
+                return null;
+            }
+
+            // If ownerId and primaryOwnerId are the same, return the primary owner
+            if ($ownerId === $this->getPrimaryOwnerId()) {
+                return $this->getPrimaryOwner();
+            }
+
+            $this->_owner = Craft::$app->getElements()->getElementById($ownerId, Event::class, $this->siteId, [
+                'trashed' => null,
+            ]) ?? false;
+
+            if (!$this->_owner) {
+                throw new InvalidConfigException("Invalid owner ID: $ownerId");
+            }
+        }
+
+        return $this->_owner ?: null;
+    }
+
     public function getEvent(): ?Event
     {
         return $this->getOwner();
