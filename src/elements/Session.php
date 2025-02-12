@@ -34,6 +34,7 @@ use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 
 use verbb\base\helpers\Locale as LocaleHelper;
 

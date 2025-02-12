@@ -28,6 +28,7 @@ use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\helpers\Currency;
 
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 
 use DateTime;
 use Money\Money;
