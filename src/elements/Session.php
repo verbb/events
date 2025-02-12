@@ -22,6 +22,7 @@ use craft\base\NestedElementTrait;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\actions\Restore;
+use craft\elements\db\EagerLoadPlan;
 use craft\elements\User;
 use craft\helpers\Cp;
 use craft\helpers\Db;
@@ -107,7 +108,7 @@ class Session extends Element implements NestedElementInterface
 
     public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
-        if ($handle == 'event') {
+        if (in_array($handle, ['event', 'owner', 'primaryOwner'])) {
             // Get the source element IDs
             $sourceElementIds = [];
 
@@ -613,6 +614,23 @@ class Session extends Element implements NestedElementInterface
         }
 
         return static::gqlTypeNameByContext($eventType);
+    }
+
+    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
+    {
+        if (in_array($handle, ['event', 'owner', 'primaryOwner'])) {
+            $event = $elements[0] ?? null;
+            
+            if ($event instanceof Event) {
+                if ($handle == 'primaryOwner') {
+                    $this->setPrimaryOwner($event);
+                } else {
+                    $this->setOwner($event);
+                }
+            }
+        } else {
+            $this->traitSetEagerLoadedElements($handle, $elements, $plan);
+        }
     }
 
     public function beforeValidate(): bool
