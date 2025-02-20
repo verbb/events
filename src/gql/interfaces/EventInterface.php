@@ -101,11 +101,6 @@ class EventInterface extends Element
                 'type' => Type::int(),
                 'description' => 'The event‘s capacity.',
             ],
-            'availableCapacity' => [
-                'name' => 'availableCapacity',
-                'type' => Type::int(),
-                'description' => 'The event‘s available capacity.',
-            ],
         ]), self::getName());
     }
 }

@@ -71,16 +71,6 @@ class SessionInterface extends Element
                 'type' => Type::boolean(),
                 'description' => 'Whether the session is an all-day session.',
             ],
-            'capacity' => [
-                'name' => 'capacity',
-                'type' => Type::int(),
-                'description' => 'The session‘s capacity.',
-            ],
-            'availableCapacity' => [
-                'name' => 'availableCapacity',
-                'type' => Type::int(),
-                'description' => 'The session‘s available capacity.',
-            ],
         ]), self::getName());
     }
 }

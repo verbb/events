@@ -39,11 +39,6 @@ class EventArguments extends ElementArguments
                 'type' => Type::int(),
                 'description' => 'The capacity of the event.',
             ],
-            'availableCapacity' => [
-                'name' => 'availableCapacity',
-                'type' => Type::int(),
-                'description' => 'The available capacity of the event.',
-            ],
             'type' => [
                 'name' => 'type',
                 'type' => Type::listOf(Type::string()),

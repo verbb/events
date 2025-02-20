@@ -37,16 +37,6 @@ class SessionArguments extends ElementArguments
                 'type' => Type::boolean(),
                 'description' => 'Whether the session is an all-day session.',
             ],
-            'capacity' => [
-                'name' => 'capacity',
-                'type' => Type::int(),
-                'description' => 'The capacity of the session.',
-            ],
-            'availableCapacity' => [
-                'name' => 'availableCapacity',
-                'type' => Type::int(),
-                'description' => 'The available capacity of the session.',
-            ],
         ]);
     }
 
