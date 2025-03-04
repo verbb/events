@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.0.6 - 2025-03-05
+
+### Changed
+- Use `allTicketTypes` as the attribute that manages ticket types on events.
+- Use `allSessions` as the attribute that manages sessions on events.
+- Improve event session and ticket type query performance.
+- Override the ownerType to speed up nested element trait lookup.
+
+### Fixed
+- Fix routing error when visiting the top-level Events page.
+- Fix references to `availableCapacity` and `capacity` for GraphQL queries for `events` and `sessions`.
+- Fix a query performance degradation bug for sessions and ticket types.
+- Fix a PHP error when eager loading a session or ticket type’s owner.
+- Fix a PHP error for invalid owners of sessions and ticket types.
+
 ## 3.0.5 - 2025-02-02
 
 ### Fixed
