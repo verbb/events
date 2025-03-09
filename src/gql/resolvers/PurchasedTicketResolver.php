@@ -6,9 +6,8 @@ use verbb\events\helpers\Gql as GqlHelper;
 use verbb\events\helpers\Table;
 
 use craft\elements\db\ElementQuery;
+use craft\elements\ElementCollection;
 use craft\gql\base\ElementResolver;
-
-use Illuminate\Support\Collection;
 
 class PurchasedTicketResolver extends ElementResolver
 {

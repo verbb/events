@@ -6,10 +6,9 @@ use verbb\events\helpers\Gql as GqlHelper;
 use verbb\events\helpers\Table;
 
 use craft\elements\db\ElementQuery;
+use craft\elements\ElementCollection;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Db;
-
-use Illuminate\Support\Collection;
 
 class SessionResolver extends ElementResolver
 {
@@ -35,7 +34,7 @@ class SessionResolver extends ElementResolver
         $pairs = GqlHelper::extractAllowedEntitiesFromSchema();
 
         if (!GqlHelper::canQueryEvents()) {
-            return [];
+            return ElementCollection::empty();
         }
 
         $query->innerJoin('{{%events_events}} e', '[[e.id]] = [[events_sessions.primaryOwnerId]]');

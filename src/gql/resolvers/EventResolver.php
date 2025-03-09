@@ -6,10 +6,9 @@ use verbb\events\helpers\Gql as GqlHelper;
 use verbb\events\helpers\Table;
 
 use craft\elements\db\ElementQuery;
+use craft\elements\ElementCollection;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Db;
-
-use Illuminate\Support\Collection;
 
 class EventResolver extends ElementResolver
 {
@@ -35,7 +34,7 @@ class EventResolver extends ElementResolver
         $pairs = GqlHelper::extractAllowedEntitiesFromSchema();
 
         if (!GqlHelper::canQueryEvents()) {
-            return [];
+            return ElementCollection::empty();
         }
 
         $query->andWhere(['in', 'typeId', array_values(Db::idsByUids('{{%events_event_types}}', $pairs['eventsEventTypes']))]);
