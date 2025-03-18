@@ -46,6 +46,8 @@ class Install extends Migration
             'icsTimezone' => $this->string(),
             'icsDescriptionFieldHandle' => $this->string(),
             'icsLocationFieldHandle' => $this->string(),
+            'taxCategoryId' => $this->integer(),
+            'shippingCategoryId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -176,6 +178,8 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%events_event_types}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_event_types}}', 'sessionFieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_event_types}}', 'ticketTypeFieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
+        $this->addForeignKey(null, '{{%events_event_types}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', 'SET NULL', null);
+        $this->addForeignKey(null, '{{%events_event_types}}', 'shippingCategoryId', '{{%commerce_shippingcategories}}', 'id', 'SET NULL', null);
 
         $this->addForeignKey(null, '{{%events_event_types_sites}}', 'eventTypeId', '{{%events_event_types}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_event_types_sites}}', 'siteId', '{{%sites}}', 'id', 'CASCADE', 'CASCADE');

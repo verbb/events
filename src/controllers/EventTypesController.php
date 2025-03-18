@@ -70,6 +70,8 @@ class EventTypesController extends Controller
         $eventType->icsTimezone = $this->request->getBodyParam('icsTimezone', $eventType->icsTimezone);
         $eventType->icsDescriptionFieldHandle = $this->request->getBodyParam('icsDescriptionFieldHandle', $eventType->icsDescriptionFieldHandle);
         $eventType->icsLocationFieldHandle = $this->request->getBodyParam('icsLocationFieldHandle', $eventType->icsLocationFieldHandle);
+        $eventType->taxCategoryId = $this->request->getBodyParam('taxCategoryId', $eventType->taxCategoryId);
+        $eventType->shippingCategoryId = $this->request->getBodyParam('shippingCategoryId', $eventType->shippingCategoryId);
 
         // Site-specific settings
         $allSiteSettings = [];

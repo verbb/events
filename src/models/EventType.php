@@ -41,6 +41,8 @@ class EventType extends Model implements FieldLayoutProviderInterface
     public ?string $icsTimezone = null;
     public ?string $icsDescriptionFieldHandle = null;
     public ?string $icsLocationFieldHandle = null;
+    public ?int $shippingCategoryId = null;
+    public ?int $taxCategoryId = null;
     public ?string $uid = null;
 
     private ?array $_siteSettings = null;
@@ -215,6 +217,8 @@ class EventType extends Model implements FieldLayoutProviderInterface
             'icsTimezone' => $this->icsTimezone,
             'icsDescriptionFieldHandle' => $this->icsDescriptionFieldHandle,
             'icsLocationFieldHandle' => $this->icsLocationFieldHandle,
+            'taxCategoryId' => $this->taxCategoryId,
+            'shippingCategoryId' => $this->shippingCategoryId,
             'siteSettings' => [],
         ];
 

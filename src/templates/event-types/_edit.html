@@ -242,6 +242,26 @@
             value: eventType.icsLocationFieldHandle,
             errors: eventType.getErrors('icsLocationFieldHandle'),
         }) }}
+
+        <hr>
+
+        <h3>{{ 'Tickets' | t('events') }}</h3>
+
+        {{ forms.selectField({
+            label: 'Tax Category' | t('commerce'),
+            name: 'taxCategoryId',
+            value: eventType.taxCategoryId,
+            required: true,
+            options: craft.commerce.taxCategories.getAllTaxCategoriesAsList(),
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Shipping Category' | t('commerce'),
+            name: 'shippingCategoryId',
+            value: eventType.shippingCategoryId,
+            required: true,
+            options: craft.commerce.shippingCategories.getAllShippingCategoriesAsList(),
+        }) }}
     </div>
 
     <div id="event-fields" class="hidden">

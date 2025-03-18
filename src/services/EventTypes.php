@@ -211,6 +211,8 @@ class EventTypes extends Component
             $eventTypeRecord->icsTimezone = $data['icsTimezone'] ?? null;
             $eventTypeRecord->icsDescriptionFieldHandle = $data['icsDescriptionFieldHandle'] ?? null;
             $eventTypeRecord->icsLocationFieldHandle = $data['icsLocationFieldHandle'] ?? null;
+            $eventTypeRecord->taxCategoryId = $data['taxCategoryId'] ?? null;
+            $eventTypeRecord->shippingCategoryId = $data['shippingCategoryId'] ?? null;
 
             // Changing titles for things will mean we need to resave elements
             $sessionTitleFormat = $data['sessionTitleFormat'] ?? '{dateSummary}';
@@ -556,24 +558,33 @@ class EventTypes extends Component
 
     private function _createEventTypeQuery(): Query
     {
+        $selectColumns = [
+            'eventTypes.id',
+            'eventTypes.fieldLayoutId',
+            'eventTypes.sessionFieldLayoutId',
+            'eventTypes.ticketTypeFieldLayoutId',
+            'eventTypes.name',
+            'eventTypes.handle',
+            'eventTypes.enableVersioning',
+            'eventTypes.sessionTitleFormat',
+            'eventTypes.ticketTitleFormat',
+            'eventTypes.ticketSkuFormat',
+            'eventTypes.purchasedTicketTitleFormat',
+            'eventTypes.icsTimezone',
+            'eventTypes.icsDescriptionFieldHandle',
+            'eventTypes.icsLocationFieldHandle',
+            'eventTypes.uid',
+        ];
+
+        $events = Craft::$app->getPlugins()->getStoredPluginInfo('events');
+
+        if ($events && version_compare($events['schemaVersion'], '1.1.4', '>=')) {
+            $selectColumns[] = 'eventTypes.taxCategoryId';
+            $selectColumns[] = 'eventTypes.shippingCategoryId';
+        }
+
         return (new Query())
-            ->select([
-                'eventTypes.id',
-                'eventTypes.fieldLayoutId',
-                'eventTypes.sessionFieldLayoutId',
-                'eventTypes.ticketTypeFieldLayoutId',
-                'eventTypes.name',
-                'eventTypes.handle',
-                'eventTypes.enableVersioning',
-                'eventTypes.sessionTitleFormat',
-                'eventTypes.ticketTitleFormat',
-                'eventTypes.ticketSkuFormat',
-                'eventTypes.purchasedTicketTitleFormat',
-                'eventTypes.icsTimezone',
-                'eventTypes.icsDescriptionFieldHandle',
-                'eventTypes.icsLocationFieldHandle',
-                'eventTypes.uid',
-            ])
+            ->select($selectColumns)
             ->from(['{{%events_event_types}} eventTypes']);
     }
 

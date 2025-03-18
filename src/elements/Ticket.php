@@ -275,6 +275,28 @@ class Ticket extends Purchasable
         $this->typeId = $type->id;
     }
 
+    public function getTaxCategoryId(): int
+    {
+        $taxCategoryId = $this->getType()?->taxCategoryId ?? null;
+
+        if (!$taxCategoryId) {
+            $taxCategoryId = Commerce::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+        }
+
+        return $taxCategoryId;
+    }
+
+    public function getShippingCategoryId(): int
+    {
+        $shippingCategoryId = $this->getType()?->shippingCategoryId ?? null;
+
+        if (!$shippingCategoryId) {
+            $shippingCategoryId = Commerce::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStoreId())->id;
+        }
+
+        return $shippingCategoryId;
+    }
+
     public function getBasePrice(): ?float
     {
         return $this->getType()?->price ?? null;
