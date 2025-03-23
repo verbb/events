@@ -277,7 +277,7 @@ class Ticket extends Purchasable
 
     public function getTaxCategoryId(): int
     {
-        $taxCategoryId = $this->getType()?->taxCategoryId ?? null;
+        $taxCategoryId = $this->getEvent()?->getType()?->taxCategoryId ?? null;
 
         if (!$taxCategoryId) {
             $taxCategoryId = Commerce::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
@@ -288,7 +288,7 @@ class Ticket extends Purchasable
 
     public function getShippingCategoryId(): int
     {
-        $shippingCategoryId = $this->getType()?->shippingCategoryId ?? null;
+        $shippingCategoryId = $this->getEvent()?->getType()?->shippingCategoryId ?? null;
 
         if (!$shippingCategoryId) {
             $shippingCategoryId = Commerce::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStoreId())->id;
