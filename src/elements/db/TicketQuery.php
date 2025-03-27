@@ -6,6 +6,7 @@ use verbb\events\elements\Session;
 use verbb\events\elements\TicketType;
 use verbb\events\elements\TicketCollection;
 
+use craft\db\Table;
 use craft\helpers\Db;
 
 use yii\db\Connection;
@@ -22,8 +23,6 @@ class TicketQuery extends PurchasableQuery
     public mixed $eventId = null;
     public mixed $sessionId = null;
     public mixed $typeId = null;
-
-    protected array $defaultOrderBy = ['events_tickets.id' => SORT_ASC];
 
 
     // Public Methods
@@ -118,6 +117,16 @@ class TicketQuery extends PurchasableQuery
             $this->subQuery->andWhere(Db::parseParam('events_tickets.typeId', $this->typeId));
         }
 
+        // Apply the custom ordering for sessions + ticket types
+        $this->_applySessionAndTypeJoins($this->query);
+        $this->_applySessionAndTypeJoins($this->subQuery);
+        
+        // Order by the sortOrder values from the joined owners.
+        $this->query->orderBy([
+            'sessionOwners.sortOrder' => SORT_ASC,
+            'typeOwners.sortOrder' => SORT_ASC,
+        ]);
+
         return parent::beforePrepare();
     }
 
@@ -132,5 +141,31 @@ class TicketQuery extends PurchasableQuery
         }
 
         return $tags;
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    private function _applySessionAndTypeJoins($query): void
+    {
+        // Join sessions pivot table.
+        $query->innerJoin('{{%events_sessions}} sessions', '[[sessions.id]] = [[events_tickets.sessionId]]');
+        
+        // Join elements_owners for sessions.
+        $query->innerJoin(
+            '{{%elements_owners}} sessionOwners',
+            '[[sessionOwners.elementId]] = [[sessions.id]] AND [[sessionOwners.ownerId]] = :eventId',
+            [':eventId' => $this->eventId]
+        );
+        
+        // Join ticket types pivot table.
+        $query->innerJoin('{{%events_ticket_types}} types', '[[types.id]] = [[events_tickets.typeId]]');
+        
+        // Join elements_owners for ticket types.
+        $query->innerJoin(
+            '{{%elements_owners}} typeOwners',
+            '[[typeOwners.elementId]] = [[types.id]] AND [[typeOwners.ownerId]] = :eventId',
+            [':eventId' => $this->eventId]
+        );
     }
 }
