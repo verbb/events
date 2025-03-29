@@ -149,20 +149,20 @@ class TicketQuery extends PurchasableQuery
     private function _applySessionAndTypeJoins($query): void
     {
         // Join sessions pivot table.
-        $query->innerJoin('{{%events_sessions}} sessions', '[[sessions.id]] = [[events_tickets.sessionId]]');
+        $query->leftJoin('{{%events_sessions}} sessions', '[[sessions.id]] = [[events_tickets.sessionId]]');
         
         // Join elements_owners for sessions.
-        $query->innerJoin(
+        $query->leftJoin(
             '{{%elements_owners}} sessionOwners',
             '[[sessionOwners.elementId]] = [[sessions.id]] AND [[sessionOwners.ownerId]] = :eventId',
             [':eventId' => $this->eventId]
         );
         
         // Join ticket types pivot table.
-        $query->innerJoin('{{%events_ticket_types}} types', '[[types.id]] = [[events_tickets.typeId]]');
+        $query->leftJoin('{{%events_ticket_types}} types', '[[types.id]] = [[events_tickets.typeId]]');
         
         // Join elements_owners for ticket types.
-        $query->innerJoin(
+        $query->leftJoin(
             '{{%elements_owners}} typeOwners',
             '[[typeOwners.elementId]] = [[types.id]] AND [[typeOwners.ownerId]] = :eventId',
             [':eventId' => $this->eventId]
