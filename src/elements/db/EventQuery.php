@@ -104,6 +104,11 @@ class EventQuery extends ElementQuery
 
     protected function beforePrepare(): bool
     {
+        // Prevent this from running in Craft's `m250315_131608_unlimited_authors` migration before our upgrade
+        if (!Craft::$app->getDb()->tableExists('{{%events_sessions}}')) {
+            return false;
+        }
+
         $this->_normalizeTypeId();
 
         // See if 'type' were set to invalid handles
