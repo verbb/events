@@ -126,10 +126,10 @@ class Pdf extends Component
         $dompdf = new Dompdf();
 
         // Set the config options
-        $pathService = Craft::$app->getPath();
-        $dompdfTempDir = $pathService->getTempPath() . DIRECTORY_SEPARATOR . 'events_dompdf';
-        $dompdfFontCache = $pathService->getCachePath() . DIRECTORY_SEPARATOR . 'events_dompdf';
-        $dompdfLogFile = $pathService->getLogPath() . DIRECTORY_SEPARATOR . 'events_dompdf.htm';
+        $tempPath = Craft::$app->getPath()->getTempPath();
+        $dompdfTempDir = $tempPath . DIRECTORY_SEPARATOR . 'events_dompdf';
+        $dompdfFontCache = $tempPath . DIRECTORY_SEPARATOR . 'events_dompdf';
+        $dompdfLogFile = $tempPath . DIRECTORY_SEPARATOR . 'events_dompdf.htm';
 
         // Ensure directories are created
         FileHelper::createDirectory($dompdfTempDir);
@@ -152,8 +152,10 @@ class Pdf extends Component
         $options = new Options();
         $options->setTempDir($dompdfTempDir);
         $options->setFontCache($dompdfFontCache);
+        $options->setFontDir($dompdfFontCache);
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
+        $options->setDefaultFont('sans-serif');
 
         // Set additional render options
         if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
