@@ -188,8 +188,8 @@ class TicketType extends Element implements NestedElementInterface
     {
         return [
             'title' => Craft::t('events', 'Title'),
-            'price' => ['label' => Craft::t('events', 'Price')],
-            'capacity' => ['label' => Craft::t('events', 'Ticket Capacity')],
+            'price' => Craft::t('events', 'Price'),
+            'capacity' => Craft::t('events', 'Ticket Capacity'),
         ];
     }
 
