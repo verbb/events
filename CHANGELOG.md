@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.0.7 - 2025-05-01
+
+### Added
+- Add Shipping and Tax Category support for Event Types
+
+### Changed
+- Tickets are now ordered by their Ticket Type and Session order.
+- Update GraphQL resolvers to use `ElementCollection` correctly.
+
+### Fixed
+- Fix PDF handling for Craft Cloud.
+- Fix an error when sorting Ticket Types in their element tables.
+- Fix an error when upgrading to Craft 5 and the `m250315_131608_unlimited_authors` Craft migration.
+- Fix an SQL error.
+
 ## 3.0.6 - 2025-03-05
 
 ### Changed
