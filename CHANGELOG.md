@@ -104,6 +104,11 @@
 - Event element cards now show the event type and start/end date/times of events
 - Deleting a Ticket element is now prevented if any purchased tickets exist.
 
+## 2.0.9 - 2025-05-01
+
+### Fixed
+- Fix PDF handling for Craft Cloud.
+
 ## 2.0.8 - 2025-02-02
 
 ### Fixed
