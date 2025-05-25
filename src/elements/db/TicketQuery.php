@@ -10,6 +10,7 @@ use craft\db\Table;
 use craft\helpers\Db;
 
 use yii\db\Connection;
+use yii\db\Expression;
 
 use craft\commerce\elements\db\PurchasableQuery;
 
@@ -150,12 +151,30 @@ class TicketQuery extends PurchasableQuery
     {
         // Join sessions pivot table.
         $query->leftJoin('{{%events_sessions}} sessions', '[[sessions.id]] = [[events_tickets.sessionId]]');
+
+        // Normalize for querying
+        $eventId = $this->eventId;
+
+        if (!is_array($eventId)) {
+            $eventId = [$eventId];
+        }
+
+        $params = [];
+
+        $placeholders = [];
+
+        foreach ($eventId as $i => $id) {
+            $key = ':eventId' . $i;
+            $placeholders[] = $key;
+            $params[$key] = $id;
+        }
+
+        $idCondition = implode(', ', $placeholders);
         
         // Join elements_owners for sessions.
         $query->leftJoin(
             '{{%elements_owners}} sessionOwners',
-            '[[sessionOwners.elementId]] = [[sessions.id]] AND [[sessionOwners.ownerId]] = :eventId',
-            [':eventId' => $this->eventId]
+            new Expression("[[sessionOwners.elementId]] = [[sessions.id]] AND [[sessionOwners.ownerId]] IN ($idCondition)")
         );
         
         // Join ticket types pivot table.
@@ -164,8 +183,10 @@ class TicketQuery extends PurchasableQuery
         // Join elements_owners for ticket types.
         $query->leftJoin(
             '{{%elements_owners}} typeOwners',
-            '[[typeOwners.elementId]] = [[types.id]] AND [[typeOwners.ownerId]] = :eventId',
-            [':eventId' => $this->eventId]
+            new Expression("[[typeOwners.elementId]] = [[types.id]] AND [[typeOwners.ownerId]] IN ($idCondition)")
         );
+
+        // Add the params to the query
+        $query->addParams($params);
     }
 }
