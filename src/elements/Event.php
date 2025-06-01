@@ -614,6 +614,11 @@ class Event extends Element
         return $this->_eventType = $eventType;
     }
 
+    public function getIcsUrl(): string
+    {
+        return UrlHelper::actionUrl('events/ics', ['eventId' => $this->id]);
+    }
+
     public function getTotalCapacity(): ?int
     {
         // Check if we have overridden the capacity at the event level
