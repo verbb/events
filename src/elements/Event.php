@@ -39,9 +39,11 @@ use craft\validators\DateTimeValidator;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
+use DateTime;
+
 use Illuminate\Support\Collection;
 
-use DateTime;
+use Jsvrcek\ICS\Model\CalendarEvent;
 
 class Event extends Element
 {
@@ -617,6 +619,11 @@ class Event extends Element
     public function getIcsUrl(): string
     {
         return UrlHelper::actionUrl('events/ics', ['eventId' => $this->id]);
+    }
+
+    public function getIcsEvent(): ?CalendarEvent
+    {
+        return Events::$plugin->getIcs()->getIcsEvent($this);
     }
 
     public function getTotalCapacity(): ?int
