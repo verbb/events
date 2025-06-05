@@ -148,6 +148,7 @@ class Ticket extends Purchasable
     private ?Event $_event = null;
     private ?Session $_session = null;
     private ?TicketType $_type = null;
+    private ?int $_purchasedTicketCount = null;
 
 
     // Public Methods
@@ -328,7 +329,11 @@ class Ticket extends Purchasable
 
     public function getPurchasedTicketsCount(): int
     {
-        return PurchasedTicket::find()->ticketId($this->id)->count() * ($this->getType()?->seatsPerTicket ?? 1);
+        if ($this->_purchasedTicketCount === null) {
+            $this->_purchasedTicketCount = PurchasedTicket::find()->ticketId($this->id)->count();
+        }
+
+        return $this->_purchasedTicketCount * ($this->getType()?->seatsPerTicket ?? 1);
     }
 
     public function getIsShippable(): bool
