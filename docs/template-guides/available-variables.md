@@ -8,6 +8,9 @@ Returns an [Event Query](docs:getting-elements/event-queries) for you to modify 
 By default, only current events will be returned when calling `craft.events.events()`. To change this, use the `craft.events.events.endDate(null)`. Events are also ordered from the oldest startDate to the newest, which you can also change with the `orderBy` parameter.
 :::
 
+### `craft.events.sessions()`
+See [Session Queries](docs:getting-elements/session-queries)
+
 ### `craft.events.tickets()`
 See [Ticket Queries](docs:getting-elements/ticket-queries)
 

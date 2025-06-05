@@ -4,9 +4,11 @@ namespace verbb\events\variables;
 use verbb\events\Events;
 use verbb\events\elements\Event;
 use verbb\events\elements\PurchasedTicket;
+use verbb\events\elements\Session;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
 use verbb\events\elements\db\EventQuery;
+use verbb\events\elements\db\SessionQuery;
 use verbb\events\elements\db\TicketQuery;
 use verbb\events\elements\db\PurchasedTicketQuery;
 use verbb\events\elements\db\TicketTypeQuery;
@@ -81,6 +83,17 @@ class EventsVariable
     public function tickets(array $criteria = []): TicketQuery
     {
         $query = Ticket::find();
+
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+
+        return $query;
+    }
+
+    public function sessions(array $criteria = []): SessionQuery
+    {
+        $query = Session::find();
 
         if ($criteria) {
             Craft::configure($query, $criteria);
