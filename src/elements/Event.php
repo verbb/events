@@ -639,7 +639,7 @@ class Event extends Element
 
     public function getIsAvailable(): bool
     {
-        return (bool)$this->getAvailableTickets();
+        return !$this->getAvailableTickets()->isEmpty();
     }
 
     public function getAvailableTickets(): TicketCollection
