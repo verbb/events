@@ -249,6 +249,7 @@ class Session extends Element implements NestedElementInterface
     public FrequencyInterface $frequency;
     public ?OccurrenceRange $occurrenceRange = null;
 
+    private ?TicketCollection $_tickets = null;
     private ?string $_eventSlug = null;
     private ?string $_eventTypeHandle = null;
 
@@ -387,6 +388,14 @@ class Session extends Element implements NestedElementInterface
 
     public function getIsAvailable(): bool
     {
+        if (!$this->getPrimaryOwner()) {
+            return false;
+        }
+
+        if (!$this->getPrimaryOwner()->getIsAvailable()) {
+            return false;
+        }
+
         if ($this->getPrimaryOwner()->getIsDraft()) {
             return false;
         }
@@ -395,7 +404,20 @@ class Session extends Element implements NestedElementInterface
             return false;
         }
 
-        return parent::getIsAvailable();
+        return !$this->getAvailableTickets()->isEmpty();
+    }
+
+    public function getAvailableTickets(): TicketCollection
+    {
+        $tickets = $this->getTickets();
+
+        foreach ($tickets as $key => $ticket) {
+            if (!$ticket->getIsAvailable()) {
+                unset($tickets[$key]);
+            }
+        }
+
+        return $tickets;
     }
 
     public function getFieldLayout(): ?FieldLayout
@@ -560,9 +582,16 @@ class Session extends Element implements NestedElementInterface
         });
     }
 
-    public function getTickets(): array
+    public function getTickets(): TicketCollection
     {
-        return Ticket::find()->eventId($this->primaryOwnerId)->sessionId($this->id)->all();
+        if ($this->_tickets) {
+            return $this->_tickets;
+        }
+
+        return $this->_tickets = Ticket::find()
+            ->eventId($this->primaryOwnerId)
+            ->sessionId($this->id)
+            ->collect();
     }
 
     public function getSidebarHtml(bool $static): string
