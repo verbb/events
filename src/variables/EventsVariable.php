@@ -132,7 +132,7 @@ class EventsVariable
 
     public function isTicket(LineItem $lineItem): bool
     {
-        if ($lineItem->purchasable) {
+        if ($lineItem->purchasableId && $lineItem->purchasable) {
             return get_class($lineItem->purchasable) === Ticket::class;
         }
 
