@@ -15,7 +15,9 @@ use yii\base\InvalidConfigException;
 use yii\db\Connection;
 use yii\db\Expression;
 
-class SessionQuery extends ElementQuery
+use verbb\base\elements\db\CachedElementQuery;
+
+class SessionQuery extends CachedElementQuery
 {
     // Properties
     // =========================================================================

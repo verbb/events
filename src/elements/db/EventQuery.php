@@ -14,7 +14,9 @@ use craft\helpers\Db;
 
 use DateTime;
 
-class EventQuery extends ElementQuery
+use verbb\base\elements\db\CachedElementQuery;
+
+class EventQuery extends CachedElementQuery
 {
     // Properties
     // =========================================================================

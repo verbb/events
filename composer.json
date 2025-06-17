@@ -30,7 +30,7 @@
         "craftcms/commerce": "^5.0.0",
         "endroid/qr-code": "^4.0.0",
         "jsvrcek/ics": "^0.8.0",
-        "verbb/base": "^3.0.0"
+        "verbb/base": "^3.0.9"
     },
     "autoload": {
         "psr-4": {

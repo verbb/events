@@ -572,7 +572,7 @@ class TicketType extends Element implements NestedElementInterface
         if ($this->_tickets) {
             return $this->_tickets;
         }
-        
+
         return $this->_tickets = Ticket::find()
             ->eventId($this->primaryOwnerId)
             ->typeId($this->id)

@@ -14,8 +14,16 @@ use yii\db\Expression;
 
 use craft\commerce\elements\db\PurchasableQuery;
 
+use verbb\base\elements\db\CachedElementQueryTrait;
+
 class TicketQuery extends PurchasableQuery
 {
+    // Traits
+    // =========================================================================
+
+    use CachedElementQueryTrait;
+
+
     // Properties
     // =========================================================================
 

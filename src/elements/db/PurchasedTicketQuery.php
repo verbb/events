@@ -18,7 +18,9 @@ use yii\db\Connection;
 
 use craft\commerce\db\Table as CommerceTable;
 
-class PurchasedTicketQuery extends ElementQuery
+use verbb\base\elements\db\CachedElementQuery;
+
+class PurchasedTicketQuery extends CachedElementQuery
 {
     // Properties
     // =========================================================================
