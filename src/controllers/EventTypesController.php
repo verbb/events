@@ -3,6 +3,8 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 use verbb\events\elements\Event;
+use verbb\events\elements\Session;
+use verbb\events\elements\TicketType;
 use verbb\events\models\EventType;
 use verbb\events\models\EventTypeSite;
 
@@ -110,13 +112,13 @@ class EventTypesController extends Controller
 
         // Set the session field layout
         $sessionFieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('sessionLayout');
-        $sessionFieldLayout->type = Variant::class;
+        $sessionFieldLayout->type = Session::class;
         $behavior = $eventType->getBehavior('sessionFieldLayout');
         $behavior->setFieldLayout($sessionFieldLayout);
 
         // Set the ticket field layout
         $ticketFieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('ticketLayout');
-        $ticketFieldLayout->type = Variant::class;
+        $ticketFieldLayout->type = TicketType::class;
         $behavior = $eventType->getBehavior('ticketFieldLayout');
         $behavior->setFieldLayout($ticketFieldLayout);
 
