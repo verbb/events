@@ -297,6 +297,16 @@ class Event extends Element
                 'defaultDir' => 'desc',
             ],
             [
+                'label' => Craft::t('events', 'Start Date'),
+                'orderBy' => 'startDate',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('events', 'End Date'),
+                'orderBy' => 'endDate',
+                'defaultDir' => 'desc',
+            ],
+            [
                 'label' => Craft::t('app', 'Date Created'),
                 'orderBy' => 'elements.dateCreated',
                 'attribute' => 'dateCreated',
@@ -327,6 +337,8 @@ class Event extends Element
             'uri' => ['label' => Craft::t('events', 'URI')],
             'postDate' => ['label' => Craft::t('events', 'Post Date')],
             'expiryDate' => ['label' => Craft::t('events', 'Expiry Date')],
+            'startDate' => ['label' => Craft::t('events', 'Start Date')],
+            'endDate' => ['label' => Craft::t('events', 'End Date')],
             'link' => ['label' => Craft::t('events', 'Link'), 'icon' => 'world'],
             'dateCreated' => ['label' => Craft::t('events', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('events', 'Date Updated')],
