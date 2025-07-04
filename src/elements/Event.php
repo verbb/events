@@ -667,6 +667,25 @@ class Event extends Element
         return $tickets;
     }
 
+    public function getSupportedSites(): array
+    {
+        if (!isset($this->typeId)) {
+            throw new InvalidConfigException('Require `typeId` must be set on the event.');
+        }
+
+        $eventType = $this->getType();
+        $sites = [];
+
+        foreach ($eventType->getSiteSettings() as $siteSettings) {
+            $sites[] = [
+                'siteId' => $siteSettings->siteId,
+                'enabledByDefault' => $siteSettings->enabledByDefault,
+            ];
+        }
+
+        return $sites;
+    }
+
     public function getSessions(bool $includeDisabled = false): SessionCollection
     {
         if (!isset($this->_sessions)) {
