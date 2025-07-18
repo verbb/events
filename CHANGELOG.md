@@ -1,5 +1,26 @@
 # Changelog
 
+## 3.0.8 - 2025-07-18
+
+### Added
+- Add Start/End Date columns as sortable to Events element index.
+- Add `Session::getIsAvailable()`, `Session::getAvailableTickets()`, `TicketType::getIsAvailable()`, `TicketType::getAvailableTickets()`.
+- Add `craft.events.sessions()`.
+
+### Changed
+- Update English translations.
+- Improve element query performance for events/sessions/tickets/etc with cached element queries.
+- Improve performance when querying ticket quantity/stock.
+
+### Fixed
+- Fix lack of supported site handling for an event.
+- Fix an error when creating new Event Types.
+- Fix an error for `craft.events.isTicket()` for some line item types.
+- Fix `Event::getIsAvailable()` type check.
+- Fix generating an ICS for an event.
+- Fix missing `Event::getIcsUrl()`.
+- Fix an error when querying tickets by their event.
+
 ## 3.0.7 - 2025-05-01
 
 ### Added
