@@ -692,6 +692,17 @@ class Session extends Element implements NestedElementInterface
         return implode(' ', $parts);
     }
 
+    public function getSupportedSites(): array
+    {
+        $owner = $this->getOwner();
+
+        if (!$owner) {
+            return [Craft::$app->getSites()->getPrimarySite()->id];
+        }
+
+        return $this->getOwner()->getSupportedSites();
+    }
+
     public function getGqlTypeName(): string
     {
         $event = $this->getOwner();
