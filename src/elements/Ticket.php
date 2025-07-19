@@ -316,8 +316,18 @@ class Ticket extends Purchasable
 
     public function getCapacity(): int
     {
-        $ticketCapacity = $this->getType()?->capacity ?? 0;
+        $ticketCapacity = 0;
 
+        if ($ticketType = $this->getType()) {
+            $ticketCapacity = $ticketType->capacity;
+
+            // If null or empty (but not 0), set as unlimited
+            if ($ticketCapacity === null || $ticketCapacity === '') {
+                $ticketCapacity = PHP_INT_MAX;
+            }
+        }
+
+        // If set at the event level, that overrides the ticket type value, if smaller
         if ($event = $this->getEvent()) {
             if ($this->event->capacity) {
                 return min($this->event->capacity, $ticketCapacity);
