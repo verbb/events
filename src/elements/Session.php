@@ -36,6 +36,7 @@ use craft\validators\DateTimeValidator;
 
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 use verbb\base\helpers\Locale as LocaleHelper;
 
