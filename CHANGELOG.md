@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.9 - 2025-08-13
+
+### Added
+- Add the ability to set ticket type capacity to unlimited.
+
+### Fixed
+- Fix lack of supported site handling for a sessions and ticket types.
+- Fix an error when creating sessions.
+
 ## 3.0.8 - 2025-07-18
 
 ### Added
