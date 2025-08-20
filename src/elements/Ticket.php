@@ -348,6 +348,11 @@ class Ticket extends Purchasable
         $this->_ticketType = $type;
     }
 
+    public function getPromotionRelationSource(): array
+    {
+        return [$this->id, $this->getEvent()->id];
+    }
+
     public function attributeLabels(): array
     {
         $labels = parent::attributeLabels();
