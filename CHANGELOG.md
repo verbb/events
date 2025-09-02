@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.11 - 2025-09-02
+
+### Added
+- Add `Ticket::getPromotionRelationSource()` for promotion category handling.
+
 ## 2.0.10 - 2025-07-18
 
 ### Changed
