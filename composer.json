@@ -2,7 +2,7 @@
     "name": "verbb/events",
     "description": "A full-featured plugin for event management and ticketing.",
     "type": "craft-plugin",
-    "version": "3.0.9",
+    "version": "4.0.0-alpha.1",
     "keywords": [
         "craft",
         "cms",
@@ -25,12 +25,12 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "craftcms/cms": "^5.0.0",
-        "craftcms/commerce": "^5.0.0",
+        "php": "^8.4",
+        "craftcms/cms": "6.x-dev",
+        "craftcms/commerce": "6.x-dev",
         "endroid/qr-code": "^4.0.0",
         "jsvrcek/ics": "^0.8.0",
-        "verbb/base": "^3.0.9"
+        "verbb/base": "dev-craft-6"
     },
     "autoload": {
         "psr-4": {
@@ -40,7 +40,9 @@
     "extra": {
         "name": "Events",
         "handle": "events",
-        "changelogUrl": "https://raw.githubusercontent.com/verbb/events/craft-5/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/verbb/events/craft-6/CHANGELOG.md",
         "class": "verbb\\events\\Events"
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

@@ -17,7 +17,7 @@ use craft\base\MemoizableArray;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\User;
-use craft\events\ConfigEvent;
+use CraftCms\Cms\ProjectConfig\Events\ItemAdded;
 use craft\events\DeleteSiteEvent;
 use craft\events\SiteEvent;
 use craft\helpers\App;
@@ -182,7 +182,7 @@ class EventTypes extends Component
         return true;
     }
 
-    public function handleChangedEventType(ConfigEvent $event): void
+    public function handleChangedEventType($event): void
     {
         $eventTypeUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -434,7 +434,7 @@ class EventTypes extends Component
         return true;
     }
 
-    public function handleDeletedEventType(ConfigEvent $event): void
+    public function handleDeletedEventType($event): void
     {
         $uid = $event->tokenMatches[0];
         $eventTypeRecord = $this->_getEventTypeRecord($uid);
