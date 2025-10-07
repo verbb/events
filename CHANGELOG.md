@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a Mutex exception that could occur in certain scenarios when retrieving a cart.
+
 ## 2.0.11 - 2025-09-02
 
 ### Added
