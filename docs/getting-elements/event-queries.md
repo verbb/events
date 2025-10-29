@@ -51,38 +51,6 @@ Event queries support the following parameters:
 
 <!-- BEGIN PARAMS -->
 
-### `after`
-Narrows the query results to only events that were posted on or after a certain date.
-
-Possible values include:
-
-| Value | Fetches events…
-| - | -
-| `'2018-04-01'` | that were posted after 2018-04-01.
-| a [DateTime](http://php.net/class.datetime) object | that were posted after the date represented by the object.
-
-::: code
-```twig Twig
-{# Fetch events posted this month #}
-{% set firstDayOfMonth = date('first day of this month') %}
-
-{% set events = craft.events.events()
-    .after(firstDayOfMonth)
-    .all() %}
-```
-
-```php PHP
-// Fetch events posted this month
-$firstDayOfMonth = new \DateTime('first day of this month');
-
-$events = \verbb\events\elements\Event::find()
-    ->after($firstDayOfMonth)
-    ->all();
-```
-:::
-
-
-
 ### `anyStatus`
 Clears out the [status()](https://docs.craftcms.com/api/v4/craft-elements-db-elementquery.html#method-status) and [enabledForSite()](https://docs.craftcms.com/api/v4/craft-elements-db-elementquery.html#method-enabledforsite) parameters.
 
@@ -119,38 +87,6 @@ Causes the query to return matching events as arrays of data, rather than [Event
 // Fetch events as arrays
 $events = \verbb\events\elements\Event::find()
     ->asArray()
-    ->all();
-```
-:::
-
-
-
-### `before`
-Narrows the query results to only events that were posted before a certain date.
-
-Possible values include:
-
-| Value | Fetches events…
-| - | -
-| `'2018-04-01'` | that were posted before 2018-04-01.
-| a [DateTime](http://php.net/class.datetime) object | that were posted before the date represented by the object.
-
-::: code
-```twig Twig
-{# Fetch events posted before this month #}
-{% set firstDayOfMonth = date('first day of this month') %}
-
-{% set events = craft.events.events()
-    .before(firstDayOfMonth)
-    .all() %}
-```
-
-```php PHP
-// Fetch events posted before this month
-$firstDayOfMonth = new \DateTime('first day of this month');
-
-$events = \verbb\events\elements\Event::find()
-    ->before($firstDayOfMonth)
     ->all();
 ```
 :::
