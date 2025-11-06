@@ -149,6 +149,16 @@
 - Event element cards now show the event type and start/end date/times of events
 - Deleting a Ticket element is now prevented if any purchased tickets exist.
 
+## 2.0.11 - 2025-09-02
+
+### Added
+- Add `Ticket::getPromotionRelationSource()` for promotion category handling.
+
+## 2.0.10 - 2025-07-18
+
+### Changed
+- Update English translations.
+
 ## 2.0.9 - 2025-05-01
 
 ### Fixed
@@ -636,7 +646,7 @@
 ## 1.0.2.1 - 2019-04-30
 
 ### Fixed
-- Fix incorrect casing of `events.js`. (thanks @johnnynotsolucky).  
+- Fix incorrect casing of `events.js`. (thanks @johnnynotsolucky).
 
 ## 1.0.2 - 2019-04-30
 
