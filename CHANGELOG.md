@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.10 - 2025-11-06
+
+### Added
+- Add `Ticket::getPromotionRelationSource()` for promotion category handling.
+
+### Changed
+- Update English translations.
+
+### Fixed
+- Fixed a Mutex exception that could occur in certain scenarios when retrieving a cart.
+
 ## 3.0.9 - 2025-08-13
 
 ### Added
