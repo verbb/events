@@ -69,6 +69,26 @@ class PurchasedTicketsController extends Controller
         $purchasedTicket->enabled = $this->request->getParam('enabled', $purchasedTicket->enabled);
         $purchasedTicket->checkedIn = $this->request->getParam('checkedIn', $purchasedTicket->checkedIn);
         $purchasedTicket->checkedInDate = $this->request->getParam('checkedInDate', $purchasedTicket->checkedInDate);
+        $oldTicketId = $purchasedTicket->ticketId;
+
+        if ($ticketId = $this->request->getParam('ticketId')) {
+            if (is_array($ticketId)) {
+                $purchasedTicket->ticketId = reset($ticketId);
+            }
+        }
+
+        if ($orderId = $this->request->getParam('orderId')) {
+            if (is_array($orderId)) {
+                $purchasedTicket->orderId = reset($orderId);
+            }
+        }
+
+        // Update the relations, just in case
+        if ($ticket = $purchasedTicket->getTicket()) {
+            $purchasedTicket->eventId = $ticket->eventId;
+            $purchasedTicket->sessionId = $ticket->sessionId;
+            $purchasedTicket->ticketTypeId = $ticket->typeId;
+        }
 
         $purchasedTicket->setFieldValuesFromRequest('fields');
 
