@@ -71,23 +71,45 @@
 {% block details %}
 
 <div class="meta">
-    {{ forms.elementSelectField({
-        label: 'Event' | t('events'),
-        id: 'eventId',
-        name: 'eventId',
-        elementType: 'verbb\\events\\elements\\Event',
-        limit: 1,
-        elements: (purchasedTicket.getEvent() is defined and purchasedTicket.getEvent() ? [purchasedTicket.getEvent()]),
-    }) }}
-    
-    {{ forms.elementSelectField({
-        label: 'Session' | t('events'),
-        id: 'sessionId',
-        name: 'sessionId',
-        elementType: 'verbb\\events\\elements\\Session',
-        limit: 1,
-        elements: (purchasedTicket.getSession() is defined and purchasedTicket.getSession() ? [purchasedTicket.getSession()]),
-    }) }}
+    {% set event = purchasedTicket.getEvent() %}
+    {% set session = purchasedTicket.getSession() %}
+    {% set ticketType = purchasedTicket.getTicketType() %}
+
+    {% if event %}
+        <div class="field">
+            <div class="heading">
+                <label class="">{{ 'Event' | t('events') }}</label>
+            </div>
+
+            <div class="input ltr">
+                <a href="{{ event.getCpEditUrl() }}">{{ event.title }}</a>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if session %}
+        <div class="field">
+            <div class="heading">
+                <label class="">{{ 'Session' | t('events') }}</label>
+            </div>
+
+            <div class="input ltr">
+                <a href="{{ session.getCpEditUrl() }}">{{ session.title }}</a>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if ticketType %}
+        <div class="field">
+            <div class="heading">
+                <label class="">{{ 'Ticket Type' | t('events') }}</label>
+            </div>
+
+            <div class="input ltr">
+                <a href="{{ ticketType.getCpEditUrl() }}">{{ ticketType.title }}</a>
+            </div>
+        </div>
+    {% endif %}
     
     {{ forms.elementSelectField({
         label: 'Ticket' | t('events'),
@@ -96,15 +118,6 @@
         elementType: 'verbb\\events\\elements\\Ticket',
         limit: 1,
         elements: (purchasedTicket.getTicket() is defined and purchasedTicket.getTicket() ? [purchasedTicket.getTicket()]),
-    }) }}
-    
-    {{ forms.elementSelectField({
-        label: 'Ticket Type' | t('events'),
-        id: 'ticketTypeId',
-        name: 'ticketTypeId',
-        elementType: 'verbb\\events\\elements\\TicketType',
-        limit: 1,
-        elements: (purchasedTicket.getTicketType() is defined and purchasedTicket.getTicketType() ? [purchasedTicket.getTicketType()]),
     }) }}
     
     {{ forms.elementSelectField({
