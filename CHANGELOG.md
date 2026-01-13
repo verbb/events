@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.11 - 2026-01-13
+
+### Changed
+- Editing a Purchased Ticket from the control panel no longer allows for event/session/ticket type changes - instead change the ticket.
+
+### Fixed
+- Fix an issue when changing the Ticket value of a Purchased Ticket.
+
 ## 3.0.10 - 2025-11-06
 
 ### Added
