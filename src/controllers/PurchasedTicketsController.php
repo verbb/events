@@ -71,6 +71,10 @@ class PurchasedTicketsController extends Controller
         $purchasedTicket->checkedInDate = $this->request->getParam('checkedInDate', $purchasedTicket->checkedInDate);
         $oldTicketId = $purchasedTicket->ticketId;
 
+        // Reset local caches, as we might be changing things
+        $purchasedTicket->setTicket(null);
+        $purchasedTicket->setOrder(null);
+
         if ($ticketId = $this->request->getParam('ticketId')) {
             if (is_array($ticketId)) {
                 $purchasedTicket->ticketId = reset($ticketId);

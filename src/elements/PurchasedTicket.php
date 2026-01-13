@@ -306,6 +306,11 @@ class PurchasedTicket extends Element
         return null;
     }
 
+    public function setEvent(?Event $event): void
+    {
+        $this->_event = $event;
+    }
+
     public function getSession(): ?Session
     {
         if ($this->_session) {
@@ -317,6 +322,11 @@ class PurchasedTicket extends Element
         }
 
         return null;
+    }
+
+    public function setSession(?Session $session): void
+    {
+        $this->_session = $session;
     }
 
     public function getTicket(): ?Ticket
@@ -332,6 +342,11 @@ class PurchasedTicket extends Element
         return null;
     }
 
+    public function setTicket(?Ticket $ticket): void
+    {
+        $this->_ticket = $ticket;
+    }
+
     public function getTicketType(): ?TicketType
     {
         if ($this->_ticketType) {
@@ -343,6 +358,11 @@ class PurchasedTicket extends Element
         }
 
         return null;
+    }
+
+    public function setTicketType(?TicketType $ticketType): void
+    {
+        $this->_ticketType = $ticketType;
     }
 
     public function getOrder(): ?Order
@@ -358,6 +378,11 @@ class PurchasedTicket extends Element
         return null;
     }
 
+    public function setOrder(?Order $order): void
+    {
+        $this->_order = $order;
+    }
+
     public function getLineItem(): ?LineItem
     {
         if ($this->_lineItem) {
@@ -371,6 +396,11 @@ class PurchasedTicket extends Element
         return null;
     }
 
+    public function setLineItem(?LineItem $lineItem): void
+    {
+        $this->_lineItem = $lineItem;
+    }
+
     public function getCustomer(): ?User
     {
         if ($this->_customer) {
@@ -382,6 +412,11 @@ class PurchasedTicket extends Element
         }
 
         return null;
+    }
+
+    public function setCustomer(?User $customer): void
+    {
+        $this->_customer = $customer;
     }
 
     public function getEventType()
