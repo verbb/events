@@ -436,7 +436,7 @@ class Ticket extends Purchasable
     {
         $errors = [];
 
-        $cart = Commerce::getInstance()->getCarts()->getCart();
+        $cart = $lineItem->getOrder();
 
         // Get the total number of tickets for the same event and ticket type. We can't just rely on quantity
         // of this line item as there could be tickets with unique options set, which are separate line items.
