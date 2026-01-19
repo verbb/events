@@ -13,6 +13,7 @@ use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
+use craft\helpers\App;
 use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 use craft\migrations\BaseContentRefactorMigration;
@@ -21,6 +22,7 @@ use craft\models\FieldLayoutTab;
 
 use Exception;
 use ReflectionClass;
+use DateTime;
 
 use yii\db\Expression;
 
@@ -31,6 +33,9 @@ class m240921_000000_events3 extends Migration
 
     public function safeUp(): bool
     {
+        // Increase memory limit for this migration
+        App::maxPowerCaptain();
+
         $this->update(Table::ELEMENTS, ['type' => LegacyTicket::class], ['type' => Ticket::class]);
         $this->update(Table::ELEMENTS, ['type' => LegacyTicketType::class], ['type' => TicketType::class]);
 
@@ -174,7 +179,7 @@ class m240921_000000_events3 extends Migration
         }
 
         // Move columns to legacy
-        $this->update('{{%events_purchased_tickets}}', ['legacyTicketId' => new Expression('ticketId')]);
+        $this->update('{{%events_purchased_tickets}}', ['legacyTicketId' => new Expression('"ticketId"')]);
         $this->update('{{%events_purchased_tickets}}', ['ticketId' => null]);
 
         // Setup Indexes
@@ -264,7 +269,7 @@ class m240921_000000_events3 extends Migration
                         $purchasedTicketIds = (new Query())
                             ->select(['id'])
                             ->from('{{%events_purchased_tickets}}')
-                            ->where(['legacyTicketId' => $ticketId])
+                            ->where(['legacyTicketId' => (string)$ticketId])
                             ->column();
 
                         if ($purchasedTicketIds) {
@@ -327,16 +332,36 @@ class m240921_000000_events3 extends Migration
             ->all();
 
         foreach ($events as $event) {
+            $startDate = $event['startDate'] ?? null;
+            $endDate = $event['endDate'] ?? null;
+
+            // Fix invalid date combinations
+            if (!$startDate && !$endDate) {
+                // Both null: set to 1/1/1970 12am-1am
+                $startDate = '1970-01-01 00:00:00';
+                $endDate = '1970-01-01 01:00:00';
+            } else if (!$startDate) {
+                // Start date null: set to end date - 1 hour
+                $endDateObj = new DateTime($endDate);
+                $endDateObj->modify('-1 hour');
+                $startDate = $endDateObj->format('Y-m-d H:i:s');
+            } else if (!$endDate || strtotime($endDate) < strtotime($startDate)) {
+                // End date null or before start: set to start date + 1 hour
+                $startDateObj = new DateTime($startDate);
+                $startDateObj->modify('+1 hour');
+                $endDate = $startDateObj->format('Y-m-d H:i:s');
+            }
+
             // Find or create (in case we run this again)
             $session = Session::find()
                 ->eventId($event['id'])
-                ->startDate($event['startDate'])
-                ->endDate($event['endDate'])
+                ->startDate($startDate)
+                ->endDate($endDate)
                 ->one() ?? new Session();
 
             $session->setAttributes([
-                'startDate' => $event['startDate'],
-                'endDate' => $event['endDate'],
+                'startDate' => $startDate,
+                'endDate' => $endDate,
                 'allDay' => (bool)$event['allDay'],
             ], false);
 
@@ -447,7 +472,7 @@ class m240921_000000_events3 extends Migration
                 'legacyTicketTypeId' => $legacyTicket['typeId'],
             ], ['id' => $ticketType->id]);
 
-            $this->update('{{%events_purchased_tickets}}', ['ticketTypeId' => $ticketType->id], ['legacyTicketId' => $legacyTicket['id']]);
+            $this->update('{{%events_purchased_tickets}}', ['ticketTypeId' => $ticketType->id], ['legacyTicketId' => (string)$legacyTicket['id']]);
         }
 
 
@@ -469,13 +494,13 @@ class m240921_000000_events3 extends Migration
                     }
 
                     $legacyTicketId = (new Query())
-                        ->select(['legacyTicketId'])
+                        ->select(['"legacyTicketId"'])
                         ->from('{{%events_ticket_types}}')
                         ->where(['id' => $ticketType->id])
                         ->scalar();
 
                     $legacyTicketTypeId = (new Query())
-                        ->select(['typeId'])
+                        ->select(['"typeId"'])
                         ->from('{{%events_legacy_tickets}}')
                         ->where(['id' => $legacyTicketId])
                         ->scalar();
@@ -485,7 +510,7 @@ class m240921_000000_events3 extends Migration
                         'legacyTicketTypeId' => $legacyTicketTypeId,
                     ], ['id' => $ticket->id]);
 
-                    $this->update('{{%events_purchased_tickets}}', ['ticketId' => $ticket->id], ['legacyTicketId' => $legacyTicketId]);
+                    $this->update('{{%events_purchased_tickets}}', ['ticketId' => $ticket->id], ['legacyTicketId' => (string)$legacyTicketId]);
                 }
             }
 
