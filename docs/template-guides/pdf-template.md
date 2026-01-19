@@ -192,7 +192,7 @@ Below we've prepared a ready-to-go template, complete with provided CSS to get y
 <body>
 {% for ticket in tickets.all() %}
     <div class="ticket">
-        <img class="ticket-img" src="https://verbb.imgix.net/plugins/events/ticket-trans-notext.jpg" />
+        <img class="ticket-img" src="https://assets.verbb.io/plugins/events/ticket-trans-notext.jpg" />
 
         <div id="event-info">
             <span class="label">EVENT</span>
