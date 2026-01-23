@@ -131,6 +131,7 @@
 - Fix Ticket pricing not updating when changing Ticket Type.
 
 ## 3.0.0 - 2024-10-31
+
 > {warning} This release introduces Sessions and re-purposed Ticket Types. As such, it's a major architectural change to how you structure events, which should be largely intuitive. All your existing events and tickets will be migrated. Read through the changes [here](https://github.com/verbb/events/blob/craft-5/docs/get-started/upgrading-from-v2.md).
 
 ### Added
@@ -167,6 +168,11 @@
 - Revamp permissions, include event/session/ticket type view/create/edit/delete permissions.
 - Event element cards now show the event type and start/end date/times of events
 - Deleting a Ticket element is now prevented if any purchased tickets exist.
+
+## 2.0.12 - 2026-01-23
+
+### Fixed
+- Fixed a Mutex exception that could occur in certain scenarios when retrieving a cart.
 
 ## 2.0.11 - 2025-09-02
 
