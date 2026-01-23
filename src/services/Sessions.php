@@ -83,9 +83,9 @@ class Sessions extends Component
         return $sessionQuery->all();
     }
 
-    public function getSessionById(int $sessionId, int $siteId = null): ?Session
+    public function getSessionById(int $id, int $siteId = null): ?Session
     {
-        return Craft::$app->getElements()->getElementById($sessionId, Session::class, $siteId);
+        return Session::find()->id($id)->site($siteId)->status(null)->one();
     }
 
     public function getSessionGqlContentArguments(): array

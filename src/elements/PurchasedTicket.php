@@ -227,13 +227,8 @@ class PurchasedTicket extends Element
 
     public function init(): void
     {
-        // Title is dynamic
-        if ($eventType = $this->getEvent()?->getType()) {
-            try {
-                // Title is dynamic
-                $this->title = Craft::$app->getView()->renderObjectTemplate($eventType->purchasedTicketTitleFormat, $this);
-            } catch (Throwable $e) {
-            }
+        if ($title = $this->getDynamicTitle()) {
+            $this->title = $title;
         }
 
         parent::init();
@@ -293,6 +288,18 @@ class PurchasedTicket extends Element
         return null;
     }
 
+    public function getDynamicTitle(): ?string
+    {
+        if ($eventType = $this->getEvent()?->getType()) {
+            try {
+                return Craft::$app->getView()->renderObjectTemplate($eventType->purchasedTicketTitleFormat, $this);
+            } catch (Throwable $e) {
+            }
+        }
+
+        return null;
+    }
+
     public function getEvent(): ?Event
     {
         if ($this->_event) {
@@ -300,7 +307,7 @@ class PurchasedTicket extends Element
         }
 
         if ($this->eventId) {
-            return $this->_event = Event::find()->id($this->eventId)->one();
+            return $this->_event = Events::$plugin->getEvents()->getEventById($this->eventId);
         }
 
         return null;
@@ -318,7 +325,7 @@ class PurchasedTicket extends Element
         }
 
         if ($this->sessionId) {
-            return $this->_session = Session::find()->id($this->sessionId)->one();
+            return $this->_session = Events::$plugin->getSessions()->getSessionById($this->sessionId);
         }
 
         return null;
@@ -336,7 +343,7 @@ class PurchasedTicket extends Element
         }
 
         if ($this->ticketId) {
-            return $this->_ticket = Ticket::find()->id($this->ticketId)->one();
+            return $this->_ticket = Events::$plugin->getTickets()->getTicketById($this->ticketId);
         }
 
         return null;
@@ -354,7 +361,7 @@ class PurchasedTicket extends Element
         }
 
         if ($this->ticketTypeId) {
-            return $this->_ticketType = TicketType::find()->id($this->ticketTypeId)->one();
+            return $this->_ticketType = Events::$plugin->getTicketTypes()->getTicketTypeById($this->ticketTypeId);
         }
 
         return null;

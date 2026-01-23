@@ -212,18 +212,15 @@ class Ticket extends Purchasable
 
     public function getEvent(): ?Event
     {
-        if (!$this->_event) {
-            if ($this->eventId) {
-                // Only while in the CP, we often want to get disabled elements
-                $status = Craft::$app->getRequest()->getIsCpRequest() ? null : self::STATUS_ENABLED;
-
-                $this->_event = Event::find()->id($this->eventId)->status($status)->one();
-            } else {
-                return null;
-            }
+        if ($this->_event) {
+            return $this->_event;
         }
 
-        return $this->_event;
+        if ($this->eventId) {
+            return $this->_event = Events::$plugin->getEvents()->getEventById($this->eventId);
+        }
+
+        return null;
     }
 
     public function setEvent(Event $event): void
@@ -234,18 +231,15 @@ class Ticket extends Purchasable
 
     public function getSession(): ?Session
     {
-        if (!$this->_session) {
-            if ($this->sessionId) {
-                // Only while in the CP, we often want to get disabled elements
-                $status = Craft::$app->getRequest()->getIsCpRequest() ? null : self::STATUS_ENABLED;
-
-                $this->_session = Session::find()->id($this->sessionId)->status($status)->one();
-            } else {
-                return null;
-            }
+        if ($this->_session) {
+            return $this->_session;
         }
 
-        return $this->_session;
+        if ($this->sessionId) {
+            return $this->_session = Events::$plugin->getSessions()->getSessionById($this->sessionId);
+        }
+
+        return null;
     }
 
     public function setSession(Session $session): void
@@ -256,18 +250,15 @@ class Ticket extends Purchasable
 
     public function getType(): ?TicketType
     {
-        if (!$this->_type) {
-            if ($this->typeId) {
-                // Only while in the CP, we often want to get disabled elements
-                $status = Craft::$app->getRequest()->getIsCpRequest() ? null : self::STATUS_ENABLED;
-
-                $this->_type = TicketType::find()->id($this->typeId)->status($status)->one();
-            } else {
-                return null;
-            }
+        if ($this->_type) {
+            return $this->_type;
         }
 
-        return $this->_type;
+        if ($this->typeId) {
+            return $this->_type = Events::$plugin->getTicketTypes()->getTicketTypeById($this->typeId);
+        }
+
+        return null;
     }
 
     public function setType(TicketType $type): void

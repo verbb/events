@@ -25,9 +25,9 @@ class Tickets extends Component
     // Public Methods
     // =========================================================================
 
-    public function getTicketById(int $ticketId, int $siteId = null): ?Ticket
+    public function getTicketById(int $id, int $siteId = null): ?Ticket
     {
-        return Craft::$app->getElements()->getElementById($ticketId, Ticket::class, $siteId);
+        return Ticket::find()->id($id)->site($siteId)->status(null)->one();
     }
 
     public function onBeforeSendEmail(MailEvent $event): void

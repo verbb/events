@@ -17,7 +17,7 @@ class Events extends Component
 
     public function getEventById(int $id, int $siteId = null): ?Event
     {
-        return Craft::$app->getElements()->getElementById($id, Event::class, $siteId);
+        return Event::find()->id($id)->site($siteId)->status(null)->one();
     }
 
     public function afterSaveSiteHandler(SiteEvent $event): void

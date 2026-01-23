@@ -38,9 +38,9 @@ class TicketTypes extends Component
         return $ticketTypeQuery->all();
     }
 
-    public function getTicketTypeById(int $ticketTypeId, int $siteId = null): ?TicketType
+    public function getTicketTypeById(int $id, int $siteId = null): ?TicketType
     {
-        return Craft::$app->getElements()->getElementById($ticketTypeId, TicketType::class, $siteId);
+        return TicketType::find()->id($id)->site($siteId)->status(null)->one();
     }
 
     public function getTicketTypeGqlContentArguments(): array
