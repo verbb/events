@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.12 - 2026-01-23
+
+### Fixed
+- Fix Purchased Ticket title’s not including disabled or non-live status elements.
+
 ## 3.0.11 - 2026-01-13
 
 ### Changed
