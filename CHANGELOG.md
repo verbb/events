@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.13 - 2026-02-13
+
+### Changed
+- Tickets now make use of the parent session, ticket type, or event’s enabled state to infer their own enabled state.
+
 ## 3.0.12 - 2026-01-23
 
 ### Fixed
