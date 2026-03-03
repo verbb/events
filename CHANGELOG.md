@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.14 - 2026-03-03
+
+### Fixed
+- Fix an error when sorting events by start/end date for paginated requests.
+- Fix incorrect error format for the downloads/pdf controller when an order cannot be found.
+
 ## 3.0.13 - 2026-02-13
 
 ### Changed
