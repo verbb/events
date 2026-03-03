@@ -174,12 +174,21 @@ class EventQuery extends CachedElementQuery
 
     protected function afterPrepare(): bool
     {
-        $removeSubqueryOrderBy = ['startDate', 'endDate'];
-
+        // Ensure startDate/endDate sort is applied in the subQuery so pagination returns the
+        // correct slice of all events (e.g. 100 earliest vs 100 latest), not just re-sorting
+        // the current page. Qualify column names for the joined sessions table.
         if (is_array($this->subQuery->orderBy)) {
-            foreach ($removeSubqueryOrderBy as $column) {
-                unset($this->subQuery->orderBy[$column]);
+            $orderBy = $this->subQuery->orderBy;
+
+            foreach (['startDate' => 'sessions.startDate', 'endDate' => 'sessions.endDate'] as $attr => $qualified) {
+                if (isset($orderBy[$attr])) {
+                    $dir = $orderBy[$attr];
+                    unset($orderBy[$attr]);
+                    $orderBy[$qualified] = $dir;
+                }
             }
+
+            $this->subQuery->orderBy = $orderBy;
         }
 
         return parent::afterPrepare();
