@@ -11,7 +11,7 @@ use craft\web\Response;
 
 use craft\commerce\Plugin as Commerce;
 
-use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 
 use verbb\base\helpers\Locale as LocaleHelper;
 
@@ -59,7 +59,7 @@ class DownloadsController extends Controller
             $order = Commerce::getInstance()->getOrders()->getOrderByNumber($number);
 
             if (!$order) {
-                throw new HttpException('No Order Found');
+                throw new NotFoundHttpException('No Order Found');
             }
         }
 
