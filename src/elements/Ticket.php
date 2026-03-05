@@ -22,6 +22,8 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 
 use yii\base\Exception;
 
@@ -295,25 +297,78 @@ class Ticket extends Purchasable
     {
         $taxCategoryId = $this->getEvent()?->getType()?->taxCategoryId ?? null;
 
+        if ($taxCategoryId && !Commerce::getInstance()->getTaxCategories()->getTaxCategoryById($taxCategoryId)) {
+            $taxCategoryId = null;
+        }
+
         if (!$taxCategoryId) {
-            $taxCategoryId = Commerce::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+            $defaultTaxCategory = Commerce::getInstance()->getTaxCategories()->getDefaultTaxCategory();
+            $taxCategoryId = $defaultTaxCategory?->id;
+        }
+
+        if (!$taxCategoryId) {
+            $taxCategories = Commerce::getInstance()->getTaxCategories()->getAllTaxCategories();
+            $taxCategoryId = reset($taxCategories)->id ?? null;
+        }
+
+        if (!$taxCategoryId) {
+            throw new Exception('Unable to resolve a Commerce tax category for ticket purchasables.');
         }
 
         return $taxCategoryId;
+    }
+
+    public function getTaxCategory(): TaxCategory
+    {
+        $taxCategory = Commerce::getInstance()->getTaxCategories()->getTaxCategoryById($this->getTaxCategoryId());
+
+        if ($taxCategory) {
+            return $taxCategory;
+        }
+
+        throw new Exception('Unable to load the resolved Commerce tax category for ticket purchasables.');
     }
 
     public function getShippingCategoryId(): int
     {
         $shippingCategoryId = $this->getEvent()?->getType()?->shippingCategoryId ?? null;
 
+        if ($shippingCategoryId && !Commerce::getInstance()->getShippingCategories()->getShippingCategoryById($shippingCategoryId)) {
+            $shippingCategoryId = null;
+        }
+
         if (!$shippingCategoryId) {
-            $shippingCategoryId = Commerce::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStoreId())->id;
+            $storeId = $this->getStoreId();
+
+            if ($storeId) {
+                $defaultShippingCategory = Commerce::getInstance()->getShippingCategories()->getDefaultShippingCategory($storeId);
+                $shippingCategoryId = $defaultShippingCategory?->id;
+            }
+        }
+
+        if (!$shippingCategoryId) {
+            $shippingCategories = Commerce::getInstance()->getShippingCategories()->getAllShippingCategories();
+            $shippingCategoryId = reset($shippingCategories)->id ?? null;
+        }
+
+        if (!$shippingCategoryId) {
+            throw new Exception('Unable to resolve a Commerce shipping category for ticket purchasables.');
         }
 
         return $shippingCategoryId;
     }
 
-    public function getBasePrice(): ?float
+    public function getShippingCategory(): ShippingCategory
+    {
+        $shippingCategory = Commerce::getInstance()->getShippingCategories()->getShippingCategoryById($this->getShippingCategoryId());
+
+        if ($shippingCategory) {
+            return $shippingCategory;
+        }
+
+        throw new Exception('Unable to load the resolved Commerce shipping category for ticket purchasables.');
+    }
+
     {
         return $this->getType()?->price ?? null;
     }
