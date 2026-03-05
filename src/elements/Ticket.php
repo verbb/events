@@ -369,11 +369,12 @@ class Ticket extends Purchasable
         throw new Exception('Unable to load the resolved Commerce shipping category for ticket purchasables.');
     }
 
+    public function getBasePrice(): float
     {
-        return $this->getType()?->price ?? null;
+        return (float)($this->getType()?->price ?? 0);
     }
 
-    public function getPrice(): ?float
+    public function getPrice(): float
     {
         return $this->getBasePrice();
     }
