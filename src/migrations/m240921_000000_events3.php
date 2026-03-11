@@ -494,13 +494,13 @@ class m240921_000000_events3 extends Migration
                     }
 
                     $legacyTicketId = (new Query())
-                        ->select(['"legacyTicketId"'])
+                        ->select(['legacyTicketId'])
                         ->from('{{%events_ticket_types}}')
                         ->where(['id' => $ticketType->id])
                         ->scalar();
 
                     $legacyTicketTypeId = (new Query())
-                        ->select(['"typeId"'])
+                        ->select(['typeId'])
                         ->from('{{%events_legacy_tickets}}')
                         ->where(['id' => $legacyTicketId])
                         ->scalar();
