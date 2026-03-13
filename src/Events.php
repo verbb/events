@@ -3,6 +3,7 @@ namespace verbb\events;
 
 use verbb\events\base\PluginTrait;
 use verbb\events\elements\Event as EventElement;
+use verbb\events\elements\LegacyTicket;
 use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Session;
 use verbb\events\elements\Ticket;
@@ -55,6 +56,8 @@ use craft\services\UserPermissions;
 use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
 
+use craft\commerce\controllers\OrdersController;
+use craft\commerce\events\ModifyPurchasablesTableQueryEvent;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Purchasables;
 
@@ -321,6 +324,11 @@ class Events extends Plugin
     {
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEventTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEvents(), 'afterSaveSiteHandler']);
+
+        // Exclude legacy ticket elements from the order editor purchasable picker.
+        Event::on(OrdersController::class, OrdersController::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY, static function(ModifyPurchasablesTableQueryEvent $event): void {
+            $event->query->andWhere(['not', ['elements.type' => LegacyTicket::class]]);
+        });
 
         // Potentially add the PDF to an email
         Event::on(Emails::class, Emails::EVENT_BEFORE_SEND_MAIL, [$this->getTickets(), 'onBeforeSendEmail']);
