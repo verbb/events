@@ -8,7 +8,7 @@ Events is a Craft CMS plugin for a a full-featured event management and ticketin
 - Multiple event types and custom fields means your events are truly flexible.
 - Ticket types to manage custom fields and different ticketing needs.
 - Intelligent capacity management - set how many tickets are available per-event, or per-ticket.
-- Generate PDF tickets, complete with QR codes for scanning at the venu.
+- Generate PDF tickets, complete with QR codes for scanning at the venue.
 - Works with either Commerce **Lite** or **Pro**.
 
 ## Documentation
