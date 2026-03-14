@@ -293,6 +293,17 @@ class Ticket extends Purchasable
         $this->typeId = $type->id;
     }
 
+    public function getSupportedSites(): array
+    {
+        $owner = $this->getEvent();
+
+        if (!$owner) {
+            return [Craft::$app->getSites()->getPrimarySite()->id];
+        }
+
+        return $owner->getSupportedSites();
+    }
+
     public function getTaxCategoryId(): int
     {
         $taxCategoryId = $this->getEvent()?->getType()?->taxCategoryId ?? null;

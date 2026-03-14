@@ -587,7 +587,7 @@ class TicketType extends Element implements NestedElementInterface
             return [Craft::$app->getSites()->getPrimarySite()->id];
         }
 
-        return $this->getOwner()->getSupportedSites();
+        return $owner->getSupportedSites();
     }
 
     public function getGqlTypeName(): string
