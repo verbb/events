@@ -293,6 +293,11 @@ class Ticket extends Purchasable
         $this->typeId = $type->id;
     }
 
+    public function getPromotionRelationSource(): array
+    {
+        return [$this->id, $this->getEvent()?->id];
+    }
+
     public function getSupportedSites(): array
     {
         $owner = $this->getEvent();
