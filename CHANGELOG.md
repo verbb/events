@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.0.15 - 2026-03-15
+
+### Added
+- Add `Ticket::getPromotionRelationSource()` for promotion category handling.
+
+### Changed
+- FIXED: Fix double quote issue on migration of events.
+
+### Fixed
+- Fix tickets not being propogated on multi-store installs.
+- Fix an issue where legacy tickets could be added to new orders in the control panel.
+- Fix an error where the base/price of a ticket wasn’t enforced correctly.
+- Fix an error where ticket shipping/tax categories didn’t always resolve.
+
 ## 3.0.14 - 2026-03-03
 
 ### Fixed
