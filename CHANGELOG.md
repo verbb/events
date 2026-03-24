@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.16 - 2026-03-24
+
+### Added
+- Add `events/tickets/cleanup-orphaned` console command.
+
+### Fixed
+- Fix handling of event tickets for deleted/disabled events/sessions/ticket types.
+
 ## 3.0.15 - 2026-03-15
 
 ### Added
