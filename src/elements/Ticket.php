@@ -440,27 +440,35 @@ class Ticket extends Purchasable
 
     public function getIsAvailable(): bool
     {
-        if ($type = $this->getType()) {
-            if (!$this->getStock()) {
-                return false; 
+        if (!$this->getEvent() || !$this->getSession() || !$this->getType()) {
+            return false;
+        }
+
+        if ($this->getStatus() === false) {
+            return false;
+        }
+
+        $type = $this->getType();
+
+        if (!$this->getStock()) {
+            return false;
+        }
+
+        $currentTime = DateTimeHelper::currentTimeStamp();
+
+        if ($type->availableFrom) {
+            $availableFrom = $type->availableFrom->getTimestamp();
+
+            if ($availableFrom > $currentTime) {
+                return false;
             }
+        }
 
-            $currentTime = DateTimeHelper::currentTimeStamp();
+        if ($type->availableTo) {
+            $availableTo = $type->availableTo->getTimestamp();
 
-            if ($type->availableFrom) {
-                $availableFrom = $type->availableFrom->getTimestamp();
-
-                if ($availableFrom > $currentTime) {
-                    return false;
-                }
-            }
-
-            if ($type->availableTo) {
-                $availableTo = $type->availableTo->getTimestamp();
-
-                if ($availableTo < $currentTime) {
-                    return false;
-                }
+            if ($availableTo < $currentTime) {
+                return false;
             }
         }
 

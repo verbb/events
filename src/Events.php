@@ -33,6 +33,8 @@ use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
+use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\PluginEvent;
@@ -325,9 +327,62 @@ class Events extends Plugin
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEventTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEvents(), 'afterSaveSiteHandler']);
 
-        // Exclude legacy ticket elements from the order editor purchasable picker.
+        // Exclude legacy ticket elements from the order editor purchasable picker, and tickets whose
+        // event/session/type is missing, trashed, disabled, or not enabled for the order site.
         Event::on(OrdersController::class, OrdersController::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY, static function(ModifyPurchasablesTableQueryEvent $event): void {
             $event->query->andWhere(['not', ['elements.type' => LegacyTicket::class]]);
+
+            $siteId = Craft::$app->getRequest()->getQueryParam('siteId');
+            if (!$siteId) {
+                return;
+            }
+
+            $eventsTickets = '{{%events_tickets}}';
+            $validParentsQuery = (new Query())
+                ->from(['et' => $eventsTickets])
+                ->innerJoin(['evt' => CraftTable::ELEMENTS], [
+                    'and',
+                    '[[evt.id]] = [[et.eventId]]',
+                    ['evt.dateDeleted' => null],
+                    ['evt.enabled' => true],
+                ])
+                ->innerJoin(['evtEs' => CraftTable::ELEMENTS_SITES], [
+                    'and',
+                    '[[evtEs.elementId]] = [[evt.id]]',
+                    ['evtEs.siteId' => $siteId],
+                    ['evtEs.enabled' => true],
+                ])
+                ->innerJoin(['sess' => CraftTable::ELEMENTS], [
+                    'and',
+                    '[[sess.id]] = [[et.sessionId]]',
+                    ['sess.dateDeleted' => null],
+                    ['sess.enabled' => true],
+                ])
+                ->innerJoin(['sessEs' => CraftTable::ELEMENTS_SITES], [
+                    'and',
+                    '[[sessEs.elementId]] = [[sess.id]]',
+                    ['sessEs.siteId' => $siteId],
+                    ['sessEs.enabled' => true],
+                ])
+                ->innerJoin(['tty' => CraftTable::ELEMENTS], [
+                    'and',
+                    '[[tty.id]] = [[et.typeId]]',
+                    ['tty.dateDeleted' => null],
+                    ['tty.enabled' => true],
+                ])
+                ->innerJoin(['ttyEs' => CraftTable::ELEMENTS_SITES], [
+                    'and',
+                    '[[ttyEs.elementId]] = [[tty.id]]',
+                    ['ttyEs.siteId' => $siteId],
+                    ['ttyEs.enabled' => true],
+                ])
+                ->where('[[et.id]] = [[purchasables.id]]');
+
+            $event->query->andWhere([
+                'or',
+                ['not', ['elements.type' => Ticket::class]],
+                ['exists', $validParentsQuery],
+            ]);
         });
 
         // Potentially add the PDF to an email

@@ -10,7 +10,6 @@ use craft\db\Table;
 use craft\helpers\Db;
 
 use yii\db\Connection;
-use yii\db\Expression;
 
 use craft\commerce\elements\db\PurchasableQuery;
 
@@ -160,41 +159,18 @@ class TicketQuery extends PurchasableQuery
         // Join sessions pivot table.
         $query->leftJoin('{{%events_sessions}} sessions', '[[sessions.id]] = [[events_tickets.sessionId]]');
 
-        // Normalize for querying
-        $eventId = $this->eventId;
-
-        if (!is_array($eventId)) {
-            $eventId = [$eventId];
-        }
-
-        $params = [];
-
-        $placeholders = [];
-
-        foreach ($eventId as $i => $id) {
-            $key = ':eventId' . $i;
-            $placeholders[] = $key;
-            $params[$key] = $id;
-        }
-
-        $idCondition = implode(', ', $placeholders);
-        
-        // Join elements_owners for sessions.
+        // Correlate owners to this ticket's event (avoids invalid `IN ()` / `IN (NULL)` when no eventId criterion is set).
         $query->leftJoin(
             '{{%elements_owners}} sessionOwners',
-            new Expression("[[sessionOwners.elementId]] = [[sessions.id]] AND [[sessionOwners.ownerId]] IN ($idCondition)")
-        );
-        
-        // Join ticket types pivot table.
-        $query->leftJoin('{{%events_ticket_types}} types', '[[types.id]] = [[events_tickets.typeId]]');
-        
-        // Join elements_owners for ticket types.
-        $query->leftJoin(
-            '{{%elements_owners}} typeOwners',
-            new Expression("[[typeOwners.elementId]] = [[types.id]] AND [[typeOwners.ownerId]] IN ($idCondition)")
+            '[[sessionOwners.elementId]] = [[sessions.id]] AND [[sessionOwners.ownerId]] = [[events_tickets.eventId]]'
         );
 
-        // Add the params to the query
-        $query->addParams($params);
+        // Join ticket types pivot table.
+        $query->leftJoin('{{%events_ticket_types}} types', '[[types.id]] = [[events_tickets.typeId]]');
+
+        $query->leftJoin(
+            '{{%elements_owners}} typeOwners',
+            '[[typeOwners.elementId]] = [[types.id]] AND [[typeOwners.ownerId]] = [[events_tickets.eventId]]'
+        );
     }
 }
