@@ -585,6 +585,13 @@ class Event extends Element
         $fieldLayout = parent::getFieldLayout();
 
         if ($fieldLayout) {
+            // Event field layouts are stored on the event type so retrieving the field layout by ID does not set the provider
+            $eventType = collect(Events::$plugin->getEventTypes()->getAllEventTypes())->firstWhere('fieldLayoutId', $fieldLayout->id);
+
+            if ($eventType) {
+                $fieldLayout->provider = $eventType;
+            }
+
             return $fieldLayout;
         }
 

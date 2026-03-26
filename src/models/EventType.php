@@ -130,7 +130,10 @@ class EventType extends Model implements FieldLayoutProviderInterface
         /** @var FieldLayoutBehavior $behavior */
         $behavior = $this->getBehavior('eventFieldLayout');
 
-        return $behavior->getFieldLayout();
+        $fieldLayout = $behavior->getFieldLayout();
+        $fieldLayout->provider = $this;
+
+        return $fieldLayout;
     }
 
     public function validateFieldLayout(): void
@@ -160,7 +163,7 @@ class EventType extends Model implements FieldLayoutProviderInterface
     {
         /** @var FieldLayoutBehavior $behavior */
         $behavior = $this->getBehavior('sessionFieldLayout');
-        
+
         return $behavior->getFieldLayout();
     }
 
@@ -177,7 +180,7 @@ class EventType extends Model implements FieldLayoutProviderInterface
     {
         /** @var FieldLayoutBehavior $behavior */
         $behavior = $this->getBehavior('ticketFieldLayout');
-        
+
         return $behavior->getFieldLayout();
     }
 

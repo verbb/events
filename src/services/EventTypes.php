@@ -203,6 +203,7 @@ class EventTypes extends Component
             $eventTypeRecord = $this->_getEventTypeRecord($eventTypeUid);
             $isNewEventType = $eventTypeRecord->getIsNewRecord();
             $fieldsService = Craft::$app->getFields();
+            $oldEventFieldLayoutConfig = $eventTypeRecord->fieldLayoutId ? $fieldsService->getLayoutById($eventTypeRecord->fieldLayoutId)?->getConfig() : null;
 
             $eventTypeRecord->uid = $eventTypeUid;
             $eventTypeRecord->name = $data['name'];
@@ -231,6 +232,8 @@ class EventTypes extends Component
 
             if (!empty($data['eventFieldLayouts']) && !empty($config = reset($data['eventFieldLayouts']))) {
                 // Save the main field layout
+                $shouldResaveEvents = $shouldResaveEvents || $oldEventFieldLayoutConfig !== $config;
+
                 $layout = FieldLayout::createFromConfig($config);
                 $layout->id = $eventTypeRecord->fieldLayoutId;
                 $layout->type = Event::class;
@@ -241,6 +244,7 @@ class EventTypes extends Component
                 $eventTypeRecord->fieldLayoutId = $layout->id;
             } else if ($eventTypeRecord->fieldLayoutId) {
                 // Delete the main field layout
+                $shouldResaveEvents = true;
                 $fieldsService->deleteLayoutById($eventTypeRecord->fieldLayoutId);
                 $eventTypeRecord->fieldLayoutId = null;
             }
@@ -390,7 +394,7 @@ class EventTypes extends Component
 
             $transaction->commit();
 
-            if ($shouldResaveEvents) {
+            if (!$isNewEventType && $shouldResaveEvents) {
                 Craft::$app->getQueue()->push(new ResaveElements([
                     'elementType' => Event::class,
                     'criteria' => [
@@ -401,7 +405,7 @@ class EventTypes extends Component
                 ]));
             }
 
-            if ($shouldResaveEventSessions) {
+            if (!$isNewEventType && $shouldResaveEventSessions) {
                 Craft::$app->getQueue()->push(new ResaveElements([
                     'elementType' => Session::class,
                     'criteria' => [
@@ -411,6 +415,7 @@ class EventTypes extends Component
                     ],
                 ]));
             }
+
         } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
