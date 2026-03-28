@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.17 - 2026-03-28
+
+### Added
+- Add support for Event Types to have “Generated Fields”.
+
 ## 3.0.16 - 2026-03-24
 
 ### Added
