@@ -38,6 +38,7 @@ use craft\validators\DateTimeValidator;
 
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\db\Expression;
 
 use DateTime;
 
@@ -167,6 +168,24 @@ class Event extends Element
             ];
         }
 
+        if ($handle == 'tickets') {
+            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
+
+            $map = (new Query())
+                ->select(['eventId as source', 'id as target'])
+                ->from('{{%events_tickets}}')
+                ->where(['eventId' => $sourceElementIds])
+                ->all();
+
+            return [
+                'elementType' => Ticket::class,
+                'map' => $map,
+                'criteria' => [
+                    'status' => null,
+                ],
+            ];
+        }
+
         return parent::eagerLoadingMap($sourceElements, $handle);
     }
 
@@ -186,6 +205,10 @@ class Event extends Element
             $elementQuery->andWith('sessions');
         } else if ($attribute === 'ticketTypes') {
             $elementQuery->andWith('ticketTypes');
+        } else if (in_array($attribute, ['eventCapacitySummary', 'purchasedSeats', 'remainingSeats'], true)) {
+            // `andWith()` appends one plan per call; a single array argument becomes one invalid nested plan.
+            $elementQuery->andWith('ticketTypes');
+            $elementQuery->andWith('tickets');
         } else {
             parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
         }
@@ -344,6 +367,9 @@ class Event extends Element
             'dateUpdated' => ['label' => Craft::t('events', 'Date Updated')],
             'sessions' => ['label' => Craft::t('events', 'Sessions')],
             'ticketTypes' => ['label' => Craft::t('events', 'Ticket Types')],
+            'eventCapacitySummary' => ['label' => Craft::t('events', 'Capacity')],
+            'purchasedSeats' => ['label' => Craft::t('events', 'Purchased')],
+            'remainingSeats' => ['label' => Craft::t('events', 'Remaining')],
         ];
     }
 
@@ -358,6 +384,9 @@ class Event extends Element
         $attributes[] = 'status';
         $attributes[] = 'postDate';
         $attributes[] = 'expiryDate';
+        $attributes[] = 'eventCapacitySummary';
+        $attributes[] = 'purchasedSeats';
+        $attributes[] = 'remainingSeats';
         $attributes[] = 'link';
 
         return $attributes;
@@ -654,6 +683,25 @@ class Event extends Element
 
         // Thank you Laravel Collections!
         return $this->getTicketTypes()->sum('capacity');
+    }
+
+    /**
+     * Total seats represented by purchased tickets for this event (respects each ticket type’s seats-per-ticket).
+     */
+    public function getPurchasedSeatsCount(): int
+    {
+        if (!$this->id) {
+            return 0;
+        }
+
+        $total = (new Query())
+            ->from(['pt' => '{{%events_purchased_tickets}}'])
+            ->leftJoin(['tt' => '{{%events_ticket_types}}'], '[[pt.ticketTypeId]] = [[tt.id]]')
+            ->where(['pt.eventId' => $this->id])
+            ->select([new Expression('SUM(CASE WHEN COALESCE([[tt.seatsPerTicket]], 0) < 1 THEN 1 ELSE [[tt.seatsPerTicket]] END) AS total')])
+            ->scalar();
+
+        return (int)($total ?? 0);
     }
 
     public function getIsAvailable(): bool
@@ -1388,7 +1436,70 @@ class Event extends Element
             return Html::encode($type->name);
         }
 
+        if ($attribute === 'eventCapacitySummary') {
+            return Html::encode($this->getCpCapacitySummaryLabel());
+        }
+
+        if ($attribute === 'purchasedSeats') {
+            return (string)$this->getPurchasedSeatsCount();
+        }
+
+        if ($attribute === 'remainingSeats') {
+            return Html::encode($this->getCpRemainingSeatsLabel());
+        }
+
         return parent::attributeHtml($attribute);
+    }
+
+    private function getCpCapacitySummaryLabel(): string
+    {
+        if ($this->capacity) {
+            return (string)$this->capacity;
+        }
+
+        $sum = 0;
+        $hasLimit = false;
+
+        foreach ($this->getTicketTypes(true) as $ticketType) {
+            if ($ticketType->capacity !== null && $ticketType->capacity !== '') {
+                $hasLimit = true;
+                $sum += (int)$ticketType->capacity;
+            }
+        }
+
+        return $hasLimit ? (string)$sum : Craft::t('events', 'Unlimited');
+    }
+
+    private function getCpRemainingSeatsLabel(): string
+    {
+        if ($this->capacity) {
+            return (string)max(0, (int)$this->capacity - $this->getPurchasedSeatsCount());
+        }
+
+        $aggregated = $this->getAggregatedTicketsRemaining();
+
+        return $aggregated === null ? "\u{2014}" : (string)$aggregated;
+    }
+
+    /**
+     * Sum of per-ticket remaining stock when there is no event-level capacity cap.
+     * Returns null when any ticket is effectively unlimited.
+     */
+    private function getAggregatedTicketsRemaining(): ?int
+    {
+        $sum = 0;
+
+        foreach ($this->getTickets(true) as $ticket) {
+            $cap = $ticket->getCapacity();
+
+            if ($cap >= PHP_INT_MAX / 2) {
+                return null;
+            }
+
+            $sum += $ticket->getStock();
+        }
+
+        return $sum;
     }
 
     protected function cacheTags(): array
