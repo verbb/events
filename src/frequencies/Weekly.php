@@ -43,20 +43,24 @@ class Weekly extends Frequency
 
     public function setNextRecurringDate(DateTime &$startDate, DateTime &$endDate, int $occurrences): void
     {
-        // Convert repeat days to numeric values (0 = Monday, ..., 6 = Sunday)
+        // PHP format('w'): 0 = Sunday … 6 = Saturday (same as $dayMap values)
         $dayMap = ['sunday' => 0, 'monday' => 1, 'tuesday' => 2, 'wednesday' => 3, 'thursday' => 4, 'friday' => 5, 'saturday' => 6];
         $repeatDaysNumeric = array_map(fn($day) => $dayMap[strtolower($day)], $this->repeatDays);
         sort($repeatDaysNumeric);
 
+        // Order days chronologically from the session start: same week first (>= start DOW), then wrap (earlier DOWs in the following days).
+        // Global Sun→Sat sort breaks when the start weekday is not first (see verbb/events#213): occurrence 0 must stay on the start date for array_shift in Frequency::getRecurringSessionDates.
+        $startDayOfWeek = (int)$startDate->format('w');
+        $firstPart = array_values(array_filter($repeatDaysNumeric, static fn(int $d) => $d >= $startDayOfWeek));
+        $secondPart = array_values(array_filter($repeatDaysNumeric, static fn(int $d) => $d < $startDayOfWeek));
+        $daySequence = array_merge($firstPart, $secondPart);
+
         // Calculate week offset
-        $weekOffset = floor($occurrences / count($repeatDaysNumeric)) * $this->repeatCount;
+        $weekOffset = floor($occurrences / count($daySequence)) * $this->repeatCount;
 
         // Calculate day offset within the current week
-        $dayIndex = $occurrences % count($repeatDaysNumeric);
-        $targetDayOfWeek = $repeatDaysNumeric[$dayIndex];
-
-        // Get the current day of week of the start date
-        $startDayOfWeek = (int)$startDate->format('w');
+        $dayIndex = $occurrences % count($daySequence);
+        $targetDayOfWeek = $daySequence[$dayIndex];
 
         // Calculate the number of days to add to reach the target day of the week
         $dayOffset = $targetDayOfWeek - $startDayOfWeek;
