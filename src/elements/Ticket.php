@@ -8,6 +8,7 @@ use verbb\events\events\CustomizeEventSnapshotFieldsEvent;
 use verbb\events\events\CustomizeTicketSnapshotDataEvent;
 use verbb\events\events\CustomizeTicketSnapshotFieldsEvent;
 use verbb\events\helpers\TicketHelper;
+use verbb\events\helpers\TicketPurchasableStoreSync;
 use verbb\events\records\Ticket as TicketRecord;
 
 use Craft;
@@ -652,6 +653,8 @@ class Ticket extends Purchasable
         $record->save(false);
 
         parent::afterSave($isNew);
+
+        TicketPurchasableStoreSync::syncTicketToAllStores($this);
     }
 
     public function beforeDelete(): bool
