@@ -561,6 +561,42 @@ class TestsController extends Controller
         ];
     }
 
+    /**
+     * Regression: weekly repeat must follow chronological order from the session start, not global Sun→Sat order.
+     * @see https://github.com/verbb/events/issues/213
+     */
+    protected function testWeeklyIssue213ChronologicalFromStart(): void
+    {
+        $this->startDate = new DateTime('2026-04-09 10:00:00');
+        $this->endDate = new DateTime('2026-04-09 11:00:00');
+
+        $this->frequency = new Weekly([
+            'repeatCount' => 1,
+            'repeatDays' => ['sunday', 'wednesday', 'thursday', 'friday', 'saturday'],
+            'repeatEnd' => new FrequencyRepeatEnd([
+                'type' => 'after',
+                'count' => 15,
+            ]),
+        ]);
+
+        $this->expected = [
+            ['startDate' => new DateTime('2026-04-10 10:00:00'), 'endDate' => new DateTime('2026-04-10 11:00:00')],
+            ['startDate' => new DateTime('2026-04-11 10:00:00'), 'endDate' => new DateTime('2026-04-11 11:00:00')],
+            ['startDate' => new DateTime('2026-04-12 10:00:00'), 'endDate' => new DateTime('2026-04-12 11:00:00')],
+            ['startDate' => new DateTime('2026-04-15 10:00:00'), 'endDate' => new DateTime('2026-04-15 11:00:00')],
+            ['startDate' => new DateTime('2026-04-16 10:00:00'), 'endDate' => new DateTime('2026-04-16 11:00:00')],
+            ['startDate' => new DateTime('2026-04-17 10:00:00'), 'endDate' => new DateTime('2026-04-17 11:00:00')],
+            ['startDate' => new DateTime('2026-04-18 10:00:00'), 'endDate' => new DateTime('2026-04-18 11:00:00')],
+            ['startDate' => new DateTime('2026-04-19 10:00:00'), 'endDate' => new DateTime('2026-04-19 11:00:00')],
+            ['startDate' => new DateTime('2026-04-22 10:00:00'), 'endDate' => new DateTime('2026-04-22 11:00:00')],
+            ['startDate' => new DateTime('2026-04-23 10:00:00'), 'endDate' => new DateTime('2026-04-23 11:00:00')],
+            ['startDate' => new DateTime('2026-04-24 10:00:00'), 'endDate' => new DateTime('2026-04-24 11:00:00')],
+            ['startDate' => new DateTime('2026-04-25 10:00:00'), 'endDate' => new DateTime('2026-04-25 11:00:00')],
+            ['startDate' => new DateTime('2026-04-26 10:00:00'), 'endDate' => new DateTime('2026-04-26 11:00:00')],
+            ['startDate' => new DateTime('2026-04-29 10:00:00'), 'endDate' => new DateTime('2026-04-29 11:00:00')],
+        ];
+    }
+
 
 
     protected function testMonthly(): void
