@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.18 - 2026-04-11
+
+### Added
+- Add sync ticket handling to all Commerce stores for CP manual orders.
+- Add Capacity, Purchased and Remaining columns to Events element index.
+
+### Fixed
+- Fix weekly recurrence day order so occurrence 0 matches session start.
+
 ## 3.0.17 - 2026-03-28
 
 ### Added
