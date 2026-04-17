@@ -398,31 +398,32 @@ class Ticket extends Purchasable
 
     public function getStock(): int
     {
-        // Available to purchase is capacity (event or ticket) - purchased tickets
-        return $this->getCapacity() - $this->getPurchasedTicketsCount();
+        $limits = [$this->getTicketTypeRemainingStock()];
+
+        if (($sessionRemaining = $this->getSessionRemainingStock()) !== null) {
+            $limits[] = $sessionRemaining;
+        }
+
+        if (($eventRemaining = $this->getEventRemainingStock()) !== null) {
+            $limits[] = $eventRemaining;
+        }
+
+        return max(0, min($limits));
     }
 
     public function getCapacity(): int
     {
-        $ticketCapacity = 0;
+        $limits = [$this->getTicketTypeCapacityLimit()];
 
-        if ($ticketType = $this->getType()) {
-            $ticketCapacity = $ticketType->capacity;
-
-            // If null or empty (but not 0), set as unlimited
-            if ($ticketCapacity === null || $ticketCapacity === '') {
-                $ticketCapacity = PHP_INT_MAX;
-            }
+        if (($sessionCapacity = $this->getSession()?->getCapacityLimit()) !== null) {
+            $limits[] = $sessionCapacity;
         }
 
-        // If set at the event level, that overrides the ticket type value, if smaller
-        if ($event = $this->getEvent()) {
-            if ($this->event->capacity) {
-                return min($this->event->capacity, $ticketCapacity);
-            }
+        if (($eventCapacity = $this->getEvent()?->capacity) !== null) {
+            $limits[] = (int)$eventCapacity;
         }
 
-        return $ticketCapacity;
+        return min($limits);
     }
 
     public function getPurchasedTicketsCount(): int
@@ -432,6 +433,38 @@ class Ticket extends Purchasable
         }
 
         return $this->_purchasedTicketCount * ($this->getType()?->seatsPerTicket ?? 1);
+    }
+
+    private function getTicketTypeCapacityLimit(): int
+    {
+        $ticketCapacity = $this->getType()?->capacity;
+
+        if ($ticketCapacity === null || $ticketCapacity === '') {
+            return PHP_INT_MAX;
+        }
+
+        return (int)$ticketCapacity;
+    }
+
+    private function getTicketTypeRemainingStock(): int
+    {
+        return max(0, $this->getTicketTypeCapacityLimit() - $this->getPurchasedTicketsCount());
+    }
+
+    private function getSessionRemainingStock(): ?int
+    {
+        return $this->getSession()?->getRemainingSeatsCount();
+    }
+
+    private function getEventRemainingStock(): ?int
+    {
+        $event = $this->getEvent();
+
+        if (!$event || $event->capacity === null || $event->capacity === '') {
+            return null;
+        }
+
+        return max(0, (int)$event->capacity - $event->getPurchasedSeatsCount());
     }
 
     public function getIsShippable(): bool

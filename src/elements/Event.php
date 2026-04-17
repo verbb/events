@@ -1457,6 +1457,40 @@ class Event extends Element
             return (string)$this->capacity;
         }
 
+        $sessions = $this->getSessions(true);
+        $ticketTypes = $this->getTicketTypes(true);
+
+        if ($sessions->isNotEmpty()) {
+            $sum = 0;
+
+            foreach ($sessions as $session) {
+                $sessionCapacity = $session->getCapacityLimit();
+
+                if ($sessionCapacity !== null) {
+                    $sum += $sessionCapacity;
+                    continue;
+                }
+
+                $sessionSum = 0;
+                $sessionHasLimit = false;
+
+                foreach ($ticketTypes as $ticketType) {
+                    if ($ticketType->capacity !== null && $ticketType->capacity !== '') {
+                        $sessionHasLimit = true;
+                        $sessionSum += (int)$ticketType->capacity;
+                    }
+                }
+
+                if (!$sessionHasLimit) {
+                    return Craft::t('events', 'Unlimited');
+                }
+
+                $sum += $sessionSum;
+            }
+
+            return (string)$sum;
+        }
+
         $sum = 0;
         $hasLimit = false;
 
@@ -1488,15 +1522,25 @@ class Event extends Element
     private function getAggregatedTicketsRemaining(): ?int
     {
         $sum = 0;
+        $tickets = $this->getTickets(true);
 
-        foreach ($this->getTickets(true) as $ticket) {
-            $cap = $ticket->getCapacity();
+        foreach ($this->getSessions(true) as $session) {
+            $sessionRemaining = $session->getRemainingSeatsCount();
 
-            if ($cap >= PHP_INT_MAX / 2) {
-                return null;
+            if ($sessionRemaining !== null) {
+                $sum += $sessionRemaining;
+                continue;
             }
 
-            $sum += $ticket->getStock();
+            foreach ($tickets->filter(fn(Ticket $ticket) => $ticket->sessionId === $session->id) as $ticket) {
+                $cap = $ticket->getCapacity();
+
+                if ($cap >= PHP_INT_MAX / 2) {
+                    return null;
+                }
+
+                $sum += $ticket->getStock();
+            }
         }
 
         return $sum;

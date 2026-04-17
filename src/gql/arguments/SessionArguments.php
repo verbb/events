@@ -37,6 +37,11 @@ class SessionArguments extends ElementArguments
                 'type' => Type::boolean(),
                 'description' => 'Whether the session is an all-day session.',
             ],
+            'capacity' => [
+                'name' => 'capacity',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the session capacity.',
+            ],
         ]);
     }
 

@@ -28,6 +28,7 @@ class SessionQuery extends CachedElementQuery
     public mixed $eventId = null;
     public mixed $startDate = null;
     public mixed $endDate = null;
+    public mixed $capacity = null;
     public mixed $groupUid = null;
     public ?bool $isRecurring = null;
 
@@ -136,6 +137,12 @@ class SessionQuery extends CachedElementQuery
         return $this;
     }
 
+    public function capacity(mixed $value): static
+    {
+        $this->capacity = $value;
+        return $this;
+    }
+
     public function isRecurring(?bool $value): static
     {
         $this->isRecurring = $value;
@@ -186,6 +193,7 @@ class SessionQuery extends CachedElementQuery
             'events_sessions.startDate',
             'events_sessions.endDate',
             'events_sessions.allDay',
+            'events_sessions.capacity',
             'events_sessions.groupUid',
             'events_elements_sites.slug as eventSlug',
             'events_event_types.handle as eventTypeHandle',
@@ -233,6 +241,10 @@ class SessionQuery extends CachedElementQuery
 
         if (isset($this->endDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('events_sessions.endDate', $this->endDate));
+        }
+
+        if (isset($this->capacity)) {
+            $this->subQuery->andWhere(Db::parseParam('events_sessions.capacity', $this->capacity));
         }
 
         if (isset($this->allDay)) {

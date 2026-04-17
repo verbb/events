@@ -103,6 +103,7 @@ class Install extends Migration
             'startDate' => $this->dateTime(),
             'endDate' => $this->dateTime(),
             'allDay' => $this->boolean(),
+            'capacity' => $this->integer(),
             'groupUid' => $this->char(36),
             'deletedWithEvent' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),

@@ -37,6 +37,7 @@ use craft\validators\DateTimeValidator;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\db\Expression;
 
 use verbb\base\helpers\Locale as LocaleHelper;
 
@@ -207,6 +208,7 @@ class Session extends Element implements NestedElementInterface
             'startDate' => ['label' => Craft::t('events', 'Start Date')],
             'endDate' => ['label' => Craft::t('events', 'End Date')],
             'allDay' => ['label' => Craft::t('events', 'All Day')],
+            'capacity' => ['label' => Craft::t('events', 'Capacity')],
             'isRecurring' => ['label' => Craft::t('events', 'Is Occurrence?')],
         ];
     }
@@ -242,6 +244,7 @@ class Session extends Element implements NestedElementInterface
     public ?DateTime $startDate = null;
     public ?DateTime $endDate = null;
     public bool $allDay = false;
+    public ?int $capacity = null;
     public ?string $groupUid = null;
     public bool $isRecurring = false;
     public ?int $sortOrder = null;
@@ -253,6 +256,7 @@ class Session extends Element implements NestedElementInterface
     private ?TicketCollection $_tickets = null;
     private ?string $_eventSlug = null;
     private ?string $_eventTypeHandle = null;
+    private ?int $_purchasedSeatsCount = null;
 
 
     // Public Methods
@@ -595,6 +599,42 @@ class Session extends Element implements NestedElementInterface
             ->collect();
     }
 
+    public function getCapacityLimit(): ?int
+    {
+        return ($this->capacity === null || $this->capacity === '') ? null : (int)$this->capacity;
+    }
+
+    public function getPurchasedSeatsCount(): int
+    {
+        if (!$this->id) {
+            return 0;
+        }
+
+        if ($this->_purchasedSeatsCount === null) {
+            $total = (new Query())
+                ->from(['pt' => '{{%events_purchased_tickets}}'])
+                ->leftJoin(['tt' => '{{%events_ticket_types}}'], '[[pt.ticketTypeId]] = [[tt.id]]')
+                ->where(['pt.sessionId' => $this->id])
+                ->select([new Expression('SUM(CASE WHEN COALESCE([[tt.seatsPerTicket]], 0) < 1 THEN 1 ELSE [[tt.seatsPerTicket]] END) AS total')])
+                ->scalar();
+
+            $this->_purchasedSeatsCount = (int)($total ?? 0);
+        }
+
+        return $this->_purchasedSeatsCount;
+    }
+
+    public function getRemainingSeatsCount(): ?int
+    {
+        $capacity = $this->getCapacityLimit();
+
+        if ($capacity === null) {
+            return null;
+        }
+
+        return max(0, $capacity - $this->getPurchasedSeatsCount());
+    }
+
     public function getSidebarHtml(bool $static): string
     {
         $view = Craft::$app->getView();
@@ -794,6 +834,12 @@ class Session extends Element implements NestedElementInterface
                 $record->startDate = $this->startDate;
                 $record->endDate = $this->endDate;
                 $record->allDay = $this->allDay;
+
+                // Just in case the database column isn't there yet
+                if (array_key_exists('capacity', $record->getAttributes())) {
+                    $record->capacity = $this->capacity;
+                }
+
                 $record->groupUid = $this->groupUid;
 
                 // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
@@ -900,6 +946,7 @@ class Session extends Element implements NestedElementInterface
 
         $rules[] = [['startDate', 'endDate'], 'required', 'on' => self::SCENARIO_LIVE];
         $rules[] = [['startDate', 'endDate'], DateTimeValidator::class];
+        $rules[] = [['capacity'], 'number', 'integerOnly' => true];
 
         $rules[] = [
             ['startDate'], function($attribute) {
@@ -947,6 +994,25 @@ class Session extends Element implements NestedElementInterface
         $rules[] = [['ownerId', 'primaryOwnerId', 'allDay'], 'safe'];
 
         return $rules;
+    }
+
+    protected function metaFieldsHtml(bool $static): string
+    {
+        $fields = [];
+
+        $fields[] = Cp::textFieldHtml([
+            'status' => $this->getAttributeStatus('capacity'),
+            'label' => Craft::t('events', 'Capacity'),
+            'id' => 'capacity',
+            'name' => 'capacity',
+            'value' => $this->capacity,
+            'errors' => $this->getErrors('capacity'),
+            'disabled' => $static,
+        ]);
+
+        $fields[] = parent::metaFieldsHtml($static);
+
+        return implode("\n", $fields);
     }
 
     protected function attributeHtml(string $attribute): string
