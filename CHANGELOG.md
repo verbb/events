@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.0.19 - 2026-04-29
+
+### Added
+- Add “Default Event Index Status” plugin setting.
+- Add the ability to set capacity on sessions.
+
+### Changed
+- Improve `events_sessions.capacity` element query check to be more guarded.
+
+### Fixed
+- Fix an error with migration and ticket purchasable store propagation.
+
 ## 3.0.18 - 2026-04-11
 
 ### Added
