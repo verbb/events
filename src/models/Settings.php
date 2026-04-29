@@ -1,6 +1,8 @@
 <?php
 namespace verbb\events\models;
 
+use verbb\events\elements\Event;
+
 use craft\base\Model;
 
 class Settings extends Model
@@ -9,6 +11,7 @@ class Settings extends Model
     // =========================================================================
 
     public string $pluginName = 'Events';
+    public string $defaultEventIndexStatus = '';
     public string $ticketPdfPath = 'shop/_pdf/tickets';
     public string $ticketPdfFilenameFormat = 'Tickets-{number}';
     public bool $checkinLogin = false;
@@ -19,5 +22,18 @@ class Settings extends Model
     public bool $pdfAllowRemoteImages = false;
     public string $pdfPaperSize = 'letter';
     public string $pdfPaperOrientation = 'portrait';
+
+
+    // Public Methods
+    // =========================================================================
+
+    public function defineRules(): array
+    {
+        $rules = parent::defineRules();
+
+        $rules[] = ['defaultEventIndexStatus', 'in', 'range' => array_merge([''], array_keys(Event::statuses()))];
+
+        return $rules;
+    }
 
 }

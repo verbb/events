@@ -9,6 +9,7 @@ The below shows the defaults already used by Events, so you don't need to add th
 return [
     '*' => [
         'pluginName' => 'Events',
+        'defaultEventIndexStatus' => '',
         'ticketPdfPath' => 'shop/_pdf/tickets',
         'ticketPdfFilenameFormat' => 'Tickets-{number}',
         'checkinTemplate' => 'events/check-in',
@@ -23,6 +24,7 @@ return [
 
 ## Configuration options
 - `pluginName` - Change the plugin name.
+- `defaultEventIndexStatus` - Set the default status filter for the Events index. Leave blank to show all statuses.
 - `ticketSKULength` - Purchased tickets have a unique, auto-generated SKU. Use this value to set the desired length.
 - `ticketPdfPath` - Set the path to your PDF.
 - `ticketPdfFilenameFormat` - Set the default PDF filename format.

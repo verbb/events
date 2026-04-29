@@ -50,6 +50,14 @@ Craft.Events.EventIndex = Craft.BaseElementIndex.extend({
         return this.base();
     },
 
+    afterSetInitialSource: function(queryParams) {
+        if (this.settings.context === 'index' && Craft.Events.defaultEventIndexStatus && !queryParams.status) {
+            queryParams.status = Craft.Events.defaultEventIndexStatus;
+        }
+
+        this.base(queryParams);
+    },
+
     updateButton: function() {
         if (!this.$source) {
             return;

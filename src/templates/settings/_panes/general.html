@@ -11,3 +11,14 @@
     autofocus: true,
     warning: macros.configWarning('pluginName', 'events'),
 }) }}
+
+{{ forms.selectField({
+    label: 'Default Event Index Status' | t('events'),
+    instructions: 'Choose which status filter should be selected by default on the Events index.' | t('events'),
+    id: 'defaultEventIndexStatus',
+    name: 'defaultEventIndexStatus',
+    options: eventStatusOptions,
+    value: settings.defaultEventIndexStatus,
+    errors: settings.getErrors('defaultEventIndexStatus'),
+    warning: macros.configWarning('defaultEventIndexStatus', 'events'),
+}) }}

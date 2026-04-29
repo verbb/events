@@ -50,6 +50,7 @@ class EventIndexAsset extends AssetBundle
     private function _eventsData(): array
     {
         return [
+            'defaultEventIndexStatus' => Events::$plugin->getSettings()->defaultEventIndexStatus,
             'editableEventTypes' => array_map(fn(EventType $eventType) => [
                 'id' => $eventType->id,
                 'uid' => $eventType->uid,
