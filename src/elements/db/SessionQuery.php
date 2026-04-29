@@ -193,12 +193,22 @@ class SessionQuery extends CachedElementQuery
             'events_sessions.startDate',
             'events_sessions.endDate',
             'events_sessions.allDay',
-            'events_sessions.capacity',
             'events_sessions.groupUid',
             'events_elements_sites.slug as eventSlug',
             'events_event_types.handle as eventTypeHandle',
             'isRecurring' => new Expression('[[events_sessions]].[[groupUid]] IS NOT NULL'),
         ]);
+
+        // Use a column check so sessions can still be queried while migrations are adding new columns.
+        $hasCapacityColumn = Craft::$app->getDb()->columnExists('events_sessions', 'capacity');
+
+        if ($hasCapacityColumn) {
+            $this->query->addSelect([
+                'events_sessions.capacity',
+            ]);
+        } elseif (isset($this->capacity)) {
+            return false;
+        }
 
         // Join in the elements_owners table
         $ownersCondition = [
