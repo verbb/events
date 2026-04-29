@@ -35,17 +35,8 @@ class m260409_120000_ticket_purchasable_stores extends Migration
             ->andWhere(['e.dateDeleted' => null])
             ->column();
 
-        foreach (array_chunk($ticketIds, 100) as $chunk) {
-            $tickets = Ticket::find()
-                ->id($chunk)
-                ->status(null)
-                ->drafts(null)
-                ->revisions(null)
-                ->all();
-
-            foreach ($tickets as $ticket) {
-                TicketPurchasableStoreSync::syncTicketToAllStores($ticket);
-            }
+        foreach ($ticketIds as $ticketId) {
+            TicketPurchasableStoreSync::syncTicketIdToAllStores((int)$ticketId);
         }
 
         return true;
