@@ -694,12 +694,19 @@ class Event extends Element
             return 0;
         }
 
-        $total = (new Query())
+        $query = (new Query())
             ->from(['pt' => '{{%events_purchased_tickets}}'])
-            ->leftJoin(['tt' => '{{%events_ticket_types}}'], '[[pt.ticketTypeId]] = [[tt.id]]')
-            ->where(['pt.eventId' => $this->id])
-            ->select([new Expression('SUM(CASE WHEN COALESCE([[tt.seatsPerTicket]], 0) < 1 THEN 1 ELSE [[tt.seatsPerTicket]] END) AS total')])
-            ->scalar();
+            ->where(['pt.eventId' => $this->id]);
+
+        if (Craft::$app->getDb()->columnExists('events_ticket_types', 'seatsPerTicket')) {
+            $query
+                ->leftJoin(['tt' => '{{%events_ticket_types}}'], '[[pt.ticketTypeId]] = [[tt.id]]')
+                ->select([new Expression('SUM(CASE WHEN COALESCE([[tt.seatsPerTicket]], 0) < 1 THEN 1 ELSE [[tt.seatsPerTicket]] END) AS total')]);
+        } else {
+            $query->select([new Expression('COUNT([[pt.id]]) AS total')]);
+        }
+
+        $total = $query->scalar();
 
         return (int)($total ?? 0);
     }

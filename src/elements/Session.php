@@ -611,12 +611,19 @@ class Session extends Element implements NestedElementInterface
         }
 
         if ($this->_purchasedSeatsCount === null) {
-            $total = (new Query())
+            $query = (new Query())
                 ->from(['pt' => '{{%events_purchased_tickets}}'])
-                ->leftJoin(['tt' => '{{%events_ticket_types}}'], '[[pt.ticketTypeId]] = [[tt.id]]')
-                ->where(['pt.sessionId' => $this->id])
-                ->select([new Expression('SUM(CASE WHEN COALESCE([[tt.seatsPerTicket]], 0) < 1 THEN 1 ELSE [[tt.seatsPerTicket]] END) AS total')])
-                ->scalar();
+                ->where(['pt.sessionId' => $this->id]);
+
+            if (Craft::$app->getDb()->columnExists('events_ticket_types', 'seatsPerTicket')) {
+                $query
+                    ->leftJoin(['tt' => '{{%events_ticket_types}}'], '[[pt.ticketTypeId]] = [[tt.id]]')
+                    ->select([new Expression('SUM(CASE WHEN COALESCE([[tt.seatsPerTicket]], 0) < 1 THEN 1 ELSE [[tt.seatsPerTicket]] END) AS total')]);
+            } else {
+                $query->select([new Expression('COUNT([[pt.id]]) AS total')]);
+            }
+
+            $total = $query->scalar();
 
             $this->_purchasedSeatsCount = (int)($total ?? 0);
         }
