@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.20 - 2026-05-03
+
+### Fixed
+- Fix an Events 2 to 3 migration error.
+
 ## 3.0.19 - 2026-04-29
 
 ### Added
