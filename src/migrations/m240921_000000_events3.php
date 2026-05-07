@@ -179,7 +179,7 @@ class m240921_000000_events3 extends Migration
         }
 
         // Move columns to legacy
-        $this->update('{{%events_purchased_tickets}}', ['legacyTicketId' => new Expression('"ticketId"')]);
+        $this->update('{{%events_purchased_tickets}}', ['legacyTicketId' => new Expression($this->db->quoteColumnName('ticketId'))]);
         $this->update('{{%events_purchased_tickets}}', ['ticketId' => null]);
 
         // Setup Indexes
