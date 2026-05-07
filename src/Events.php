@@ -82,7 +82,7 @@ class Events extends Plugin
 
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '1.1.6';
+    public string $schemaVersion = '1.1.7';
     public string $minVersionRequired = '1.4.20';
 
 
