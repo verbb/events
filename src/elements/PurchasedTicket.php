@@ -549,27 +549,15 @@ class PurchasedTicket extends Element
         }
 
         if ($attribute === 'customerFirstName') {
-            if (($customer = $this->getCustomer())) {
-                return Html::encode((string)$customer->firstName);
-            }
-
-            return Craft::t('events', '[Guest]');
+            return Html::encode($this->_getCustomerFirstName() ?: Craft::t('events', '[Guest]'));
         }
 
         if ($attribute === 'customerLastName') {
-            if (($customer = $this->getCustomer())) {
-                return Html::encode((string)$customer->lastName);
-            }
-
-            return Craft::t('events', '[Guest]');
+            return Html::encode($this->_getCustomerLastName() ?: Craft::t('events', '[Guest]'));
         }
 
         if ($attribute === 'customerFullName') {
-            if (($customer = $this->getCustomer())) {
-                return Html::encode((string)$customer->fullName);
-            }
-
-            return Craft::t('events', '[Guest]');
+            return Html::encode($this->_getCustomerFullName() ?: Craft::t('events', '[Guest]'));
         }
 
         if ($attribute === 'checkedIn') {
@@ -588,5 +576,80 @@ class PurchasedTicket extends Element
         }
 
         return UrlHelper::cpUrl("events/purchased-tickets/{$this->id}");
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _getCustomerFirstName(): ?string
+    {
+        if (($customer = $this->getCustomer()) && $customer->firstName) {
+            return $customer->firstName;
+        }
+
+        return $this->_getOrderAddressAttribute('firstName');
+    }
+
+    private function _getCustomerLastName(): ?string
+    {
+        if (($customer = $this->getCustomer()) && $customer->lastName) {
+            return $customer->lastName;
+        }
+
+        return $this->_getOrderAddressAttribute('lastName');
+    }
+
+    private function _getCustomerFullName(): ?string
+    {
+        if (($customer = $this->getCustomer()) && $customer->fullName) {
+            return $customer->fullName;
+        }
+
+        $fullName = $this->_getOrderAddressAttribute('fullName');
+
+        if ($fullName) {
+            return $fullName;
+        }
+
+        $name = trim(implode(' ', array_filter([
+            $this->_getCustomerFirstName(),
+            $this->_getCustomerLastName(),
+        ])));
+
+        return $name ?: null;
+    }
+
+    private function _getOrderAddressAttribute(string $attribute): ?string
+    {
+        foreach (['getBillingAddress', 'getShippingAddress'] as $method) {
+            $order = $this->getOrder();
+
+            if (!$order || !method_exists($order, $method)) {
+                continue;
+            }
+
+            try {
+                $address = $order->{$method}();
+            } catch (Throwable) {
+                continue;
+            }
+
+            if (!$address) {
+                continue;
+            }
+
+            try {
+                $value = $address->{$attribute} ?? null;
+            } catch (Throwable) {
+                continue;
+            }
+
+            if ($value !== null && $value !== '') {
+                return (string)$value;
+            }
+        }
+
+        return null;
     }
 }
