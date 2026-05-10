@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.21 - 2026-05-10
+
+### Fixed
+- Fix Purchased Ticket customer-related columns.
+- Fix purchased ticket relation backfill for Events 3 upgrades.
+
 ## 3.0.20 - 2026-05-03
 
 ### Fixed
