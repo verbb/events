@@ -806,6 +806,11 @@ class Session extends Element implements NestedElementInterface
             $this->fieldLayoutId = $eventType->sessionFieldLayoutId;
         }
 
+        // Match Event capacity: posted empty string means auto (null)
+        if ($this->capacity === '' || $this->capacity === false) {
+            $this->capacity = null;
+        }
+
         return parent::beforeSave($isNew);
     }
 
@@ -1013,15 +1018,22 @@ class Session extends Element implements NestedElementInterface
         $view->registerDeltaName('capacity');
         $view->setIsDeltaRegistrationActive($isDeltaRegistrationActive);
 
+        $autoCapacity = $this->capacity === null || $this->capacity === '';
+
         $fields[] = Cp::textFieldHtml([
-            'attribute' => 'capacity',
+            'attribute' => 'session-capacity',
             'status' => $this->getAttributeStatus('capacity'),
             'label' => Craft::t('events', 'Capacity'),
-            'id' => 'capacity',
+            'id' => 'session-capacity',
             'name' => 'capacity',
             'value' => $this->capacity,
-            'errors' => $this->getErrors('capacity'),
+            'placeholder' => $autoCapacity ? Craft::t('events', 'auto') : '',
+            'class' => $autoCapacity ? 'disabled' : '',
             'disabled' => $static,
+            'inputAttributes' => [
+                'readonly' => !$static && $autoCapacity,
+            ],
+            'errors' => $this->getErrors('capacity'),
         ]);
 
         $fields[] = parent::metaFieldsHtml($static);

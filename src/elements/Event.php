@@ -1217,6 +1217,11 @@ class Event extends Element
         // Make sure the field layout is set correctly
         $this->fieldLayoutId = $this->getType()->fieldLayoutId;
 
+        // Treat posted empty string as auto (null); disabled inputs would omit the key entirely
+        if ($this->capacity === '' || $this->capacity === false) {
+            $this->capacity = null;
+        }
+
         if ($this->enabled && !$this->postDate) {
             // Default the post date to the current date/time
             $this->postDate = new DateTime();
@@ -1301,7 +1306,7 @@ class Event extends Element
         $rules = parent::defineRules();
 
         $rules[] = [['capacity'], 'number', 'integerOnly' => true];
-        $rules[] = [['updateTickets'], 'safe'];
+        $rules[] = [['updateTickets', 'capacity'], 'safe'];
 
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
@@ -1379,20 +1384,27 @@ class Event extends Element
         // Slug
         $fields[] = $this->slugFieldHtml($static);
 
+        $autoCapacity = $this->capacity === null || $this->capacity === '';
+
         $fields[] = Cp::textFieldHtml([
+            'attribute' => 'event-capacity',
             'status' => $this->getAttributeStatus('capacity'),
             'label' => Craft::t('events', 'Event Capacity'),
-            'id' => 'capacity',
+            'id' => 'event-capacity',
             'name' => 'capacity',
             'value' => $this->capacity,
-            'placeholder' => $this->capacity ? '' : Craft::t('events', 'auto'),
-            'class' => $this->capacity ? '' : 'disabled',
-            'disabled' => !$this->capacity,
+            'placeholder' => $autoCapacity ? Craft::t('events', 'auto') : '',
+            'class' => $autoCapacity ? 'disabled' : '',
+            'disabled' => $static,
+            'inputAttributes' => [
+                'readonly' => !$static && $autoCapacity,
+            ],
             'errors' => $this->getErrors('capacity'),
         ]);
 
         $isDeltaRegistrationActive = $view->getIsDeltaRegistrationActive();
         $view->setIsDeltaRegistrationActive(true);
+        $view->registerDeltaName('capacity');
         $view->registerDeltaName('postDate');
         $view->registerDeltaName('expiryDate');
         $view->setIsDeltaRegistrationActive($isDeltaRegistrationActive);

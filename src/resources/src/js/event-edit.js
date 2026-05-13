@@ -17,9 +17,10 @@ Craft.Events.EventEdit = Garnish.Base.extend({
         this.$pane = $('#' + id);
         this.$container = this.$pane.parents('form');
 
-        this.$capacityField = this.$container.find('[data-attribute="capacity"]');
+        // Scope to event capacity only — other elements (e.g. sessions) also use data-attribute="capacity"
+        this.$capacityField = this.$container.find('[data-attribute="event-capacity"]');
 
-        if (this.$capacityField) {
+        if (this.$capacityField.length) {
             this.$capacityInput = this.$capacityField.find('input');
             this.savedCapacity = this.$capacityInput.val();
 
@@ -39,8 +40,9 @@ Craft.Events.EventEdit = Garnish.Base.extend({
     },
 
     toggleCapacityEdit(e) {
-        if (this.$capacityInput.prop('disabled')) {
-            this.$capacityInput.prop('disabled', false);
+        // Use readOnly (not disabled) for "auto" so the input is still submitted and the server can clear capacity
+        if (this.$capacityInput.prop('readOnly')) {
+            this.$capacityInput.prop('readOnly', false);
             this.$capacityInput.prop('placeholder', '');
             this.$capacityInput.removeClass('disabled');
 
@@ -52,7 +54,7 @@ Craft.Events.EventEdit = Garnish.Base.extend({
                 this.$capacityInput.val('');
             }
         } else {
-            this.$capacityInput.prop('disabled', 'disabled');
+            this.$capacityInput.prop('readOnly', true);
             this.$capacityInput.prop('placeholder', Craft.t('events', 'auto'));
             this.$capacityInput.addClass('disabled');
 

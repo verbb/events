@@ -38,6 +38,26 @@ Craft.Events.SessionEdit = Garnish.Base.extend({
 
         this.$allDay = this.$container.find('[data-attribute="allDay"] .lightswitch');
 
+        // Session capacity: same pattern as event capacity (auto = readOnly so empty value still posts)
+        this.$sessionCapacityField = this.$container.find('[data-attribute="session-capacity"]');
+        if (this.$sessionCapacityField.length) {
+            this.$sessionCapacityInput = this.$sessionCapacityField.find('input');
+            this.savedSessionCapacity = this.$sessionCapacityInput.val();
+
+            this.$sessionCapacityEditBtn = $('<button/>', {
+                type: 'button',
+                class: 'icon',
+                'data-icon': this.savedSessionCapacity ? 'remove' : 'edit',
+                style: 'position: absolute; top: 50%; right: -2px; transform: translateY(-50%); width: 24px; color: #586673;',
+            });
+
+            if (!this.$sessionCapacityField.find('.input button').length) {
+                this.$sessionCapacityField.find('.input').append(this.$sessionCapacityEditBtn);
+            }
+
+            this.addListener(this.$sessionCapacityEditBtn, 'click', 'toggleSessionCapacityEdit');
+        }
+
         // Store the current dates in case we modify them to determine a diff
         this.currentStartDate = this.getDate(this.$startDate);
         this.currentStartTime = this.getTime(this.$startDate);
@@ -77,6 +97,30 @@ Craft.Events.SessionEdit = Garnish.Base.extend({
         this.$endDateInput.trigger('change');
         this.$occurrenceType.trigger('change');
         this.$allDay.trigger('change');
+    },
+
+    toggleSessionCapacityEdit(e) {
+        if (this.$sessionCapacityInput.prop('readOnly')) {
+            this.$sessionCapacityInput.prop('readOnly', false);
+            this.$sessionCapacityInput.prop('placeholder', '');
+            this.$sessionCapacityInput.removeClass('disabled');
+
+            this.$sessionCapacityEditBtn.attr('data-icon', 'remove');
+
+            if (this.savedSessionCapacity) {
+                this.$sessionCapacityInput.val(this.savedSessionCapacity);
+            } else {
+                this.$sessionCapacityInput.val('');
+            }
+        } else {
+            this.$sessionCapacityInput.prop('readOnly', true);
+            this.$sessionCapacityInput.prop('placeholder', Craft.t('events', 'auto'));
+            this.$sessionCapacityInput.addClass('disabled');
+
+            this.$sessionCapacityEditBtn.attr('data-icon', 'edit');
+
+            this.$sessionCapacityInput.val('');
+        }
     },
 
     updateOffsets(e) {
