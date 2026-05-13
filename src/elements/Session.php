@@ -843,7 +843,7 @@ class Session extends Element implements NestedElementInterface
                 $record->allDay = $this->allDay;
 
                 // Just in case the database column isn't there yet
-                if (array_key_exists('capacity', $record->getAttributes())) {
+                if ($record->hasAttribute('capacity')) {
                     $record->capacity = $this->capacity;
                 }
 
@@ -998,7 +998,7 @@ class Session extends Element implements NestedElementInterface
             }, 'on' => self::SCENARIO_LIVE,
         ];
 
-        $rules[] = [['ownerId', 'primaryOwnerId', 'allDay'], 'safe'];
+        $rules[] = [['ownerId', 'primaryOwnerId', 'allDay', 'capacity'], 'safe'];
 
         return $rules;
     }
@@ -1007,7 +1007,14 @@ class Session extends Element implements NestedElementInterface
     {
         $fields = [];
 
+        $view = Craft::$app->getView();
+        $isDeltaRegistrationActive = $view->getIsDeltaRegistrationActive();
+        $view->setIsDeltaRegistrationActive(true);
+        $view->registerDeltaName('capacity');
+        $view->setIsDeltaRegistrationActive($isDeltaRegistrationActive);
+
         $fields[] = Cp::textFieldHtml([
+            'attribute' => 'capacity',
             'status' => $this->getAttributeStatus('capacity'),
             'label' => Craft::t('events', 'Capacity'),
             'id' => 'capacity',
