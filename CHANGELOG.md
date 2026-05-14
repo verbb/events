@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.22 - 2026-05-14
+
+### Fixed
+- Fix session-level capacity not saving correctly, and improve UI.
+
 ## 3.0.21 - 2026-05-10
 
 ### Fixed
