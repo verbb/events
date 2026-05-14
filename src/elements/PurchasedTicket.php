@@ -27,7 +27,7 @@ use yii\base\Exception;
 
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelMedium;
+use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 
@@ -446,7 +446,7 @@ class PurchasedTicket extends Element
             ->setEncoding(new Encoding('UTF-8'))
             ->setSize(300)
             ->setMargin(0)
-            ->setErrorCorrectionLevel(new ErrorCorrectionLevelMedium())
+            ->setErrorCorrectionLevel(ErrorCorrectionLevel::Medium)
             ->setForegroundColor(new Color(0, 0, 0))
             ->setBackgroundColor(new Color(255, 255, 255));
 
