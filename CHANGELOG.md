@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.0 - 2026-05-14
+
+### Changed
+- Now requires Craft `5.10.0+`.
+- Bump `endroid/qr-code` to be compatible with Craft 5.10+.
+
 ## 3.0.22 - 2026-05-14
 
 ### Fixed
