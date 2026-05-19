@@ -1,0 +1,7 @@
+.field[data-attribute="event-capacity"],
+.field[data-attribute="session-capacity"] {
+    > .heading .instructions,
+    > .instructions {
+        display: none;
+    }
+}

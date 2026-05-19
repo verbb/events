@@ -24,6 +24,10 @@ class EventEditAsset extends AssetBundle
             'js/event-edit.js',
         ];
 
+        $this->css = [
+            'css/edit-meta.css',
+        ];
+
         parent::init();
     }
 }

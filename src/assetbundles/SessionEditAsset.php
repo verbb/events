@@ -24,6 +24,10 @@ class SessionEditAsset extends AssetBundle
             'js/session-edit.js',
         ];
 
+        $this->css = [
+            'css/edit-meta.css',
+        ];
+
         parent::init();
     }
 }

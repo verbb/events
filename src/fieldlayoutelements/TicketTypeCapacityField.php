@@ -31,7 +31,7 @@ class TicketTypeCapacityField extends BaseNativeField
 
     protected function defaultInstructions(?ElementInterface $element = null, bool $static = false): ?string
     {
-        return Craft::t('events', 'How many tickets are available to purchase. Leave empty for unlimited availability.');
+        return Craft::t('events', 'How many tickets of this type are available to purchase. Leave empty for unlimited availability, unless a session or event capacity also applies.');
     }
 
     protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string

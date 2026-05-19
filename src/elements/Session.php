@@ -1024,6 +1024,7 @@ class Session extends Element implements NestedElementInterface
             'attribute' => 'session-capacity',
             'status' => $this->getAttributeStatus('capacity'),
             'label' => Craft::t('events', 'Capacity'),
+            'instructions' => Craft::t('events', 'Optional shared capacity for this session across all ticket types. Leave as auto to use ticket type capacity only.'),
             'id' => 'session-capacity',
             'name' => 'capacity',
             'value' => $this->capacity,
