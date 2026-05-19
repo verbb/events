@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.1 - 2026-05-19
+
+### Changed
+- Bump `schemaVersion`.
+
 ## 3.1.0 - 2026-05-14
 
 ### Changed
