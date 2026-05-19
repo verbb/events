@@ -419,7 +419,9 @@ class Ticket extends Purchasable
             $limits[] = $sessionCapacity;
         }
 
-        if (($eventCapacity = $this->getEvent()?->capacity) !== null) {
+        $eventCapacity = $this->getEvent()?->capacity;
+
+        if ($eventCapacity !== null && $eventCapacity !== '') {
             $limits[] = (int)$eventCapacity;
         }
 

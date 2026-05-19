@@ -677,8 +677,8 @@ class Event extends Element
     public function getTotalCapacity(): ?int
     {
         // Check if we have overridden the capacity at the event level
-        if ($this->capacity) {
-            return $this->capacity;
+        if ($this->capacity !== null && $this->capacity !== '') {
+            return (int)$this->capacity;
         }
 
         // Thank you Laravel Collections!
@@ -1473,7 +1473,7 @@ class Event extends Element
 
     private function getCpCapacitySummaryLabel(): string
     {
-        if ($this->capacity) {
+        if ($this->capacity !== null && $this->capacity !== '') {
             return (string)$this->capacity;
         }
 
@@ -1526,7 +1526,7 @@ class Event extends Element
 
     private function getCpRemainingSeatsLabel(): string
     {
-        if ($this->capacity) {
+        if ($this->capacity !== null && $this->capacity !== '') {
             return (string)max(0, (int)$this->capacity - $this->getPurchasedSeatsCount());
         }
 
