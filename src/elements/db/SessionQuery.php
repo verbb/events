@@ -200,7 +200,7 @@ class SessionQuery extends CachedElementQuery
         ]);
 
         // Use a column check so sessions can still be queried while migrations are adding new columns.
-        $hasCapacityColumn = Craft::$app->getDb()->columnExists('events_sessions', 'capacity');
+        $hasCapacityColumn = Craft::$app->getDb()->columnExists('{{%events_sessions}}', 'capacity');
 
         if ($hasCapacityColumn) {
             $this->query->addSelect([
