@@ -15,3 +15,8 @@ A ticket’s title and SKU is automatically generated based on your Event Type�
 
 ## Purchased Ticket
 Once a Ticket has been added to a cart, and the user completes checkout, these tickets are converted to a [Purchased Ticket](docs:feature-tour/purchased-ticket) which differentiate between a Ticket available for sale, and one that's been reserved.
+
+## Stock
+Ticket stock is calculated from the most restrictive remaining capacity available to the generated ticket. That can include the ticket type, the ticket’s session, and the parent event.
+
+See [Capacity](docs:feature-tour/capacity) for the full calculation rules and multi-session behavior.

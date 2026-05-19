@@ -16,6 +16,7 @@
             "feature-tour/events",
             "feature-tour/sessions",
             "feature-tour/ticket-types",
+            "feature-tour/capacity",
             "feature-tour/tickets",
             "feature-tour/pdf-ticket",
             "feature-tour/ticket-check-in"

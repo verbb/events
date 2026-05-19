@@ -14,7 +14,9 @@ This is where you define the **Price** for each ticket type. The price is what a
 ## Capacity
 The **Capacity** setting defines how many tickets of this type can be sold. Each ticket type has its own capacity, allowing you to control how many tickets are available for each category.
 
-If you have an overall event capacity, the total number of tickets sold across all ticket types cannot exceed that limit (unless manually overridden at the event level).
+If the ticket type capacity is blank, the ticket type is treated as unlimited unless a session or event capacity also applies.
+
+Ticket availability always uses the most restrictive configured limit. See [Capacity](docs:feature-tour/capacity) for how ticket type, session, and event limits are combined.
 
 ## Availability
 The **Available From** and **Available To** settings let you define when tickets can be purchased. These settings allow you to control the window of time during which tickets are available for sale, adding flexibility to your ticketing strategy.

@@ -14,6 +14,11 @@ If your session doesn’t need specific start and end times, and is simply runni
 
 This is useful for events that span an entire day without specific time slots, such as open festivals or exhibitions.
 
+## Capacity
+A session can have its own capacity limit. Session capacity is shared across all ticket types for that session, which is useful when each course date, workshop, performance, or occurrence has a fixed number of available seats.
+
+Leave session capacity blank to let the generated tickets use ticket type capacity only, unless the event also has an event-wide capacity. See [Capacity](docs:feature-tour/capacity) for how ticket type, session, and event limits are combined.
+
 ## Frequency
 Sessions can also occur on a recurring basis, which is where the **Frequency** setting comes into play. It's only available when you first create a session!
 
