@@ -1389,7 +1389,7 @@ class Event extends Element
         $fields[] = Cp::textFieldHtml([
             'attribute' => 'event-capacity',
             'status' => $this->getAttributeStatus('capacity'),
-            'label' => Craft::t('events', 'Event Capacity'),
+            'label' => Craft::t('events', 'Capacity'),
             'instructions' => Craft::t('events', 'Optional shared capacity across the whole event. Leave as auto unless every session should draw from the same event-wide pool.'),
             'id' => 'event-capacity',
             'name' => 'capacity',
