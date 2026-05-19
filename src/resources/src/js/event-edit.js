@@ -62,6 +62,8 @@ Craft.Events.EventEdit = Garnish.Base.extend({
 
             this.$capacityInput.val('');
         }
+
+        this.$capacityInput.trigger('input').trigger('change');
     },
 });
 

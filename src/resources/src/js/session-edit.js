@@ -121,6 +121,8 @@ Craft.Events.SessionEdit = Garnish.Base.extend({
 
             this.$sessionCapacityInput.val('');
         }
+
+        this.$sessionCapacityInput.trigger('input').trigger('change');
     },
 
     updateOffsets(e) {
