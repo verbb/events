@@ -142,17 +142,30 @@ class TicketQuery extends PurchasableQuery
     {
         $tags = [];
 
+        foreach ($this->_normalizeCacheTagIds($this->eventId) as $eventId) {
+            $tags[] = "event:$eventId";
+        }
+
         if ($this->ownerId) {
-            foreach ($this->ownerId as $ownerId) {
+            foreach ($this->_normalizeCacheTagIds($this->ownerId) as $ownerId) {
                 $tags[] = "event:$ownerId";
             }
         }
 
-        return $tags;
+        return array_values(array_unique($tags));
     }
 
     // Private Methods
     // =========================================================================
+
+    private function _normalizeCacheTagIds(mixed $value): array
+    {
+        if (empty($value)) {
+            return [];
+        }
+
+        return array_filter((array)$value, fn($id) => is_numeric($id));
+    }
 
     private function _applySessionAndTypeJoins($query): void
     {

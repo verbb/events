@@ -1128,14 +1128,15 @@ class Event extends Element
 
     public function updateTickets(): void
     {
-        // Query both sessions and ticket types, including their disabled items to sync tickets against
-        $sessions = Session::find()->eventId($this->id)->status(null)->collect();
-        $ticketTypes = TicketType::find()->eventId($this->id)->status(null)->collect();
+        // Query both sessions and ticket types, including their disabled items to sync tickets against.
+        // Ticket updates need fresh state because this runs immediately after nested elements are saved.
+        $sessions = Session::find()->eventId($this->id)->status(null)->cache(false)->collect();
+        $ticketTypes = TicketType::find()->eventId($this->id)->status(null)->cache(false)->collect();
 
         $elementsService = Craft::$app->getElements();
 
         // Fetch all tickets for this event here for performance. Remember to query disabled tickets too.
-        $currentTickets = Ticket::find()->eventId($this->id)->status(null)->collect();
+        $currentTickets = Ticket::find()->eventId($this->id)->status(null)->cache(false)->collect();
 
         // Keep track of any processed tickets to assist with deletion
         $validTicketIds = Collection::make();
@@ -1160,14 +1161,40 @@ class Event extends Element
                     continue;
                 }
 
+                $ticket = Ticket::find()
+                    ->eventId($this->id)
+                    ->sessionId($session->id)
+                    ->typeId($ticketType->id)
+                    ->status(null)
+                    ->cache(false)
+                    ->one();
+
+                if ($ticket) {
+                    // Sync all tickets with their related session/ticket types disabled state. Both have to be enabled for a ticket to be enabled
+                    $newStatus = $session->enabled && $ticketType->enabled;
+
+                    if ($ticket->enabled !== $newStatus) {
+                        Db::update('{{%elements}}', ['enabled' => $newStatus], ['id' => $ticket->id]);
+                    }
+
+                    $currentTickets->push($ticket);
+                    $validTicketIds[] = $ticket->id;
+
+                    continue;
+                }
+
                 $ticket = new Ticket([
                     'eventId' => $this->id,
                     'sessionId' => $session->id,
                     'typeId' => $ticketType->id,
+                    'enabled' => $session->enabled && $ticketType->enabled,
                 ]);
 
-                $elementsService->saveElement($ticket);
+                if (!$elementsService->saveElement($ticket)) {
+                    continue;
+                }
 
+                $currentTickets->push($ticket);
                 $validTicketIds[] = $ticket->id;
             }
         }
