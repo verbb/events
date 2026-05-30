@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.1.2 - 2026-05-30
+
+### Changed
+- Tweak for session/event capacity trigger.
+- Rename the event sidebar “Event Capacity” field to “Capacity” to better fit Craft’s meta layout.
+- Clarify event, session and ticket type capacity behaviour in the control panel and docs.
+
+### Fixed
+- Fix ticket update sync to avoid duplicate generated tickets.
+- Fix event capacity `0` being treated inconsistently in some capacity summary calculations.
+- Fix an error with session-capacity checks.
+
 ## 3.1.1 - 2026-05-19
 
 ### Changed
