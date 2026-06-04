@@ -190,7 +190,7 @@ Below we've prepared a ready-to-go template, complete with provided CSS to get y
 </head>
 
 <body>
-{% for ticket in tickets.all() %}
+{% for ticket in tickets %}
     <div class="ticket">
         <img class="ticket-img" src="https://assets.verbb.io/plugins/events/ticket-trans-notext.jpg" />
 
