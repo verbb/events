@@ -358,6 +358,10 @@ class TicketType extends Element implements NestedElementInterface
                 return;
             }
 
+            if (!isset($price['locale'])) {
+                $price['locale'] = Craft::$app->getFormattingLocale()->id;
+            }
+
             if (!isset($price['currency'])) {
                 $store = Commerce::getInstance()->getStores()->getStoreBySiteId($this->siteId);
 
@@ -382,6 +386,19 @@ class TicketType extends Element implements NestedElementInterface
     public function getPrice(): ?float
     {
         return $this->_price;
+    }
+
+    public function getPriceForInput(): ?string
+    {
+        if ($this->price === null) {
+            return null;
+        }
+
+        $store = Commerce::getInstance()->getStores()->getStoreBySiteId($this->siteId);
+        $currency = $store->getCurrency();
+        $money = Commerce::getInstance()->getCurrencies()->getTeller($currency)->convertToMoney($this->price);
+
+        return MoneyHelper::toNumber($money) ?: null;
     }
 
     public function getIsAvailable(): bool
@@ -839,9 +856,14 @@ class TicketType extends Element implements NestedElementInterface
     protected function inlineAttributeInputHtml(string $attribute): string
     {
         if ($attribute === 'price') {
-            return Cp::textHtml([
+            $store = Commerce::getInstance()->getStores()->getStoreBySiteId($this->siteId);
+            $currency = $store->getCurrency();
+
+            return Cp::moneyInputHtml([
                 'name' => 'price',
-                'value' => $this->price,
+                'value' => $this->getPriceForInput(),
+                'currency' => $currency,
+                'decimals' => Commerce::getInstance()->getCurrencies()->getSubunitFor($currency),
             ]);
         }
 

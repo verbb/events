@@ -9,6 +9,8 @@ use craft\base\ElementInterface;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 
+use craft\commerce\Plugin as Commerce;
+
 use yii\base\InvalidArgumentException;
 
 class TicketTypePriceField extends BaseNativeField
@@ -40,10 +42,19 @@ class TicketTypePriceField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in ticket field layouts.');
         }
 
+        if (!$element instanceof TicketType) {
+            return null;
+        }
+
+        $store = Commerce::getInstance()->getStores()->getStoreBySiteId($element->siteId);
+        $currency = $store->getCurrency();
+
         return Cp::moneyInputHtml([
             'id' => 'price',
             'name' => 'price',
-            'value' => $element->price,
+            'value' => $element->getPriceForInput(),
+            'currency' => $currency,
+            'decimals' => Commerce::getInstance()->getCurrencies()->getSubunitFor($currency),
         ]);
     }
 }
