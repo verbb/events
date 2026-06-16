@@ -480,7 +480,7 @@ class Ticket extends Purchasable
             return false;
         }
 
-        if ($this->getStatus() === false) {
+        if ($this->getStatus() !== Element::STATUS_ENABLED) {
             return false;
         }
 
