@@ -218,19 +218,19 @@ class Ticket extends Purchasable
         // Check for parent type/session/event disabled state, which should be inherited
         if ($event = $this->getEvent()) {
             if (!$event->enabled || !$event->getEnabledForSite()) {
-                return false;
+                return Element::STATUS_DISABLED;
             }
         }
 
         if ($session = $this->getSession()) {
             if (!$session->enabled || !$session->getEnabledForSite()) {
-                return false;
+                return Element::STATUS_DISABLED;
             }
         }
 
         if ($ticketType = $this->getType()) {
             if (!$ticketType->enabled || !$ticketType->getEnabledForSite()) {
-                return false;
+                return Element::STATUS_DISABLED;
             }
         }
 
