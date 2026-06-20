@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.3 - 2026-06-20
+
+### Fixed
+- Fix Ticket::getStatus() to return STATUS_DISABLED for disabled parent elements.
+- Fix disabled tickets still reporting as available for purchase during checkout.
+- Fix ticket type price field locale decimal separator handling in CP edit form.
+
 ## 3.1.2 - 2026-05-30
 
 ### Changed
