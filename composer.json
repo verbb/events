@@ -28,6 +28,7 @@
         "php": "^8.2",
         "craftcms/cms": "^5.10.0",
         "craftcms/commerce": "^5.0.0",
+        "dompdf/dompdf": "^2.0.4 || ^3.0",
         "endroid/qr-code": "^5.1.0",
         "jsvrcek/ics": "^0.8.0",
         "verbb/base": "^3.0.9"
