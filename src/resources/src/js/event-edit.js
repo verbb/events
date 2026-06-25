@@ -37,6 +37,8 @@ Craft.Events.EventEdit = Garnish.Base.extend({
 
             this.addListener(this.$capacityEditBtn, 'click', 'toggleCapacityEdit');
         }
+
+        this.initTicketStatus();
     },
 
     toggleCapacityEdit(e) {
@@ -64,6 +66,127 @@ Craft.Events.EventEdit = Garnish.Base.extend({
         }
 
         this.$capacityInput.trigger('input').trigger('change');
+    },
+
+    initTicketStatus() {
+        this.$ticketStatus = this.$container.find('[data-events-ticket-status]');
+
+        if (!this.$ticketStatus.length) {
+            return;
+        }
+
+        this.statusUrl = this.$ticketStatus.data('statusUrl');
+        this.pollInterval = null;
+        this.isPolling = false;
+
+        if (this.isActiveState(this.$ticketStatus.data('state'))) {
+            this.startPolling();
+        }
+    },
+
+    isActiveState(state) {
+        return state === 'queued' || state === 'running';
+    },
+
+    startPolling() {
+        if (this.pollInterval) {
+            return;
+        }
+
+        this.poll();
+        this.pollInterval = window.setInterval(() => {
+            this.poll();
+        }, 2000);
+    },
+
+    stopPolling() {
+        if (this.pollInterval) {
+            window.clearInterval(this.pollInterval);
+            this.pollInterval = null;
+        }
+    },
+
+    kickQueue() {
+        if (typeof Craft === 'undefined') {
+            return;
+        }
+
+        if (Craft.cp && typeof Craft.cp.runQueue === 'function') {
+            Craft.cp.runQueue();
+            return;
+        }
+
+        if (Craft.runQueueAutomatically !== false && typeof Craft.sendActionRequest === 'function') {
+            Craft.sendActionRequest('POST', 'queue/run').catch(() => {});
+        }
+    },
+
+    poll() {
+        if (!this.statusUrl || this.isPolling) {
+            return;
+        }
+
+        this.isPolling = true;
+        this.kickQueue();
+
+        fetch(this.statusUrl, {
+            headers: {
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('status');
+                }
+
+                return response.json();
+            })
+            .then((payload) => {
+                this.updateTicketStatusUI(payload);
+            })
+            .catch(() => {})
+            .finally(() => {
+                this.isPolling = false;
+            });
+    },
+
+    updateTicketStatusUI(payload) {
+        if (!payload || !payload.state) {
+            return;
+        }
+
+        if (this.isActiveState(payload.state)) {
+            this.updateRunningUI(payload);
+            return;
+        }
+
+        this.stopPolling();
+        window.location.reload();
+    },
+
+    updateRunningUI(payload) {
+        const progress = Math.round((payload.progress || 0) * 100);
+        const description = payload.description || Craft.t('events', 'Updating tickets…');
+
+        this.$ticketStatus.attr('data-state', payload.state);
+
+        this.$ticketStatus
+            .find('.events-ticket-status__progress')
+            .attr('aria-valuenow', progress);
+
+        this.$ticketStatus
+            .find('.events-ticket-status__progress-bar')
+            .css('width', progress + '%');
+
+        this.$ticketStatus
+            .find('.events-ticket-status__description')
+            .text(description);
+
+        this.$ticketStatus
+            .find('.events-ticket-status__percent')
+            .text(progress + '%');
     },
 });
 

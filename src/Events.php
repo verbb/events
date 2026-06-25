@@ -82,7 +82,7 @@ class Events extends Plugin
 
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '1.1.8';
+    public string $schemaVersion = '1.1.9';
     public string $minVersionRequired = '1.4.20';
 
 
@@ -187,6 +187,8 @@ class Events extends Plugin
             $event->rules['events/events/<eventTypeHandle:{handle}>'] = 'events/events/index';
             $event->rules['events/events/<eventType:{handle}>/new'] = 'events/events/create';
             $event->rules['events/events/<eventTypeHandle:{handle}>/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
+
+            $event->rules['events/events/<eventId:\d+>/ticket-update-status'] = 'events/events/ticket-update-status';
 
             $event->rules['events/sessions/<elementId:\d+>'] = 'elements/edit';
             $event->rules['events/ticket-types/<elementId:\d+>'] = 'elements/edit';

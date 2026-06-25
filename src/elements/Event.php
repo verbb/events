@@ -10,6 +10,7 @@ use verbb\events\elements\db\SessionQuery;
 use verbb\events\elements\db\TicketQuery;
 use verbb\events\elements\db\TicketTypeQuery;
 use verbb\events\elements\traits\PurchasedTicketTrait;
+use verbb\events\models\EventTicketUpdate;
 use verbb\events\models\EventType;
 use verbb\events\records\Event as EventRecord;
 
@@ -1026,107 +1027,20 @@ class Event extends Element
         $tickets = Ticket::find()->eventId($this->id)->exists();
 
         if ((($sessions && $ticketTypes) || $tickets) && $this->getIsCanonical()) {
-            if ($this->hasPendingTicketChanges()) {
-                $ticketStatusField = Html::beginTag('div', [
-                    'class' => 'meta',
-                    'style' => [
-                        'background-color' => 'var(--yellow-050) !important',
-                        'box-shadow' => '0 0 0 1px #f6d9b8, 0 2px 12px rgba(205, 216, 228, .5)',
-                        'padding' => '1rem 1.5rem',
-                    ],
-                ]) . 
-                    Html::beginTag('div') . 
-                        Html::beginTag('div', [
-                            'style' => [
-                                'display' => 'flex',
-                            ],
-                        ]) . 
-                            Html::tag('span', null, [
-                                'class' => 'icon',
-                                'aria-hidden' => true,
-                                'data-icon' => 'alert',
-                                'style' => [
-                                    'color' => 'var(--yellow-400)',
-                                    'margin-top' => '-1px',
-                                    'display' => 'block',
-                                    'margin-right' => '0.5rem',
-                                ],
-                            ]) . 
-                            Html::tag('div', Craft::t('events', 'Pending ticket updates'), [
-                                'style' => [
-                                    'color' => 'var(--yellow-800)',
-                                    'font-weight' => '500',
-                                ],
-                            ]) . 
-                        Html::endTag('div') . 
-                        Html::beginTag('div', [
-                            'style' => [
-                                'padding' => '0.5rem 0',
-                            ],
-                        ]) . 
-                            Html::tag('p', Craft::t('events', 'Changes to this event have affected your tickets and updates should be applied.'), [
-                                'style' => [
-                                    'color' => 'var(--yellow-700)',
-                                ],
-                            ]) . 
-                        Html::endTag('div') . 
-
-                        Html::submitButton(Craft::t('events', 'Apply ticket updates'), [
-                            'class' => 'formsubmit btn',
-                            'data-redirect' => Craft::$app->getSecurity()->hashData('{cpEditUrl}'),
-                            'data-params' => [
-                                'updateTickets' => true,
-                            ],
-                            'style' => [
-                                'color' => '#fff',
-                                'background-color' => 'var(--yellow-700)',
-                            ],
-                        ]) . 
-                    Html::endTag('div') . 
-                Html::endTag('div');
-            } else {
-                $ticketStatusField = Html::beginTag('div', [
-                    'class' => 'meta',
-                    'style' => [
-                        'background-color' => 'var(--green-050) !important',
-                        'box-shadow' => '0 0 0 1px #c7e5d2, 0 2px 12px rgba(205, 216, 228, .5)',
-                        'padding' => '1rem 1.5rem',
-                    ],
-                ]) . 
-                    Html::beginTag('div', [
-                        'style' => [
-                            'color' => 'var(--green-700)',
-                            'align-items' => 'flex-start',
-                            'display' => 'flex',
-                            'flex-wrap' => 'nowrap',
-                        ],
-                    ]) . 
-                        Html::tag('span', null, [
-                            'class' => 'icon',
-                            'aria-hidden' => true,
-                            'data-icon' => 'circle-check',
-                            'style' => [
-                                'color' => 'var(--green-500)',
-                                'flex-shrink' => '1',
-                                'margin-top' => '-1px',
-                                'margin-right' => '0.5rem',
-                            ],
-                        ]) . 
-                        Html::tag('span', Craft::t('events', 'No pending ticket updates.')) . 
-                    Html::endTag('div') . 
-                Html::endTag('div');
-            }
+            $ticketUpdatesService = Events::$plugin->getEventTicketUpdates();
+            $status = $ticketUpdatesService->getEventStatusPayload($this);
+            $statusUrl = $ticketUpdatesService->getStatusUrl((int)$this->id);
 
             $html .= Html::beginTag('fieldset', ['class' => 'field']) .
                 Html::tag('legend', Craft::t('events', 'Ticket Status'), ['class' => 'h6']) .
-                Html::tag('div', $ticketStatusField) .
+                Html::tag('div', $this->_getTicketStatusWidgetHtml($status, $statusUrl)) .
                 Html::endTag('fieldset');
         }
 
         return $html;
     }
 
-    public function updateTickets(): void
+    public function updateTickets(?callable $onProgress = null): void
     {
         // Query both sessions and ticket types, including their disabled items to sync tickets against.
         // Ticket updates need fresh state because this runs immediately after nested elements are saved.
@@ -1140,6 +1054,12 @@ class Event extends Element
 
         // Keep track of any processed tickets to assist with deletion
         $validTicketIds = Collection::make();
+        $totalCombinations = max(1, $sessions->count() * $ticketTypes->count());
+        $processedCombinations = 0;
+
+        if ($onProgress) {
+            $onProgress(0.1, Craft::t('events', 'Syncing tickets…'));
+        }
 
         foreach ($sessions as $session) {
             foreach ($ticketTypes as $ticketType) {
@@ -1157,49 +1077,60 @@ class Event extends Element
                     }
 
                     $validTicketIds[] = $ticket->id;
+                } else {
+                    $ticket = Ticket::find()
+                        ->eventId($this->id)
+                        ->sessionId($session->id)
+                        ->typeId($ticketType->id)
+                        ->status(null)
+                        ->cache(false)
+                        ->one();
 
-                    continue;
-                }
+                    if ($ticket) {
+                        // Sync all tickets with their related session/ticket types disabled state. Both have to be enabled for a ticket to be enabled
+                        $newStatus = $session->enabled && $ticketType->enabled;
 
-                $ticket = Ticket::find()
-                    ->eventId($this->id)
-                    ->sessionId($session->id)
-                    ->typeId($ticketType->id)
-                    ->status(null)
-                    ->cache(false)
-                    ->one();
+                        if ($ticket->enabled !== $newStatus) {
+                            Db::update('{{%elements}}', ['enabled' => $newStatus], ['id' => $ticket->id]);
+                        }
 
-                if ($ticket) {
-                    // Sync all tickets with their related session/ticket types disabled state. Both have to be enabled for a ticket to be enabled
-                    $newStatus = $session->enabled && $ticketType->enabled;
+                        $currentTickets->push($ticket);
+                        $validTicketIds[] = $ticket->id;
+                    } else {
+                        $ticket = new Ticket([
+                            'eventId' => $this->id,
+                            'sessionId' => $session->id,
+                            'typeId' => $ticketType->id,
+                            'enabled' => $session->enabled && $ticketType->enabled,
+                        ]);
 
-                    if ($ticket->enabled !== $newStatus) {
-                        Db::update('{{%elements}}', ['enabled' => $newStatus], ['id' => $ticket->id]);
+                        if ($elementsService->saveElement($ticket)) {
+                            $currentTickets->push($ticket);
+                            $validTicketIds[] = $ticket->id;
+                        }
                     }
-
-                    $currentTickets->push($ticket);
-                    $validTicketIds[] = $ticket->id;
-
-                    continue;
                 }
 
-                $ticket = new Ticket([
-                    'eventId' => $this->id,
-                    'sessionId' => $session->id,
-                    'typeId' => $ticketType->id,
-                    'enabled' => $session->enabled && $ticketType->enabled,
-                ]);
+                $processedCombinations++;
 
-                if (!$elementsService->saveElement($ticket)) {
-                    continue;
+                if ($onProgress) {
+                    $progress = min(0.9, 0.1 + (0.8 * $processedCombinations / $totalCombinations));
+                    $onProgress(
+                        $progress,
+                        Craft::t('events', 'Syncing tickets ({current} of {total})…', [
+                            'current' => $processedCombinations,
+                            'total' => $totalCombinations,
+                        ]),
+                    );
                 }
-
-                $currentTickets->push($ticket);
-                $validTicketIds[] = $ticket->id;
             }
         }
 
         // Delete tickets that are no longer valid
+        if ($onProgress) {
+            $onProgress(0.92, Craft::t('events', 'Removing orphaned tickets…'));
+        }
+
         $invalidTickets = $currentTickets->filter(function(Ticket $ticket) use ($validTicketIds) {
             return !$validTicketIds->contains($ticket->id);
         });
@@ -1209,6 +1140,11 @@ class Event extends Element
         }
 
         Db::update('{{%events_events}}', ['ticketsCache' => $this->getTicketCacheKey()], ['id' => $this->id]);
+        $this->ticketsCache = $this->getTicketCacheKey();
+
+        if ($onProgress) {
+            $onProgress(1, Craft::t('events', 'Ticket updates complete.'));
+        }
     }
 
     public function getGqlTypeName(): string
@@ -1303,9 +1239,9 @@ class Event extends Element
             Craft::$app->getRevisions()->createRevision($this, notes: $this->revisionNotes);
         }
 
-        // Generate tickets based on the sessions and ticket types for this event
-        if ($this->_shouldUpdateTickets()) {
-            $this->updateTickets();
+        // Queue ticket updates based on the sessions and ticket types for this event
+        if ($this->_shouldQueueTicketUpdates()) {
+            Events::$plugin->getEventTicketUpdates()->queueUpdate($this);
         }
     }
 
@@ -1628,9 +1564,139 @@ class Event extends Element
         return ($this->id && !$this->propagating && !$this->resaving && !$this->getIsDraft() && !$this->getIsRevision() && $this->getType()->enableVersioning);
     }
 
-    private function _shouldUpdateTickets(): bool
+    private function _shouldQueueTicketUpdates(): bool
     {
-        return ($this->id && !$this->propagating && !$this->resaving && !$this->getIsDraft() && !$this->getIsRevision() && $this->updateTickets);
+        if (!$this->id || $this->propagating || $this->resaving || $this->getIsDraft() || $this->getIsRevision()) {
+            return false;
+        }
+
+        if ($this->updateTickets) {
+            return true;
+        }
+
+        return Events::$plugin->getSettings()->applyPendingTicketUpdates && $this->hasPendingTicketChanges();
+    }
+
+    private function _getTicketStatusWidgetHtml(array $status, string $statusUrl): string
+    {
+        $state = $status['state'] ?? EventTicketUpdate::STATUS_COMPLETE;
+        $progress = round(($status['progress'] ?? 0) * 100);
+        $description = $status['description'] ?? null;
+        $error = $status['error'] ?? null;
+
+        $html = Html::beginTag('div', [
+            'class' => [
+                'meta',
+                'events-ticket-status',
+                'events-ticket-status--' . $state,
+            ],
+            'style' => $this->_getTicketStatusContainerStyle($state),
+            'data-events-ticket-status' => true,
+            'data-event-id' => $this->id,
+            'data-status-url' => $statusUrl,
+            'data-state' => $state,
+        ]);
+
+        $html .= Html::beginTag('div', ['class' => 'events-ticket-status__header']) .
+            Html::tag('span', null, [
+                'class' => ['icon', 'events-ticket-status__icon'],
+                'aria-hidden' => true,
+                'data-icon' => $this->_getTicketStatusIcon($state),
+            ]) .
+            Html::tag('div', $this->_getTicketStatusTitle($state), [
+                'class' => 'events-ticket-status__title',
+            ]) .
+        Html::endTag('div');
+
+        if (in_array($state, [EventTicketUpdate::STATUS_QUEUED, EventTicketUpdate::STATUS_RUNNING], true)) {
+            $html .= Html::beginTag('div', ['class' => 'events-ticket-status__progress-wrap']) .
+                Html::beginTag('div', [
+                    'class' => 'events-ticket-status__progress',
+                    'role' => 'progressbar',
+                    'aria-valuemin' => 0,
+                    'aria-valuemax' => 100,
+                    'aria-valuenow' => $progress,
+                ]) .
+                    Html::tag('div', null, [
+                        'class' => 'events-ticket-status__progress-bar',
+                        'style' => ['width' => $progress . '%'],
+                    ]) .
+                Html::endTag('div') .
+                Html::tag('p', Html::encode($description ?: Craft::t('events', 'Updating tickets…')), [
+                    'class' => 'events-ticket-status__description',
+                ]) .
+                Html::tag('p', $progress . '%', [
+                    'class' => 'events-ticket-status__percent',
+                ]) .
+            Html::endTag('div');
+        } elseif ($state === 'pending') {
+            $html .= Html::tag('p', Craft::t('events', 'Changes to this event have affected your tickets and updates should be applied.'), [
+                'class' => 'events-ticket-status__message',
+            ]) .
+            Html::submitButton(Craft::t('events', 'Apply ticket updates'), [
+                'class' => 'formsubmit btn events-ticket-status__apply',
+                'data-redirect' => Craft::$app->getSecurity()->hashData('{cpEditUrl}'),
+                'data-params' => [
+                    'updateTickets' => true,
+                ],
+            ]);
+        } elseif ($state === EventTicketUpdate::STATUS_FAILED) {
+            $html .= Html::tag('p', Html::encode($error ?: Craft::t('events', 'Ticket updates could not be applied.')), [
+                'class' => 'events-ticket-status__error',
+            ]) .
+            Html::submitButton(Craft::t('events', 'Retry ticket updates'), [
+                'class' => 'formsubmit btn events-ticket-status__apply',
+                'data-redirect' => Craft::$app->getSecurity()->hashData('{cpEditUrl}'),
+                'data-params' => [
+                    'updateTickets' => true,
+                ],
+            ]);
+        }
+
+        return $html . Html::endTag('div');
+    }
+
+    private function _getTicketStatusContainerStyle(string $state): array
+    {
+        // Inline styles are required to override Craft's `.meta` sidebar background.
+        return match ($state) {
+            EventTicketUpdate::STATUS_QUEUED, EventTicketUpdate::STATUS_RUNNING => [
+                'background-color' => 'var(--blue-050) !important',
+                'box-shadow' => '0 0 0 1px #c8d9f0, 0 2px 12px rgba(205, 216, 228, .5)',
+            ],
+            EventTicketUpdate::STATUS_FAILED => [
+                'background-color' => 'var(--red-050) !important',
+                'box-shadow' => '0 0 0 1px #f0c8c8, 0 2px 12px rgba(205, 216, 228, .5)',
+            ],
+            'pending' => [
+                'background-color' => 'var(--yellow-050) !important',
+                'box-shadow' => '0 0 0 1px #f6d9b8, 0 2px 12px rgba(205, 216, 228, .5)',
+            ],
+            default => [
+                'background-color' => 'var(--green-050) !important',
+                'box-shadow' => '0 0 0 1px #c7e5d2, 0 2px 12px rgba(205, 216, 228, .5)',
+            ],
+        };
+    }
+
+    private function _getTicketStatusIcon(string $state): string
+    {
+        return match ($state) {
+            EventTicketUpdate::STATUS_QUEUED, EventTicketUpdate::STATUS_RUNNING => 'time',
+            EventTicketUpdate::STATUS_FAILED => 'alert',
+            'pending' => 'alert',
+            default => 'circle-check',
+        };
+    }
+
+    private function _getTicketStatusTitle(string $state): string
+    {
+        return match ($state) {
+            EventTicketUpdate::STATUS_QUEUED, EventTicketUpdate::STATUS_RUNNING => Craft::t('events', 'Updating tickets…'),
+            EventTicketUpdate::STATUS_FAILED => Craft::t('events', 'Ticket update failed'),
+            'pending' => Craft::t('events', 'Pending ticket updates'),
+            default => Craft::t('events', 'No pending ticket updates.'),
+        };
     }
 
     private static function createSessionQuery(Event $event): SessionQuery

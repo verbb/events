@@ -1,8 +1,17 @@
 {% import '_includes/forms' as forms %}
 {% import 'verbb-base/_macros' as macros %}
 
-{{ forms.autosuggestField({
+{{ forms.lightswitchField({
     first: true,
+    label: 'Apply Pending Ticket Updates' | t('events'),
+    instructions: 'Automatically queue ticket updates when saving an event that has pending session or ticket type changes.' | t('events'),
+    id: 'applyPendingTicketUpdates',
+    name: 'applyPendingTicketUpdates',
+    on: settings.applyPendingTicketUpdates,
+    warning: macros.configWarning('applyPendingTicketUpdates', 'events'),
+}) }}
+
+{{ forms.autosuggestField({
     label: 'Ticket PDF Template' | t('events'),
     instructions: 'The path to the template used for generating purchased ticket PDFs.' | t('events'),
     required: true,

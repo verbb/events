@@ -144,6 +144,19 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
+
+        $this->archiveTableIfExists('{{%events_ticket_updates}}');
+        $this->createTable('{{%events_ticket_updates}}', [
+            'id' => $this->primaryKey(),
+            'eventId' => $this->integer()->notNull(),
+            'status' => $this->string()->notNull(),
+            'progress' => $this->float()->notNull()->defaultValue(0),
+            'description' => $this->text(),
+            'error' => $this->text(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
     }
 
     public function createIndexes(): void
@@ -172,6 +185,9 @@ class Install extends Migration
         $this->createIndex(null, '{{%events_tickets}}', 'eventId', false);
         $this->createIndex(null, '{{%events_tickets}}', 'sessionId', false);
         $this->createIndex(null, '{{%events_tickets}}', 'typeId', false);
+
+        $this->createIndex(null, '{{%events_ticket_updates}}', 'eventId', false);
+        $this->createIndex(null, '{{%events_ticket_updates}}', 'status', false);
     }
 
     public function addForeignKeys(): void
@@ -206,6 +222,8 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%events_tickets}}', 'eventId', '{{%events_events}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_tickets}}', 'sessionId', '{{%events_sessions}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_tickets}}', 'typeId', '{{%events_ticket_types}}', 'id', 'CASCADE', null);
+
+        $this->addForeignKey(null, '{{%events_ticket_updates}}', 'eventId', '{{%events_events}}', 'id', 'CASCADE', null);
     }
 
     public function dropTables(): void
@@ -217,6 +235,7 @@ class Install extends Migration
         $this->dropTableIfExists('{{%events_sessions}}');
         $this->dropTableIfExists('{{%events_ticket_types}}');
         $this->dropTableIfExists('{{%events_tickets}}');
+        $this->dropTableIfExists('{{%events_ticket_updates}}');
     }
 
     public function dropForeignKeys(): void

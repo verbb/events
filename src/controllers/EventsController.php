@@ -144,4 +144,21 @@ class EventsController extends Controller
 
         return $response;
     }
+
+    public function actionTicketUpdateStatus(int $eventId): Response
+    {
+        $this->requireCpRequest();
+        $this->requireAcceptsJson();
+
+        $event = Event::find()
+            ->id($eventId)
+            ->status(null)
+            ->one();
+
+        if (!$event || !Craft::$app->getElements()->canView($event)) {
+            throw new ForbiddenHttpException('User not authorized to view this event.');
+        }
+
+        return $this->asJson(Events::getInstance()->getEventTicketUpdates()->getEventStatusPayload($event));
+    }
 }

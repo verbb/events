@@ -14,6 +14,7 @@ return [
         'ticketPdfFilenameFormat' => 'Tickets-{number}',
         'checkinTemplate' => 'events/check-in',
         'ticketsShippable' => false,
+        'applyPendingTicketUpdates' => false,
         
         'pdfAllowRemoteImages' => false,
         'pdfPaperSize' => 'letter',
@@ -30,7 +31,7 @@ return [
 - `ticketPdfFilenameFormat` - Set the default PDF filename format.
 - `checkinTemplate` - Set a template to be shown when checking into an event. See `events/templates/check-in.html` for an example.
 - `ticketsShippable` - Whether a ticket should be classified as shippable. If `false` (the default) no shipping methods will be able to be selected, if tickets are the only items in the cart.
-
+- `applyPendingTicketUpdates` - Whether to automatically queue ticket updates when saving an event that has pending session or ticket type changes. Defaults to `false`, which preserves the manual **Apply ticket updates** workflow.
 - `pdfAllowRemoteImages` - Whether to allow remote images in the PDF.
 - `pdfPaperSize` - Sets the paper size for the PDF.
 - `pdfPaperOrientation` - Sets the paper orientation for the PDF.

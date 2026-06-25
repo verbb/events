@@ -5,3 +5,130 @@
         display: none;
     }
 }
+
+.events-ticket-status {
+    padding: 1rem 1.5rem;
+
+    &__header {
+        align-items: flex-start;
+        display: flex;
+    }
+
+    &__icon {
+        display: block;
+        flex-shrink: 0;
+        margin-right: 0.5rem;
+        margin-top: -1px;
+    }
+
+    &__title {
+        font-weight: 500;
+    }
+
+    &__progress-wrap {
+        padding: 0.75rem 0 0.5rem;
+    }
+
+    &__progress {
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 999px;
+        height: 8px;
+        overflow: hidden;
+    }
+
+    &__progress-bar {
+        background: var(--blue-500);
+        border-radius: 999px;
+        height: 100%;
+        min-width: 0;
+        transition: width 0.3s ease;
+    }
+
+    &__description,
+    &__percent,
+    &__message,
+    &__error {
+        margin: 0;
+    }
+
+    &__description {
+        margin-top: 0.5rem;
+    }
+
+    &__percent {
+        font-size: 0.85em;
+        margin-top: 0.25rem;
+    }
+
+    &__message {
+        padding: 0.5rem 0;
+    }
+
+    &__error {
+        padding: 0.5rem 0;
+    }
+
+    &--queued,
+    &--running {
+        .events-ticket-status__icon {
+            color: var(--blue-500);
+        }
+
+        .events-ticket-status__title {
+            color: var(--gray-800);
+        }
+
+        .events-ticket-status__description,
+        .events-ticket-status__percent {
+            color: var(--gray-600);
+        }
+    }
+
+    &--pending {
+        .events-ticket-status__icon {
+            color: var(--yellow-400);
+        }
+
+        .events-ticket-status__title {
+            color: var(--yellow-800);
+        }
+
+        .events-ticket-status__message {
+            color: var(--yellow-700);
+        }
+
+        .events-ticket-status__apply {
+            background-color: var(--yellow-700);
+            color: #fff;
+        }
+    }
+
+    &--failed {
+        .events-ticket-status__icon {
+            color: var(--red-500);
+        }
+
+        .events-ticket-status__title {
+            color: var(--red-800);
+        }
+
+        .events-ticket-status__error {
+            color: var(--red-700);
+        }
+
+        .events-ticket-status__apply {
+            background-color: var(--red-700);
+            color: #fff;
+        }
+    }
+
+    &--complete {
+        .events-ticket-status__icon {
+            color: var(--green-500);
+        }
+
+        .events-ticket-status__title {
+            color: var(--green-700);
+        }
+    }
+}

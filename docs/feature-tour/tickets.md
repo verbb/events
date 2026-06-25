@@ -4,11 +4,16 @@ Once you’ve created your [Sessions](docs:feature-tour/sessions) and [Ticket Ty
 To handle recurring sessions, Tickets are automatically generated based on your Sessions and Ticket Types. As such, you don't need to manage them directly.
 
 ## Ticket Generation
-When viewing an event in the control panel, and have at least one Session and one Ticket Type, you'll see the option to generate Tickets.
+When viewing an event in the control panel, and you have at least one Session and one Ticket Type, the **Ticket Status** panel in the sidebar shows whether your generated tickets are in sync.
 
-Whenever you add or delete a Session or Ticket Type, this same notification will let you know if tickets need to be regenerated to reflect your changed elements.
+Whenever you add or remove a Session or Ticket Type, the panel will notify you that ticket updates are pending. Click **Apply ticket updates** to queue a sync job. While the job runs, the panel shows live progress including the current step and a progress bar.
+
+Ticket updates are processed in Craft’s queue, so larger events won’t block the control panel while tickets are being created or removed.
 
 Changing element attributes such as Session dates or Ticket Type pricing doesn't require tickets to be regenerated, as they are dynamically resolved.
+
+### Auto-apply
+By default, ticket updates must be applied manually. To automatically queue updates when saving an event with pending changes, enable **Apply Pending Ticket Updates** under Settings → Events → Tickets, or set `applyPendingTicketUpdates` to `true` in your [config file](docs:get-started/configuration).
 
 ## Title and SKU
 A ticket’s title and SKU is automatically generated based on your Event Type’s **Ticket Title Format** and **Ticket SKU Format** settings.

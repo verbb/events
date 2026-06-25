@@ -17,4 +17,8 @@ Once the overall capacity is hit, tickets will no longer be available for purcha
 For multi-session events, event capacity is shared across all sessions. Leave it blank if each session should manage its own capacity. See [Capacity](docs:feature-tour/capacity) for the full calculation rules.
 
 ## Ticket Status
-Ticket generation in this plugin is a dynamic process. Whenever you add or remove [Sessions](docs:feature-tour/sessions) or [Ticket Types](docs:feature-tour/ticket-types), the **Ticket Status** will notify you if the tickets need to be regenerated. Making changes like pricing, capacity or start/end dates **does not** require you to regenerate tickets, as that's all dynamic.
+Ticket generation in this plugin is a dynamic process. Whenever you add or remove [Sessions](docs:feature-tour/sessions) or [Ticket Types](docs:feature-tour/ticket-types), the **Ticket Status** panel in the event sidebar will notify you that ticket updates are pending.
+
+Click **Apply ticket updates** to queue a sync. The panel then shows live progress while Craft generates or removes the corresponding [Tickets](docs:feature-tour/tickets). Making changes like pricing, capacity or start/end dates **does not** require you to apply ticket updates, as that's all dynamic.
+
+You can optionally enable **Apply Pending Ticket Updates** in Settings → Events → Tickets to queue updates automatically when saving an event with pending changes.
