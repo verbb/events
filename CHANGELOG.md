@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.4 - 2026-06-27
+
+### Added
+- Add `dompdf/dompdf:^3.0` support for PHP 8.5 compatibility.
+- Add queued ticket updates with live CP progress panel and optional auto-apply setting.
+
 ## 3.1.3 - 2026-06-20
 
 ### Fixed
