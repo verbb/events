@@ -2,6 +2,7 @@
 namespace verbb\events\console\controllers;
 
 use verbb\events\elements\Ticket;
+use verbb\events\Events;
 
 use Craft;
 use craft\console\Controller;
@@ -58,7 +59,7 @@ class TicketsController extends Controller
                 continue;
             }
 
-            if ($ticket->getPurchasedTicketsCount() > 0) {
+            if (Events::$plugin->getPurchasedTickets()->getPurchasedTicketElementCountForTicket($id, true) > 0) {
                 $this->stderr("Skipped ticket #{$id}: still referenced by purchased tickets." . PHP_EOL, Console::FG_YELLOW);
                 $skippedPurchased++;
 

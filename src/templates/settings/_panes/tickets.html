@@ -38,3 +38,28 @@
     required: true,
     warning: macros.configWarning('ticketPdfFilenameFormat', 'events'),
 }) }}
+
+<hr>
+
+{{ forms.textField({
+    label: 'Release Capacity Order Statuses' | t('events'),
+    instructions: 'When an order moves to one of these Commerce order status handles, its purchased tickets will be soft-deleted so event capacity is restored. Separate multiple handles with commas.' | t('events'),
+    id: 'releaseCapacityOrderStatusHandles',
+    name: 'releaseCapacityOrderStatusHandles',
+    value: settings.releaseCapacityOrderStatusHandles | join(', '),
+    class: 'code ltr',
+    errors: settings.getErrors('releaseCapacityOrderStatusHandles'),
+    warning: macros.configWarning('releaseCapacityOrderStatusHandles', 'events'),
+}) }}
+
+{{ forms.textField({
+    label: 'Trashed Purchased Ticket Retention' | t('events'),
+    instructions: 'The number of days to keep soft-deleted purchased tickets before they are permanently deleted during garbage collection. Set to `0` to disable automatic purging.' | t('events'),
+    id: 'purchasedTicketTrashRetentionDays',
+    name: 'purchasedTicketTrashRetentionDays',
+    value: settings.purchasedTicketTrashRetentionDays,
+    type: 'number',
+    min: 0,
+    errors: settings.getErrors('purchasedTicketTrashRetentionDays'),
+    warning: macros.configWarning('purchasedTicketTrashRetentionDays', 'events'),
+}) }}

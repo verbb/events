@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Add `./craft events/purchased-tickets/purge-trashed` console command to permanently delete trashed purchased tickets.
+- Add settings to auto-trash purchased tickets when orders move to configured Commerce order statuses, and to auto-purge trashed purchased tickets during garbage collection.
+
+### Fixed
+- Fix event and session capacity still counting soft-deleted purchased tickets.
+- Fix ticket purchasables being deletable when purchased tickets only exist in the trash.
+
 ## 3.1.4 - 2026-06-27
 
 ### Added

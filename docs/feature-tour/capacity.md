@@ -37,3 +37,31 @@ A value of `0` is treated as an explicit zero-capacity limit. If you upgraded fr
 ```sql
 UPDATE events_events SET capacity = NULL WHERE capacity = 0;
 ```
+
+## Releasing Capacity
+
+When an order is cancelled or refunded, you need to remove its purchased tickets so they no longer count toward capacity. Events supports this in three ways:
+
+### Soft-deleting purchased tickets
+
+Soft-deleting a purchased ticket in the control panel moves it to the trash and immediately stops it from counting toward ticket type, session, and event capacity.
+
+This is the recommended way to release a single ticket or a partial cancellation.
+
+### Order status changes
+
+When a Commerce order moves to one of the configured **Release Capacity Order Statuses** (Settings → Events → Tickets), Events automatically soft-deletes all purchased tickets for that order.
+
+The default handles are `cancelled`, `canceled`, and `refunded`. Update these to match your store’s order statuses.
+
+### Permanently deleting trashed tickets
+
+Soft-deleted purchased tickets remain in the database until they are permanently deleted. Permanent deletion is optional for capacity purposes, but useful for cleanup and data retention.
+
+You can permanently delete trashed purchased tickets from the control panel trash, with the console command:
+
+```bash
+./craft events/purchased-tickets/purge-trashed --dry-run=0
+```
+
+Or automatically after a retention period via **Trashed Purchased Ticket Retention** in plugin settings. When retention is enabled, Craft’s garbage collection will hard-delete trashed purchased tickets older than the configured number of days.

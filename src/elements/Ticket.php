@@ -431,7 +431,7 @@ class Ticket extends Purchasable
     public function getPurchasedTicketsCount(): int
     {
         if ($this->_purchasedTicketCount === null) {
-            $this->_purchasedTicketCount = PurchasedTicket::find()->ticketId($this->id)->count();
+            $this->_purchasedTicketCount = Events::$plugin->getPurchasedTickets()->getPurchasedTicketElementCountForTicket($this->id);
         }
 
         return $this->_purchasedTicketCount * ($this->getType()?->seatsPerTicket ?? 1);
@@ -695,7 +695,7 @@ class Ticket extends Purchasable
     public function beforeDelete(): bool
     {
         // If there are any purchased tickets for this ticket, then it cannot be deleted
-        if ($this->getPurchasedTicketsCount()) {
+        if (Events::$plugin->getPurchasedTickets()->getPurchasedTicketElementCountForTicket($this->id, true)) {
             return false;
         }
 

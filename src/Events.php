@@ -60,7 +60,9 @@ use craft\web\twig\variables\CraftVariable;
 
 use craft\commerce\controllers\OrdersController;
 use craft\commerce\events\ModifyPurchasablesTableQueryEvent;
+use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\services\Emails;
+use craft\commerce\services\OrderHistories;
 use craft\commerce\services\Purchasables;
 
 use yii\base\Event;
@@ -391,6 +393,9 @@ class Events extends Plugin
         Event::on(Emails::class, Emails::EVENT_BEFORE_SEND_MAIL, [$this->getTickets(), 'onBeforeSendEmail']);
         Event::on(Emails::class, Emails::EVENT_AFTER_SEND_MAIL, [$this->getTickets(), 'onAfterSendEmail']);
 
+        // Soft-delete purchased tickets when an order moves to a configured status.
+        Event::on(OrderHistories::class, OrderHistories::EVENT_ORDER_STATUS_CHANGE, [$this->getPurchasedTickets(), 'onOrderStatusChange']);
+
         // Ensure Commerce is installed
         Event::on(Plugins::class, Plugins::EVENT_BEFORE_INSTALL_PLUGIN, function(PluginEvent $event) {
             if ($event->plugin === $this && !Craft::$app->plugins->isPluginInstalled('commerce')) {
@@ -484,8 +489,16 @@ class Events extends Plugin
 
     private function _registerGarbageCollection(): void
     {
-        Event::on(Gc::class, Gc::EVENT_RUN, function(Event $event) {
-            
+        Event::on(Gc::class, Gc::EVENT_RUN, function() {
+            $retentionDays = $this->getSettings()->purchasedTicketTrashRetentionDays;
+
+            if ($retentionDays <= 0) {
+                return;
+            }
+
+            $this->getPurchasedTickets()->purgeTrashedPurchasedTickets([
+                'olderThanDays' => $retentionDays,
+            ]);
         });
     }
 
