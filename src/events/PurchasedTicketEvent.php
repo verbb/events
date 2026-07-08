@@ -11,5 +11,6 @@ class PurchasedTicketEvent extends CancelableEvent
     // =========================================================================
 
     public PurchasedTicket $purchasedTicket;
+    public ?string $reason = null;
 
 }

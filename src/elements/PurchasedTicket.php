@@ -2,6 +2,8 @@
 namespace verbb\events\elements;
 
 use verbb\events\Events;
+use verbb\events\elements\actions\CancelPurchasedTickets;
+use verbb\events\elements\actions\RestorePurchasedTickets;
 use verbb\events\elements\conditions\purchasedtickets\PurchasedTicketCondition;
 use verbb\events\elements\db\PurchasedTicketQuery;
 use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
@@ -13,6 +15,7 @@ use craft\elements\User;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\conditions\ElementConditionInterface;
+use craft\enums\Color as UiColor;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
@@ -35,6 +38,13 @@ use DateTime;
 
 class PurchasedTicket extends Element
 {
+    // Constants
+    // =========================================================================
+
+    public const RESERVATION_STATUS_ACTIVE = 'active';
+    public const RESERVATION_STATUS_CANCELLED = 'cancelled';
+
+
     // Static Methods
     // =========================================================================
 
@@ -73,6 +83,32 @@ class PurchasedTicket extends Element
         return true;
     }
 
+    public static function reservationStatuses(): array
+    {
+        return [
+            self::RESERVATION_STATUS_ACTIVE => Craft::t('events', 'Active'),
+            self::RESERVATION_STATUS_CANCELLED => Craft::t('events', 'Cancelled'),
+        ];
+    }
+
+    public static function statuses(): array
+    {
+        return [
+            self::RESERVATION_STATUS_ACTIVE => [
+                'label' => Craft::t('events', 'Active'),
+                'color' => UiColor::Green,
+            ],
+            self::RESERVATION_STATUS_CANCELLED => [
+                'label' => Craft::t('events', 'Cancelled'),
+                'color' => UiColor::Gray,
+            ],
+            self::STATUS_DISABLED => [
+                'label' => Craft::t('app', 'Disabled'),
+                'color' => UiColor::Gray,
+            ],
+        ];
+    }
+
     public static function find(): PurchasedTicketQuery
     {
         return new PurchasedTicketQuery(static::class);
@@ -99,6 +135,20 @@ class PurchasedTicket extends Element
             [
                 'key' => '*',
                 'label' => Craft::t('events', 'All purchased tickets'),
+            ],
+            [
+                'key' => 'active',
+                'label' => Craft::t('events', 'Active'),
+                'criteria' => [
+                    'reservationStatus' => self::RESERVATION_STATUS_ACTIVE,
+                ],
+            ],
+            [
+                'key' => 'cancelled',
+                'label' => Craft::t('events', 'Cancelled'),
+                'criteria' => [
+                    'reservationStatus' => self::RESERVATION_STATUS_CANCELLED,
+                ],
             ],
         ];
 
@@ -148,6 +198,7 @@ class PurchasedTicket extends Element
     protected static function defineSortOptions(): array
     {
         return [
+            'reservationStatus' => Craft::t('events', 'Reservation Status'),
             'checkedIn' => Craft::t('events', 'Checked In?'),
             'checkedInDate' => Craft::t('events', 'Checked In Date'),
             'dateCreated' => Craft::t('events', 'Date Created'),
@@ -167,6 +218,7 @@ class PurchasedTicket extends Element
             'customerFirstName' => Craft::t('events', 'Customer First Name'),
             'customerLastName' => Craft::t('events', 'Customer Last Name'),
             'customerFullName' => Craft::t('events', 'Customer Full Name'),
+            'reservationStatus' => Craft::t('events', 'Reservation Status'),
             'checkedIn' => Craft::t('events', 'Checked In?'),
             'checkedInDate' => Craft::t('events', 'Checked In Date'),
             'dateCreated' => Craft::t('events', 'Date Created'),
@@ -186,9 +238,17 @@ class PurchasedTicket extends Element
     {
         $actions = [];
 
+        $actions[] = [
+            'type' => CancelPurchasedTickets::class,
+        ];
+
+        $actions[] = [
+            'type' => RestorePurchasedTickets::class,
+        ];
+
         $actions[] = Craft::$app->getElements()->createAction([
             'type' => Delete::class,
-            'confirmationMessage' => Craft::t('events', 'Are you sure you want to delete the selected purchased tickets?'),
+            'confirmationMessage' => Craft::t('events', 'Are you sure you want to permanently delete the selected purchased tickets? This should only be used to remove mistaken records.'),
             'successMessage' => Craft::t('events', 'Purchased tickets deleted.'),
         ]);
 
@@ -205,6 +265,10 @@ class PurchasedTicket extends Element
 
     public ?bool $checkedIn = null;
     public ?DateTime $checkedInDate = null;
+    public string $reservationStatus = self::RESERVATION_STATUS_ACTIVE;
+    public ?DateTime $cancelledAt = null;
+    public ?string $cancelledReason = null;
+    public ?int $cancelledById = null;
     public ?int $eventId = null;
     public ?int $sessionId = null;
     public ?int $ticketId = null;
@@ -298,6 +362,34 @@ class PurchasedTicket extends Element
         }
 
         return null;
+    }
+
+    public function getIsActive(): bool
+    {
+        return $this->reservationStatus === self::RESERVATION_STATUS_ACTIVE;
+    }
+
+    public function getIsCancelled(): bool
+    {
+        return $this->reservationStatus === self::RESERVATION_STATUS_CANCELLED;
+    }
+
+    public function getStatus(): ?string
+    {
+        if ($this->getIsCancelled()) {
+            return self::RESERVATION_STATUS_CANCELLED;
+        }
+
+        $status = parent::getStatus();
+
+        return $status === self::STATUS_ENABLED
+            ? self::RESERVATION_STATUS_ACTIVE
+            : $status;
+    }
+
+    public function getReservationStatusLabel(): string
+    {
+        return self::reservationStatuses()[$this->reservationStatus] ?? $this->reservationStatus;
     }
 
     public function getEvent(): ?Event
@@ -494,6 +586,10 @@ class PurchasedTicket extends Element
         $purchasedTicketRecord->lineItemId = $this->lineItemId;
         $purchasedTicketRecord->checkedIn = $this->checkedIn;
         $purchasedTicketRecord->checkedInDate = $this->checkedInDate;
+        $purchasedTicketRecord->reservationStatus = $this->reservationStatus;
+        $purchasedTicketRecord->cancelledAt = $this->cancelledAt;
+        $purchasedTicketRecord->cancelledReason = $this->cancelledReason;
+        $purchasedTicketRecord->cancelledById = $this->cancelledById;
 
         $purchasedTicketRecord->save(false);
 
@@ -558,6 +654,12 @@ class PurchasedTicket extends Element
 
         if ($attribute === 'customerFullName') {
             return Html::encode($this->_getCustomerFullName() ?: Craft::t('events', '[Guest]'));
+        }
+
+        if ($attribute === 'reservationStatus') {
+            $statusClass = $this->getIsActive() ? 'enabled' : 'disabled';
+
+            return '<span class="status ' . $statusClass . '"></span> ' . Html::encode($this->getReservationStatusLabel());
         }
 
         if ($attribute === 'checkedIn') {

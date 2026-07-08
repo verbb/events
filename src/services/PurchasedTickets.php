@@ -2,6 +2,7 @@
 namespace verbb\events\services;
 
 use verbb\events\elements\PurchasedTicket;
+use verbb\events\elements\Ticket;
 use verbb\events\events\PurchasedTicketEvent;
 use verbb\events\Events;
 use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
@@ -9,6 +10,8 @@ use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\OrderStatusEvent;
+use craft\commerce\events\RefundTransactionEvent;
+use craft\commerce\models\LineItem;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\helpers\DateTimeHelper;
@@ -27,6 +30,10 @@ class PurchasedTickets extends Component
     public const EVENT_AFTER_CHECK_IN = 'afterCheckIn';
     public const EVENT_BEFORE_CHECK_OUT = 'beforeCheckOut';
     public const EVENT_AFTER_CHECK_OUT = 'afterCheckOut';
+    public const EVENT_BEFORE_CANCEL = 'beforeCancel';
+    public const EVENT_AFTER_CANCEL = 'afterCancel';
+    public const EVENT_BEFORE_RESTORE = 'beforeRestore';
+    public const EVENT_AFTER_RESTORE = 'afterRestore';
 
 
     // Public Methods
@@ -48,6 +55,17 @@ class PurchasedTickets extends Component
         return (int)($total ?? 0);
     }
 
+    public function getCancelledSeatsCountForEvent(int $eventId): int
+    {
+        if (!$eventId) {
+            return 0;
+        }
+
+        $total = $this->_cancelledSeatsCountQuery(['eventId' => $eventId])->scalar();
+
+        return (int)($total ?? 0);
+    }
+
     public function getPurchasedSeatsCountForSession(int $sessionId): int
     {
         if (!$sessionId) {
@@ -59,13 +77,13 @@ class PurchasedTickets extends Component
         return (int)($total ?? 0);
     }
 
-    public function getPurchasedTicketElementCountForTicket(int $ticketId, bool $includeTrashed = false): int
+    public function getPurchasedTicketElementCountForTicket(int $ticketId, bool $includeInactive = false): int
     {
         if (!$ticketId) {
             return 0;
         }
 
-        if ($includeTrashed) {
+        if ($includeInactive) {
             return PurchasedTicket::find()
                 ->ticketId($ticketId)
                 ->trashed(null)
@@ -76,6 +94,139 @@ class PurchasedTickets extends Component
         return (int)$this->_activePurchasedTicketElementsQuery()
             ->where(['pt.ticketId' => $ticketId])
             ->count('*');
+    }
+
+    public function cancelPurchasedTicket(PurchasedTicket $purchasedTicket, ?string $reason = null): bool
+    {
+        if (!$purchasedTicket->getIsActive()) {
+            return false;
+        }
+
+        if ($purchasedTicket->checkedIn) {
+            $this->checkOutPurchasedTicket($purchasedTicket);
+        }
+
+        $event = new PurchasedTicketEvent([
+            'purchasedTicket' => $purchasedTicket,
+            'reason' => $reason,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_CANCEL, $event);
+
+        if (!$event->isValid) {
+            return false;
+        }
+
+        $purchasedTicket = $event->purchasedTicket;
+        $purchasedTicket->reservationStatus = PurchasedTicket::RESERVATION_STATUS_CANCELLED;
+        $purchasedTicket->cancelledAt = new DateTime();
+        $purchasedTicket->cancelledReason = $reason ?: null;
+        $purchasedTicket->cancelledById = Craft::$app->getUser()->getId();
+
+        if (!Craft::$app->getElements()->saveElement($purchasedTicket)) {
+            return false;
+        }
+
+        $this->trigger(self::EVENT_AFTER_CANCEL, new PurchasedTicketEvent([
+            'purchasedTicket' => $purchasedTicket,
+            'reason' => $reason,
+        ]));
+
+        return true;
+    }
+
+    public function restorePurchasedTicket(PurchasedTicket $purchasedTicket): bool
+    {
+        if (!$purchasedTicket->getIsCancelled() || !$this->canRestorePurchasedTicket($purchasedTicket)) {
+            return false;
+        }
+
+        $event = new PurchasedTicketEvent([
+            'purchasedTicket' => $purchasedTicket,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_RESTORE, $event);
+
+        if (!$event->isValid) {
+            return false;
+        }
+
+        $purchasedTicket = $event->purchasedTicket;
+        $purchasedTicket->reservationStatus = PurchasedTicket::RESERVATION_STATUS_ACTIVE;
+        $purchasedTicket->cancelledAt = null;
+        $purchasedTicket->cancelledReason = null;
+        $purchasedTicket->cancelledById = null;
+
+        if (!Craft::$app->getElements()->saveElement($purchasedTicket)) {
+            return false;
+        }
+
+        $this->trigger(self::EVENT_AFTER_RESTORE, new PurchasedTicketEvent([
+            'purchasedTicket' => $purchasedTicket,
+        ]));
+
+        return true;
+    }
+
+    public function canRestorePurchasedTicket(PurchasedTicket $purchasedTicket): bool
+    {
+        if (!$purchasedTicket->getIsCancelled()) {
+            return false;
+        }
+
+        if (Events::$plugin->getSettings()->allowRestoreWhenOrderCancelled) {
+            return true;
+        }
+
+        $order = $purchasedTicket->getOrder();
+        $orderStatus = $order?->getOrderStatus();
+        $handles = Events::$plugin->getSettings()->releaseCapacityOrderStatusHandles;
+
+        if ($orderStatus && in_array($orderStatus->handle, $handles, true)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function cancelForOrder(Order $order, ?string $reason = null): int
+    {
+        $purchasedTickets = PurchasedTicket::find()
+            ->orderId($order->id)
+            ->reservationStatus(PurchasedTicket::RESERVATION_STATUS_ACTIVE)
+            ->status(null)
+            ->all();
+
+        $cancelled = 0;
+
+        foreach ($purchasedTickets as $purchasedTicket) {
+            if ($this->cancelPurchasedTicket($purchasedTicket, $reason)) {
+                $cancelled++;
+            }
+        }
+
+        return $cancelled;
+    }
+
+    public function cancelForLineItem(LineItem $lineItem, ?int $qty = null, ?string $reason = null): int
+    {
+        $query = PurchasedTicket::find()
+            ->lineItemId($lineItem->id)
+            ->reservationStatus(PurchasedTicket::RESERVATION_STATUS_ACTIVE)
+            ->status(null)
+            ->orderBy(['id' => SORT_ASC]);
+
+        if ($qty !== null) {
+            $query->limit($qty);
+        }
+
+        $cancelled = 0;
+
+        foreach ($query->all() as $purchasedTicket) {
+            if ($this->cancelPurchasedTicket($purchasedTicket, $reason)) {
+                $cancelled++;
+            }
+        }
+
+        return $cancelled;
     }
 
     /**
@@ -130,33 +281,6 @@ class PurchasedTickets extends Component
         return compact('purchasedTicketIds', 'purged', 'skipped');
     }
 
-    public function trashPurchasedTicketsForOrder(Order $order): int
-    {
-        $purchasedTickets = PurchasedTicket::find()
-            ->orderId($order->id)
-            ->status(null)
-            ->all();
-
-        if ($purchasedTickets === []) {
-            return 0;
-        }
-
-        $elementsService = Craft::$app->getElements();
-        $trashed = 0;
-
-        foreach ($purchasedTickets as $purchasedTicket) {
-            if ($purchasedTicket->dateDeleted) {
-                continue;
-            }
-
-            if ($elementsService->deleteElement($purchasedTicket)) {
-                $trashed++;
-            }
-        }
-
-        return $trashed;
-    }
-
     public function onOrderStatusChange(OrderStatusEvent $event): void
     {
         $handles = Events::$plugin->getSettings()->releaseCapacityOrderStatusHandles;
@@ -171,15 +295,60 @@ class PurchasedTickets extends Component
             return;
         }
 
-        $this->trashPurchasedTicketsForOrder($event->order);
+        $this->cancelForOrder($event->order, Craft::t('events', 'Order status changed to {status}.', [
+            'status' => $orderStatus->name,
+        ]));
+    }
+
+    public function onAfterRefundTransaction(RefundTransactionEvent $event): void
+    {
+        if (!Events::$plugin->getSettings()->cancelPurchasedTicketsOnRefund) {
+            return;
+        }
+
+        $order = $event->transaction->getOrder();
+
+        if (!$order) {
+            return;
+        }
+
+        $ticketLineItems = array_values(array_filter(
+            $order->getLineItems(),
+            fn(LineItem $lineItem) => $lineItem->purchasable instanceof Ticket,
+        ));
+
+        if ($ticketLineItems === []) {
+            return;
+        }
+
+        $reason = Craft::t('events', 'Order refunded.');
+
+        if (count($ticketLineItems) === 1) {
+            $lineItem = $ticketLineItems[0];
+            $unitPrice = $lineItem->getSalePrice();
+
+            if ($unitPrice > 0) {
+                $qty = max(1, (int)round($event->amount / $unitPrice));
+                $this->cancelForLineItem($lineItem, $qty, $reason);
+
+                return;
+            }
+        }
+
+        if ($event->amount >= $event->transaction->paymentAmount) {
+            $this->cancelForOrder($order, $reason);
+        }
     }
 
     public function checkInPurchasedTicket(PurchasedTicket $purchasedTicket): bool
     {
+        if (!$purchasedTicket->getIsActive()) {
+            return false;
+        }
+
         $purchasedTicket->checkedIn = true;
         $purchasedTicket->checkedInDate = new DateTime();
 
-        // Trigger a 'beforeCheckIn' event
         $event = new PurchasedTicketEvent([
             'purchasedTicket' => $purchasedTicket,
         ]);
@@ -193,7 +362,6 @@ class PurchasedTickets extends Component
             return false;
         }
 
-        // Trigger a 'afterCheckIn' event
         $this->trigger(self::EVENT_AFTER_CHECK_IN, new PurchasedTicketEvent([
             'purchasedTicket' => $event->purchasedTicket,
         ]));
@@ -206,7 +374,6 @@ class PurchasedTickets extends Component
         $purchasedTicket->checkedIn = false;
         $purchasedTicket->checkedInDate = null;
 
-        // Trigger a 'beforeCheckOut' event
         $event = new PurchasedTicketEvent([
             'purchasedTicket' => $purchasedTicket,
         ]);
@@ -220,7 +387,6 @@ class PurchasedTickets extends Component
             return false;
         }
 
-        // Trigger a 'afterCheckOut' event
         $this->trigger(self::EVENT_AFTER_CHECK_OUT, new PurchasedTicketEvent([
             'purchasedTicket' => $event->purchasedTicket,
         ]));
@@ -234,7 +400,7 @@ class PurchasedTickets extends Component
 
     private function _activePurchasedTicketElementsQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->from(['pt' => PurchasedTicketRecord::tableName()])
             ->innerJoin(['el' => CraftTable::ELEMENTS], [
                 'and',
@@ -242,12 +408,40 @@ class PurchasedTickets extends Component
                 ['el.dateDeleted' => null],
                 ['el.enabled' => true],
             ]);
+
+        if (Craft::$app->getDb()->columnExists(PurchasedTicketRecord::tableName(), 'reservationStatus')) {
+            $query->andWhere(['pt.reservationStatus' => PurchasedTicket::RESERVATION_STATUS_ACTIVE]);
+        }
+
+        return $query;
     }
 
     private function _purchasedSeatsCountQuery(array $conditions): Query
     {
-        $query = $this->_activePurchasedTicketElementsQuery();
+        return $this->_seatsCountQuery($this->_activePurchasedTicketElementsQuery(), $conditions);
+    }
 
+    private function _cancelledSeatsCountQuery(array $conditions): Query
+    {
+        $query = (new Query())
+            ->from(['pt' => PurchasedTicketRecord::tableName()])
+            ->innerJoin(['el' => CraftTable::ELEMENTS], [
+                'and',
+                '[[el.id]] = [[pt.id]]',
+                ['el.dateDeleted' => null],
+            ]);
+
+        if (Craft::$app->getDb()->columnExists(PurchasedTicketRecord::tableName(), 'reservationStatus')) {
+            $query->andWhere(['pt.reservationStatus' => PurchasedTicket::RESERVATION_STATUS_CANCELLED]);
+        } else {
+            return (new Query())->select([new Expression('0 AS total')]);
+        }
+
+        return $this->_seatsCountQuery($query, $conditions);
+    }
+
+    private function _seatsCountQuery(Query $query, array $conditions): Query
+    {
         foreach ($conditions as $column => $value) {
             $query->andWhere(["pt.$column" => $value]);
         }

@@ -100,6 +100,31 @@ class PurchasedTicketInterface extends Element
                 'type' => DateTime::getType(),
                 'description' => 'The date and time the ticket holder checked in.',
             ],
+            'reservationStatus' => [
+                'name' => 'reservationStatus',
+                'type' => Type::string(),
+                'description' => 'The reservation status of the purchased ticket.',
+            ],
+            'cancelledAt' => [
+                'name' => 'cancelledAt',
+                'type' => DateTime::getType(),
+                'description' => 'The date and time the purchased ticket was cancelled.',
+            ],
+            'cancelledReason' => [
+                'name' => 'cancelledReason',
+                'type' => Type::string(),
+                'description' => 'The reason the purchased ticket was cancelled.',
+            ],
+            'isActive' => [
+                'name' => 'isActive',
+                'type' => Type::boolean(),
+                'description' => 'Whether the purchased ticket is an active reservation.',
+            ],
+            'isCancelled' => [
+                'name' => 'isCancelled',
+                'type' => Type::boolean(),
+                'description' => 'Whether the purchased ticket has been cancelled.',
+            ],
         ]), self::getName());
     }
 }

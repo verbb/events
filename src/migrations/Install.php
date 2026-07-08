@@ -91,6 +91,10 @@ class Install extends Migration
             'lineItemId' => $this->integer(),
             'checkedIn' => $this->boolean(),
             'checkedInDate' => $this->dateTime(),
+            'reservationStatus' => $this->string(32)->notNull()->defaultValue('active'),
+            'cancelledAt' => $this->dateTime(),
+            'cancelledReason' => $this->text(),
+            'cancelledById' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -177,6 +181,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%events_purchased_tickets}}', 'ticketTypeId', false);
         $this->createIndex(null, '{{%events_purchased_tickets}}', 'orderId', false);
         $this->createIndex(null, '{{%events_purchased_tickets}}', 'lineItemId', false);
+        $this->createIndex(null, '{{%events_purchased_tickets}}', 'reservationStatus', false);
 
         $this->createIndex(null, '{{%events_sessions}}', 'primaryOwnerId', false);
 
@@ -211,6 +216,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%events_purchased_tickets}}', 'ticketTypeId', '{{%events_ticket_types}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_purchased_tickets}}', 'lineItemId', '{{%commerce_lineitems}}', 'id', 'SET NULL', null);
         $this->addForeignKey(null, '{{%events_purchased_tickets}}', 'orderId', '{{%commerce_orders}}', 'id', 'SET NULL', null);
+        $this->addForeignKey(null, '{{%events_purchased_tickets}}', 'cancelledById', '{{%users}}', 'id', 'SET NULL', null);
 
         $this->addForeignKey(null, '{{%events_sessions}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, '{{%events_sessions}}', 'primaryOwnerId', '{{%events_events}}', 'id', 'CASCADE', null);

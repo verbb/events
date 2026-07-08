@@ -23,27 +23,35 @@ Attribute | Description
 `qrCode` | A QR code with a URL to the controller, including the ticket SKU, to easily check in a ticket for the event.
 `checkedIn` | `True` or `false` depending on whether the ticket has been checked in for the event.
 `checkedInDate` | The date this ticket was checked in.
+`reservationStatus` | The reservation status: `active` or `cancelled`.
+`cancelledAt` | When the reservation was cancelled.
+`cancelledReason` | Why the reservation was cancelled.
+`isActive` | Whether the purchased ticket is an active reservation.
+`isCancelled` | Whether the purchased ticket has been cancelled.
 
 ## Cancelling Tickets and Releasing Capacity
 
-Purchased tickets represent seats that have been sold. To return those seats to available capacity, the purchased ticket must be soft-deleted.
+Purchased tickets represent seat reservations. To return seats to available capacity, cancel the reservation rather than deleting the record.
 
 ### Manual cancellation
 
-Delete the purchased ticket from **Events → Purchased Tickets** in the control panel. This moves it to the trash and stops it from counting toward capacity at all levels: ticket type, session, and event.
+Use **Cancel tickets** from **Events → Purchased Tickets** in the control panel. This marks the reservation as cancelled, releases capacity, blocks check-in, and keeps the record for reporting.
 
-To permanently remove trashed purchased tickets, delete them from the trash or run:
+Use **Restore tickets** to make a cancelled reservation active again.
+
+### Order cancellations and refunds
+
+Commerce order refunds do not remove purchased tickets by themselves. Events listens for:
+
+- **Order status changes** to configured release-capacity statuses
+- **Commerce refunds**, when enabled in Settings → Events → Tickets
+
+See [Capacity](docs:feature-tour/capacity) for more detail on how capacity is calculated.
+
+### Deleting purchased tickets
+
+Deletion is for mistaken records or GDPR cleanup only. Cancel tickets first, then delete permanently if needed.
 
 ```bash
 ./craft events/purchased-tickets/purge-trashed --dry-run=0
 ```
-
-### Order cancellations and refunds
-
-Commerce order refunds do not automatically remove purchased tickets. Instead, Events listens for order status changes.
-
-When an order is moved to a status handle listed in **Release Capacity Order Statuses** (Settings → Events → Tickets), Events soft-deletes all purchased tickets for that order.
-
-Configure those handles to match your store. For example, if your cancelled status handle is `cancelled`, include that handle in the setting.
-
-See [Capacity](docs:feature-tour/capacity) for more detail on how capacity is calculated.

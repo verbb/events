@@ -63,6 +63,7 @@ use craft\commerce\events\ModifyPurchasablesTableQueryEvent;
 use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\services\Emails;
 use craft\commerce\services\OrderHistories;
+use craft\commerce\services\Payments;
 use craft\commerce\services\Purchasables;
 
 use yii\base\Event;
@@ -84,7 +85,7 @@ class Events extends Plugin
 
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '1.1.9';
+    public string $schemaVersion = '1.2.0';
     public string $minVersionRequired = '1.4.20';
 
 
@@ -393,8 +394,11 @@ class Events extends Plugin
         Event::on(Emails::class, Emails::EVENT_BEFORE_SEND_MAIL, [$this->getTickets(), 'onBeforeSendEmail']);
         Event::on(Emails::class, Emails::EVENT_AFTER_SEND_MAIL, [$this->getTickets(), 'onAfterSendEmail']);
 
-        // Soft-delete purchased tickets when an order moves to a configured status.
+        // Cancel purchased tickets when an order moves to a configured status.
         Event::on(OrderHistories::class, OrderHistories::EVENT_ORDER_STATUS_CHANGE, [$this->getPurchasedTickets(), 'onOrderStatusChange']);
+
+        // Cancel purchased tickets when an order is refunded.
+        Event::on(Payments::class, Payments::EVENT_AFTER_REFUND_TRANSACTION, [$this->getPurchasedTickets(), 'onAfterRefundTransaction']);
 
         // Ensure Commerce is installed
         Event::on(Plugins::class, Plugins::EVENT_BEFORE_INSTALL_PLUGIN, function(PluginEvent $event) {

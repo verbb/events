@@ -157,6 +157,12 @@ class PurchasedTicketsController extends Controller
             throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
         }
 
+        if (!$purchasedTicket->getIsActive()) {
+            Craft::$app->getSession()->setError(Craft::t('events', 'Cancelled tickets cannot be checked in.'));
+
+            return $this->redirectToPostedUrl($purchasedTicket);
+        }
+
         // Save any custom fields
         $purchasedTicket->setFieldValuesFromRequest('fields');
 
@@ -192,6 +198,52 @@ class PurchasedTicketsController extends Controller
         Events::$plugin->getPurchasedTickets()->checkOutPurchasedTicket($purchasedTicket);
 
         Craft::$app->getSession()->setNotice(Craft::t('events', 'Ticket checked out.'));
+
+        return $this->redirectToPostedUrl($purchasedTicket);
+    }
+
+    public function actionCancel(): ?Response
+    {
+        $this->requirePostRequest();
+
+        $purchasedTicketId = Craft::$app->getRequest()->getRequiredParam('id');
+        $purchasedTicket = PurchasedTicket::findOne($purchasedTicketId);
+
+        if (!$purchasedTicket) {
+            throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
+        }
+
+        $reason = $this->request->getBodyParam('reason');
+
+        if (!Events::$plugin->getPurchasedTickets()->cancelPurchasedTicket($purchasedTicket, $reason)) {
+            Craft::$app->getSession()->setError(Craft::t('events', 'Couldn’t cancel purchased ticket.'));
+
+            return $this->redirectToPostedUrl($purchasedTicket);
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('events', 'Purchased ticket cancelled.'));
+
+        return $this->redirectToPostedUrl($purchasedTicket);
+    }
+
+    public function actionRestore(): ?Response
+    {
+        $this->requirePostRequest();
+
+        $purchasedTicketId = Craft::$app->getRequest()->getRequiredParam('id');
+        $purchasedTicket = PurchasedTicket::findOne($purchasedTicketId);
+
+        if (!$purchasedTicket) {
+            throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
+        }
+
+        if (!Events::$plugin->getPurchasedTickets()->restorePurchasedTicket($purchasedTicket)) {
+            Craft::$app->getSession()->setError(Craft::t('events', 'Couldn’t restore purchased ticket.'));
+
+            return $this->redirectToPostedUrl($purchasedTicket);
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('events', 'Purchased ticket restored.'));
 
         return $this->redirectToPostedUrl($purchasedTicket);
     }

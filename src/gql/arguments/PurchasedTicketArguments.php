@@ -65,6 +65,11 @@ class PurchasedTicketArguments extends ElementArguments
                 'type' => DateTime::getType(),
                 'description' => 'The date and time the ticket holder checked in.',
             ],
+            'reservationStatus' => [
+                'name' => 'reservationStatus',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'The reservation status of the purchased ticket.',
+            ],
         ]);
     }
 }

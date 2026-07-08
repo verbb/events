@@ -14,6 +14,7 @@ class PurchasedTicketCondition extends ElementCondition
             EventConditionRule::class,
             SessionConditionRule::class,
             TicketTypeConditionRule::class,
+            ReservationStatusConditionRule::class,
         ]);
     }
 }

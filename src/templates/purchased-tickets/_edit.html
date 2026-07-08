@@ -1,22 +1,22 @@
-{% extends 'events/_layouts' %}
+{% extends '_layouts/cp' %}
 {% import '_includes/forms' as forms %}
 
+{% set title = title ?? purchasedTicket.title %}
 {% set crumbs = [
     { label: craft.events.getPluginName() | t('events'), url: url('events') },
     { label: 'Purchased Tickets' | t('events'), url: url('events/purchased-tickets') },
 ] %}
-
 {% set fullPageForm = true %}
-{% set selectedSubnavItem = 'purchasedTickets' %}
 {% set element = purchasedTicket %}
+{% set customFieldElements = fieldLayout ? fieldLayout.getCustomFieldElements() : [] %}
 
 {% set tabs = [] %}
 
-{% if fieldLayout %}
+{% if customFieldElements|length %}
     {% for tab in fieldLayout.getTabs() %}
-    	{% set tabs = tabs | merge({
-    		('tab' ~ loop.index) : { label: tab.name | t('events'), url: '#' ~ tab.getHtmlId() }
-    	}) %}
+        {% set tabs = tabs | merge({
+            ('tab' ~ loop.index) : { label: tab.name | t('events'), url: '#' ~ tab.getHtmlId() }
+        }) %}
     {% endfor %}
 {% endif %}
 
@@ -39,7 +39,7 @@
             <ul>
                 <li>
                     <a class="formsubmit error" data-action="events/purchased-tickets/delete"
-                       data-confirm="{{ 'Are you sure you want to delete this {type}?'|t('app', { type: element.lowerDisplayName() }) }}"
+                       data-confirm="{{ 'Are you sure you want to permanently delete this {type}? This should only be used to remove mistaken records.'|t('events', { type: element.lowerDisplayName() }) }}"
                        data-redirect="{{ 'events/purchased-tickets' | hash }}">
                         {{ 'Delete {type}' | t('app', { type: element.lowerDisplayName() }) }}
                     </a>
@@ -49,13 +49,13 @@
     </div>
 {% endblock %}
 
-{% block blockContent %}
+{% block content %}
 
 <input type="hidden" name="action" value="events/purchased-tickets/save">
 <input type="hidden" name="id" value="{{ purchasedTicket.id }}">
 
 <div id="fields">
-    {% if fieldLayout %}
+    {% if customFieldElements|length %}
         {% for tab in fieldLayout.getTabs() %}
             {% for fieldElement in tab.getElements() %}
                 {% if fieldElement is instance of('craft\\fieldlayoutelements\\CustomField') %}
@@ -63,6 +63,8 @@
                 {% endif %}
             {% endfor %}
         {% endfor %}
+    {% else %}
+        <p class="zilch">{{ 'No purchased ticket fields have been configured for this ticket type.' | t('events') }}</p>
     {% endif %}
 </div>
 
@@ -131,11 +133,51 @@
 </div>
 
 <fieldset>
+    <legend class="h6">{{ 'Reservation' | t('events') }}</legend>
+
+    <div class="meta">
+        {% set reservationStatus %}
+            <div class="flex flex-nowrap gap-xs">
+                <span class="status {{ purchasedTicket.isActive ? 'enabled' : 'disabled' }}"></span>
+                <span>{{ purchasedTicket.reservationStatusLabel }}</span>
+
+                {% if purchasedTicket.isActive %}
+                    <a class="formsubmit btn small" data-action="events/purchased-tickets/cancel">
+                        {{ 'Cancel ticket' | t('events') }}
+                    </a>
+                {% elseif craft.events.plugin.purchasedTickets.canRestorePurchasedTicket(purchasedTicket) %}
+                    <a class="formsubmit btn small" data-action="events/purchased-tickets/restore">
+                        {{ 'Restore ticket' | t('events') }}
+                    </a>
+                {% endif %}
+            </div>
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Reservation Status' | t('events'),
+        }, reservationStatus) }}
+
+        {% if purchasedTicket.isCancelled and purchasedTicket.cancelledAt %}
+            {{ forms.field({
+                label: 'Cancelled At' | t('events'),
+            }, purchasedTicket.cancelledAt | date('short') ~ ' ' ~ purchasedTicket.cancelledAt | time('short')) }}
+        {% endif %}
+
+        {% if purchasedTicket.isCancelled and purchasedTicket.cancelledReason %}
+            {{ forms.field({
+                label: 'Cancellation Reason' | t('events'),
+            }, purchasedTicket.cancelledReason | nl2br) }}
+        {% endif %}
+    </div>
+</fieldset>
+
+<fieldset>
     <legend class="h6">{{ 'Status' | t('events') }}</legend>
 
     <div class="meta">
         {{ forms.lightswitchField({
-            label: 'Enabled' | t('events'),
+            label: 'Enabled in System' | t('events'),
+            instructions: 'Disable this purchased ticket record without cancelling the reservation. Cancelled tickets should be managed using the reservation actions above.' | t('events'),
             id: 'enabled',
             name: 'enabled',
             on: purchasedTicket.enabled,
@@ -170,13 +212,13 @@
     <div class="meta">
         {% set checkedIn %}
             <div class="flex flex-nowrap gap-xs">
-                <span class="status {{ purchasedTicket.checkedIn ? 'live' : 'disabled' }}"></span> 
-                
+                <span class="status {{ purchasedTicket.checkedIn ? 'live' : 'disabled' }}"></span>
+
                 {% if purchasedTicket.checkedIn %}
                     <a class="formsubmit btn small" data-action="events/purchased-tickets/check-out">
                         {{ 'Check out' | t('events') }}
                     </a>
-                {% else %}
+                {% elseif purchasedTicket.isActive %}
                     <a class="formsubmit btn small" data-action="events/purchased-tickets/check-in">
                         {{ 'Check in' | t('events') }}
                     </a>
@@ -200,7 +242,7 @@
             label: 'Check In Date' | t('events'),
         }, checkedInDate) }}
 
-        {% set checkedInDate %}
+        {% set checkInUrl %}
             <a class="external" target="_blank" href="{{ purchasedTicket.getCheckInUrl() }}">
                 <span class="flex flex-nowrap gap-xs">
                     <span>{{ 'View URL' | t('events') }}</span>
@@ -211,7 +253,7 @@
 
         {{ forms.field({
             label: 'Check In URL' | t('events'),
-        }, checkedInDate) }}
+        }, checkInUrl) }}
 
         {% set qrCode %}
             <a class="btn small" href="#open-modal">{{ 'Show QR Code' | t('events') }}</a>

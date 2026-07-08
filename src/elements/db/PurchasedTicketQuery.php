@@ -33,6 +33,7 @@ class PurchasedTicketQuery extends CachedElementQuery
     public mixed $lineItemId = null;
     public mixed $checkedIn = null;
     public mixed $checkedInDate = null;
+    public mixed $reservationStatus = null;
     
     public mixed $customerId = null;
 
@@ -125,6 +126,12 @@ class PurchasedTicketQuery extends CachedElementQuery
         return $this;
     }
 
+    public function reservationStatus($value): static
+    {
+        $this->reservationStatus = $value;
+        return $this;
+    }
+
     public function customer(User $value = null): static
     {
         $this->customerId = $value?->id;
@@ -190,6 +197,10 @@ class PurchasedTicketQuery extends CachedElementQuery
             'events_purchased_tickets.lineItemId',
             'events_purchased_tickets.checkedIn',
             'events_purchased_tickets.checkedInDate',
+            'events_purchased_tickets.reservationStatus',
+            'events_purchased_tickets.cancelledAt',
+            'events_purchased_tickets.cancelledReason',
+            'events_purchased_tickets.cancelledById',
             'events_purchased_tickets.dateCreated',
             'events_purchased_tickets.dateUpdated',
         ]);
@@ -232,6 +243,10 @@ class PurchasedTicketQuery extends CachedElementQuery
 
         if (isset($this->checkedInDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('events_purchased_tickets.checkedInDate', $this->checkedInDate));
+        }
+
+        if (isset($this->reservationStatus)) {
+            $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.reservationStatus', $this->reservationStatus));
         }
 
         if ($this->customerId) {

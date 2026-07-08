@@ -1410,7 +1410,17 @@ class Event extends Element
         }
 
         if ($attribute === 'purchasedSeats') {
-            return (string)$this->getPurchasedSeatsCount();
+            $active = $this->getPurchasedSeatsCount();
+            $cancelled = Events::$plugin->getPurchasedTickets()->getCancelledSeatsCountForEvent($this->id);
+
+            if ($cancelled > 0) {
+                return Html::encode(Craft::t('events', '{active} ({cancelled} cancelled)', [
+                    'active' => $active,
+                    'cancelled' => $cancelled,
+                ]));
+            }
+
+            return (string)$active;
         }
 
         if ($attribute === 'remainingSeats') {

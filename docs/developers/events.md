@@ -376,3 +376,63 @@ Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_AFTER_CHECK_OUT, func
 });
 ```
 
+### The `beforeCancel` event
+The event that is triggered before a purchased ticket reservation is cancelled.
+
+The `isValid` event property can be set to `false` to prevent the cancellation from proceeding.
+
+```php
+use verbb\events\events\PurchasedTicketEvent;
+use verbb\events\services\PurchasedTickets;
+use yii\base\Event;
+
+Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_BEFORE_CANCEL, function(PurchasedTicketEvent $event) {
+    $purchasedTicket = $event->purchasedTicket;
+    $reason = $event->reason;
+    $event->isValid = false;
+});
+```
+
+### The `afterCancel` event
+The event that is triggered after a purchased ticket reservation is cancelled.
+
+```php
+use verbb\events\events\PurchasedTicketEvent;
+use verbb\events\services\PurchasedTickets;
+use yii\base\Event;
+
+Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_AFTER_CANCEL, function(PurchasedTicketEvent $event) {
+    $purchasedTicket = $event->purchasedTicket;
+    $reason = $event->reason;
+});
+```
+
+### The `beforeRestore` event
+The event that is triggered before a cancelled purchased ticket reservation is restored.
+
+The `isValid` event property can be set to `false` to prevent the restore from proceeding.
+
+```php
+use verbb\events\events\PurchasedTicketEvent;
+use verbb\events\services\PurchasedTickets;
+use yii\base\Event;
+
+Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_BEFORE_RESTORE, function(PurchasedTicketEvent $event) {
+    $purchasedTicket = $event->purchasedTicket;
+    $event->isValid = false;
+});
+```
+
+### The `afterRestore` event
+The event that is triggered after a cancelled purchased ticket reservation is restored.
+
+```php
+use verbb\events\events\PurchasedTicketEvent;
+use verbb\events\services\PurchasedTickets;
+use yii\base\Event;
+
+Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_AFTER_RESTORE, function(PurchasedTicketEvent $event) {
+    $purchasedTicket = $event->purchasedTicket;
+});
+```
+

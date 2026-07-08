@@ -24,6 +24,10 @@ class Checkin extends ElementAction
         }
 
         foreach ($query->all() as $purchasedTicket) {
+            if (!$purchasedTicket->getIsActive()) {
+                continue;
+            }
+
             Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket);
         }
 

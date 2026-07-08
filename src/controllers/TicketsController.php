@@ -43,6 +43,12 @@ class TicketsController extends Controller
             ]);
         }
 
+        if (!$purchasedTicket->getIsActive()) {
+            return $this->_handleResponse([
+                'error' => Craft::t('events', 'This ticket has been cancelled.'),
+            ]);
+        }
+
         if ($purchasedTicket->checkedIn) {
             return $this->_handleResponse([
                 'error' => Craft::t('events', 'Ticket already checked in.'),

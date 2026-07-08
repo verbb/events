@@ -21,6 +21,8 @@ class Settings extends Model
     public bool $applyPendingTicketUpdates = false;
     public array $releaseCapacityOrderStatusHandles = ['cancelled', 'canceled', 'refunded'];
     public int $purchasedTicketTrashRetentionDays = 30;
+    public bool $cancelPurchasedTicketsOnRefund = true;
+    public bool $allowRestoreWhenOrderCancelled = false;
 
     public bool $pdfAllowRemoteImages = false;
     public string $pdfPaperSize = 'letter';
@@ -37,6 +39,7 @@ class Settings extends Model
         $rules[] = ['defaultEventIndexStatus', 'in', 'range' => array_merge([''], array_keys(Event::statuses()))];
         $rules[] = [['releaseCapacityOrderStatusHandles'], 'safe'];
         $rules[] = [['purchasedTicketTrashRetentionDays'], 'integer', 'min' => 0];
+        $rules[] = [['cancelPurchasedTicketsOnRefund', 'allowRestoreWhenOrderCancelled'], 'boolean'];
 
         return $rules;
     }

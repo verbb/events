@@ -3,8 +3,15 @@
 ## Unreleased
 
 ### Added
+- Add purchased ticket reservation statuses (`active`, `cancelled`) with cancellation metadata and CP cancel/restore actions.
 - Add `./craft events/purchased-tickets/purge-trashed` console command to permanently delete trashed purchased tickets.
-- Add settings to auto-trash purchased tickets when orders move to configured Commerce order statuses, and to auto-purge trashed purchased tickets during garbage collection.
+- Add settings to auto-cancel purchased tickets on order status changes and refunds, plus optional restore restrictions.
+- Add GraphQL fields and filters for purchased ticket reservation status.
+- Document cancelling purchased tickets and releasing event capacity.
+
+### Changed
+- Capacity counts now use active purchased ticket reservations instead of relying on element trash state.
+- Existing trashed purchased tickets are migrated to cancelled reservations and restored from the element trash.
 
 ### Fixed
 - Fix event and session capacity still counting soft-deleted purchased tickets.
