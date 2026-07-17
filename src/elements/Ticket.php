@@ -431,7 +431,9 @@ class Ticket extends Purchasable
     public function getPurchasedTicketsCount(): int
     {
         if ($this->_purchasedTicketCount === null) {
-            $this->_purchasedTicketCount = Events::$plugin->getPurchasedTickets()->getPurchasedTicketElementCountForTicket($this->id);
+            $this->_purchasedTicketCount = $this->id
+                ? Events::$plugin->getPurchasedTickets()->getPurchasedTicketElementCountForTicket($this->id)
+                : 0;
         }
 
         return $this->_purchasedTicketCount * ($this->getType()?->seatsPerTicket ?? 1);

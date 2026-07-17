@@ -77,7 +77,7 @@ class PurchasedTickets extends Component
         return (int)($total ?? 0);
     }
 
-    public function getPurchasedTicketElementCountForTicket(int $ticketId, bool $includeInactive = false): int
+    public function getPurchasedTicketElementCountForTicket(?int $ticketId, bool $includeInactive = false): int
     {
         if (!$ticketId) {
             return 0;
