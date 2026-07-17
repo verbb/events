@@ -401,7 +401,6 @@ class EventTypes extends Component
                         'siteId' => '*',
                         'unique' => true,
                         'status' => null,
-                        'enabledForSite' => false,
                         'typeId' => $eventTypeRecord->id,
                     ],
                 ]));
@@ -414,7 +413,6 @@ class EventTypes extends Component
                         'siteId' => '*',
                         'unique' => true,
                         'status' => null,
-                        'enabledForSite' => false,
                         'eventId' => Event::find()->typeId($eventTypeRecord->id)->status(null)->ids(),
                     ],
                 ]));
