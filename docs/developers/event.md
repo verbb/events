@@ -27,5 +27,5 @@ Method | Description
 `getTicketTypes()` | Returns a collection of [TicketType](docs:developers/ticket-type) objects associated with this event.
 `getTickets()` | Returns a collection of [Ticket](docs:developers/ticket) objects generated for this event.
 `getAvailableTickets()` | Returns a collection of available [Ticket](docs:developers/ticket) objects for sale. This respects the 'Available From/To' dates, along with ticket capacity and sales status.
-`getIcsUrl()` | Returns a URL to download the ICS (iCalendar) file for this single event.
+`getIcsUrl()` | Returns a URL to download the ICS (iCalendar) file for this single event. For multi-session events this spans all sessions; use [Session::getIcsUrl()](docs:developers/session) for a specific session.
 `getIsAvailable()` | Indicates if the event is available for purchase. This will be `false` if there are no tickets available for sale, meaning the event is completely sold out.

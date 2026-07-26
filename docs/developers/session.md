@@ -20,3 +20,4 @@ Method | Description
 --- | ---
 `getCpEditUrl()` | Returns the URL to edit this session in the control panel.
 `getTickets()` | Returns a collection of [Ticket](docs:developers/ticket) objects for this session.
+`getIcsUrl()` | Returns a URL to download the ICS (iCalendar) file for this single session.

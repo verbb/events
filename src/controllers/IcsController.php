@@ -3,6 +3,7 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 use verbb\events\elements\Event;
+use verbb\events\elements\Session;
 
 use craft\web\Controller;
 
@@ -19,10 +20,16 @@ class IcsController extends Controller
 
     public function actionIndex(): void
     {
-        $eventId = $this->request->getParam('eventId');
-        $event = Event::find()->id($eventId)->endDate(null)->one();
+        $sessionId = $this->request->getParam('sessionId');
 
-        $exportString = Events::$plugin->getIcs()->getCalendar([$event]);
+        if ($sessionId) {
+            $session = Session::find()->id($sessionId)->endDate(null)->one();
+            $exportString = Events::$plugin->getIcs()->getCalendar([$session]);
+        } else {
+            $eventId = $this->request->getParam('eventId');
+            $event = Event::find()->id($eventId)->endDate(null)->one();
+            $exportString = Events::$plugin->getIcs()->getCalendar([$event]);
+        }
 
         header('Content-type: text/calendar; charset=utf-8');
         header('Expires: 0');

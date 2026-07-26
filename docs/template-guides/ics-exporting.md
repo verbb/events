@@ -15,6 +15,19 @@ Set the field to be used for event location when exporting ICS file.
 ## Single Event
 Use `{{ event.getIcsUrl() }}` to generate the URL for a single event, as an ICS file. Use this URL to either download ICS files on-demand, or subscribing to them. See [Event](docs:developers/event).
 
+For multi-session events, this spans the earliest session start through the latest session end. Prefer a session-scoped export when an attendee has booked a specific session.
+
+## Single Session
+Use `{{ session.getIcsUrl() }}` to generate the URL for a single session, as an ICS file. `DTSTART`/`DTEND` use that session’s dates. See [Session](docs:developers/session).
+
+```twig
+{% set purchasedTicket = craft.events.purchasedTickets.id(123).one() %}
+
+{% if purchasedTicket.session %}
+    <a href="{{ purchasedTicket.session.getIcsUrl() }}">Add to calendar</a>
+{% endif %}
+```
+
 ## Event Types
 You can also generate an ICS file for all events in an event type.
 
