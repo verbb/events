@@ -2,6 +2,7 @@
 namespace verbb\events\services;
 
 use verbb\events\elements\Event;
+use verbb\events\elements\Session;
 
 use yii\base\Component;
 
@@ -42,16 +43,23 @@ class Ics extends Component
         return $calendarExport->getStream();
     }
 
-    public function getIcsEvent(Event $event): ?CalendarEvent
+    public function getIcsEvent(Event|Session $element): ?CalendarEvent
     {
-        if (!$event->startDate || !$event->endDate) {
+        if ($element instanceof Session) {
+            $event = $element->getEvent();
+
+            if (!$event) {
+                return null;
+            }
+        } else {
+            $event = $element;
+        }
+
+        if (!$element->startDate || !$element->endDate) {
             return null;
         }
 
         $eventType = $event->getType();
-
-        $description = $event->title;
-        $location = '';
 
         $descriptionFieldHandle = $eventType->icsDescriptionFieldHandle;
         $locationFieldHandle = $eventType->icsLocationFieldHandle;
@@ -60,37 +68,37 @@ class Ics extends Component
         $icsTimezone = $eventType->icsTimezone ?? '';
 
         if ($icsTimezone == '') {
-            $startDate = $event->startDate;
-            $endDate = $event->endDate;
+            $startDate = $element->startDate;
+            $endDate = $element->endDate;
         } else {
             $timezone = new DateTimeZone($icsTimezone);
 
-            $startDate = $event->startDate->setTimeZone($timezone);
-            $endDate = $event->endDate->setTimeZone($timezone);
+            $startDate = $element->startDate->setTimeZone($timezone);
+            $endDate = $element->endDate->setTimeZone($timezone);
         }
 
-        $event = (new CalendarEvent())
+        $icsEvent = (new CalendarEvent())
             ->setStart($startDate)
             ->setEnd($endDate)
-            ->setCreated($event->dateCreated)
-            ->setLastModified($event->dateUpdated)
+            ->setCreated($element->dateCreated)
+            ->setLastModified($element->dateUpdated)
             ->setSummary($event->title)
-            ->setStatus($event->status)
+            ->setStatus($element->status)
             ->setUrl($event->url)
-            ->setUid($event->uid);
+            ->setUid($element->uid);
 
         if ($descriptionFieldHandle && isset($event->{$descriptionFieldHandle})) {
-            $event->setDescription($event->{$descriptionFieldHandle});
+            $icsEvent->setDescription($event->{$descriptionFieldHandle});
         }
 
         if ($locationFieldHandle && isset($event->{$locationFieldHandle})) {
             $location = new Location();
             $location->setName($event->{$locationFieldHandle});
 
-            $event->addLocation($location);
+            $icsEvent->addLocation($location);
         }
 
-        return $event;
+        return $icsEvent;
     }
 
 }
