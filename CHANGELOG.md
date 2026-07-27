@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.6 - 2026-07-27
+
+### Added
+- Add session-scoped ICS export via `Session::getIcsUrl()` / `Session::getIcsEvent()`, with optional `sessionId` on the `events/ics` action.
+
+### Fixed
+- Fix ICS description and location custom fields not being applied when building calendar events.
+- Fix null ticket ID when counting purchased tickets during sync.
+- Fix Craft 5 Event Type resave query criteria.
+
 ## 3.1.5 - 2026-07-15
 
 ### Added
