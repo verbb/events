@@ -315,6 +315,11 @@
 - Event element cards now show the event type and start/end date/times of events
 - Deleting a Ticket element is now prevented if any purchased tickets exist.
 
+## 2.0.13 - 2026-08-20
+
+### Added
+- Add support for `dompdf/dompdf` v3.
+
 ## 2.0.12 - 2026-01-23
 
 ### Fixed
