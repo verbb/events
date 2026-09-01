@@ -398,7 +398,9 @@ class TicketType extends Element implements NestedElementInterface
         $currency = $store->getCurrency();
         $money = Commerce::getInstance()->getCurrencies()->getTeller($currency)->convertToMoney($this->price);
 
-        return MoneyHelper::toNumber($money) ?: null;
+        $number = MoneyHelper::toNumber($money);
+
+        return $number === false ? null : $number;
     }
 
     public function getIsAvailable(): bool

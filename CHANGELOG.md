@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fix ticket type price of 0 rendering as blank in the control panel and failing validation on save. (#227)
+
 ## 3.1.7 - 2026-08-20
 
 ### Added
