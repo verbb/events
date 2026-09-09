@@ -203,6 +203,7 @@ class Events extends Plugin
             $event->rules['events/event-types/<eventTypeId:\d+>'] = 'events/event-types/edit';
 
             $event->rules['events/settings'] = 'events/base/settings';
+            $event->rules['events/settings/<settingsNavItem:{handle}>'] = 'events/base/settings';
         });
     }
 

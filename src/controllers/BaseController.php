@@ -22,6 +22,7 @@ class BaseController extends Controller
 
         return $this->renderTemplate('events/settings', [
             'settings' => $settings,
+            'selectedTab' => Craft::$app->getRequest()->getSegment(3) ?: 'general',
             'eventStatusOptions' => $this->_eventStatusOptions(),
         ]);
     }

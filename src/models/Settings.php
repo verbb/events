@@ -35,6 +35,9 @@ class Settings extends Model
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
+        $rules[] = [['pluginName'], 'trim'];
+        $rules[] = [['pluginName'], 'required'];
+        $rules[] = [['pluginName'], 'string', 'max' => 52];
 
         $rules[] = ['defaultEventIndexStatus', 'in', 'range' => array_merge([''], array_keys(Event::statuses()))];
         $rules[] = [['releaseCapacityOrderStatusHandles'], 'safe'];
