@@ -1,11 +1,18 @@
 # Events
 Events can be used to extend the functionality of Events.
 
-## Ticket PDF related events
 
-### The `beforeRenderPdf` event
+## Register a Listener
+
+Register listeners from a custom module or plugin that is bootstrapped for the requests where the event occurs. Put the `use` imports at the top of its PHP file and the `Event::on(...)` call inside its `init()` method, after `parent::init()`. Do not place the listener in a Twig template or modify this plugin's source to register it.
+
+Choose a hook whose timing matches your task. Cancellation depends on the particular event and emitter, as described for each hook below. Test a listener on the operation it affects, including any relevant queue or console path.
+
+## Ticket PDF Related Events
+
+### The `beforeRenderPdf` Event
 Event handlers can override Ticket’s PDF generation by setting the `pdf` property on the event to a custom-rendered PDF.
-Plugins can get notified before the PDF or a ticket is being rendered.
+The event that is triggered before the PDF or a ticket is being rendered.
 
 ```php
 use verbb\events\events\PdfEvent;
@@ -17,8 +24,8 @@ Event::on(Pdf::class, Pdf::EVENT_BEFORE_RENDER_PDF, function(PdfEvent $event) {
 });
 ```
 
-### The `afterRenderPdf` event
-Plugins can get notified after the PDF or a ticket has been rendered.
+### The `afterRenderPdf` Event
+The event that is triggered after the PDF or a ticket has been rendered.
 
 ```php
 use verbb\events\events\PdfEvent;
@@ -30,7 +37,7 @@ Event::on(Pdf::class, Pdf::EVENT_AFTER_RENDER_PDF, function(PdfEvent $event) {
 });
 ```
 
-### The `modifyRenderOptions` event
+### The `modifyRenderOptions` Event
 Plugins can get modify the DomPDF render options
 
 ```php
@@ -44,11 +51,11 @@ Event::on(Pdf::class, Pdf::EVENT_MODIFY_RENDER_OPTIONS, function(PdfRenderOption
 ```
 
 
-## Event related events
+## Event Related Events
 
-### The `beforeSaveEvent` event
+### The `beforeSaveEvent` Event
 
-Plugins can get notified before an event is saved. Event handlers can prevent the event from getting saved by setting `$event->isValid` to false.
+The event that is triggered before an event is saved. Event handlers can prevent the event from getting saved by setting `$event->isValid` to false.
 
 ```php
 use craft\events\ModelEvent;
@@ -62,9 +69,9 @@ Event::on(EventElement::class, EventElement::EVENT_BEFORE_SAVE, function(ModelEv
 });
 ```
 
-### The `afterSaveEvent` event
+### The `afterSaveEvent` Event
 
-Plugins can get notified after an event has been saved
+The event that is triggered after an event has been saved
 
 ```php
 use craft\events\ModelEvent;
@@ -77,7 +84,7 @@ Event::on(EventElement::class, EventElement::EVENT_AFTER_SAVE, function(ModelEve
 });
 ```
 
-### The `beforeDeleteEvent` event
+### The `beforeDeleteEvent` Event
 The event that is triggered before an event is deleted.
 
 The `isValid` event property can be set to `false` to prevent the deletion from proceeding.
@@ -92,7 +99,7 @@ Event::on(EventElement::class, EventElement::EVENT_BEFORE_DELETE, function(Event
 });
 ```
 
-### The `afterDeleteEvent` event
+### The `afterDeleteEvent` Event
 The event that is triggered after an event is deleted.
 
 ```php
@@ -105,11 +112,11 @@ Event::on(EventElement::class, EventElement::EVENT_AFTER_DELETE, function(Event 
 ```
 
 
-## Event Type related events
+## Event Type Related Events
 
-### The `beforeSaveEventType` event
+### The `beforeSaveEventType` Event
 
-Plugins can get notified before an event type is being saved.
+The event that is triggered before an event type is being saved.
 
 ```php
 use verbb\events\events\EventTypeEvent;
@@ -121,9 +128,9 @@ Event::on(EventTypes::class, EventTypes::EVENT_BEFORE_SAVE_EVENTTYPE, function(E
 });
 ```
 
-### The `afterSaveEventType` event
+### The `afterSaveEventType` Event
 
-Plugins can get notified after an event type has been saved.
+The event that is triggered after an event type has been saved.
 
 ```php
 use verbb\events\events\EventTypeEvent;
@@ -137,11 +144,11 @@ Event::on(EventTypes::class, EventTypes::EVENT_AFTER_SAVE_EVENTTYPE, function(Ev
 
 
 
-## Ticket related events
+## Ticket Related Events
 
-### The `beforeSaveTicket` event
+### The `beforeSaveTicket` Event
 
-Plugins can get notified before a ticket is saved. Event handlers can prevent the ticket from getting saved by setting `$event->isValid` to false.
+The event that is triggered before a ticket is saved. Event handlers can prevent the ticket from getting saved by setting `$event->isValid` to false.
 
 ```php
 use craft\events\ModelEvent;
@@ -155,9 +162,9 @@ Event::on(Ticket::class, Ticket::EVENT_BEFORE_SAVE, function(ModelEvent $event) 
 });
 ```
 
-### The `afterSaveTicket` event
+### The `afterSaveTicket` Event
 
-Plugins can get notified after a ticket has been saved
+The event that is triggered after a ticket has been saved
 
 ```php
 use craft\events\ModelEvent;
@@ -170,7 +177,7 @@ Event::on(Ticket::class, Ticket::EVENT_AFTER_SAVE, function(ModelEvent $event) {
 });
 ```
 
-### The `beforeDeleteTicket` event
+### The `beforeDeleteTicket` Event
 The event that is triggered before a ticket is deleted.
 
 The `isValid` event property can be set to `false` to prevent the deletion from proceeding.
@@ -185,7 +192,7 @@ Event::on(Ticket::class, Ticket::EVENT_BEFORE_DELETE, function(Event $event) {
 });
 ```
 
-### The `afterDeleteTicket` event
+### The `afterDeleteTicket` Event
 The event that is triggered after a ticket is deleted.
 
 ```php
@@ -197,9 +204,9 @@ Event::on(Ticket::class, Ticket::EVENT_AFTER_DELETE, function(Event $event) {
 });
 ```
 
-### The `beforeCaptureTicketSnapshot` event
+### The `beforeCaptureTicketSnapshot` Event
 
-Plugins can get notified before we capture a ticket’s field data, and customize which fields are included.
+The event that is triggered before we capture a ticket’s field data, and customize which fields are included.
 
 ```php
 use verbb\events\elements\Ticket;
@@ -212,9 +219,9 @@ Event::on(Ticket::class, Variant::EVENT_BEFORE_CAPTURE_TICKET_SNAPSHOT, function
 });
 ```
 
-### The `afterCaptureTicketSnapshot` event
+### The `afterCaptureTicketSnapshot` Event
 
-Plugins can get notified after we capture a ticket’s field data, and customize, extend, or redact the data to be persisted.
+The event that is triggered after we capture a ticket’s field data, and customize, extend, or redact the data to be persisted.
 
 ```php
 use verbb\events\elements\Ticket;
@@ -227,9 +234,9 @@ Event::on(Ticket::class, Ticket::EVENT_AFTER_CAPTURE_TICKET_SNAPSHOT, function(C
 });
 ```
 
-### The `beforeCaptureEventSnapshot` event
+### The `beforeCaptureEventSnapshot` Event
 
-Plugins can get notified before we capture an event’s field data, and customize which fields are included.
+The event that is triggered before we capture an event’s field data, and customize which fields are included.
 
 ```php
 use verbb\events\elements\Event as EventElement;
@@ -242,9 +249,9 @@ Event::on(EventElement::class, EventElement::EVENT_BEFORE_CAPTURE_EVENT_SNAPSHOT
 });
 ```
 
-### The `afterCaptureEventSnapshot` event
+### The `afterCaptureEventSnapshot` Event
 
-Plugins can get notified after we capture an event’s field data, and customize, extend, or redact the data to be persisted.
+The event that is triggered after we capture an event’s field data, and customize, extend, or redact the data to be persisted.
 
 ```php
 use verbb\events\elements\Event as EventElement;
@@ -258,11 +265,11 @@ Event::on(EventElement::class, EventElement::EVENT_AFTER_CAPTURE_EVENT_SNAPSHOT,
 ```
 
 
-## Purchased Ticket related events
+## Purchased Ticket Related Events
 
-### The `beforeSavePurchasedTicket` event
+### The `beforeSavePurchasedTicket` Event
 
-Plugins can get notified before a purchased ticket is saved. Event handlers can prevent the purchased ticket from getting saved by setting `$event->isValid` to false.
+The event that is triggered before a purchased ticket is saved. Event handlers can prevent the purchased ticket from getting saved by setting `$event->isValid` to false.
 
 ```php
 use craft\events\ModelEvent;
@@ -276,9 +283,9 @@ Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_BEFORE_SAVE, function(M
 });
 ```
 
-### The `afterSavePurchasedTicket` event
+### The `afterSavePurchasedTicket` Event
 
-Plugins can get notified after a purchased ticket has been saved
+The event that is triggered after a purchased ticket has been saved
 
 ```php
 use craft\events\ModelEvent;
@@ -291,7 +298,7 @@ Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_AFTER_SAVE, function(Mo
 });
 ```
 
-### The `beforeDeletePurchasedTicket` event
+### The `beforeDeletePurchasedTicket` Event
 The event that is triggered before a purchased ticket is deleted.
 
 The `isValid` event property can be set to `false` to prevent the deletion from proceeding.
@@ -306,7 +313,7 @@ Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_BEFORE_DELETE, function
 });
 ```
 
-### The `afterDeletePurchasedTicket` event
+### The `afterDeletePurchasedTicket` Event
 The event that is triggered after a purchased ticket is deleted.
 
 ```php
@@ -318,7 +325,7 @@ Event::on(PurchasedTicket::class, PurchasedTicket::EVENT_AFTER_DELETE, function(
 });
 ```
 
-### The `beforeCheckIn` event
+### The `beforeCheckIn` Event
 The event that is triggered before a purchased ticket is checked-in.
 
 The `isValid` event property can be set to `false` to prevent the check-in from proceeding.
@@ -334,7 +341,7 @@ Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_BEFORE_CHECK_IN, func
 });
 ```
 
-### The `afterCheckIn` event
+### The `afterCheckIn` Event
 The event that is triggered after a purchased ticket is checked-in.
 
 ```php
@@ -347,7 +354,7 @@ Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_AFTER_CHECK_IN, funct
 });
 ```
 
-### The `beforeCheckOut` event
+### The `beforeCheckOut` Event
 The event that is triggered before a purchased ticket is checked-out.
 
 The `isValid` event property can be set to `false` to prevent the check-out from proceeding.
@@ -363,7 +370,7 @@ Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_BEFORE_CHECK_OUT, fun
 });
 ```
 
-### The `afterCheckOut` event
+### The `afterCheckOut` Event
 The event that is triggered after a purchased ticket is checked-out.
 
 ```php
@@ -376,7 +383,7 @@ Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_AFTER_CHECK_OUT, func
 });
 ```
 
-### The `beforeCancel` event
+### The `beforeCancel` Event
 The event that is triggered before a purchased ticket reservation is cancelled.
 
 The `isValid` event property can be set to `false` to prevent the cancellation from proceeding.
@@ -393,7 +400,7 @@ Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_BEFORE_CANCEL, functi
 });
 ```
 
-### The `afterCancel` event
+### The `afterCancel` Event
 The event that is triggered after a purchased ticket reservation is cancelled.
 
 ```php
@@ -407,7 +414,7 @@ Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_AFTER_CANCEL, functio
 });
 ```
 
-### The `beforeRestore` event
+### The `beforeRestore` Event
 The event that is triggered before a cancelled purchased ticket reservation is restored.
 
 The `isValid` event property can be set to `false` to prevent the restore from proceeding.
@@ -423,7 +430,7 @@ Event::on(PurchasedTickets::class, PurchasedTickets::EVENT_BEFORE_RESTORE, funct
 });
 ```
 
-### The `afterRestore` event
+### The `afterRestore` Event
 The event that is triggered after a cancelled purchased ticket reservation is restored.
 
 ```php

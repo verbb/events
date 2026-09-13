@@ -1,26 +1,103 @@
 # Ticket Type
 Whenever you’re dealing with a ticket type in your template, you’re working with a `TicketType` object.
 
-## Attributes
+<span id="attributes"></span>
 
-Attribute | Description
---- | ---
-`id` | The ID of the ticket type.
-`event` | The associated [Event](docs:developers/event).
-`eventId` | The ID of the event this ticket type belongs to.
-`title` | The name of the ticket type (e.g., VIP, General Admission).
-`price` | The price for tickets of this type.
-`capacity` | The maximum number of tickets of this type that can be sold.
-`availableFrom` | The date from which this ticket type is available for sale.
-`availableTo` | The date until which this ticket type is available for sale.
-`description` | A description of this ticket type.
+## Properties
+
+::: reference
+### `id`
+
+**Type:** `int|null`
+
+The ID of the ticket type.
+:::
+
+::: reference
+### `event`
+
+**Type:** `verbb\events\elements\Event|null`
+
+The associated [Event](docs:developers/event).
+:::
+
+<span id="eventid"></span>
+
+::: reference
+### `title`
+
+**Type:** `string|null`
+
+The name of the ticket type (e.g., VIP, General Admission).
+:::
+
+::: reference
+### `price`
+
+**Type:** `float|null`
+
+The price for tickets of this type.
+:::
+
+::: reference
+### `capacity`
+
+**Type:** `int|null`
+
+The maximum number of tickets of this type that can be sold.
+:::
+
+::: reference
+### `availableFrom`
+
+**Type:** `DateTime|null`
+
+The date from which this ticket type is available for sale.
+:::
+
+::: reference
+### `availableTo`
+
+**Type:** `DateTime|null`
+
+The date until which this ticket type is available for sale.
+:::
+
+<span id="description"></span>
+
 
 ## Methods
 
-Method | Description
---- | ---
-`getCpEditUrl()` | Returns the URL to edit this ticket type in the control panel.
-`getTickets()` | Returns a collection of [Ticket](docs:developers/ticket) objects for this ticket type.
-`getIsAvailable()` | Returns true if this ticket type is available for sale based on the `availableFrom` and `availableTo` dates.
-`getCapacity()` | Returns the total capacity for this ticket type, or `null` if no capacity is set.
-`getPrice()` | Returns the price for this ticket type.
+::: reference
+### `getCpEditUrl()`
+
+**Returns:** `string|null`
+
+Returns the URL to edit this ticket type in the control panel.
+:::
+
+::: reference
+### `getTickets()`
+
+**Returns:** `verbb\events\elements\TicketCollection`
+
+Returns a collection of [Ticket](docs:developers/ticket) objects for this ticket type.
+:::
+
+::: reference
+### `getIsAvailable()`
+
+**Returns:** `bool`
+
+Returns true if this ticket type is available for sale based on the `availableFrom` and `availableTo` dates.
+:::
+
+<span id="getcapacity"></span>
+
+::: reference
+### `getPrice()`
+
+**Returns:** `float|null`
+
+Returns the price for this ticket type.
+:::

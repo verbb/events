@@ -1,15 +1,8 @@
 # Event Types
-**Event Types** help you categorize and differentiate between various kinds of events. Think of them like sections or categories in Craft CMS, but specifically for events. Each event type can have its own unique settings, and you can use it to organize and manage different kinds of events in your system.
 
-For example, you might create event types like:
-- Concerts
-- Conferences
-- Workshops
-- Meetups
+An Event Type defines the settings and field layouts shared by a kind of event. For example, a Workshops type can provide fields for an instructor and required materials, while a Concerts type can provide an artist lineup. Each event uses one of these types.
 
-Each event type can have its own field layout, which allows you to customize the fields and layout specific to that type. This is great for tailoring the experience depending on the type of event you’re organizing.
-
-For example, a “Concert” event type might need specific fields like the artist lineup or genre, while a “Workshop” might include fields for the instructor’s name or required materials. With event types, you can set up unique layouts to reflect these differences.
+The type also defines the layouts for its sessions and ticket types. This lets you decide which information editors should supply at each level: the workshop description belongs to the event, its date belongs to a session, and the admission price belongs to a ticket type. [Creating Your First Event](docs:get-started/creating-your-first-event) shows how these parts produce a ticket someone can purchase.
 
 ## Event Fields
 You can define what sort of fields should be available to your events.

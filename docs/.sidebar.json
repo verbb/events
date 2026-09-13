@@ -4,6 +4,7 @@
         "collapsable": false,
         "children": [
             "get-started/installation-setup",
+            "get-started/creating-your-first-event",
             "get-started/requirements",
             "get-started/configuration",
             "get-started/upgrading-from-v2"
@@ -13,6 +14,7 @@
         "title": "Feature Tour",
         "collapsable": false,
         "children": [
+            "feature-tour/event-types",
             "feature-tour/events",
             "feature-tour/sessions",
             "feature-tour/ticket-types",
@@ -26,7 +28,9 @@
         "title": "Template Guides",
         "collapsable": false,
         "children": [
-            "template-guides/available-variables",
+            "template-guides/finding-events-and-tickets",
+            "template-guides/displaying-ticket-downloads",
+            "template-guides/selecting-event-types",
             "template-guides/events-index",
             "template-guides/single-event",
             "template-guides/cart-order",
@@ -38,6 +42,7 @@
         "title": "Getting Elements",
         "collapsable": false,
         "children": [
+            "getting-elements/session-queries",
             "getting-elements/event-queries",
             "getting-elements/ticket-queries",
             "getting-elements/purchased-ticket-queries"
@@ -47,12 +52,18 @@
         "title": "Developers",
         "collapsable": false,
         "children": [
+            "developers/events"
+        ]
+    },
+    {
+        "title": "Reference",
+        "collapsable": false,
+        "children": [
             "developers/event",
             "developers/session",
             "developers/ticket-type",
             "developers/ticket",
-            "developers/purchased-ticket",
-            "developers/events"
+            "developers/purchased-ticket"
         ]
     }
 ]

@@ -12,7 +12,7 @@ Ticket updates are processed in Craft’s queue, so larger events won’t block 
 
 Changing element attributes such as Session dates or Ticket Type pricing doesn't require tickets to be regenerated, as they are dynamically resolved.
 
-### Auto-apply
+### Auto-Apply
 By default, ticket updates must be applied manually. To automatically queue updates when saving an event with pending changes, enable **Apply Pending Ticket Updates** under Settings → Events → Tickets, or set `applyPendingTicketUpdates` to `true` in your [config file](docs:get-started/configuration).
 
 ## Title and SKU

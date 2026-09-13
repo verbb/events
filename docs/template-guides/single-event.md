@@ -44,7 +44,7 @@ If you wanted to only show the available tickets, and not show sold out ones, yo
 
 In addition, the check for `event.getIsAvailable()` checks whether all tickets are sold out (or unavailable), and if so, will show a 'Sold Out' notice, that no tickets for this event are available.
 
-## Adding tickets to your cart
+## Adding Tickets to Your Cart
 Adding a ticket to your cart works in very much the same way as [Craft Commerce](https://docs.craftcms.com/commerce/v3/adding-to-and-updating-the-cart.html):
 
 ```twig
@@ -66,7 +66,7 @@ Adding a ticket to your cart works in very much the same way as [Craft Commerce]
 </form>
 ```
 
-### Line item options
+### Line Item Options
 You can also set additional data through [line item options](https://docs.craftcms.com/commerce/v3/adding-to-and-updating-the-cart.html#line-item-options-and-notes). These values can be whatever you like, and very flexible.
 
 ```twig

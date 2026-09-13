@@ -34,17 +34,13 @@ For multi-session events, leave event capacity blank unless every session should
 
 Blank capacity values are treated as auto/no limit for that level.
 
-A value of `0` is treated as an explicit zero-capacity limit. If you upgraded from an older version where `0` was used as a workaround for blank event capacity, convert those values to `NULL` before relying on the newer capacity calculations:
-
-```sql
-UPDATE events_events SET capacity = NULL WHERE capacity = 0;
-```
+A value of `0` is an explicit zero-capacity limit. Leave a capacity blank to omit that level from the availability calculation.
 
 ## Releasing Capacity
 
 When an order is cancelled or refunded, its purchased tickets should be **cancelled** so they no longer count toward capacity.
 
-### Cancelling purchased tickets
+### Cancelling Purchased Tickets
 
 Use the **Cancel tickets** action in **Events → Purchased Tickets**. Cancelled tickets:
 
@@ -54,7 +50,7 @@ Use the **Cancel tickets** action in **Events → Purchased Tickets**. Cancelled
 
 Use **Restore tickets** to make a cancelled reservation active again, as long as the related order has not been moved to a release-capacity status.
 
-### Order status changes
+### Order Status Changes
 
 When a Commerce order moves to one of the configured **Release Capacity Order Statuses** (Settings → Events → Tickets), Events automatically cancels all active purchased tickets for that order.
 
@@ -66,7 +62,7 @@ When **Cancel Purchased Tickets on Refund** is enabled (Settings → Events → 
 
 For orders with a single ticket line item, Events cancels tickets based on the refunded amount. For full transaction refunds on orders with multiple ticket line items, all active purchased tickets are cancelled.
 
-### Deleting purchased tickets
+### Deleting Purchased Tickets
 
 Deleting a purchased ticket is separate from cancellation. Use deletion only to remove mistaken records or for GDPR cleanup. Cancelled tickets can be permanently deleted from the trash, or with:
 

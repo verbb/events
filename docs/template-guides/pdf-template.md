@@ -8,7 +8,7 @@ Start by ensuring you've set up the **Tickets PDF Template** under the [General 
 
 Also check out [Configuration](docs:get-started/configuration) for more options to adjust your PDF.
 
-### Create a link for customers to download
+### Create a Link for Customers to Download
 Next, you'll want to produce an actual link for your customer to download their PDF tickets. In most cases, this will be on the order summary page, an email, or both.
 
 For example, on our order summary template (`shop/customer/order.html`), we have the following code looping through line items for the order. You can use the following single-line Twig variable:
@@ -33,19 +33,19 @@ In both cases, the URL will look something similar to:
 
 This URL will be using the template you have defined under the Events' plugin settings.
 
-### Additional parameters
+### Additional Parameters
 You may find the additional parameters useful, especially during testing and development of these templates. Simply use one of the following values to append to the URL produced above.
 
 - `&attach=false` - Add this to not force the PDF to download. Instead, it'll be rendered inside the browser window. This will still render as a PDF and is useful for debugging layout issues.
 - `&format=plain` - Produces the same template as HTML, as opposed to PDF. Again, useful for debugging layout issues, or quickly prototyping layouts.
 
-### Template variables
+### Template Variables
 In the template itself, you'll have access to the following Twig variables:
 
-#### order
+#### Order
 The parent order that this ticket was purchased from
 
-#### tickets
+#### Tickets
 A collection of [Purchased Tickets](docs:developers/purchased-ticket). Depending on if you are using the functionality to show all purchased tickets for the order, or just per line item will dictate the amount of models in this collection.
 
 ### QR Code
@@ -55,7 +55,7 @@ Rather than a standard URL, you can produce a QR code:
 <img src="{{ ticket.qrCode }}" />
 ```
 
-### Example template
+### Example Template
 Below we've prepared a ready-to-go template, complete with provided CSS to get you started quickly.
 
 ```twig

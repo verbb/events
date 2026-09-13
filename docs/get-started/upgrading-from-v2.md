@@ -1,6 +1,16 @@
 # Upgrading from v2
 While the [changelog](https://github.com/verbb/events/blob/craft-5/CHANGELOG.md) is the most comprehensive list of changes, this guide provides high-level overview and organizes changes by category.
 
+## Breaking Changes
+
+Review the [check-in URL](#check-in-url) and the model changes below before updating custom templates. The new session and ticket-type structure also changes how tickets are created; the Architecture section explains the migrated data.
+
+### Zero Event Capacity
+
+If your existing site used an event capacity of `0` to mean no event-wide limit, review those events before accepting bookings. An explicit zero prevents sales; a blank capacity leaves the session and ticket-type limits in control. See [Capacity](docs:feature-tour/capacity) for the calculation.
+
+Change only events that were intended to be unlimited. Do not run a blanket update over every zero-capacity event: some may deliberately be closed for sales. Back up the database, clear the capacity on the affected events, and check availability for a representative session and ticket type before reopening sales.
+
 ## Architecture
 The biggest change to Events 3 is the major change in content architecture for the plugin and managing events. It's best to familiarise yourself with the change in behaviour, particularly if you customise or extend the Events plugin.
 
