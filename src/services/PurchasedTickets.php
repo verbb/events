@@ -92,7 +92,7 @@ class PurchasedTickets extends Component
         }
 
         return (int)$this->_activePurchasedTicketElementsQuery()
-            ->where(['pt.ticketId' => $ticketId])
+            ->andWhere(['pt.ticketId' => $ticketId])
             ->count('*');
     }
 
