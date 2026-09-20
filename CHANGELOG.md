@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.11 - 2026-09-20
+
+### Fixed
+- Cancelled purchased tickets no longer count against a ticket type's capacity.
+
 ## 3.1.10 - 2026-09-14
 
 ### Changed
