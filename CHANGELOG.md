@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.12 - 2026-09-23
 
 ### Changed
 - Render session and ticket title and SKU formats in Twig sandbox.
