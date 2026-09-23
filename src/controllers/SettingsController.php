@@ -6,16 +6,17 @@ use verbb\events\elements\Event;
 use verbb\events\models\Settings;
 
 use Craft;
-use craft\web\Controller;
 
 use yii\web\Response;
 
-class BaseController extends Controller
+use verbb\base\controllers\SettingsController as BaseSettingsController;
+
+class SettingsController extends BaseSettingsController
 {
     // Public Methods
     // =========================================================================
 
-    public function actionSettings(): Response
+    public function actionIndex(): Response
     {
         /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();
@@ -43,5 +44,4 @@ class BaseController extends Controller
 
         return $options;
     }
-
 }

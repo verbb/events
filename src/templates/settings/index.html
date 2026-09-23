@@ -16,7 +16,7 @@
 } %}
 {% set pageTitle = pageTabs[selectedTab].title ?? pageTabs[selectedTab].heading ?? null %}
 {% if not pageTitle %}{% exit 404 %}{% endif %}
-{% set pageAction = 'plugins/save-plugin-settings' %}
+{% set pageAction = 'events/settings/save-settings' %}
 {% set pageUrl = selectedTab == 'general' ? 'events/settings' : 'events/settings/' ~ selectedTab %}
 
 {% block settingsContent %}
