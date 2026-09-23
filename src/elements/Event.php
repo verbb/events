@@ -569,8 +569,11 @@ class Event extends Element implements ExpirableElementInterface
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
 
-            $this->title = Craft::$app->getView()->renderObjectTemplate($eventType->titleFormat, $this);
-            Craft::$app->language = $language;
+            try {
+                $this->title = Events::$plugin->getTemplates()->renderSandboxedObjectTemplate($eventType->titleFormat, $this);
+            } finally {
+                Craft::$app->language = $language;
+            }
         }
     }
 

@@ -7,6 +7,7 @@ use verbb\events\services\EventTypes;
 use verbb\events\services\Ics;
 use verbb\events\services\Pdf;
 use verbb\events\services\PurchasedTickets;
+use verbb\events\services\Templates;
 use verbb\events\services\Tickets;
 use verbb\events\services\TicketTypes;
 
@@ -86,6 +87,11 @@ trait PluginTrait
         return $this->get('ticketTypes');
     }
 
+    public function getTemplates(): Templates
+    {
+        return $this->get('templates');
+    }
+
 
     // Private Methods
     // =========================================================================
@@ -93,6 +99,7 @@ trait PluginTrait
     private function _registerComponents(): void
     {
         $this->setComponents([
+            'templates' => Templates::class,
             'events' => EventsService::class,
             'eventTypes' => EventTypes::class,
             'ics' => Ics::class,
