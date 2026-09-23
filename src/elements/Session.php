@@ -590,7 +590,7 @@ class Session extends Element implements NestedElementInterface
     {
         // Ensure that we execute any code within the correct language
         LocaleHelper::switchAppLanguage($this->getSite()->language, null, function() use ($event) {
-            $title = Craft::$app->getView()->renderObjectTemplate($event->getType()->sessionTitleFormat, $this);
+            $title = Events::$plugin->getTemplates()->renderSandboxedObjectTemplate($event->getType()->sessionTitleFormat, $this);
 
             // Direct DB update, as this is `afterSave`
             Db::update(Table::ELEMENTS_SITES, ['title' => $title], ['elementId' => $this->id, 'siteId' => $this->siteId]);

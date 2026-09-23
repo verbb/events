@@ -168,7 +168,7 @@ class Ticket extends Purchasable
                 $this->title = $this->getDescription();
 
                 if (!$this->sku && $eventType->ticketSkuFormat) {
-                    $this->sku = Craft::$app->getView()->renderObjectTemplate($eventType->ticketSkuFormat, $this);
+                    $this->sku = Events::$plugin->getTemplates()->renderSandboxedObjectTemplate($eventType->ticketSkuFormat, $this);
                 }
             } catch (Throwable $e) {
             }
@@ -205,7 +205,7 @@ class Ticket extends Purchasable
     {
         if ($eventType = $this->getEvent()?->getType()) {
             try {
-                return Craft::$app->getView()->renderObjectTemplate($eventType->ticketTitleFormat, $this);
+                return Events::$plugin->getTemplates()->renderSandboxedObjectTemplate($eventType->ticketTitleFormat, $this);
             } catch (Throwable $e) {
             }
         }

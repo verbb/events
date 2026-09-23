@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Render session and ticket title and SKU formats in Twig sandbox.
+
 ### Fixed
 - Fix saving one settings page resetting settings on the other pages.
 

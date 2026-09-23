@@ -356,7 +356,7 @@ class PurchasedTicket extends Element
     {
         if ($eventType = $this->getEvent()?->getType()) {
             try {
-                return Craft::$app->getView()->renderObjectTemplate($eventType->purchasedTicketTitleFormat, $this);
+                return Events::$plugin->getTemplates()->renderSandboxedObjectTemplate($eventType->purchasedTicketTitleFormat, $this);
             } catch (Throwable $e) {
             }
         }

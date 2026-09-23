@@ -31,7 +31,7 @@
         "dompdf/dompdf": "^2.0.4 || ^3.0",
         "endroid/qr-code": "^5.1.0",
         "jsvrcek/ics": "^0.8.0",
-        "verbb/base": "^3.0.9"
+        "verbb/base": "^3.0.17"
     },
     "autoload": {
         "psr-4": {

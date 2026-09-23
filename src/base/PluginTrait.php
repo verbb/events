@@ -9,6 +9,7 @@ use verbb\events\services\Ics;
 use verbb\events\services\Pdf;
 use verbb\events\services\PurchasedTickets;
 use verbb\events\services\Sessions;
+use verbb\events\services\Templates;
 use verbb\events\services\Tickets;
 use verbb\events\services\TicketTypes;
 
@@ -48,6 +49,7 @@ trait PluginTrait
                 'pdf' => Pdf::class,
                 'purchasedTickets' => PurchasedTickets::class,
                 'sessions' => Sessions::class,
+                'templates' => Templates::class,
                 'tickets' => Tickets::class,
                 'ticketTypes' => TicketTypes::class,
             ],
@@ -96,6 +98,11 @@ trait PluginTrait
     public function getSessions(): Sessions
     {
         return $this->get('sessions');
+    }
+
+    public function getTemplates(): Templates
+    {
+        return $this->get('templates');
     }
 
     public function getTickets(): Tickets
