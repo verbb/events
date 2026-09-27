@@ -34,17 +34,19 @@
                 </li>
             </ul>
 
-            <hr>
+            {% if currentUser.can('events-deletePurchasedTickets') %}
+                <hr>
 
-            <ul>
-                <li>
-                    <a class="formsubmit error" data-action="events/purchased-tickets/delete"
-                       data-confirm="{{ 'Are you sure you want to permanently delete this {type}? This should only be used to remove mistaken records.'|t('events', { type: element.lowerDisplayName() }) }}"
-                       data-redirect="{{ 'events/purchased-tickets' | hash }}">
-                        {{ 'Delete {type}' | t('app', { type: element.lowerDisplayName() }) }}
-                    </a>
-                </li>
-            </ul>
+                <ul>
+                    <li>
+                        <a class="formsubmit error" data-action="events/purchased-tickets/delete"
+                           data-confirm="{{ 'Are you sure you want to permanently delete this {type}? This should only be used to remove mistaken records.'|t('events', { type: element.lowerDisplayName() }) }}"
+                           data-redirect="{{ 'events/purchased-tickets' | hash }}">
+                            {{ 'Delete {type}' | t('app', { type: element.lowerDisplayName() }) }}
+                        </a>
+                    </li>
+                </ul>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -9,8 +9,10 @@ use Craft;
 use craft\web\Controller;
 use craft\web\Response;
 
+use craft\commerce\elements\Order;
 use craft\commerce\Plugin as Commerce;
 
+use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 
 use verbb\base\helpers\Locale as LocaleHelper;
@@ -28,20 +30,15 @@ class DownloadsController extends Controller
 
     public function actionPdf(): Response|string
     {
-        $attributes = [];
-        $ticket = [];
-
         /* @var Settings $settings */
         $settings = Events::$plugin->getSettings();
 
-        $tickets = [];
-        $order = [];
         $lineItem = null;
 
         $number = $this->request->getRequiredParam('number');
         $option = $this->request->getParam('option', '');
-        $lineItemId = $this->request->getParam('lineItemId', '');
-        $ticketId = $this->request->getParam('ticketId', '');
+        $lineItemId = $this->_positiveIntegerParam('lineItemId');
+        $ticketId = $this->_positiveIntegerParam('ticketId');
 
         $format = $this->request->getParam('format');
         $attach = $this->request->getParam('attach');
@@ -55,29 +52,44 @@ class DownloadsController extends Controller
             }
         }
 
-        if ($number) {
-            $order = Commerce::getInstance()->getOrders()->getOrderByNumber($number);
+        if (!is_string($number) || trim($number) === '') {
+            throw new BadRequestHttpException('Invalid order number.');
+        }
 
-            if (!$order) {
-                throw new NotFoundHttpException('No Order Found');
+        $order = Order::find()
+            ->number(trim($number))
+            ->isCompleted(true)
+            ->status(null)
+            ->one();
+
+        if (!$order) {
+            throw new NotFoundHttpException('No order found.');
+        }
+
+        if ($lineItemId !== null) {
+            $lineItem = Commerce::getInstance()->getLineItems()->getLineItemById($lineItemId);
+
+            if (!$lineItem || $lineItem->orderId !== $order->id) {
+                throw new NotFoundHttpException('No line item found.');
             }
         }
 
-        if ($lineItemId) {
-            $lineItem = Commerce::getInstance()->getLineItems()->getLineItemById($lineItemId);
+        $query = PurchasedTicket::find()
+            ->orderId($order->id);
 
-            $attributes['lineItemId'] = $lineItem->id;
+        if ($ticketId !== null) {
+            $query->id($ticketId);
         }
 
-        $query = PurchasedTicket::find();
-
-        if ($ticketId) {
-            $query->id($ticketId);
-        } else {
-            $query->orderId($order->id);
+        if ($lineItemId !== null) {
+            $query->lineItemId($lineItemId);
         }
 
         $purchasedTickets = $query->all();
+
+        if (!$purchasedTickets) {
+            throw new NotFoundHttpException('No purchased tickets found.');
+        }
 
         $pdf = null;
 
@@ -110,5 +122,34 @@ class DownloadsController extends Controller
         }
 
         return Craft::$app->getResponse()->sendContentAsFile($pdf, $fileName . '.pdf', $options);
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _positiveIntegerParam(string $name): ?int
+    {
+        $value = $this->request->getParam($name);
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (!is_int($value) && !is_string($value)) {
+            throw new BadRequestHttpException("Invalid $name.");
+        }
+
+        $value = filter_var($value, FILTER_VALIDATE_INT, [
+            'options' => [
+                'min_range' => 1,
+            ],
+        ]);
+
+        if ($value === false) {
+            throw new BadRequestHttpException("Invalid $name.");
+        }
+
+        return $value;
     }
 }

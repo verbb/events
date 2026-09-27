@@ -3,12 +3,16 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 use verbb\events\elements\PurchasedTicket;
+use verbb\events\elements\Ticket;
 
 use Craft;
 use craft\web\Controller;
 
-use yii\base\Exception;
-use yii\web\HttpException;
+use craft\commerce\Plugin as Commerce;
+
+use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 class PurchasedTicketsController extends Controller
@@ -16,13 +20,28 @@ class PurchasedTicketsController extends Controller
     // Public Methods
     // =========================================================================
 
+    public function beforeAction($action): bool
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        $this->requireCpRequest();
+
+        return true;
+    }
+
     public function actionIndex(): Response
     {
+        $this->requirePermission('events-viewPurchasedTickets');
+
         return $this->renderTemplate('events/purchased-tickets');
     }
 
     public function actionEdit(int $purchasedTicketId = null, PurchasedTicket $purchasedTicket = null): Response
     {
+        $this->requirePermission('events-editPurchasedTickets');
+
         $variables = [
             'purchasedTicketId' => $purchasedTicketId,
             'purchasedTicket' => $purchasedTicket,
@@ -34,13 +53,15 @@ class PurchasedTicketsController extends Controller
                 $variables['purchasedTicket'] = Events::$plugin->getPurchasedTickets()->getPurchasedTicketById($purchasedTicketId);
 
                 if (!$variables['purchasedTicket']) {
-                    throw new HttpException(404);
+                    throw new NotFoundHttpException('No purchased ticket found.');
                 }
             } else {
                 $variables['purchasedTicket'] = new PurchasedTicket();
                 $variables['brandNewPurchasedTicket'] = true;
             }
         }
+
+        $this->_requireCanSave($variables['purchasedTicket']);
 
         if (!empty($variables['purchasedTicketId'])) {
             $variables['title'] = $variables['purchasedTicket']->title;
@@ -56,35 +77,46 @@ class PurchasedTicketsController extends Controller
     public function actionSave(): ?Response
     {
         $this->requirePostRequest();
+        $this->requirePermission('events-editPurchasedTickets');
 
-        $purchasedTicketId = $this->request->getParam('id');
+        $purchasedTicketId = $this->_positiveIntegerBodyParam('id');
 
         if ($purchasedTicketId) {
-            $purchasedTicket = Events::$plugin->getPurchasedTickets()->getPurchasedTicketById($purchasedTicketId);
+            $purchasedTicket = $this->_purchasedTicket($purchasedTicketId);
         } else {
             $purchasedTicket = new PurchasedTicket();
         }
+
+        $this->_requireCanSave($purchasedTicket);
 
         $purchasedTicket->id = $purchasedTicketId;
         $purchasedTicket->enabled = $this->request->getParam('enabled', $purchasedTicket->enabled);
         $purchasedTicket->checkedIn = $this->request->getParam('checkedIn', $purchasedTicket->checkedIn);
         $purchasedTicket->checkedInDate = $this->request->getParam('checkedInDate', $purchasedTicket->checkedInDate);
-        $oldTicketId = $purchasedTicket->ticketId;
 
-        // Reset local caches, as we might be changing things
-        $purchasedTicket->setTicket(null);
-        $purchasedTicket->setOrder(null);
+        if (($ticketId = $this->_positiveIntegerBodyParam('ticketId')) !== null) {
+            $ticket = Ticket::find()
+                ->id($ticketId)
+                ->status(null)
+                ->one();
 
-        if ($ticketId = $this->request->getParam('ticketId')) {
-            if (is_array($ticketId)) {
-                $purchasedTicket->ticketId = reset($ticketId);
+            if (!$ticket) {
+                throw new BadRequestHttpException('Invalid ticket ID.');
             }
+
+            $purchasedTicket->ticketId = $ticketId;
+            $purchasedTicket->setTicket($ticket);
         }
 
-        if ($orderId = $this->request->getParam('orderId')) {
-            if (is_array($orderId)) {
-                $purchasedTicket->orderId = reset($orderId);
+        if (($orderId = $this->_positiveIntegerBodyParam('orderId')) !== null) {
+            $order = Commerce::getInstance()->getOrders()->getOrderById($orderId);
+
+            if (!$order) {
+                throw new BadRequestHttpException('Invalid order ID.');
             }
+
+            $purchasedTicket->orderId = $orderId;
+            $purchasedTicket->setOrder($order);
         }
 
         // Update the relations, just in case
@@ -116,13 +148,11 @@ class PurchasedTicketsController extends Controller
     public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
+        $this->requirePermission('events-deletePurchasedTickets');
 
-        $purchasedTicketId = Craft::$app->getRequest()->getRequiredParam('id');
-        $purchasedTicket = PurchasedTicket::findOne($purchasedTicketId);
-
-        if (!$purchasedTicket) {
-            throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
-        }
+        $purchasedTicketId = $this->_requiredPositiveIntegerBodyParam('id');
+        $purchasedTicket = $this->_purchasedTicket($purchasedTicketId);
+        $this->_requireCanDelete($purchasedTicket);
 
         if (!Craft::$app->getElements()->deleteElement($purchasedTicket)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -149,13 +179,11 @@ class PurchasedTicketsController extends Controller
     public function actionCheckIn(): ?Response
     {
         $this->requirePostRequest();
+        $this->requirePermission('events-editPurchasedTickets');
 
-        $purchasedTicketId = Craft::$app->getRequest()->getRequiredParam('id');
-        $purchasedTicket = PurchasedTicket::findOne($purchasedTicketId);
-
-        if (!$purchasedTicket) {
-            throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
-        }
+        $purchasedTicketId = $this->_requiredPositiveIntegerBodyParam('id');
+        $purchasedTicket = $this->_purchasedTicket($purchasedTicketId);
+        $this->_requireCanSave($purchasedTicket);
 
         if (!$purchasedTicket->getIsActive()) {
             Craft::$app->getSession()->setError(Craft::t('events', 'Cancelled tickets cannot be checked in.'));
@@ -187,13 +215,11 @@ class PurchasedTicketsController extends Controller
     public function actionCheckOut(): Response
     {
         $this->requirePostRequest();
+        $this->requirePermission('events-editPurchasedTickets');
 
-        $purchasedTicketId = Craft::$app->getRequest()->getRequiredParam('id');
-        $purchasedTicket = PurchasedTicket::findOne($purchasedTicketId);
-
-        if (!$purchasedTicket) {
-            throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
-        }
+        $purchasedTicketId = $this->_requiredPositiveIntegerBodyParam('id');
+        $purchasedTicket = $this->_purchasedTicket($purchasedTicketId);
+        $this->_requireCanSave($purchasedTicket);
 
         Events::$plugin->getPurchasedTickets()->checkOutPurchasedTicket($purchasedTicket);
 
@@ -205,13 +231,11 @@ class PurchasedTicketsController extends Controller
     public function actionCancel(): ?Response
     {
         $this->requirePostRequest();
+        $this->requirePermission('events-editPurchasedTickets');
 
-        $purchasedTicketId = Craft::$app->getRequest()->getRequiredParam('id');
-        $purchasedTicket = PurchasedTicket::findOne($purchasedTicketId);
-
-        if (!$purchasedTicket) {
-            throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
-        }
+        $purchasedTicketId = $this->_requiredPositiveIntegerBodyParam('id');
+        $purchasedTicket = $this->_purchasedTicket($purchasedTicketId);
+        $this->_requireCanSave($purchasedTicket);
 
         $reason = $this->request->getBodyParam('reason');
 
@@ -229,13 +253,11 @@ class PurchasedTicketsController extends Controller
     public function actionRestore(): ?Response
     {
         $this->requirePostRequest();
+        $this->requirePermission('events-editPurchasedTickets');
 
-        $purchasedTicketId = Craft::$app->getRequest()->getRequiredParam('id');
-        $purchasedTicket = PurchasedTicket::findOne($purchasedTicketId);
-
-        if (!$purchasedTicket) {
-            throw new Exception(Craft::t('events', 'No purchased ticket exists with the ID “{id}”.', ['id' => $purchasedTicketId]));
-        }
+        $purchasedTicketId = $this->_requiredPositiveIntegerBodyParam('id');
+        $purchasedTicket = $this->_purchasedTicket($purchasedTicketId);
+        $this->_requireCanSave($purchasedTicket);
 
         if (!Events::$plugin->getPurchasedTickets()->restorePurchasedTicket($purchasedTicket)) {
             Craft::$app->getSession()->setError(Craft::t('events', 'Couldn’t restore purchased ticket.'));
@@ -246,5 +268,81 @@ class PurchasedTicketsController extends Controller
         Craft::$app->getSession()->setNotice(Craft::t('events', 'Purchased ticket restored.'));
 
         return $this->redirectToPostedUrl($purchasedTicket);
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _purchasedTicket(int $id): PurchasedTicket
+    {
+        $purchasedTicket = PurchasedTicket::find()
+            ->id($id)
+            ->status(null)
+            ->one();
+
+        if (!$purchasedTicket) {
+            throw new NotFoundHttpException('No purchased ticket found.');
+        }
+
+        return $purchasedTicket;
+    }
+
+    private function _requireCanSave(PurchasedTicket $purchasedTicket): void
+    {
+        if (!Craft::$app->getElements()->canSave($purchasedTicket)) {
+            throw new ForbiddenHttpException('User not authorized to edit this purchased ticket.');
+        }
+    }
+
+    private function _requireCanDelete(PurchasedTicket $purchasedTicket): void
+    {
+        if (!Craft::$app->getElements()->canDelete($purchasedTicket)) {
+            throw new ForbiddenHttpException('User not authorized to delete this purchased ticket.');
+        }
+    }
+
+    private function _requiredPositiveIntegerBodyParam(string $name): int
+    {
+        $value = $this->_positiveIntegerBodyParam($name);
+
+        if ($value === null) {
+            throw new BadRequestHttpException("Missing required parameter: $name");
+        }
+
+        return $value;
+    }
+
+    private function _positiveIntegerBodyParam(string $name): ?int
+    {
+        $value = $this->request->getBodyParam($name);
+
+        if ($value === null || $value === '' || $value === []) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            if (count($value) !== 1) {
+                throw new BadRequestHttpException("Invalid $name.");
+            }
+
+            $value = reset($value);
+        }
+
+        if (!is_int($value) && !is_string($value)) {
+            throw new BadRequestHttpException("Invalid $name.");
+        }
+
+        $value = filter_var($value, FILTER_VALIDATE_INT, [
+            'options' => [
+                'min_range' => 1,
+            ],
+        ]);
+
+        if ($value === false) {
+            throw new BadRequestHttpException("Invalid $name.");
+        }
+
+        return $value;
     }
 }

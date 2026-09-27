@@ -237,14 +237,17 @@ class PurchasedTicket extends Element
     protected static function defineActions(string $source = null): array
     {
         $actions = [];
+        $user = Craft::$app->getUser()->getIdentity();
 
-        $actions[] = [
-            'type' => CancelPurchasedTickets::class,
-        ];
+        if ($user?->can('events-editPurchasedTickets')) {
+            $actions[] = [
+                'type' => CancelPurchasedTickets::class,
+            ];
 
-        $actions[] = [
-            'type' => RestorePurchasedTickets::class,
-        ];
+            $actions[] = [
+                'type' => RestorePurchasedTickets::class,
+            ];
+        }
 
         $actions[] = Craft::$app->getElements()->createAction([
             'type' => Delete::class,

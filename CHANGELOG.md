@@ -6,6 +6,8 @@
 - Route plugin settings through the plugin’s authorized settings controller.
 
 ### Fixed
+- Fixed ticket download parameters being able to select purchased tickets and line items from a different order.
+- Fixed purchased ticket management actions not enforcing their registered permissions.
 - Fixed session recurrence requests accepting properties outside each model’s validated attributes.
 
 ## 3.1.12 - 2026-09-23
