@@ -10,6 +10,7 @@ use verbb\events\elements\db\SessionQuery;
 use verbb\events\elements\traits\PurchasedTicketTrait;
 use verbb\events\frequencies;
 use verbb\events\models\EventType;
+use verbb\events\models\FrequencyRepeatEnd;
 use verbb\events\models\OccurrenceRange;
 use verbb\events\models\SessionRecurrenceData;
 use verbb\events\records\Session as SessionRecord;
@@ -17,6 +18,7 @@ use verbb\events\records\Session as SessionRecord;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\base\Model;
 use craft\base\NestedElementInterface;
 use craft\base\NestedElementTrait;
 use craft\db\Query;
@@ -25,6 +27,7 @@ use craft\elements\actions\Restore;
 use craft\elements\db\EagerLoadPlan;
 use craft\elements\User;
 use craft\helpers\Cp;
+use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
@@ -366,15 +369,26 @@ class Session extends Element implements NestedElementInterface
     {
         if (array_key_exists('frequencyData', $values)) {
             $typedFrequency = new frequencies\Once();
+            $frequencyInput = $values['frequencyData'];
 
-            // When saving, pluck just the frequency data we want, and typecast properly
-            $frequencyType = $values['frequencyData']['type'] ?? null;
-            $frequencyData = $values['frequencyData'][$frequencyType] ?? [];
+            if (is_array($frequencyInput)) {
+                $frequencyType = $frequencyInput['type'] ?? null;
+                $frequencyData = is_string($frequencyType) ? ($frequencyInput[$frequencyType] ?? []) : [];
 
-            if ($frequencyType) {
-                if ($frequency = Events::$plugin->getSessions()->getFrequencyById($frequencyType)) {
-                    // Create a new class of the same type, just in case
-                    $typedFrequency = new (get_class($frequency))($frequencyData);
+                if (is_string($frequencyType) && is_array($frequencyData)) {
+                    $frequency = Events::$plugin->getSessions()->getFrequencyById($frequencyType);
+
+                    if ($frequency) {
+                        $frequencyData = $this->_requestModelConfig($frequency, $frequencyData);
+
+                        if (isset($frequencyData['repeatEnd']) && is_array($frequencyData['repeatEnd'])) {
+                            $repeatEnd = new FrequencyRepeatEnd();
+                            $frequencyData['repeatEnd'] = $this->_requestModelConfig($repeatEnd, $frequencyData['repeatEnd']);
+                        }
+
+                        // Create a new class of the same type, just in case
+                        $typedFrequency = new (get_class($frequency))($frequencyData);
+                    }
                 }
             }
 
@@ -382,7 +396,9 @@ class Session extends Element implements NestedElementInterface
         }
 
         if (array_key_exists('occurrenceRange', $values)) {
-            $values['occurrenceRange'] = new OccurrenceRange($values['occurrenceRange']);
+            $occurrenceRange = new OccurrenceRange();
+            $occurrenceRangeData = is_array($values['occurrenceRange']) ? $values['occurrenceRange'] : [];
+            $values['occurrenceRange'] = new OccurrenceRange($this->_requestModelConfig($occurrenceRange, $occurrenceRangeData));
         }
 
         parent::setAttributesFromRequest($values);
@@ -944,6 +960,17 @@ class Session extends Element implements NestedElementInterface
         Db::update('{{%events_tickets}}', ['deletedWithSession' => true], ['sessionId' => $this->id]);
 
         return true;
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _requestModelConfig(Model $model, array $config): array
+    {
+        $safeAttributes = array_flip($model->safeAttributes());
+
+        return array_intersect_key(ComponentHelper::cleanseConfig($config), $safeAttributes);
     }
 
 

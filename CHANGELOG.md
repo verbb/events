@@ -5,6 +5,9 @@
 ### Changed
 - Route plugin settings through the plugin’s authorized settings controller.
 
+### Fixed
+- Fixed session recurrence requests accepting properties outside each model’s validated attributes.
+
 ## 3.1.12 - 2026-09-23
 
 ### Changed

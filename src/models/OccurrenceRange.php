@@ -221,6 +221,7 @@ class OccurrenceRange extends Model
         $rules[] = [['startDate', 'endDate'], 'required', 'when' => fn() => $this->type === self::TYPE_CUSTOM];
 
         $rules[] = [['startDate', 'endDate'], DateTimeValidator::class];
+        $rules[] = [['startDateOffset', 'endDateOffset'], 'integer'];
 
         return $rules;
     }
