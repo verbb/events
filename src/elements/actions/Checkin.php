@@ -23,16 +23,22 @@ class Checkin extends ElementAction
             return false;
         }
 
+        $success = true;
+
         foreach ($query->all() as $purchasedTicket) {
             if (!$purchasedTicket->getIsActive()) {
                 continue;
             }
 
-            Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket);
+            if (!Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket)) {
+                $success = false;
+            }
         }
 
-        $this->setMessage(Craft::t('events', 'Tickets checked in'));
+        $this->setMessage($success
+            ? Craft::t('events', 'Tickets checked in')
+            : Craft::t('events', 'Couldn’t check in all selected tickets.'));
 
-        return true;
+        return $success;
     }
 }

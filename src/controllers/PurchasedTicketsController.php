@@ -205,7 +205,15 @@ class PurchasedTicketsController extends Controller
             return null;
         }
 
-        Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket);
+        if (!Events::$plugin->getPurchasedTickets()->checkInPurchasedTicket($purchasedTicket)) {
+            Craft::$app->getSession()->setError(Craft::t('events', 'Couldn’t check in purchased ticket.'));
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                'purchasedTicket' => $purchasedTicket,
+            ]);
+
+            return null;
+        }
 
         Craft::$app->getSession()->setNotice(Craft::t('events', 'Ticket checked in.'));
 

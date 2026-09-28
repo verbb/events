@@ -1,6 +1,6 @@
 # Ticket Check-In
 
-Check-in records that a Purchased Ticket has been used at the event. Use the ticket's check-in URL, including the QR code in a PDF ticket, to open its confirmation screen. Confirming the action marks the ticket as checked in; opening the URL alone does not do so.
+Check-in records that a Purchased Ticket has been used at the event. Use the ticket's check-in URL, including the QR code in a PDF ticket, to open its confirmation screen. Confirming the action with a CSRF-protected POST request marks the ticket as checked in; opening the URL alone does not do so.
 
 When `checkinLogin` is enabled, the person checking tickets needs the **Check in tickets** permission. Test with the staff account that will operate the scanner or check-in page. A cancelled ticket or a ticket already checked in produces an error.
 
@@ -18,7 +18,7 @@ The helper builds the `events/tickets/check-in` action URL and includes the tick
 
 ## Request Parameters
 
-`uid` identifies the Purchased Ticket. `confirm` must be truthy to perform the check-in; without it, the action returns the ticket for confirmation. For a custom confirmation form, submit both values:
+`uid` identifies the Purchased Ticket and must be its exact UUID. Submit a truthy `confirm` value in a POST request to perform the check-in; a query-string `confirm` value does not change the ticket. For a custom confirmation form, submit both values with a CSRF token:
 
 ```twig
 <form method="post">
@@ -38,7 +38,7 @@ Place this only in a context where the intended purchased ticket has been select
 
 A request accepting JSON receives the response values as JSON. Otherwise, the controller renders the check-in template. An error response contains `error`. A confirmation response contains `purchasedTicket`; after the confirmation action runs, the response also contains `success: true`.
 
-Inspect the ticket's `checkedIn` state and `checkedInDate` after confirmation. If you customise the PHP check-in hooks, test their result too rather than treating an HTTP success response alone as proof of a state change.
+Inspect the ticket's `checkedIn` state and `checkedInDate` after confirmation. If two requests try to confirm the same ticket together, only the first check-in succeeds. If you customise the PHP check-in hooks, test their result too rather than treating an HTTP success response alone as proof of a state change.
 
 ## Custom Template
 

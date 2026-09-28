@@ -47,6 +47,8 @@ return [
   'Close' => 'Close',
   'Confirm Check In' => 'Confirm Check In',
   'Could not find ticket SKU.' => 'Could not find ticket SKU.',
+  'Couldn’t check in all selected tickets.' => 'Couldn’t check in all selected tickets.',
+  'Couldn’t check in purchased ticket.' => 'Couldn’t check in purchased ticket.',
   'Couldn’t delete purchased ticket.' => 'Couldn’t delete purchased ticket.',
   'Couldn’t save event type.' => 'Couldn’t save event type.',
   'Couldn’t save purchased ticket.' => 'Couldn’t save purchased ticket.',

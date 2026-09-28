@@ -24,6 +24,7 @@
                 {% else %}
                     <form method="post" accept-charset="UTF-8" class="px-4 py-5 sm:p-6">
                         {{ actionInput('events/tickets/check-in') }}
+                        {{ hiddenInput('uid', purchasedTicket.uid) }}
                         {{ hiddenInput('confirm', true) }}
                         {{ csrfInput() }}
 

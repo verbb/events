@@ -342,31 +342,60 @@ class PurchasedTickets extends Component
 
     public function checkInPurchasedTicket(PurchasedTicket $purchasedTicket): bool
     {
-        if (!$purchasedTicket->getIsActive()) {
+        if (!$purchasedTicket->id) {
             return false;
         }
 
-        $purchasedTicket->checkedIn = true;
-        $purchasedTicket->checkedInDate = new DateTime();
+        $lockName = 'events:purchased-ticket:check-in:' . $purchasedTicket->id;
+        $mutex = Craft::$app->getMutex();
 
-        $event = new PurchasedTicketEvent([
-            'purchasedTicket' => $purchasedTicket,
-        ]);
-        $this->trigger(self::EVENT_BEFORE_CHECK_IN, $event);
-
-        if (!$event->isValid) {
+        if (!$mutex->acquire($lockName, 5)) {
             return false;
         }
 
-        if (!Craft::$app->getElements()->saveElement($event->purchasedTicket)) {
-            return false;
+        try {
+            $purchasedTicketRecord = PurchasedTicketRecord::findOne($purchasedTicket->id);
+
+            if (
+                !$purchasedTicketRecord ||
+                $purchasedTicketRecord->reservationStatus !== PurchasedTicket::RESERVATION_STATUS_ACTIVE ||
+                $purchasedTicketRecord->checkedIn
+            ) {
+                return false;
+            }
+
+            $purchasedTicket->reservationStatus = $purchasedTicketRecord->reservationStatus;
+            $purchasedTicket->checkedIn = true;
+            $purchasedTicket->checkedInDate = new DateTime();
+
+            $event = new PurchasedTicketEvent([
+                'purchasedTicket' => $purchasedTicket,
+            ]);
+            $this->trigger(self::EVENT_BEFORE_CHECK_IN, $event);
+
+            if (
+                !$event->isValid ||
+                $event->purchasedTicket->id !== $purchasedTicket->id ||
+                !$event->purchasedTicket->checkedIn
+            ) {
+                return false;
+            }
+
+            if (!Craft::$app->getElements()->saveElement($event->purchasedTicket)) {
+                return false;
+            }
+
+            $purchasedTicket->checkedIn = $event->purchasedTicket->checkedIn;
+            $purchasedTicket->checkedInDate = $event->purchasedTicket->checkedInDate;
+
+            $this->trigger(self::EVENT_AFTER_CHECK_IN, new PurchasedTicketEvent([
+                'purchasedTicket' => $event->purchasedTicket,
+            ]));
+
+            return true;
+        } finally {
+            $mutex->release($lockName);
         }
-
-        $this->trigger(self::EVENT_AFTER_CHECK_IN, new PurchasedTicketEvent([
-            'purchasedTicket' => $event->purchasedTicket,
-        ]));
-
-        return true;
     }
 
     public function checkOutPurchasedTicket(PurchasedTicket $purchasedTicket): bool
