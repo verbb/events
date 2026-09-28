@@ -26,6 +26,7 @@ class PurchasedTicketQuery extends CachedElementQuery
     // =========================================================================
 
     public mixed $eventId = null;
+    public mixed $eventTypeId = null;
     public mixed $sessionId = null;
     public mixed $ticketId = null;
     public mixed $ticketTypeId = null;
@@ -57,6 +58,12 @@ class PurchasedTicketQuery extends CachedElementQuery
     public function eventId($value): static
     {
         $this->eventId = $value;
+        return $this;
+    }
+
+    public function eventTypeId($value): static
+    {
+        $this->eventTypeId = $value;
         return $this;
     }
 
@@ -207,6 +214,11 @@ class PurchasedTicketQuery extends CachedElementQuery
 
         if (isset($this->eventId)) {
             $this->subQuery->andWhere(Db::parseParam('events_purchased_tickets.eventId', $this->eventId));
+        }
+
+        if (isset($this->eventTypeId)) {
+            $this->subQuery->innerJoin('{{%events_events}} events_events', '[[events_events.id]] = [[events_purchased_tickets.eventId]]');
+            $this->subQuery->andWhere(['events_events.typeId' => $this->eventTypeId]);
         }
 
         if (isset($this->sessionId)) {

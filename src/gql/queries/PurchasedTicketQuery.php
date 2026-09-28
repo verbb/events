@@ -18,7 +18,7 @@ class PurchasedTicketQuery extends Query
 
     public static function getQueries(bool $checkToken = true): array
     {
-        if ($checkToken && !GqlHelper::canQueryEvents()) {
+        if ($checkToken && !GqlHelper::canQueryPurchasedTickets()) {
             return [];
         }
 

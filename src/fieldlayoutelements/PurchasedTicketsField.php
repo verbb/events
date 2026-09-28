@@ -53,6 +53,10 @@ class PurchasedTicketsField extends BaseNativeField
             return null;
         }
 
+        if (!Craft::$app->getUser()->checkPermission('events-viewPurchasedTickets')) {
+            return null;
+        }
+
         return $element->getPurchasedTicketManager($element)->getIndexHtml($element, [
             'allowedViewModes' => [ElementIndexViewMode::Table],
             'inlineEditable' => false,

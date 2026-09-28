@@ -6,6 +6,7 @@
 - Route plugin settings through the plugin’s authorized settings controller.
 
 ### Fixed
+- Fixed information disclosure vulnerabilities affecting purchased ticket access.
 - Fixed a high-severity ticket check-in authorization vulnerability.
 - Fixed ticket download parameters being able to select purchased tickets and line items from a different order.
 - Fixed purchased ticket management actions not enforcing their registered permissions.

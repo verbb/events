@@ -15,6 +15,10 @@ $myQuery = \verbb\events\elements\PurchasedTicket::find();
 
 Once you’ve created a purchased tickets query, you can set parameters on it to narrow down the results, and then execute it by calling `.all()`. An array of [PurchasedTicket](docs:developers/purchased-ticket) objects will be returned.
 
+## GraphQL Access
+
+GraphQL schemas control purchased ticket access separately from general event content. To query purchased tickets for an event type, enable both its event read scope and its **View “Event Type” purchased tickets** scope. Root purchased-ticket queries, counts, and the `purchasedTickets` field on events only return attendees for event types granted by both scopes.
+
 :::tip
 See Introduction to [Element Queries](https://craftcms.com/docs/4.x/element-queries/) in the Craft docs to learn about how element queries work.
 :::

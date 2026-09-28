@@ -126,7 +126,10 @@ class PurchasedTicket extends Element
 
     public static function gqlScopesByContext(mixed $context): array
     {
-        return ['eventsEventTypes.' . $context->uid];
+        return [
+            'eventsEventTypes.' . $context->uid,
+            'eventsPurchasedTickets.' . $context->uid,
+        ];
     }
 
     protected static function defineSources(string $context = null): array

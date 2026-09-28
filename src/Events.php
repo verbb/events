@@ -33,6 +33,7 @@ use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
+use craft\controllers\ElementIndexesController;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\events\DefineConsoleActionsEvent;
@@ -66,6 +67,7 @@ use craft\commerce\services\OrderHistories;
 use craft\commerce\services\Payments;
 use craft\commerce\services\Purchasables;
 
+use yii\base\ActionEvent;
 use yii\base\Event;
 
 use fostercommerce\klaviyoconnect\services\Track;
@@ -116,6 +118,7 @@ class Events extends Plugin
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
             $this->_registerCpRoutes();
+            $this->_registerElementIndexPermissions();
         }
 
         if (Craft::$app->getRequest()->getIsConsoleRequest()) {
@@ -215,6 +218,21 @@ class Events extends Plugin
             $event->types[] = Session::class;
             $event->types[] = Ticket::class;
             $event->types[] = TicketType::class;
+        });
+    }
+
+    private function _registerElementIndexPermissions(): void
+    {
+        Event::on(ElementIndexesController::class, ElementIndexesController::EVENT_BEFORE_ACTION, function(ActionEvent $event): void {
+            if (Craft::$app->getUser()->getIsGuest()) {
+                return;
+            }
+
+            $elementType = $event->sender->request->getParam('elementType');
+
+            if (is_string($elementType) && is_a($elementType, PurchasedTicket::class, true)) {
+                $event->sender->requirePermission('events-viewPurchasedTickets');
+            }
         });
     }
 
@@ -532,11 +550,15 @@ class Events extends Plugin
             $eventTypes = Events::$plugin->getEventTypes()->getAllEventTypes();
 
             if (!empty($eventTypes)) {
-                $label = Craft::t('events', 'Events');
+                $eventLabel = Craft::t('events', 'Events');
+                $purchasedTicketLabel = Craft::t('events', 'Purchased Tickets');
 
                 foreach ($eventTypes as $eventType) {
-                    $suffix = 'eventsEventTypes.' . $eventType->uid;
-                    $event->queries[$label][$suffix . ':read'] = ['label' => Craft::t('events', 'View “{eventType}” events', ['eventType' => Craft::t('site', $eventType->name)])];
+                    $eventSuffix = 'eventsEventTypes.' . $eventType->uid;
+                    $purchasedTicketSuffix = 'eventsPurchasedTickets.' . $eventType->uid;
+
+                    $event->queries[$eventLabel][$eventSuffix . ':read'] = ['label' => Craft::t('events', 'View “{eventType}” events', ['eventType' => Craft::t('site', $eventType->name)])];
+                    $event->queries[$purchasedTicketLabel][$purchasedTicketSuffix . ':read'] = ['label' => Craft::t('events', 'View “{eventType}” purchased tickets', ['eventType' => Craft::t('site', $eventType->name)])];
                 }
             }
         });

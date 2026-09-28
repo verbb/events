@@ -2,7 +2,9 @@
 namespace verbb\events\gql\interfaces;
 
 use verbb\events\elements\Event;
+use verbb\events\gql\resolvers\PurchasedTicketResolver;
 use verbb\events\gql\types\generators\EventGenerator;
+use verbb\events\helpers\Gql as GqlHelper;
 
 use Craft;
 use craft\gql\GqlEntityRegistry;
@@ -50,7 +52,7 @@ class EventInterface extends Element
 
     public static function getFieldDefinitions(): array
     {
-        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
+        $fields = [
             'sessions' => [
                 'name' => 'sessions',
                 'type' => Type::listOf(SessionInterface::getType()),
@@ -65,11 +67,6 @@ class EventInterface extends Element
                 'name' => 'tickets',
                 'type' => Type::listOf(TicketInterface::getType()),
                 'description' => 'The tickets associated with this event.',
-            ],
-            'purchasedTickets' => [
-                'name' => 'purchasedTickets',
-                'type' => Type::listOf(PurchasedTicketInterface::getType()),
-                'description' => 'The purchased tickets associated with this event.',
             ],
             'eventTypeId' => [
                 'name' => 'eventTypeId',
@@ -101,6 +98,17 @@ class EventInterface extends Element
                 'type' => Type::int(),
                 'description' => 'The event‘s capacity.',
             ],
-        ]), self::getName());
+        ];
+
+        if (GqlHelper::canQueryPurchasedTickets()) {
+            $fields['purchasedTickets'] = [
+                'name' => 'purchasedTickets',
+                'type' => Type::listOf(PurchasedTicketInterface::getType()),
+                'resolve' => PurchasedTicketResolver::class . '::resolve',
+                'description' => 'The purchased tickets associated with this event.',
+            ];
+        }
+
+        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), $fields), self::getName());
     }
 }
