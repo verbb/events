@@ -1,6 +1,6 @@
 {
     "name": "verbb/events",
-    "description": "A full-featured plugin for event management and ticketing.",
+    "description": "A Craft CMS plugin for event management, Craft Commerce ticketing, capacity and check-in.",
     "type": "craft-plugin",
     "version": "3.1.12",
     "keywords": [
