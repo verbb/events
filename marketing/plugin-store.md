@@ -4,16 +4,14 @@ Create event types with their own fields, templates, and URLs, then model dates 
 
 ## Features
 
-- **Event types:** Organise events with dedicated fields, templates, and URLs.
-- **Flexible schedules:** Model single or recurring events with the sessions and dates each event requires.
-- **Calendar feeds:** Offer ICS downloads or subscriptions for individual events, sessions, event types, or custom queries.
-- **Feed Me imports:** Bring event content into Craft through established Feed Me workflows.
-- **Reusable tickets:** Create consistent ticket types with their own custom data.
-- **Capacity controls:** Limit the whole event, a ticket type, or both.
-- **Reservation management:** Cancel or restore purchased ticket reservations when plans change.
-- **Order-aware capacity:** Optionally return capacity when an order status changes or a ticket is refunded.
-- **Craft Commerce:** Sell tickets through the checkout and order workflow already on the site.
-- **PDF tickets:** Design printable tickets with project-owned Twig templates.
-- **QR check-in:** Validate tickets at the venue and record when they are used.
-- **Ticketing and capacity:** Create reusable ticket types, attach the fields each ticket needs, and sell them through Craft Commerce Lite or Pro. Capacity can be managed for the whole event or individual ticket types so availability reflects the limits that matter.
-- **PDF tickets and check-in:** Generate PDF tickets from your Twig template and include a unique QR code for venue scanning. A successful scan authenticates and checks in the ticket, helping staff identify repeats rather than relying on a static printable code.
+- Organise events with dedicated fields, templates, and URLs.
+- Model single or recurring events with the sessions and dates each event requires.
+- Offer ICS downloads or subscriptions for individual events, sessions, event types, or custom queries.
+- Bring event content into Craft through established Feed Me workflows.
+- Create consistent ticket types with their own custom data.
+- Limit the whole event, a ticket type, or both.
+- Cancel or restore purchased ticket reservations when plans change.
+- Optionally return capacity when an order status changes or a ticket is refunded.
+- Sell tickets through the checkout and order workflow already on the site.
+- Design printable tickets with project-owned Twig templates.
+- Validate tickets at the venue and record when they are used.
