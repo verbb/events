@@ -233,4 +233,4 @@ Below we've prepared a ready-to-go template, complete with provided CSS to get y
 
 The above will produce a design similar to the below, which we of course encourage you to change to your needs!
 
-![Ticket Demo](/docs/screenshots/ticket-demo.png)
+![An example generated event ticket PDF](../../screenshots/pdf-ticket.png)

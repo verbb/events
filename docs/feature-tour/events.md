@@ -5,6 +5,8 @@ Events can have one or more [Sessions](docs:feature-tour/sessions) which define 
 
 In the same way that Craft’s native element types each share a set of common attributes, every event has a **Title**, **Slug**, **Post Date**, **Expiry Date**, and per-site status options.
 
+![Editing an event in the control panel](../../screenshots/event.png)
+
 ## Event Capacity
 While each [Ticket Type](docs:feature-tour/ticket-types) sets its own capacity (e.g., how many VIP tickets or General Admission tickets are available), you can also set a shared capacity at the Event level. This is useful if you have a hard limit on the total number of attendees, regardless of how many sessions or ticket types you’re selling.
 

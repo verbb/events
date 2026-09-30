@@ -7,7 +7,7 @@ Full-featured event management and ticketing for Craft Commerce. Model the event
 
 Let customers purchase event tickets directly on the site with the flexibility of Craft and Craft Commerce. Events remain Craft elements, bringing familiar queries, permissions, custom fields and authoring patterns with them.
 
-![A complete Events entry with scheduled sessions and priced ticket types in Craft 5.](../screenshots/output/feature-tour/event.png)
+![A complete Events entry with scheduled sessions and priced ticket types in Craft 5.](../screenshots/event.png)
 <!-- feature-section-end -->
 
 <!-- feature-grid -->
@@ -24,7 +24,7 @@ An event can happen once, run all day, span several dates or repeat on a daily, 
 
 When a recurring schedule changes, update one occurrence, the whole series, this and future sessions, or a selected range instead of rebuilding the calendar by hand.
 
-![An Events entry showing three scheduled sessions in Craft 5.](../screenshots/output/feature-tour/sessions.png)
+![An Events entry showing three scheduled sessions in Craft 5.](../screenshots/sessions.png)
 
 <!-- feature-section-end -->
 
@@ -33,7 +33,7 @@ When a recurring schedule changes, update one occurrence, the whole series, this
 
 Create reusable ticket types, attach the fields each ticket needs, and sell them through Craft Commerce Lite or Pro. Capacity can be managed for the whole event or individual ticket types so availability reflects the limits that matter.
 
-![Ticket types with capacity and pricing inside an Events entry.](../screenshots/output/feature-tour/ticket-types.png)
+![Ticket types with capacity and pricing inside an Events entry.](../screenshots/ticket-types.png)
 
 <!-- feature-section-end -->
 
@@ -48,6 +48,6 @@ Purchased tickets reserve capacity while they are active. Cancel or restore a re
 
 Generate PDF tickets from your Twig template and include a unique QR code for venue scanning. A successful scan authenticates and checks in the ticket, helping staff identify repeats rather than relying on a static printable code.
 
-![A printable event ticket with dates, attendee details and a QR code.](../screenshots/output/feature-tour/pdf-ticket.png)
+![A printable event ticket with dates, attendee details and a QR code.](../screenshots/pdf-ticket.png)
 
 <!-- feature-section-end -->

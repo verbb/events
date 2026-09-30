@@ -3,4 +3,6 @@ Events supports creating your tickets as PDFs to be downloaded by the user and s
 
 Behind the scenes, we use [Dompdf](https://github.com/dompdf/dompdf/), the same PDF library that Craft Commerce uses.
 
-The above shows an example of a PDF ticket you can generate. Of course, the design is 100% up to you, but you might like to get started with our [PDF Template →](docs:template-guides/pdf-template#example-template).
+![An example generated event ticket PDF](../../screenshots/pdf-ticket.png)
+
+The screenshot above shows an example of a PDF ticket you can generate. Of course, the design is 100% up to you, but you might like to get started with our [PDF Template →](docs:template-guides/pdf-template#example-template).
