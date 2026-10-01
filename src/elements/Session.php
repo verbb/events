@@ -316,6 +316,10 @@ class Session extends Element implements NestedElementInterface
             return false;
         }
 
+        if (!$this->id || $this->getIsUnpublishedDraft()) {
+            return $user->can("events-createSessions:{$eventType->uid}");
+        }
+
         return $user->can("events-editSessions:{$eventType->uid}");
     }
 
