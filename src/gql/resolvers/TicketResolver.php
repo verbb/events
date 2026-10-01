@@ -31,11 +31,17 @@ class TicketResolver extends ElementResolver
             $query->$key($value);
         }
 
+        $pairs = GqlHelper::extractAllowedEntitiesFromSchema();
+
         if (!GqlHelper::canQueryEvents()) {
             return ElementCollection::empty();
         }
 
-        $query->hasEvent(GqlHelper::getEventVisibilityQuery($query->siteId));
+        $eventTypeIds = array_values(Db::idsByUids('{{%events_event_types}}', $pairs['eventsEventTypes']));
+
+        $query->hasEvent(
+            GqlHelper::getEventVisibilityQuery($query->siteId)->typeId($eventTypeIds)
+        );
 
         return $query;
     }

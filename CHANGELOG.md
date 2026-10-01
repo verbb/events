@@ -7,6 +7,7 @@
 - Fixed a moderate-severity authorization vulnerability affecting session deletion.
 - Fixed a moderate-severity information disclosure vulnerability affecting unpublished event data.
 - Fixed a moderate-severity stored cross-site scripting vulnerability.
+- Fixed a low-severity authorization vulnerability affecting GraphQL ticket queries.
 
 ## 3.1.13 - 2026-09-30
 
