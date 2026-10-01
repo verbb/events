@@ -21,7 +21,7 @@ class SessionQuery extends Query
         if ($checkToken && !GqlHelper::canQueryEvents()) {
             return [];
         }
-        
+
         return [
             'eventsSessions' => [
                 'type' => Type::listOf(SessionInterface::getType()),

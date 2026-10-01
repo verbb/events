@@ -128,7 +128,7 @@ class TicketQuery extends PurchasableQuery
         // Apply the custom ordering for sessions + ticket types
         $this->_applySessionAndTypeJoins($this->query);
         $this->_applySessionAndTypeJoins($this->subQuery);
-        
+
         // Order by the sortOrder values from the joined owners.
         $this->query->orderBy([
             'sessionOwners.sortOrder' => SORT_ASC,

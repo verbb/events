@@ -124,7 +124,7 @@ class Events extends Plugin
         if (Craft::$app->getRequest()->getIsConsoleRequest()) {
             $this->_registerResaveCommand();
         }
-        
+
         if (Craft::$app->getEdition() === Craft::Pro) {
             $this->_registerPermissions();
         }
@@ -357,6 +357,7 @@ class Events extends Plugin
             $event->query->andWhere(['not', ['elements.type' => LegacyTicket::class]]);
 
             $siteId = Craft::$app->getRequest()->getQueryParam('siteId');
+
             if (!$siteId) {
                 return;
             }
@@ -461,7 +462,7 @@ class Events extends Plugin
             $event->actions['events-events'] = [
                 'action' => function(): int {
                     $controller = Craft::$app->controller;
-                    
+
                     return $controller->resaveElements(EventElement::class);
                 },
                 'options' => [],

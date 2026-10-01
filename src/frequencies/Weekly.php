@@ -85,8 +85,8 @@ class Weekly extends Frequency
     {
         $html = [];
 
-        $html[] = Cp::fieldHtml(Html::beginTag('div', ['class' => 'flex']) . 
-            Html::beginTag('div') . 
+        $html[] = Cp::fieldHtml(Html::beginTag('div', ['class' => 'flex']) .
+            Html::beginTag('div') .
                 Cp::textHtml([
                     'name' => 'frequencyData[weekly][repeatCount]',
                     'value' => $this->repeatCount,
@@ -95,9 +95,9 @@ class Weekly extends Frequency
                         'style' => ['width' => '5rem'],
                     ],
                     'min' => 1,
-                ]) . 
-            Html::endTag('div') . 
-            Html::tag('div', 'Week', ['aria-hidden' => 'true']) . 
+                ]) .
+            Html::endTag('div') .
+            Html::tag('div', 'Week', ['aria-hidden' => 'true']) .
         Html::endTag('div'), [
             'label' => Craft::t('events', 'Repeat Every'),
             'instructions' => Craft::t('events', 'Select how many weeks to repeat this session for.'),
@@ -129,33 +129,33 @@ class Weekly extends Frequency
 
         $repeatEndType = $this->repeatEnd->type;
 
-        $html[] = Cp::fieldHtml(Html::beginTag('div', ['class' => 'flex']) . 
-            Html::beginTag('div') . 
+        $html[] = Cp::fieldHtml(Html::beginTag('div', ['class' => 'flex']) .
+            Html::beginTag('div') .
                 Cp::selectHtml([
                     'name' => 'frequencyData[weekly][repeatEnd][type]',
                     'value' => $repeatEndType,
                     'toggle' => true,
                     'targetPrefix' => '.weekly-repeat-end-',
                     'options' => FrequencyRepeatEnd::getTypeOptions(),
-                ]) . 
-            Html::endTag('div') . 
-            Html::beginTag('div', ['class' => ['flex weekly-repeat-end-until', ($repeatEndType !== FrequencyRepeatEnd::TYPE_UNTIL ? 'hidden' : '')]]) . 
+                ]) .
+            Html::endTag('div') .
+            Html::beginTag('div', ['class' => ['flex weekly-repeat-end-until', ($repeatEndType !== FrequencyRepeatEnd::TYPE_UNTIL ? 'hidden' : '')]]) .
                 Cp::dateHtml([
                     'name' => 'frequencyData[weekly][repeatEnd][date]',
                     'value' => $this->repeatEnd->date,
                 ]) .
             Html::endTag('div') .
-            Html::beginTag('div', ['class' => ['flex weekly-repeat-end-after', ($repeatEndType !== FrequencyRepeatEnd::TYPE_AFTER ? 'hidden' : '')]]) . 
-                Html::beginTag('div') . 
+            Html::beginTag('div', ['class' => ['flex weekly-repeat-end-after', ($repeatEndType !== FrequencyRepeatEnd::TYPE_AFTER ? 'hidden' : '')]]) .
+                Html::beginTag('div') .
                     Cp::textHtml([
                         'name' => 'frequencyData[weekly][repeatEnd][count]',
                         'value' => $this->repeatEnd->count,
                         'type' => 'number',
                         'min' => 1,
-                    ]) . 
-                Html::endTag('div') . 
-                Html::tag('div', 'occurrences', ['aria-hidden' => 'true']) . 
-            Html::endTag('div') . 
+                    ]) .
+                Html::endTag('div') .
+                Html::tag('div', 'occurrences', ['aria-hidden' => 'true']) .
+            Html::endTag('div') .
         Html::endTag('div'), [
             'label' => Craft::t('events', 'Recurring Ends'),
             'instructions' => Craft::t('events', 'Select how long to repeat this session for.'),

@@ -199,9 +199,9 @@ class OccurrenceRange extends Model
             ],
         ]);
 
-        $html .= Html::beginTag('p', ['class' => 'notice hidden has-icon occurrence-hint']) . 
-            Html::tag('span', null, ['class' => 'icon', 'aria-hidden' => true]) . 
-            Html::tag('span', null, ['class' => 'hint-text']) . 
+        $html .= Html::beginTag('p', ['class' => 'notice hidden has-icon occurrence-hint']) .
+            Html::tag('span', null, ['class' => 'icon', 'aria-hidden' => true]) .
+            Html::tag('span', null, ['class' => 'hint-text']) .
         Html::endTag('p');
 
         return $html;

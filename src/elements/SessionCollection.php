@@ -8,7 +8,7 @@ class SessionCollection extends ElementCollection
 {
     // Static Methods
     // =========================================================================
-    
+
     public static function make($items = [])
     {
         foreach ($items as &$item) {

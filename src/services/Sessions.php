@@ -50,11 +50,11 @@ class Sessions extends Component
     public function getFrequencyTypeOptions(): array
     {
         $options = [];
-        
+
         foreach ($this->getRegisteredFrequencyTypes() as $type) {
             $options[] = ['label' => $type::displayName(), 'value' => $type::id()];
         }
-        
+
         return $options;
     }
 

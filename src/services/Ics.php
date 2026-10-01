@@ -37,7 +37,7 @@ class Ics extends Component
             }
         }
 
-        $calendarExport = new CalendarExport(new CalendarStream, new Formatter());
+        $calendarExport = new CalendarExport(new CalendarStream(), new Formatter());
         $calendarExport->addCalendar($calendar);
 
         return $calendarExport->getStream();

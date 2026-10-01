@@ -132,7 +132,7 @@ class TicketType extends Element implements NestedElementInterface
 
             if (preg_match('/^eventType:(.+)$/', $source, $matches)) {
                 $eventType = Events::$plugin->getEventTypes()->getEventTypeByUid($matches[1]);
-                
+
                 if ($eventType) {
                     $eventTypes[] = $eventType;
                 }
@@ -234,7 +234,7 @@ class TicketType extends Element implements NestedElementInterface
     public int $seatsPerTicket = 1;
     public ?int $sortOrder = null;
     public bool $deletedWithEvent = false;
-    
+
     private ?float $_price = null;
     private ?TicketCollection $_tickets = null;
     private ?string $_eventSlug = null;
@@ -444,7 +444,7 @@ class TicketType extends Element implements NestedElementInterface
         if ($fieldLayout) {
             // Ticket Type field layouts are stored on the event type so retrieving the field layout by ID does not set the provider
             $eventType = collect(Events::$plugin->getEventTypes()->getAllEventTypes())->firstWhere('ticketTypeFieldLayoutId', $fieldLayout->id);
-            
+
             if ($eventType) {
                 $fieldLayout->provider = $eventType;
 
@@ -630,7 +630,7 @@ class TicketType extends Element implements NestedElementInterface
     {
         if (in_array($handle, ['event', 'owner', 'primaryOwner'])) {
             $event = $elements[0] ?? null;
-            
+
             if ($event instanceof Event) {
                 if ($handle == 'primaryOwner') {
                     $this->setPrimaryOwner($event);

@@ -21,7 +21,7 @@ class Tickets extends Component
 
     private array $_pdfPaths = [];
 
-    
+
     // Public Methods
     // =========================================================================
 

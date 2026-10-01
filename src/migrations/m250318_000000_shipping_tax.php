@@ -20,7 +20,7 @@ class m250318_000000_shipping_tax extends Migration
 
             $this->addForeignKey(null, '{{%events_event_types}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', 'SET NULL', null);
         }
-            
+
         if (!$this->db->columnExists('{{%events_event_types}}', 'shippingCategoryId')) {
             $this->addColumn('{{%events_event_types}}', 'shippingCategoryId', $this->integer()->after('taxCategoryId'));
 

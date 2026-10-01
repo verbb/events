@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace verbb\events\gql\interfaces;
 
 use verbb\events\elements\TicketType;

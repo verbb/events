@@ -50,7 +50,7 @@ class Monthly extends Frequency
             $interval = $startDate->diff($endDate);
 
             $startDate->modify($dateModify);
-            
+
             // Update the end date to reflect the same diff now that startDate has moved
             $endDate = (clone $startDate)->add($interval);
 
@@ -81,8 +81,8 @@ class Monthly extends Frequency
     {
         $html = [];
 
-        $html[] = Cp::fieldHtml(Html::beginTag('div', ['class' => 'flex']) . 
-            Html::beginTag('div') . 
+        $html[] = Cp::fieldHtml(Html::beginTag('div', ['class' => 'flex']) .
+            Html::beginTag('div') .
                 Cp::textHtml([
                     'name' => 'frequencyData[monthly][repeatCount]',
                     'value' => $this->repeatCount,
@@ -91,9 +91,9 @@ class Monthly extends Frequency
                         'style' => ['width' => '5rem'],
                     ],
                     'min' => 1,
-                ]) . 
-            Html::endTag('div') . 
-            Html::tag('div', 'Month', ['aria-hidden' => 'true']) . 
+                ]) .
+            Html::endTag('div') .
+            Html::tag('div', 'Month', ['aria-hidden' => 'true']) .
         Html::endTag('div'), [
             'label' => Craft::t('events', 'Repeat Every'),
             'instructions' => Craft::t('events', 'Select how many months to repeat this session for.'),
@@ -117,33 +117,33 @@ class Monthly extends Frequency
 
         $repeatEndType = $this->repeatEnd->type;
 
-        $html[] = Cp::fieldHtml(Html::beginTag('div', ['class' => 'flex']) . 
-            Html::beginTag('div') . 
+        $html[] = Cp::fieldHtml(Html::beginTag('div', ['class' => 'flex']) .
+            Html::beginTag('div') .
                 Cp::selectHtml([
                     'name' => 'frequencyData[monthly][repeatEnd][type]',
                     'value' => $repeatEndType,
                     'toggle' => true,
                     'targetPrefix' => '.monthly-repeat-end-',
                     'options' => FrequencyRepeatEnd::getTypeOptions(),
-                ]) . 
-            Html::endTag('div') . 
-            Html::beginTag('div', ['class' => ['flex monthly-repeat-end-until', ($repeatEndType !== FrequencyRepeatEnd::TYPE_UNTIL ? 'hidden' : '')]]) . 
+                ]) .
+            Html::endTag('div') .
+            Html::beginTag('div', ['class' => ['flex monthly-repeat-end-until', ($repeatEndType !== FrequencyRepeatEnd::TYPE_UNTIL ? 'hidden' : '')]]) .
                 Cp::dateHtml([
                     'name' => 'frequencyData[monthly][repeatEnd][date]',
                     'value' => $this->repeatEnd->date,
                 ]) .
             Html::endTag('div') .
-            Html::beginTag('div', ['class' => ['flex monthly-repeat-end-after', ($repeatEndType !== FrequencyRepeatEnd::TYPE_AFTER ? 'hidden' : '')]]) . 
-                Html::beginTag('div') . 
+            Html::beginTag('div', ['class' => ['flex monthly-repeat-end-after', ($repeatEndType !== FrequencyRepeatEnd::TYPE_AFTER ? 'hidden' : '')]]) .
+                Html::beginTag('div') .
                     Cp::textHtml([
                         'name' => 'frequencyData[monthly][repeatEnd][count]',
                         'value' => $this->repeatEnd->count,
                         'type' => 'number',
                         'min' => 1,
-                    ]) . 
-                Html::endTag('div') . 
-                Html::tag('div', 'occurrences', ['aria-hidden' => 'true']) . 
-            Html::endTag('div') . 
+                    ]) .
+                Html::endTag('div') .
+                Html::tag('div', 'occurrences', ['aria-hidden' => 'true']) .
+            Html::endTag('div') .
         Html::endTag('div'), [
             'label' => Craft::t('events', 'Recurring Ends'),
             'instructions' => Craft::t('events', 'Select how long to repeat this session for.'),
@@ -176,13 +176,13 @@ class Monthly extends Frequency
     {
         // Get the day of the month
         $day = $date->format('j');
-        
+
         // Calculate the week number (1st, 2nd, etc.)
         $weekNumber = (int)floor(($day - 1) / 7) + 1;
-        
+
         // Create an array of ordinal numbers
         $ordinals = ['first', 'second', 'third', 'fourth', 'fifth'];
-        
+
         // Return the corresponding ordinal
         return $ordinals[$weekNumber - 1] . ' ' . strtolower($date->format('l'));
     }

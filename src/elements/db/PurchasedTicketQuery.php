@@ -35,7 +35,7 @@ class PurchasedTicketQuery extends CachedElementQuery
     public mixed $checkedIn = null;
     public mixed $checkedInDate = null;
     public mixed $reservationStatus = null;
-    
+
     public mixed $customerId = null;
 
     protected array $defaultOrderBy = ['events_purchased_tickets.dateCreated' => SORT_DESC];
@@ -156,7 +156,7 @@ class PurchasedTicketQuery extends CachedElementQuery
     {
         if ($value instanceof TicketType) {
             $this->ticketTypeId = [$value->id];
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->ticketTypeId = (new Query())
                 ->select(['id'])
                 ->from(['{{%events_ticket_types}}'])
@@ -278,7 +278,7 @@ class PurchasedTicketQuery extends CachedElementQuery
 
     // Protected Methods
     // =========================================================================
-    
+
     protected function fieldLayouts(): array
     {
         // Ensure element queries know that we use another element's layout
@@ -296,9 +296,9 @@ class PurchasedTicketQuery extends CachedElementQuery
     {
         if (empty($this->ticketTypeId)) {
             $this->ticketTypeId = null;
-        } else if (is_numeric($this->ticketTypeId)) {
+        } elseif (is_numeric($this->ticketTypeId)) {
             $this->ticketTypeId = [$this->ticketTypeId];
-        } else if (!is_array($this->ticketTypeId) || !ArrayHelper::isNumeric($this->ticketTypeId)) {
+        } elseif (!is_array($this->ticketTypeId) || !ArrayHelper::isNumeric($this->ticketTypeId)) {
             $this->ticketTypeId = (new Query())
                 ->select(['id'])
                 ->from(['{{%events_ticket_types}}'])

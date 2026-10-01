@@ -62,10 +62,10 @@ trait PurchasedTicketTrait
             if ($element instanceof Event) {
                 $params['ownerIdParam'] = 'eventId';
                 $params['primaryOwnerIdParam'] = 'eventId';
-            } else if ($element instanceof Session) {
+            } elseif ($element instanceof Session) {
                 $params['ownerIdParam'] = 'sessionId';
                 $params['primaryOwnerIdParam'] = 'sessionId';
-            } else if ($element instanceof TicketType) {
+            } elseif ($element instanceof TicketType) {
                 $params['ownerIdParam'] = 'ticketTypeId';
                 $params['primaryOwnerIdParam'] = 'ticketTypeId';
             }
@@ -86,9 +86,9 @@ trait PurchasedTicketTrait
 
         if ($element instanceof Event) {
             $query->eventId($element->id);
-        } else if ($element instanceof Session) {
+        } elseif ($element instanceof Session) {
             $query->sessionId($element->id);
-        } else if ($element instanceof TicketType) {
+        } elseif ($element instanceof TicketType) {
             $query->ticketTypeId($element->id);
         }
 

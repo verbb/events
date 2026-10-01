@@ -150,7 +150,7 @@ class Session extends Element implements NestedElementInterface
 
             if (preg_match('/^eventType:(.+)$/', $source, $matches)) {
                 $eventType = Events::$plugin->getEventTypes()->getEventTypeByUid($matches[1]);
-                
+
                 if ($eventType) {
                     $eventTypes[] = $eventType;
                 }
@@ -450,7 +450,7 @@ class Session extends Element implements NestedElementInterface
         if ($fieldLayout) {
             // Session field layouts are stored on the event type so retrieving the field layout by ID does not set the provider
             $eventType = collect(Events::$plugin->getEventTypes()->getAllEventTypes())->firstWhere('sessionFieldLayoutId', $fieldLayout->id);
-            
+
             if ($eventType) {
                 $fieldLayout->provider = $eventType;
 
@@ -731,7 +731,7 @@ class Session extends Element implements NestedElementInterface
             } else {
                 // Check if the second date is exactly midnight of the next day
                 $midnight = (clone $this->startDate)->setTime(0, 0, 0)->modify('+1 day');
-                
+
                 if ($this->endDate == $midnight) {
                     // If the second date is midnight of the next day, format the output accordingly
                     $combineTime = true;
@@ -785,7 +785,7 @@ class Session extends Element implements NestedElementInterface
     {
         if (in_array($handle, ['event', 'owner', 'primaryOwner'])) {
             $event = $elements[0] ?? null;
-            
+
             if ($event instanceof Event) {
                 if ($handle == 'primaryOwner') {
                     $this->setPrimaryOwner($event);

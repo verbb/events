@@ -27,7 +27,7 @@ class SessionDateTimeField extends BaseNativeField
 
     // Protected Methods
     // =========================================================================
-    
+
     protected function settingsHtml(): ?string
     {
         $html = parent::settingsHtml();

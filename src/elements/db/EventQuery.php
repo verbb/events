@@ -57,7 +57,7 @@ class EventQuery extends CachedElementQuery
     {
         if ($value instanceof EventType) {
             $this->typeId = [$value->id];
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->typeId = (new Query())
                 ->select(['id'])
                 ->from(['{{%events_event_types}}'])
@@ -127,7 +127,7 @@ class EventQuery extends CachedElementQuery
             'events_events.postDate',
             'events_events.expiryDate',
             'events_events.ticketsCache',
-        
+
             // Get the earliest startDate and latest endDate from the sessions table
             'sessions.startDate',
             'sessions.endDate',
@@ -241,9 +241,9 @@ class EventQuery extends CachedElementQuery
     {
         if (empty($this->typeId)) {
             $this->typeId = is_array($this->typeId) ? [] : null;
-        } else if (is_numeric($this->typeId)) {
+        } elseif (is_numeric($this->typeId)) {
             $this->typeId = [$this->typeId];
-        } else if (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
+        } elseif (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
             $this->typeId = (new Query())
                 ->select(['id'])
                 ->from(['{{%events_event_types}}'])
@@ -292,7 +292,7 @@ class EventQuery extends CachedElementQuery
                         Db::parseParam('events_event_types.handle', $parts[0]),
                         Db::parseParam('elements_sites.slug', $parts[1]),
                     ];
-                    
+
                     $joinSections = true;
                 }
             }

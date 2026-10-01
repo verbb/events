@@ -79,7 +79,7 @@ class EventTypes extends Component
     public function getEditableEventTypes(): array
     {
         $user = Craft::$app->getUser()->getIdentity();
-        
+
         return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
             return $user->can("events-editEvents:{$eventType->uid}");
         }, true, true, false);
@@ -93,7 +93,7 @@ class EventTypes extends Component
     public function getViewableEventTypes(): array
     {
         $user = Craft::$app->getUser()->getIdentity();
-        
+
         return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
             return $user->can("events-viewEvents:{$eventType->uid}");
         }, true, true, false);
@@ -107,7 +107,7 @@ class EventTypes extends Component
     public function getCreatableEventTypes(): array
     {
         $user = Craft::$app->getUser()->getIdentity();
-        
+
         return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
             return $user->can("events-createEvents:{$eventType->uid}");
         }, true, true, false);
@@ -242,7 +242,7 @@ class EventTypes extends Component
                 $fieldsService->saveLayout($layout, false);
 
                 $eventTypeRecord->fieldLayoutId = $layout->id;
-            } else if ($eventTypeRecord->fieldLayoutId) {
+            } elseif ($eventTypeRecord->fieldLayoutId) {
                 // Delete the main field layout
                 $shouldResaveEvents = true;
                 $fieldsService->deleteLayoutById($eventTypeRecord->fieldLayoutId);
@@ -345,6 +345,7 @@ class EventTypes extends Component
 
                 foreach ($allOldSiteSettingsRecords as $siteId => $siteSettingsRecord) {
                     $siteUid = array_search($siteId, $siteIdMap, false);
+
                     if (!in_array($siteUid, $affectedSiteUids, false)) {
                         $siteSettingsRecord->delete();
                         $shouldResaveEvents = true;
@@ -371,7 +372,7 @@ class EventTypes extends Component
                             'elementId' => $eventIds,
                             'siteId' => $sitesNowWithoutUrls,
                         ]);
-                    } else if (!empty($sitesWithNewUriFormats)) {
+                    } elseif (!empty($sitesWithNewUriFormats)) {
                         foreach ($eventIds as $eventId) {
                             App::maxPowerCaptain();
 

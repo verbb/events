@@ -110,7 +110,7 @@ abstract class Frequency extends Component implements FrequencyInterface
     {
         if ($this->repeatEnd->type === 'after') {
             return $occurrences < $this->repeatEnd->count;
-        } else if ($this->repeatEnd->type === 'until') {
+        } elseif ($this->repeatEnd->type === 'until') {
             // Ensure that time doesn't factor into dates, just in case
             $repeatEndDate = (clone $this->repeatEnd->date)->modify('t 00:00:00');
             $startDate = (clone $startDate)->modify('t 00:00:00');

@@ -142,7 +142,7 @@ class Install extends Migration
             'sessionId' => $this->integer(),
             'typeId' => $this->integer(),
             'deletedWithEvent' => $this->boolean()->notNull()->defaultValue(false),
-            'deletedWithSession' =>$this->boolean()->notNull()->defaultValue(false),
+            'deletedWithSession' => $this->boolean()->notNull()->defaultValue(false),
             'deletedWithType' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

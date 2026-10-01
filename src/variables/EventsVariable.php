@@ -71,7 +71,7 @@ class EventsVariable
         $query = Event::find();
 
         // Default endDate
-        $query->endDate[] = '>=' . (new DateTime)->format(DateTime::W3C);
+        $query->endDate[] = '>=' . (new DateTime())->format(DateTime::W3C);
 
         if ($criteria) {
             Craft::configure($query, $criteria);

@@ -168,7 +168,7 @@ class m240921_000000_events3 extends Migration
                 'sessionId' => $this->integer(),
                 'typeId' => $this->integer(),
                 'deletedWithEvent' => $this->boolean()->notNull()->defaultValue(false),
-                'deletedWithSession' =>$this->boolean()->notNull()->defaultValue(false),
+                'deletedWithSession' => $this->boolean()->notNull()->defaultValue(false),
                 'deletedWithType' => $this->boolean()->notNull()->defaultValue(false),
                 'legacyTicketId' => $this->string(),
                 'legacyTicketTypeId' => $this->string(),
@@ -340,12 +340,12 @@ class m240921_000000_events3 extends Migration
                 // Both null: set to 1/1/1970 12am-1am
                 $startDate = '1970-01-01 00:00:00';
                 $endDate = '1970-01-01 01:00:00';
-            } else if (!$startDate) {
+            } elseif (!$startDate) {
                 // Start date null: set to end date - 1 hour
                 $endDateObj = new DateTime($endDate);
                 $endDateObj->modify('-1 hour');
                 $startDate = $endDateObj->format('Y-m-d H:i:s');
-            } else if (!$endDate || strtotime($endDate) < strtotime($startDate)) {
+            } elseif (!$endDate || strtotime($endDate) < strtotime($startDate)) {
                 // End date null or before start: set to start date + 1 hour
                 $startDateObj = new DateTime($startDate);
                 $startDateObj->modify('+1 hour');
@@ -413,7 +413,7 @@ class m240921_000000_events3 extends Migration
             // Before adding content, ensure that the new ticket type has the same fields as the legacy ticket and type.
             $customFieldContent = [];
 
-            $updateFieldLayout = function ($element) use ($ticketType, &$updatedFieldLayouts) {
+            $updateFieldLayout = function($element) use ($ticketType, &$updatedFieldLayouts) {
                 if ($element && ($legacyFieldLayout = $element->getFieldLayout())) {
                     $fieldLayout = $ticketType->getFieldLayout();
 

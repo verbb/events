@@ -204,9 +204,9 @@ class Event extends Element
     {
         if ($attribute === 'sessions') {
             $elementQuery->andWith('sessions');
-        } else if ($attribute === 'ticketTypes') {
+        } elseif ($attribute === 'ticketTypes') {
             $elementQuery->andWith('ticketTypes');
-        } else if (in_array($attribute, ['eventCapacitySummary', 'purchasedSeats', 'remainingSeats'], true)) {
+        } elseif (in_array($attribute, ['eventCapacitySummary', 'purchasedSeats', 'remainingSeats'], true)) {
             // `andWith()` appends one plan per call; a single array argument becomes one invalid nested plan.
             $elementQuery->andWith('ticketTypes');
             $elementQuery->andWith('tickets');
@@ -230,7 +230,7 @@ class Event extends Element
 
         if ($eventTypeOptions && count($eventTypeOptions) === 1) {
             $eventType = Events::$plugin->getEventTypes()->getEventTypeByUid(reset($eventTypeOptions));
-            
+
             if ($eventType) {
                 $config['data']['handle'] = $eventType->handle;
             }
@@ -291,7 +291,7 @@ class Event extends Element
 
             if (preg_match('/^eventType:(.+)$/', $source, $matches)) {
                 $eventType = Events::$plugin->getEventTypes()->getEventTypeByUid($matches[1]);
-                
+
                 if ($eventType) {
                     $eventTypes[] = $eventType;
                 }
@@ -400,7 +400,7 @@ class Event extends Element
 
     use PurchasedTicketTrait;
 
-    
+
 
     // Properties
     // =========================================================================
@@ -962,9 +962,9 @@ class Event extends Element
     {
         if ($handle == 'tickets') {
             $this->setTickets($elements);
-        } else if ($handle == 'ticketTypes') {
+        } elseif ($handle == 'ticketTypes') {
             $this->setTicketTypes($elements);
-        } else if ($handle == 'sessions') {
+        } elseif ($handle == 'sessions') {
             $this->setSessions($elements);
         } else {
             parent::setEagerLoadedElements($handle, $elements, $plan);
@@ -1217,7 +1217,7 @@ class Event extends Element
     {
         $this->getSessionManager()->maintainNestedElements($this, $isNew);
         $this->getTicketTypeManager()->maintainNestedElements($this, $isNew);
-        
+
         parent::afterPropagate($isNew);
 
         // Save a new revision?
@@ -1277,7 +1277,7 @@ class Event extends Element
         if (!$this->previewing && $this->getStatus() != self::STATUS_LIVE) {
             return null;
         }
-        
+
         // Make sure the event type is set to have URLs for this site
         $siteId = Craft::$app->getSites()->currentSite->id;
         $eventTypeSiteSettings = $this->getType()->getSiteSettings();
@@ -1302,7 +1302,7 @@ class Event extends Element
         $eventType = $this->getType();
 
         $eventTypes = Collection::make(Events::$plugin->getEventTypes()->getViewableEventTypes());
-        
+
         /** @var Collection $eventTypeOptions */
         $eventTypeOptions = $eventTypes
             ->map(fn(EventType $t) => [

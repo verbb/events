@@ -21,7 +21,7 @@ class SessionQuery extends CachedElementQuery
 {
     // Properties
     // =========================================================================
-    
+
     public mixed $hasEvent = null;
     public mixed $primaryOwnerId = null;
     public mixed $ownerId = null;

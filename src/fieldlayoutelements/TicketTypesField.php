@@ -50,7 +50,7 @@ class TicketTypesField extends BaseNativeField
         if (!$element->canViewTicketTypes()) {
             return null;
         }
-        
+
         Craft::$app->getView()->registerDeltaName($this->attribute());
 
         return $element->getTicketTypeManager()->getIndexHtml($element, [
