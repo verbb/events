@@ -487,6 +487,10 @@ class Event extends Element
             return false;
         }
 
+        if (!$this->id || $this->getIsUnpublishedDraft()) {
+            return $user->can("events-createEvents:{$eventType->uid}");
+        }
+
         return $user->can("events-editEvents:{$eventType->uid}");
     }
 

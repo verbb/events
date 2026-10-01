@@ -8,6 +8,7 @@
 - Fixed a moderate-severity information disclosure vulnerability affecting unpublished event data.
 - Fixed a moderate-severity stored cross-site scripting vulnerability.
 - Fixed a low-severity authorization vulnerability affecting GraphQL ticket queries.
+- Fixed a low-severity authorization vulnerability affecting event creation.
 
 ## 3.1.13 - 2026-09-30
 
