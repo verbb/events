@@ -37,6 +37,7 @@ class SessionResolver extends ElementResolver
             return ElementCollection::empty();
         }
 
+        $query->hasEvent(GqlHelper::getEventVisibilityQuery($query->siteId));
         $query->innerJoin('{{%events_events}} e', '[[e.id]] = [[events_sessions.primaryOwnerId]]');
         $query->andWhere(['in', '[[e.typeId]]', array_values(Db::idsByUids('{{%events_event_types}}', $pairs['eventsEventTypes']))]);
 

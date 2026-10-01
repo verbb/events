@@ -1,6 +1,9 @@
 <?php
 namespace verbb\events\helpers;
 
+use verbb\events\elements\db\EventQuery;
+use verbb\events\elements\Event;
+
 use craft\helpers\Db;
 use craft\helpers\Gql as GqlHelper;
 
@@ -14,6 +17,29 @@ class Gql extends GqlHelper
         $allowedEntities = self::extractAllowedEntitiesFromSchema();
 
         return isset($allowedEntities['eventsEventTypes']);
+    }
+
+    public static function getEventVisibilityQuery(mixed $siteId = null): EventQuery
+    {
+        $query = Event::find();
+
+        if ($siteId !== null) {
+            $query->siteId($siteId);
+        }
+
+        if (self::canQueryInactiveElements()) {
+            $query->status(null);
+        }
+
+        if (self::canQueryDrafts()) {
+            $query->drafts(null);
+        }
+
+        if (self::canQueryRevisions()) {
+            $query->revisions(null);
+        }
+
+        return $query;
     }
 
     public static function canQueryPurchasedTickets(): bool

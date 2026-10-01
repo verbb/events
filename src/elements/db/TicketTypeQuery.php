@@ -14,6 +14,7 @@ use craft\helpers\Db;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
+use yii\db\Expression;
 
 use verbb\base\elements\db\CachedElementQuery;
 
@@ -308,11 +309,15 @@ class TicketTypeQuery extends ElementQuery
         }
 
         $eventQuery->limit = null;
-        $eventQuery->select('events_events.id');
+        $eventQuery->select(new Expression("CONCAT([[events_events.id]], ':', [[elements_sites.siteId]])"));
 
-        // Remove any blank product IDs (if any)
+        // Correlate owner visibility to the child element's site as well as its event ID.
         $eventQuery->andWhere(['not', ['events_events.id' => null]]);
 
-        $this->subQuery->andWhere(['events_sessions.primaryOwnerId' => $eventQuery]);
+        $this->subQuery->andWhere([
+            'in',
+            new Expression("CONCAT([[events_ticket_types.primaryOwnerId]], ':', [[elements_sites.siteId]])"),
+            $eventQuery,
+        ]);
     }
 }

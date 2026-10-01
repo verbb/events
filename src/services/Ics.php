@@ -55,6 +55,17 @@ class Ics extends Component
             $event = $element;
         }
 
+        // ICS data can be returned through anonymous routes, so never format an unpublished owner.
+        if (
+            !$event->getIsCanonical() ||
+            $event->getIsDraft() ||
+            $event->getIsRevision() ||
+            $event->dateDeleted !== null ||
+            $event->getStatus() !== Event::STATUS_LIVE
+        ) {
+            return null;
+        }
+
         if (!$element->startDate || !$element->endDate) {
             return null;
         }

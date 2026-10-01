@@ -7,6 +7,9 @@ use verbb\events\elements\Session;
 
 use craft\web\Controller;
 
+use yii\web\BadRequestHttpException;
+use yii\web\NotFoundHttpException;
+
 class IcsController extends Controller
 {
     // Properties
@@ -20,16 +23,29 @@ class IcsController extends Controller
 
     public function actionIndex(): void
     {
-        $sessionId = $this->request->getParam('sessionId');
+        $sessionId = $this->_positiveIntegerParam('sessionId');
 
-        if ($sessionId) {
-            $session = Session::find()->id($sessionId)->endDate(null)->one();
-            $exportString = Events::$plugin->getIcs()->getCalendar([$session]);
+        if ($sessionId !== null) {
+            $element = Session::find()
+                ->id($sessionId)
+                ->endDate(null)
+                ->hasEvent(Event::find())
+                ->one();
         } else {
-            $eventId = $this->request->getParam('eventId');
-            $event = Event::find()->id($eventId)->endDate(null)->one();
-            $exportString = Events::$plugin->getIcs()->getCalendar([$event]);
+            $eventId = $this->_positiveIntegerParam('eventId');
+
+            if ($eventId === null) {
+                throw new BadRequestHttpException('Missing required parameter: sessionId or eventId.');
+            }
+
+            $element = Event::find()->id($eventId)->endDate(null)->one();
         }
+
+        if (!$element) {
+            throw new NotFoundHttpException('No calendar event found.');
+        }
+
+        $exportString = Events::$plugin->getIcs()->getCalendar([$element]);
 
         header('Content-type: text/calendar; charset=utf-8');
         header('Expires: 0');
@@ -60,6 +76,35 @@ class IcsController extends Controller
         echo $exportString;
 
         exit();
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _positiveIntegerParam(string $name): ?int
+    {
+        $value = $this->request->getParam($name);
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (!is_int($value) && !is_string($value)) {
+            throw new BadRequestHttpException("Invalid $name.");
+        }
+
+        $value = filter_var($value, FILTER_VALIDATE_INT, [
+            'options' => [
+                'min_range' => 1,
+            ],
+        ]);
+
+        if ($value === false) {
+            throw new BadRequestHttpException("Invalid $name.");
+        }
+
+        return $value;
     }
 
 }

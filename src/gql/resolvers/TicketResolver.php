@@ -35,6 +35,8 @@ class TicketResolver extends ElementResolver
             return ElementCollection::empty();
         }
 
+        $query->hasEvent(GqlHelper::getEventVisibilityQuery($query->siteId));
+
         return $query;
     }
 }

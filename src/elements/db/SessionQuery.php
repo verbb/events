@@ -343,11 +343,15 @@ class SessionQuery extends CachedElementQuery
         }
 
         $eventQuery->limit = null;
-        $eventQuery->select('events_events.id');
+        $eventQuery->select(new Expression("CONCAT([[events_events.id]], ':', [[elements_sites.siteId]])"));
 
-        // Remove any blank product IDs (if any)
+        // Correlate owner visibility to the child element's site as well as its event ID.
         $eventQuery->andWhere(['not', ['events_events.id' => null]]);
 
-        $this->subQuery->andWhere(['events_sessions.primaryOwnerId' => $eventQuery]);
+        $this->subQuery->andWhere([
+            'in',
+            new Expression("CONCAT([[events_sessions.primaryOwnerId]], ':', [[elements_sites.siteId]])"),
+            $eventQuery,
+        ]);
     }
 }

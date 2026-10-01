@@ -6,10 +6,12 @@ use verbb\events\elements\Session;
 use verbb\events\elements\TicketType;
 use verbb\events\elements\TicketCollection;
 
+use Craft;
 use craft\db\Table;
 use craft\helpers\Db;
 
 use yii\db\Connection;
+use yii\db\Expression;
 
 use craft\commerce\elements\db\PurchasableQuery;
 
@@ -135,6 +137,8 @@ class TicketQuery extends PurchasableQuery
             'typeOwners.sortOrder' => SORT_ASC,
         ]);
 
+        $this->_applyHasEventParam();
+
         return parent::beforePrepare();
     }
 
@@ -157,6 +161,34 @@ class TicketQuery extends PurchasableQuery
 
     // Private Methods
     // =========================================================================
+
+    private function _applyHasEventParam(): void
+    {
+        if (!isset($this->hasEvent)) {
+            return;
+        }
+
+        if ($this->hasEvent instanceof EventQuery) {
+            $eventQuery = $this->hasEvent;
+        } elseif (is_array($this->hasEvent)) {
+            $eventQuery = Event::find();
+            $eventQuery = Craft::configure($eventQuery, $this->hasEvent);
+        } else {
+            return;
+        }
+
+        $eventQuery->limit = null;
+        $eventQuery->select(new Expression("CONCAT([[events_events.id]], ':', [[elements_sites.siteId]])"));
+
+        // Correlate owner visibility to the child element's site as well as its event ID.
+        $eventQuery->andWhere(['not', ['events_events.id' => null]]);
+
+        $this->subQuery->andWhere([
+            'in',
+            new Expression("CONCAT([[events_tickets.eventId]], ':', [[elements_sites.siteId]])"),
+            $eventQuery,
+        ]);
+    }
 
     private function _normalizeCacheTagIds(mixed $value): array
     {
