@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a high-severity authorization vulnerability affecting event type management.
+
 ## 3.1.13 - 2026-09-30
 
 ### Changed

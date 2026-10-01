@@ -23,6 +23,18 @@ class EventTypesController extends Controller
     // Public Methods
     // =========================================================================
 
+    public function beforeAction($action): bool
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        $this->requireCpRequest();
+        $this->requireAdmin();
+
+        return true;
+    }
+
     public function actionEdit(int $eventTypeId = null, EventType $eventType = null): Response
     {
         $variables = [
