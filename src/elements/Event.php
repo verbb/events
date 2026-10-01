@@ -898,6 +898,7 @@ class Event extends Element
         }
 
         $formatter = Craft::$app->getFormatter();
+        $eventTypeName = Html::encode(Craft::t('site', $this->getType()->name));
 
         $dates = implode('&mdash;', [
             $formatter->asDatetime($this->startDate, Locale::LENGTH_SHORT),
@@ -905,7 +906,7 @@ class Event extends Element
         ]);
 
         return implode('', [
-            Html::tag('em', Craft::t('site', $this->getType()->name), [
+            Html::tag('em', $eventTypeName, [
                 'class' => 'light',
             ]),
             Html::tag('em', $dates, [
@@ -920,6 +921,7 @@ class Event extends Element
 
         if ($html === '') {
             $formatter = Craft::$app->getFormatter();
+            $eventTypeName = Html::encode(Craft::t('site', $this->getType()->name));
 
             $dates = implode('&mdash;', [
                 $formatter->asDatetime($this->startDate, Locale::LENGTH_SHORT),
@@ -927,7 +929,7 @@ class Event extends Element
             ]);
 
             return implode('', [
-                Html::tag('div', Html::tag('em', Craft::t('site', $this->getType()->name))),
+                Html::tag('div', Html::tag('em', $eventTypeName)),
                 Html::tag('div', Html::tag('em', $dates)),
             ]);
         }
