@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a high-severity authorization vulnerability affecting event type management.
+- Fixed a moderate-severity authorization vulnerability affecting session deletion.
 
 ## 3.1.13 - 2026-09-30
 

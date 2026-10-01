@@ -140,9 +140,17 @@ class DeleteSessions extends ElementAction implements DeleteActionInterface
         }
 
         $elementsService = Craft::$app->getElements();
+        $user = Craft::$app->getUser()->getIdentity();
         $deletedCount = 0;
 
         foreach ($sessions as $session) {
+            if (
+                !$elementsService->canView($session, $user) ||
+                !$elementsService->canDelete($session, $user)
+            ) {
+                continue;
+            }
+
             if ($elementsService->deleteElement($session, $this->hard)) {
                 $deletedCount++;
             }
