@@ -36,7 +36,20 @@ Place this only in a context where the intended purchased ticket has been select
 
 ## Response
 
-A request accepting JSON receives the response values as JSON. Otherwise, the controller renders the check-in template. An error response contains `error`. A confirmation response contains `purchasedTicket`; after the confirmation action runs, the response also contains `success: true`.
+A request accepting JSON receives the response values as JSON. Otherwise, the controller renders the check-in template. An error response contains `error`. A preview response contains a `purchasedTicket` object with `uid`, `title`, `checkedIn`, and `checkedInDate`. The date is a UTC ISO-8601 string when the ticket has been checked in, or `null` otherwise.
+
+```json
+{
+    "purchasedTicket": {
+        "uid": "0907288f-143f-4716-a89f-a35e125fb561",
+        "title": "Workshop - General Admission",
+        "checkedIn": false,
+        "checkedInDate": null
+    }
+}
+```
+
+After the confirmation action runs, the response also contains `success: true` and the same four purchased-ticket fields.
 
 Inspect the ticket's `checkedIn` state and `checkedInDate` after confirmation. If two requests try to confirm the same ticket together, only the first check-in succeeds. If you customise the PHP check-in hooks, test their result too rather than treating an HTTP success response alone as proof of a state change.
 

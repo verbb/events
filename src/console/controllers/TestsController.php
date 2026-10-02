@@ -1,7 +1,10 @@
 <?php
 namespace verbb\events\console\controllers;
 
+use verbb\events\Events;
 use verbb\events\base\FrequencyInterface;
+use verbb\events\controllers\TicketsController as WebTicketsController;
+use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Session;
 use verbb\events\frequencies\Daily;
 use verbb\events\frequencies\Weekly;
@@ -15,6 +18,7 @@ use craft\helpers\StringHelper;
 use yii\console\ExitCode;
 
 use DateTime;
+use DateTimeZone;
 use OverflowException;
 use ReflectionClass;
 use ReflectionMethod;
@@ -56,6 +60,53 @@ class TestsController extends Controller
         }
 
         return $this->hasFailures ? ExitCode::UNSPECIFIED_ERROR : ExitCode::OK;
+    }
+
+    public function actionCheckInResponse(): int
+    {
+        $purchasedTicket = new class ([
+            'uid' => '00000000-0000-4000-8000-000000000000',
+            'title' => 'Test ticket',
+            'checkedIn' => true,
+            'checkedInDate' => new DateTime('2026-10-03 09:30:00', new DateTimeZone('+10:00')),
+            'orderId' => 123,
+            'cancelledReason' => 'Sensitive reason',
+        ]) extends PurchasedTicket {
+            public function init(): void
+            {
+            }
+        };
+
+        $controller = new WebTicketsController('tickets', Events::$plugin);
+        $method = new ReflectionMethod($controller, '_getPurchasedTicketResponse');
+
+        $result = $method->invoke($controller, $purchasedTicket);
+        $expected = [
+            'uid' => '00000000-0000-4000-8000-000000000000',
+            'title' => 'Test ticket',
+            'checkedIn' => true,
+            'checkedInDate' => '2026-10-02T23:30:00+00:00',
+        ];
+
+        if ($result !== $expected) {
+            $this->stderr('Check-in response allowlist failed.' . PHP_EOL, Console::FG_RED);
+
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        $purchasedTicket->checkedIn = null;
+        $purchasedTicket->checkedInDate = null;
+        $result = $method->invoke($controller, $purchasedTicket);
+
+        if ($result['checkedIn'] !== null || $result['checkedInDate'] !== null) {
+            $this->stderr('Check-in response nullable state failed.' . PHP_EOL, Console::FG_RED);
+
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        $this->stdout('Check-in response allowlist passed.' . PHP_EOL, Console::FG_GREEN);
+
+        return ExitCode::OK;
     }
 
 

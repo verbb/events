@@ -6,6 +6,7 @@ use verbb\events\elements\PurchasedTicket;
 use verbb\events\models\Settings;
 
 use Craft;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\web\Controller;
@@ -105,6 +106,10 @@ class TicketsController extends Controller
         $settings = Events::$plugin->getSettings();
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
+            if (isset($variables['purchasedTicket'])) {
+                $variables['purchasedTicket'] = $this->_getPurchasedTicketResponse($variables['purchasedTicket']);
+            }
+
             return $this->asJson($variables);
         }
 
@@ -120,5 +125,15 @@ class TicketsController extends Controller
         }
 
         return Craft::$app->getView()->renderTemplate($template, $variables, $templateMode);
+    }
+
+    private function _getPurchasedTicketResponse(PurchasedTicket $purchasedTicket): array
+    {
+        return [
+            'uid' => $purchasedTicket->uid,
+            'title' => $purchasedTicket->title,
+            'checkedIn' => $purchasedTicket->checkedIn,
+            'checkedInDate' => $purchasedTicket->checkedInDate ? DateTimeHelper::toIso8601($purchasedTicket->checkedInDate, true) : null,
+        ];
     }
 }

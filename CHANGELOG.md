@@ -12,6 +12,7 @@
 - Fixed a moderate-severity authorization vulnerability affecting session deletion.
 - Fixed a moderate-severity information disclosure vulnerability affecting unpublished event data.
 - Fixed a moderate-severity stored cross-site scripting vulnerability.
+- Fixed a low-severity information disclosure vulnerability.
 - Fixed a low-severity supply-chain vulnerability.
 - Fixed a low-severity authorization vulnerability affecting GraphQL ticket queries.
 - Fixed a low-severity authorization vulnerability affecting event creation and duplication.
