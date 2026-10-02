@@ -1,0 +1,16 @@
+{
+    "name": "events",
+    "private": true,
+    "scripts": {
+        "build": "npm run build:css && npm run build:event-edit && npm run build:event-index && npm run build:session-edit && npm run build:session-index",
+        "build:css": "vite build --mode css",
+        "build:event-edit": "vite build --mode event-edit",
+        "build:event-index": "vite build --mode event-index",
+        "build:session-edit": "vite build --mode session-edit",
+        "build:session-index": "vite build --mode session-index"
+    },
+    "devDependencies": {
+        "esbuild": "^0.28.2",
+        "vite": "^8.2.0"
+    }
+}

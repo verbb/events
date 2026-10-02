@@ -2,7 +2,7 @@
 namespace verbb\events\controllers;
 
 use verbb\events\Events;
-use verbb\events\assetbundles\EventIndexAsset;
+use verbb\events\web\assets\cp\EventIndexAsset;
 use verbb\events\elements\Event;
 
 use Craft;

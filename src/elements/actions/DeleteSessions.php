@@ -1,7 +1,7 @@
 <?php
 namespace verbb\events\elements\actions;
 
-use verbb\events\assetbundles\SessionIndexAsset;
+use verbb\events\web\assets\cp\SessionIndexAsset;
 use verbb\events\elements\Session;
 use verbb\events\models\OccurrenceRange;
 

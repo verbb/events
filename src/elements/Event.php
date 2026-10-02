@@ -2,7 +2,7 @@
 namespace verbb\events\elements;
 
 use verbb\events\Events;
-use verbb\events\assetbundles\EventEditAsset;
+use verbb\events\web\assets\cp\EventEditAsset;
 use verbb\events\elements\conditions\events\EventCondition;
 use verbb\events\elements\conditions\events\EventTypeConditionRule;
 use verbb\events\elements\db\EventQuery;

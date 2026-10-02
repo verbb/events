@@ -1,6 +1,6 @@
 {% extends parentLayout ?? '_layouts/cp' %}
 
-{% do view.registerAssetBundle('verbb\\events\\assetbundles\\EventsAsset') %}
+{% do view.registerAssetBundle('verbb\\events\\web\\assets\\cp\\EventsAsset') %}
 
 {% if title is not defined %}
     {% set title = craft.events.getPluginName() | t('events') %}

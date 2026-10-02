@@ -1,19 +1,19 @@
 <?php
-namespace verbb\events\assetbundles;
+namespace verbb\events\web\assets\cp;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 
-use verbb\base\assetbundles\CpAsset as VerbbCpAsset;
+use verbb\base\web\assets\cp\CpAsset as VerbbCpAsset;
 
-class TicketTypeEditAsset extends AssetBundle
+class SessionEditAsset extends AssetBundle
 {
     // Public Methods
     // =========================================================================
 
     public function init(): void
     {
-        $this->sourcePath = '@verbb/events/resources/dist';
+        $this->sourcePath = '@verbb/events/web/assets/cp/dist';
 
         $this->depends = [
             VerbbCpAsset::class,
@@ -21,7 +21,11 @@ class TicketTypeEditAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/ticket-type-edit.js',
+            'session-edit.js',
+        ];
+
+        $this->css = [
+            'edit-meta.css',
         ];
 
         parent::init();

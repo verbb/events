@@ -1,5 +1,5 @@
 <?php
-namespace verbb\events\assetbundles;
+namespace verbb\events\web\assets\cp;
 
 use verbb\events\Events;
 use verbb\events\models\EventType;
@@ -10,7 +10,7 @@ use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use craft\web\View;
 
-use verbb\base\assetbundles\CpAsset as VerbbCpAsset;
+use verbb\base\web\assets\cp\CpAsset as VerbbCpAsset;
 
 class EventIndexAsset extends AssetBundle
 {
@@ -19,7 +19,7 @@ class EventIndexAsset extends AssetBundle
 
     public function init(): void
     {
-        $this->sourcePath = '@verbb/events/resources/dist';
+        $this->sourcePath = '@verbb/events/web/assets/cp/dist';
 
         $this->depends = [
             VerbbCpAsset::class,
@@ -27,7 +27,7 @@ class EventIndexAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/event-index.js',
+            'event-index.js',
         ];
 
         parent::init();

@@ -1,10 +1,10 @@
 <?php
-namespace verbb\events\assetbundles;
+namespace verbb\events\web\assets\cp;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 
-use verbb\base\assetbundles\CpAsset as VerbbCpAsset;
+use verbb\base\web\assets\cp\CpAsset as VerbbCpAsset;
 
 class EventEditAsset extends AssetBundle
 {
@@ -13,7 +13,7 @@ class EventEditAsset extends AssetBundle
 
     public function init(): void
     {
-        $this->sourcePath = '@verbb/events/resources/dist';
+        $this->sourcePath = '@verbb/events/web/assets/cp/dist';
 
         $this->depends = [
             VerbbCpAsset::class,
@@ -21,11 +21,11 @@ class EventEditAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/event-edit.js',
+            'event-edit.js',
         ];
 
         $this->css = [
-            'css/edit-meta.css',
+            'edit-meta.css',
         ];
 
         parent::init();

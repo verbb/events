@@ -2,8 +2,8 @@
 namespace verbb\events\elements;
 
 use verbb\events\Events;
-use verbb\events\assetbundles\SessionIndexAsset;
-use verbb\events\assetbundles\SessionEditAsset;
+use verbb\events\web\assets\cp\SessionEditAsset;
+use verbb\events\web\assets\cp\SessionIndexAsset;
 use verbb\events\base\FrequencyInterface;
 use verbb\events\elements\actions\DeleteSessions;
 use verbb\events\elements\db\SessionQuery;
