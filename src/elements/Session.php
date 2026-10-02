@@ -4,6 +4,7 @@ namespace verbb\events\elements;
 use verbb\events\Events;
 use verbb\events\web\assets\cp\SessionEditAsset;
 use verbb\events\web\assets\cp\SessionIndexAsset;
+use verbb\events\base\Frequency;
 use verbb\events\base\FrequencyInterface;
 use verbb\events\elements\actions\DeleteSessions;
 use verbb\events\elements\db\SessionQuery;
@@ -45,6 +46,7 @@ use yii\db\Expression;
 use verbb\base\helpers\Locale as LocaleHelper;
 
 use DateTime;
+use OverflowException;
 
 use Jsvrcek\ICS\Model\CalendarEvent;
 
@@ -717,7 +719,7 @@ class Session extends Element implements NestedElementInterface
         }
 
         // Get the calculated dates to create new sessions for
-        if ($dates = $this->frequency->getRecurringSessionDates($this)) {
+        if ($dates = $this->_getRecurringSessionDates()) {
             // Generate a unique token that groups all sessions we're about to create together, so we can edit things in bulk later.
             $groupUid = StringHelper::UUID();
 
@@ -999,6 +1001,19 @@ class Session extends Element implements NestedElementInterface
         return array_intersect_key(ComponentHelper::cleanseConfig($config), $safeAttributes);
     }
 
+    private function _getRecurringSessionDates(): array
+    {
+        $dates = $this->frequency->getRecurringSessionDates($this);
+
+        if (count($dates) + 1 > Frequency::MAX_OCCURRENCES) {
+            throw new OverflowException(Craft::t('events', 'Recurring sessions are limited to {count} total occurrences.', [
+                'count' => Frequency::MAX_OCCURRENCES,
+            ]));
+        }
+
+        return $dates;
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -1029,7 +1044,11 @@ class Session extends Element implements NestedElementInterface
 
         $rules[] = [
             ['frequency'], function($model) {
-                if ($this->frequency->isRecurring() && !$this->frequency->validate()) {
+                if (!$this->frequency->isRecurring()) {
+                    return;
+                }
+
+                if (!$this->frequency->validate()) {
                     foreach ($this->frequency->getErrors() as $key => $errors) {
                         // Namespace (most) errors to their respective type
                         $errorKey = $key === 'type' ? "frequencyData.$key" : "frequencyData.{$this->frequency::id()}.$key";
@@ -1038,6 +1057,18 @@ class Session extends Element implements NestedElementInterface
                             $this->addError($errorKey, $error);
                         }
                     }
+
+                    return;
+                }
+
+                if (!$this->startDate || !$this->endDate || $this->hasErrors('startDate') || $this->hasErrors('endDate')) {
+                    return;
+                }
+
+                try {
+                    $this->_getRecurringSessionDates();
+                } catch (OverflowException $e) {
+                    $this->addError("frequencyData.{$this->frequency::id()}.repeatEnd", $e->getMessage());
                 }
             }, 'on' => self::SCENARIO_LIVE,
         ];

@@ -140,6 +140,7 @@ class Monthly extends Frequency
                         'value' => $this->repeatEnd->count,
                         'type' => 'number',
                         'min' => 1,
+                        'max' => self::MAX_OCCURRENCES,
                     ]) .
                 Html::endTag('div') .
                 Html::tag('div', 'occurrences', ['aria-hidden' => 'true']) .

@@ -1,6 +1,8 @@
 <?php
 namespace verbb\events\models;
 
+use verbb\events\base\Frequency;
+
 use Craft;
 use craft\base\Model;
 use craft\validators\DateTimeValidator;
@@ -67,7 +69,7 @@ class FrequencyRepeatEnd extends Model
         $rules[] = [['count'], 'required', 'when' => fn() => $this->type === self::TYPE_AFTER];
         $rules[] = [['date'], 'required', 'when' => fn() => $this->type === self::TYPE_UNTIL];
 
-        $rules[] = [['count'], 'integer', 'min' => 1, 'when' => fn() => $this->type === self::TYPE_AFTER];
+        $rules[] = [['count'], 'integer', 'min' => 1, 'max' => Frequency::MAX_OCCURRENCES, 'when' => fn() => $this->type === self::TYPE_AFTER];
         $rules[] = [['date'], DateTimeValidator::class];
 
         return $rules;

@@ -9,6 +9,7 @@ use craft\base\Component;
 use craft\base\ElementInterface;
 
 use DateTime;
+use OverflowException;
 
 abstract class Frequency extends Component implements FrequencyInterface
 {
@@ -19,6 +20,12 @@ abstract class Frequency extends Component implements FrequencyInterface
     {
         return false;
     }
+
+
+    // Constants
+    // =========================================================================
+
+    public const MAX_OCCURRENCES = 1000;
 
 
     // Properties
@@ -85,6 +92,12 @@ abstract class Frequency extends Component implements FrequencyInterface
             // Check if this start date falls outside of the maxiumum repeat end we've set
             if (!$this->shouldContinueGenerating($startDate, $endDate, $occurrences)) {
                 break;
+            }
+
+            if ($occurrences >= self::MAX_OCCURRENCES) {
+                throw new OverflowException(Craft::t('events', 'Recurring sessions are limited to {count} total occurrences.', [
+                    'count' => self::MAX_OCCURRENCES,
+                ]));
             }
 
             $dates[] = [

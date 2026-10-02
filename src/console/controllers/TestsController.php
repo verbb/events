@@ -15,8 +15,10 @@ use craft\helpers\StringHelper;
 use yii\console\ExitCode;
 
 use DateTime;
+use OverflowException;
 use ReflectionClass;
 use ReflectionMethod;
+use Throwable;
 
 class TestsController extends Controller
 {
@@ -27,6 +29,9 @@ class TestsController extends Controller
     public ?DateTime $startDate = null;
     public ?DateTime $endDate = null;
     public array $expected = [];
+    public ?int $expectedCount = null;
+    public ?string $expectedException = null;
+    public bool $hasFailures = false;
 
 
     // Public Methods
@@ -41,12 +46,16 @@ class TestsController extends Controller
         // Loop through each method and find those starting with 'test'
         foreach ($methods as $method) {
             if (str_starts_with($method->name, 'test')) {
+                $this->expected = [];
+                $this->expectedCount = null;
+                $this->expectedException = null;
+
                 $this->{$method->name}();
                 $this->_recurringSessionDatesTest($method->name);
             }
         }
 
-        return ExitCode::OK;
+        return $this->hasFailures ? ExitCode::UNSPECIFIED_ERROR : ExitCode::OK;
     }
 
 
@@ -71,6 +80,54 @@ class TestsController extends Controller
             ['startDate' => new DateTime('2024-09-18 01:00:00'), 'endDate' => new DateTime('2024-09-18 03:00:00')],
             ['startDate' => new DateTime('2024-09-19 01:00:00'), 'endDate' => new DateTime('2024-09-19 03:00:00')],
         ];
+    }
+
+    protected function testDailyAtOccurrenceLimit(): void
+    {
+        $this->startDate = new DateTime('2024-09-16 01:00:00');
+        $this->endDate = new DateTime('2024-09-16 03:00:00');
+
+        $this->frequency = new Daily([
+            'repeatCount' => 1,
+            'repeatEnd' => new FrequencyRepeatEnd([
+                'type' => 'after',
+                'count' => Daily::MAX_OCCURRENCES,
+            ]),
+        ]);
+
+        $this->expectedCount = Daily::MAX_OCCURRENCES - 1;
+    }
+
+    protected function testDailyAboveOccurrenceLimit(): void
+    {
+        $this->startDate = new DateTime('2024-09-16 01:00:00');
+        $this->endDate = new DateTime('2024-09-16 03:00:00');
+
+        $this->frequency = new Daily([
+            'repeatCount' => 1,
+            'repeatEnd' => new FrequencyRepeatEnd([
+                'type' => 'after',
+                'count' => Daily::MAX_OCCURRENCES + 1,
+            ]),
+        ]);
+
+        $this->expectedException = OverflowException::class;
+    }
+
+    protected function testDailyDateEndAboveOccurrenceLimit(): void
+    {
+        $this->startDate = new DateTime('2024-09-16 01:00:00');
+        $this->endDate = new DateTime('2024-09-16 03:00:00');
+
+        $this->frequency = new Daily([
+            'repeatCount' => 1,
+            'repeatEnd' => new FrequencyRepeatEnd([
+                'type' => 'until',
+                'date' => (clone $this->startDate)->modify('+' . Daily::MAX_OCCURRENCES . ' days'),
+            ]),
+        ]);
+
+        $this->expectedException = OverflowException::class;
     }
 
     protected function testDailyWithDifferentEndDate(): void
@@ -1053,18 +1110,23 @@ class TestsController extends Controller
 
     private function _recurringSessionDatesTest(string $methodName): void
     {
-        $dates = $this->frequency->getRecurringSessionDates(new Session([
-            'startDate' => $this->startDate,
-            'endDate' => $this->endDate,
-        ]));
+        try {
+            $dates = $this->frequency->getRecurringSessionDates(new Session([
+                'startDate' => $this->startDate,
+                'endDate' => $this->endDate,
+            ]));
 
-        $result = $this->_areDateTimeArraysEqual($dates, $this->expected);
+            $result = $this->expectedException === null && ($this->expectedCount !== null ? count($dates) === $this->expectedCount : $this->_areDateTimeArraysEqual($dates, $this->expected));
+        } catch (Throwable $e) {
+            $result = $this->expectedException !== null && $e instanceof $this->expectedException;
+        }
 
         $this->stdout('Running ' . implode(' ', StringHelper::toWords($methodName, true)) . ' ... ');
 
         if ($result) {
             $this->stdout('success' . PHP_EOL, Console::FG_GREEN);
         } else {
+            $this->hasFailures = true;
             $this->stdout('fail' . PHP_EOL, Console::FG_RED);
         }
     }

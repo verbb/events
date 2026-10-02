@@ -8,6 +8,7 @@
 
 ### Fixed
 - Fixed a high-severity authorization vulnerability affecting event type management.
+- Fixed a moderate-severity denial-of-service vulnerability.
 - Fixed a moderate-severity authorization vulnerability affecting session deletion.
 - Fixed a moderate-severity information disclosure vulnerability affecting unpublished event data.
 - Fixed a moderate-severity stored cross-site scripting vulnerability.
