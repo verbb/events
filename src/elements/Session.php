@@ -300,10 +300,6 @@ class Session extends Element implements NestedElementInterface
 
     public function canSave(User $user): bool
     {
-        if (parent::canSave($user)) {
-            return true;
-        }
-
         $event = $this->getOwner();
 
         if ($event === null) {
@@ -346,11 +342,37 @@ class Session extends Element implements NestedElementInterface
 
     public function canDuplicate(User $user): bool
     {
-        if (parent::canDuplicate($user)) {
-            return true;
+        $event = $this->getOwner();
+
+        if ($event === null) {
+            return false;
         }
 
-        return $this->canSave($user);
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-createSessions:{$eventType->uid}") &&
+            $user->can("events-editSessions:{$eventType->uid}");
+    }
+
+    public function canDuplicateAsDraft(User $user): bool
+    {
+        $event = $this->getOwner();
+
+        if ($event === null) {
+            return false;
+        }
+
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-createSessions:{$eventType->uid}");
     }
 
     public function safeAttributes()

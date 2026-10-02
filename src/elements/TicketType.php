@@ -267,10 +267,6 @@ class TicketType extends Element implements NestedElementInterface
 
     public function canSave(User $user): bool
     {
-        if (parent::canSave($user)) {
-            return true;
-        }
-
         $event = $this->getOwner();
 
         if ($event === null) {
@@ -281,6 +277,10 @@ class TicketType extends Element implements NestedElementInterface
             $eventType = $event->getType();
         } catch (Exception) {
             return false;
+        }
+
+        if (!$this->id || $this->getIsUnpublishedDraft()) {
+            return $user->can("events-createTicketTypes:{$eventType->uid}");
         }
 
         return $user->can("events-editTicketTypes:{$eventType->uid}");
@@ -309,11 +309,37 @@ class TicketType extends Element implements NestedElementInterface
 
     public function canDuplicate(User $user): bool
     {
-        if (parent::canDuplicate($user)) {
-            return true;
+        $event = $this->getOwner();
+
+        if ($event === null) {
+            return false;
         }
 
-        return $this->canSave($user);
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-createTicketTypes:{$eventType->uid}") &&
+            $user->can("events-editTicketTypes:{$eventType->uid}");
+    }
+
+    public function canDuplicateAsDraft(User $user): bool
+    {
+        $event = $this->getOwner();
+
+        if ($event === null) {
+            return false;
+        }
+
+        try {
+            $eventType = $event->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-createTicketTypes:{$eventType->uid}");
     }
 
     public function behaviors(): array

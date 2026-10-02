@@ -14,6 +14,7 @@
 - Fixed a low-severity authorization vulnerability affecting GraphQL ticket queries.
 - Fixed a low-severity authorization vulnerability affecting event creation.
 - Fixed a low-severity authorization vulnerability affecting session creation.
+- Fixed a low-severity authorization vulnerability affecting ticket type creation.
 
 ## 3.1.13 - 2026-09-30
 
