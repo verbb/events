@@ -12,7 +12,7 @@
 - Fixed a moderate-severity information disclosure vulnerability affecting unpublished event data.
 - Fixed a moderate-severity stored cross-site scripting vulnerability.
 - Fixed a low-severity authorization vulnerability affecting GraphQL ticket queries.
-- Fixed a low-severity authorization vulnerability affecting event creation.
+- Fixed a low-severity authorization vulnerability affecting event creation and duplication.
 - Fixed a low-severity authorization vulnerability affecting session creation.
 - Fixed a low-severity authorization vulnerability affecting ticket type creation.
 

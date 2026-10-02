@@ -506,7 +506,23 @@ class Event extends Element
             return false;
         }
 
-        return $user->can("events-editEvents:{$eventType->uid}");
+        return $user->can("events-createEvents:{$eventType->uid}") &&
+            $user->can("events-editEvents:{$eventType->uid}");
+    }
+
+    public function canDuplicateAsDraft(User $user): bool
+    {
+        if (parent::canDuplicate($user)) {
+            return true;
+        }
+
+        try {
+            $eventType = $this->getType();
+        } catch (Exception) {
+            return false;
+        }
+
+        return $user->can("events-createEvents:{$eventType->uid}");
     }
 
     public function canDelete(User $user): bool
