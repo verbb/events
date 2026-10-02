@@ -1,0 +1,167 @@
+:root {
+    color: #111827;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-synthesis: none;
+    line-height: 1.5;
+    tab-size: 4;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body,
+h3,
+p {
+    margin: 0;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+button {
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+}
+
+.events-check-in__body {
+    min-height: 100vh;
+}
+
+.events-check-in__page {
+    min-height: 100vh;
+    background: #f3f4f6;
+}
+
+.events-check-in__container {
+    width: 100%;
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 3rem 0;
+}
+
+.events-check-in__card {
+    width: 100%;
+    max-width: 48rem;
+    margin: 0 auto;
+    overflow: hidden;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%), 0 1px 2px -1px rgb(0 0 0 / 10%);
+}
+
+.events-check-in__form {
+    padding: 1.25rem 1rem;
+}
+
+.events-check-in__heading {
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.5rem;
+}
+
+.events-check-in__description,
+.events-check-in__ticket {
+    margin-top: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.events-check-in__ticket {
+    overflow-wrap: anywhere;
+}
+
+.events-check-in__notice {
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    background: #fefce8;
+}
+
+.events-check-in__notice-text {
+    color: #a16207;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.events-check-in__actions {
+    margin-top: 1.25rem;
+}
+
+.events-check-in__button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    border-radius: 0.375rem;
+    background: #4f46e5;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
+}
+
+.events-check-in__button:hover {
+    background: #6366f1;
+}
+
+.events-check-in__button:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.events-check-in__message {
+    padding: 1rem;
+}
+
+.events-check-in__message-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+}
+
+.events-check-in__message--error {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.events-check-in__message--success {
+    background: #f0fdf4;
+    color: #166534;
+}
+
+@media (min-width: 640px) {
+    .events-check-in__container {
+        padding-right: 1.5rem;
+        padding-left: 1.5rem;
+    }
+
+    .events-check-in__card,
+    .events-check-in__message {
+        border-radius: 0.5rem;
+    }
+
+    .events-check-in__form {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .events-check-in__container {
+        padding-right: 2rem;
+        padding-left: 2rem;
+    }
+}
