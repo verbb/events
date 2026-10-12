@@ -11,6 +11,7 @@ use craft\db\QueryAbortedException;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\helpers\StringHelper;
 
 use DateTime;
 
@@ -276,7 +277,7 @@ class EventQuery extends CachedElementQuery
             return;
         }
 
-        $refs = ArrayHelper::toArray($this->ref);
+        $refs = is_string($this->ref) ? StringHelper::split($this->ref) : ArrayHelper::toArray($this->ref);
         $joinSections = false;
         $condition = ['or'];
 

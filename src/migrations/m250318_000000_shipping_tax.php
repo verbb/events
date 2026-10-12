@@ -6,7 +6,6 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\Json;
-use craft\helpers\MigrationHelper;
 
 class m250318_000000_shipping_tax extends Migration
 {

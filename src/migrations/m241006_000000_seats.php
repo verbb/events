@@ -6,7 +6,6 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\Json;
-use craft\helpers\MigrationHelper;
 
 class m241006_000000_seats extends Migration
 {

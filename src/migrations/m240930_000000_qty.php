@@ -6,7 +6,6 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\Json;
-use craft\helpers\MigrationHelper;
 
 class m240930_000000_qty extends Migration
 {

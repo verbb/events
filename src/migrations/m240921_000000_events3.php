@@ -15,7 +15,6 @@ use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\App;
 use craft\helpers\Json;
-use craft\helpers\MigrationHelper;
 use craft\migrations\BaseContentRefactorMigration;
 use craft\models\FieldLayout;
 use craft\models\FieldLayoutTab;
@@ -46,17 +45,17 @@ class m240921_000000_events3 extends Migration
         if (!$this->db->tableExists('{{%events_legacy_ticket_types}}')) {
             $this->renameTable('{{%events_tickettypes}}', '{{%events_legacy_ticket_types}}');
 
-            MigrationHelper::dropAllForeignKeysToTable('{{%events_legacy_ticket_types}}', $this);
-            MigrationHelper::dropAllForeignKeysOnTable('{{%events_legacy_ticket_types}}', $this);
-            MigrationHelper::dropAllIndexesOnTable('{{%events_legacy_ticket_types}}', $this);
+            $this->dropAllForeignKeysToTable('{{%events_legacy_ticket_types}}');
+            $this->_dropAllForeignKeysOnTable('{{%events_legacy_ticket_types}}');
+            $this->_dropAllIndexesOnTable('{{%events_legacy_ticket_types}}');
         }
 
         if (!$this->db->tableExists('{{%events_legacy_tickets}}')) {
             $this->renameTable('{{%events_tickets}}', '{{%events_legacy_tickets}}');
 
-            MigrationHelper::dropAllForeignKeysToTable('{{%events_legacy_tickets}}', $this);
-            MigrationHelper::dropAllForeignKeysOnTable('{{%events_legacy_tickets}}', $this);
-            MigrationHelper::dropAllIndexesOnTable('{{%events_legacy_tickets}}', $this);
+            $this->dropAllForeignKeysToTable('{{%events_legacy_tickets}}');
+            $this->_dropAllForeignKeysOnTable('{{%events_legacy_tickets}}');
+            $this->_dropAllIndexesOnTable('{{%events_legacy_tickets}}');
         }
 
         // Rename tables and make any schema changes for events data
@@ -668,5 +667,25 @@ class m240921_000000_events3 extends Migration
         $fieldLayout->setTabs([$tab1]);
 
         return $fieldLayout;
+    }
+
+    private function _dropAllForeignKeysOnTable(string $tableName): void
+    {
+        $schema = $this->db->getSchema();
+        $schema->refresh();
+        $table = $schema->getTableSchema($schema->getRawTableName($tableName));
+
+        foreach ($table?->foreignKeys ?? [] as $foreignKey) {
+            $columns = array_keys($foreignKey);
+            array_shift($columns);
+            $this->dropForeignKeyIfExists($tableName, $columns);
+        }
+    }
+
+    private function _dropAllIndexesOnTable(string $tableName): void
+    {
+        foreach ($this->db->getSchema()->findIndexes($tableName) as $indexName => $index) {
+            $this->dropIndex($indexName, $tableName);
+        }
     }
 }

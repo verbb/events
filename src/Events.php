@@ -43,6 +43,7 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
+use craft\enums\CmsEdition;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\events\RegisterUrlRulesEvent;
@@ -125,7 +126,7 @@ class Events extends Plugin
             $this->_registerResaveCommand();
         }
 
-        if (Craft::$app->getEdition() === Craft::Pro) {
+        if (Craft::$app->edition === CmsEdition::Pro) {
             $this->_registerPermissions();
         }
     }

@@ -3,7 +3,6 @@ namespace verbb\events\migrations;
 
 use Craft;
 use craft\db\Migration;
-use craft\helpers\MigrationHelper;
 
 class Install extends Migration
 {
@@ -247,33 +246,27 @@ class Install extends Migration
     public function dropForeignKeys(): void
     {
         if ($this->db->tableExists('{{%events_event_types}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%events_event_types}}', $this);
-            MigrationHelper::dropAllForeignKeysToTable('{{%events_event_types}}', $this);
+            $this->dropAllForeignKeysToTable('{{%events_event_types}}');
         }
 
         if ($this->db->tableExists('{{%events_event_types_sites}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%events_event_types_sites}}', $this);
-            MigrationHelper::dropAllForeignKeysToTable('{{%events_event_types_sites}}', $this);
+            $this->dropAllForeignKeysToTable('{{%events_event_types_sites}}');
         }
 
         if ($this->db->tableExists('{{%events_events}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%events_events}}', $this);
-            MigrationHelper::dropAllForeignKeysToTable('{{%events_events}}', $this);
+            $this->dropAllForeignKeysToTable('{{%events_events}}');
         }
 
         if ($this->db->tableExists('{{%events_purchased_tickets}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%events_purchased_tickets}}', $this);
-            MigrationHelper::dropAllForeignKeysToTable('{{%events_purchased_tickets}}', $this);
+            $this->dropAllForeignKeysToTable('{{%events_purchased_tickets}}');
         }
 
         if ($this->db->tableExists('{{%events_ticket_types}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%events_ticket_types}}', $this);
-            MigrationHelper::dropAllForeignKeysToTable('{{%events_ticket_types}}', $this);
+            $this->dropAllForeignKeysToTable('{{%events_ticket_types}}');
         }
 
         if ($this->db->tableExists('{{%events_tickets}}')) {
-            MigrationHelper::dropAllForeignKeysOnTable('{{%events_tickets}}', $this);
-            MigrationHelper::dropAllForeignKeysToTable('{{%events_tickets}}', $this);
+            $this->dropAllForeignKeysToTable('{{%events_tickets}}');
         }
     }
 
