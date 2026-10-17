@@ -1,6 +1,8 @@
 <?php
 namespace verbb\events\records;
 
+use verbb\events\records\Event as EventRecord;
+
 use craft\db\ActiveRecord;
 use craft\records\Element;
 

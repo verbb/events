@@ -1,7 +1,7 @@
 <?php
 namespace verbb\events\gql\types\input;
 
-use verbb\events\gql\arguments\elements\TicketTypeArguments;
+use verbb\events\gql\arguments\TicketTypeArguments;
 
 use craft\gql\GqlEntityRegistry;
 

@@ -12,6 +12,7 @@ use Craft;
 use craft\elements\conditions\ElementCondition;
 use craft\fields\BaseRelationField;
 use craft\models\GqlSchema;
+use craft\elements\ElementCollection;
 
 use GraphQL\Type\Definition\Type;
 

@@ -16,6 +16,7 @@ use yii\db\Connection;
 use yii\db\Expression;
 
 use verbb\base\elements\db\CachedElementQuery;
+use verbb\events\elements\Event;
 
 class SessionQuery extends CachedElementQuery
 {

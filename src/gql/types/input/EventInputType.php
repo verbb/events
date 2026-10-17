@@ -1,7 +1,7 @@
 <?php
 namespace verbb\events\gql\types\input;
 
-use verbb\events\gql\arguments\elements\EventArguments;
+use verbb\events\gql\arguments\EventArguments;
 
 use craft\gql\GqlEntityRegistry;
 

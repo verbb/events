@@ -43,5 +43,8 @@
         "handle": "events",
         "changelogUrl": "https://raw.githubusercontent.com/verbb/events/craft-5/CHANGELOG.md",
         "class": "verbb\\events\\Events"
+    },
+    "scripts": {
+        "test:class-resolution-regressions": "@php tests/regression/class-resolution.php"
     }
 }

@@ -36,6 +36,8 @@ use Endroid\QrCode\Writer\PngWriter;
 
 use DateTime;
 
+use Throwable;
+
 class PurchasedTicket extends Element
 {
     // Constants

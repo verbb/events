@@ -1,6 +1,9 @@
 <?php
 namespace verbb\events\records;
 
+use verbb\events\records\Event as EventRecord;
+use verbb\events\records\TicketType as TicketTypeRecord;
+
 use craft\db\ActiveRecord;
 use craft\records\Element;
 

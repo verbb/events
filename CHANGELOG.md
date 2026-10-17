@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed missing class references in ticket relationships, queries, GraphQL inputs and error handling.
+
 ## 3.1.16 - 2026-10-15
 
 ### Changed
