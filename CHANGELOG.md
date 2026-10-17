@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.15 - 2026-10-17
 
 ### Fixed
 - Fixed missing class references in ticket relationships.
