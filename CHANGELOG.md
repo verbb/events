@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a moderate-severity information disclosure vulnerability.
 - Fixed an authorization bypass vulnerability.
+- Fixed a low-severity authorization bypass vulnerability.
 
 ## 3.1.17 - 2026-10-17
 

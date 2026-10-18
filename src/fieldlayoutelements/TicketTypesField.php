@@ -2,6 +2,7 @@
 namespace verbb\events\fieldlayoutelements;
 
 use verbb\events\elements\Event;
+use verbb\events\helpers\TicketTypePermissions;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -52,11 +53,13 @@ class TicketTypesField extends BaseNativeField
         }
 
         Craft::$app->getView()->registerDeltaName($this->attribute());
+        $static = $static || $element->getIsRevision();
 
         return $element->getTicketTypeManager()->getIndexHtml($element, [
-            'canCreate' => $element->canCreateTicketTypes(),
+            'canCreate' => !$static && $element->canCreateTicketTypes(),
             'allowedViewModes' => [ElementIndexViewMode::Table],
-            'sortable' => true,
+            'sortable' => !$static && TicketTypePermissions::canReorder($element),
+            'static' => $static,
             'fieldLayouts' => [$element->getType()->getTicketTypeFieldLayout()],
         ]);
     }
