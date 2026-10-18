@@ -478,7 +478,14 @@ class Ticket extends Purchasable
 
     public function getIsAvailable(): bool
     {
-        if (!$this->getEvent() || !$this->getSession() || !$this->getType()) {
+        $event = $this->getEvent();
+
+        if (!$event || !$this->getSession() || !$this->getType()) {
+            return false;
+        }
+
+        // Publication controls purchasing; future session dates still allow advance sales.
+        if ($event->getIsDraft() || $event->getIsRevision() || $event->getStatus() !== Event::STATUS_LIVE) {
             return false;
         }
 

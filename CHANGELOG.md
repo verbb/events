@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed a moderate-severity information disclosure vulnerability.
+- Fixed an authorization bypass vulnerability.
+
 ## 3.1.17 - 2026-10-17
 
 ### Fixed

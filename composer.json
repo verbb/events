@@ -45,6 +45,8 @@
         "class": "verbb\\events\\Events"
     },
     "scripts": {
-        "test:class-resolution-regressions": "@php tests/regression/class-resolution.php"
+        "test:class-resolution-regressions": "@php tests/regression/class-resolution.php",
+        "test:graphql-ticket-type-owners": "@php tests/regression/graphql-ticket-type-owners.php",
+        "test:ticket-availability": "@php tests/regression/ticket-availability.php"
     }
 }

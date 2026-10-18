@@ -2,6 +2,7 @@
 namespace verbb\events\gql\types;
 
 use verbb\events\gql\interfaces\TicketTypeInterface;
+use verbb\events\gql\resolvers\TicketTypeResolver;
 
 use craft\gql\types\elements\Element;
 
@@ -19,5 +20,18 @@ class TicketTypeType extends Element
         ];
 
         parent::__construct($config);
+    }
+
+
+    // Protected Methods
+    // =========================================================================
+
+    protected function resolve(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): mixed
+    {
+        if ($resolveInfo->fieldName === 'event') {
+            return TicketTypeResolver::resolveEvent($source);
+        }
+
+        return parent::resolve($source, $arguments, $context, $resolveInfo);
     }
 }
