@@ -10,11 +10,13 @@ min(ticket type remaining, session remaining if set, event remaining if set)
 
 For example, if a ticket type has 12 seats remaining, its session has 8 seats remaining, and the event has 5 seats remaining, the ticket has 5 seats available.
 
+For tickets that admit more than one person, `ticket.stock` reports the number of whole tickets available to purchase. `ticket.remainingSeats` reports the remaining seats. For example, nine remaining seats allow two tickets that each admit four people. The control panel’s Available column continues to show seats.
+
 Purchased counts only include **active** purchased tickets. Cancelled reservations are kept for reporting, but no longer consume capacity.
 
 ## Ticket Type Capacity
 
-Ticket type capacity limits how many tickets of that type can be sold. If the capacity is blank, that ticket type is treated as unlimited unless a session or event capacity also applies.
+Ticket type capacity limits the seats sold for that type. If the capacity is blank, that ticket type is treated as unlimited unless a session or event capacity also applies.
 
 Purchased counts for this limit are scoped to the generated ticket, which represents a specific session and ticket type combination.
 
@@ -36,6 +38,12 @@ Blank capacity values are treated as auto/no limit for that level.
 
 A value of `0` is an explicit zero-capacity limit. Leave a capacity blank to omit that level from the availability calculation.
 
+## Checkout and Fulfillment
+
+Events checks the combined seat requirements of the cart before payment. Adding tickets to a cart does not reserve seats.
+
+When an order completes, Events allocates its event tickets together. If capacity changes while an external payment is pending, the completed order is retained and no partial set of event tickets is issued. An order notice identifies the fulfillment problem so staff can review availability and arrange fulfillment or a refund before confirming attendance. Commerce 5.7 and later show this as an admin notice; earlier supported versions use an ordinary order notice.
+
 ## Releasing Capacity
 
 When an order is cancelled or refunded, its purchased tickets should be **cancelled** so they no longer count toward capacity.
@@ -49,6 +57,8 @@ Use the **Cancel tickets** action in **Events → Purchased Tickets**. Cancelled
 - Cannot be checked in
 
 Use **Restore tickets** to make a cancelled reservation active again, as long as the related order has not been moved to a release-capacity status.
+
+Restoring a ticket also requires enough remaining capacity. If another order has used the released seats, the reservation stays cancelled.
 
 ### Order Status Changes
 

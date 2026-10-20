@@ -8,6 +8,7 @@ use verbb\events\events\CustomizeEventSnapshotFieldsEvent;
 use verbb\events\events\CustomizeTicketSnapshotDataEvent;
 use verbb\events\events\CustomizeTicketSnapshotFieldsEvent;
 use verbb\events\helpers\TicketHelper;
+use verbb\events\helpers\TicketCapacity;
 use verbb\events\helpers\TicketPurchasableStoreSync;
 use verbb\events\records\Ticket as TicketRecord;
 
@@ -151,7 +152,6 @@ class Ticket extends Purchasable
     private ?Event $_event = null;
     private ?Session $_session = null;
     private ?TicketType $_type = null;
-    private ?int $_purchasedTicketCount = null;
 
 
     // Public Methods
@@ -398,6 +398,11 @@ class Ticket extends Purchasable
 
     public function getStock(): int
     {
+        return intdiv($this->getRemainingSeats(), max(1, $this->getType()?->seatsPerTicket ?? 1));
+    }
+
+    public function getRemainingSeats(): int
+    {
         $limits = [$this->getTicketTypeRemainingStock()];
 
         if (($sessionRemaining = $this->getSessionRemainingStock()) !== null) {
@@ -430,13 +435,9 @@ class Ticket extends Purchasable
 
     public function getPurchasedTicketsCount(): int
     {
-        if ($this->_purchasedTicketCount === null) {
-            $this->_purchasedTicketCount = $this->id
-                ? Events::$plugin->getPurchasedTickets()->getPurchasedTicketElementCountForTicket($this->id)
-                : 0;
-        }
+        $count = $this->id ? Events::$plugin->getPurchasedTickets()->getPurchasedTicketElementCountForTicket($this->id) : 0;
 
-        return $this->_purchasedTicketCount * ($this->getType()?->seatsPerTicket ?? 1);
+        return $count * max(1, $this->getType()?->seatsPerTicket ?? 1);
     }
 
     private function getTicketTypeCapacityLimit(): int
@@ -522,33 +523,22 @@ class Ticket extends Purchasable
 
     public function afterOrderComplete(Order $order, LineItem $lineItem): void
     {
-        // Generate purchased tickets
-        $elementsService = Craft::$app->getElements();
+        TicketCapacity::allocateOrder($order);
+    }
 
-        for ($i = 0; $i < $lineItem->qty; $i++) {
-            $purchasedTicket = new PurchasedTicket();
-            $purchasedTicket->eventId = $this->eventId;
-            $purchasedTicket->sessionId = $this->sessionId;
-            $purchasedTicket->ticketId = $this->id;
-            $purchasedTicket->ticketTypeId = $this->typeId;
-            $purchasedTicket->orderId = $order->id;
-            $purchasedTicket->lineItemId = $lineItem->id;
+    public function getLineItemRules(LineItem $lineItem): array
+    {
+        $rules = parent::getLineItemRules($lineItem);
 
-            // Set the field values from the ticket (handle defaults, and values set on the ticket)
-            $purchasedTicket->setFieldValues($this->getSerializedFieldValues());
-
-            // But also allow overriding through the line item options
-            foreach ($lineItem->options as $option => $value) {
-                // Just catch any errors when trying to set attributes that aren't field handles
-                try {
-                    $purchasedTicket->setFieldValue($option, $value);
-                } catch (Throwable) {
-                    continue;
+        if (!$lineItem->getOrder()->isCompleted) {
+            $rules[] = ['qty', function() use ($lineItem): void {
+                foreach (TicketCapacity::getOrderErrors($lineItem->getOrder()) as $error) {
+                    $lineItem->addError('qty', $error);
                 }
-            }
-
-            $elementsService->saveElement($purchasedTicket, false);
+            }];
         }
+
+        return $rules;
     }
 
     public function getSnapshot(): array
@@ -730,7 +720,7 @@ class Ticket extends Purchasable
         }
 
         if ($attribute === 'available') {
-            return $this->enabled ? $this->getStock() : 0;
+            return $this->enabled ? $this->getRemainingSeats() : 0;
         }
 
         return Element::attributeHtml($attribute);

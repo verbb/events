@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Changed
+- Ticket `stock` now reports purchasable ticket quantities for multi-seat tickets. Use `remainingSeats` for seat counts.
+- Orders whose event tickets cannot be allocated now retain an order notice for fulfillment review.
 - Purchased ticket GraphQL `uid` and `title` fields, UID filtering and UID ordering now require the event type’s “View purchased ticket check-in identifiers and titles” schema permission in addition to existing read permissions.
 
 ### Fixed
@@ -12,6 +14,7 @@
 - Fixed an authorization bypass vulnerability.
 - Fixed a low-severity authorization bypass vulnerability.
 - Fixed a low-severity information disclosure vulnerability.
+- Fixed a low-severity business logic vulnerability.
 - Fixed saving and applying session changes in event drafts, including recurring sessions and localized content.
 
 ## 3.1.17 - 2026-10-17

@@ -20,6 +20,7 @@ use verbb\events\gql\queries\TicketTypeQuery;
 use verbb\events\gql\queries\TicketQuery;
 use verbb\events\helpers\ProjectConfigData;
 use verbb\events\helpers\TicketTypePermissions;
+use verbb\events\helpers\TicketCapacity;
 use verbb\events\helpers\EventQuery as EventQueryHelper;
 use verbb\events\fields\Events as EventsField;
 use verbb\events\fieldlayoutelements as LayoutFields;
@@ -65,6 +66,7 @@ use craft\web\twig\variables\CraftVariable;
 use craft\commerce\controllers\OrdersController;
 use craft\commerce\events\ModifyPurchasablesTableQueryEvent;
 use craft\commerce\events\OrderStatusEvent;
+use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\services\Emails;
 use craft\commerce\services\OrderHistories;
 use craft\commerce\services\Payments;
@@ -414,6 +416,14 @@ class Events extends Plugin
                 ['not', ['elements.type' => Ticket::class]],
                 ['exists', $validParentsQuery],
             ]);
+        });
+
+        // Validate shared capacity before synchronous or redirect payment begins.
+        Event::on(Payments::class, Payments::EVENT_BEFORE_PROCESS_PAYMENT, static function(ProcessPaymentEvent $event): void {
+            foreach (TicketCapacity::getOrderErrors($event->order) as $error) {
+                $event->order->addError('lineItems', $error);
+                $event->isValid = false;
+            }
         });
 
         // Potentially add the PDF to an email

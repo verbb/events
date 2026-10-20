@@ -1543,7 +1543,7 @@ class Event extends Element
                     return null;
                 }
 
-                $sum += $ticket->getStock();
+                $sum += $ticket->getRemainingSeats();
             }
         }
 

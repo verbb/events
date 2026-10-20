@@ -94,6 +94,8 @@ Whether this ticket is available for purchase. This will be `true` unless the 'A
 
 ## Read Session and Type Details
 
+Use `ticket.stock` for the number of whole tickets available to purchase and `ticket.remainingSeats` for the number of seats remaining. They differ when a ticket admits more than one person. Capacity and purchased-seat counts continue to use seats.
+
 A Ticket combines a session and a ticket type. Read the date from its session and the sale window from its type. For example, in a template where `ticket` is a Ticket returned by a [ticket query](docs:getting-elements/ticket-queries):
 
 ```twig

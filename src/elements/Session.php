@@ -263,7 +263,6 @@ class Session extends Element implements NestedElementInterface
     private ?TicketCollection $_tickets = null;
     private ?string $_eventSlug = null;
     private ?string $_eventTypeHandle = null;
-    private ?int $_purchasedSeatsCount = null;
 
 
     // Public Methods
@@ -667,11 +666,7 @@ class Session extends Element implements NestedElementInterface
             return 0;
         }
 
-        if ($this->_purchasedSeatsCount === null) {
-            $this->_purchasedSeatsCount = Events::$plugin->getPurchasedTickets()->getPurchasedSeatsCountForSession($this->id);
-        }
-
-        return $this->_purchasedSeatsCount;
+        return Events::$plugin->getPurchasedTickets()->getPurchasedSeatsCountForSession($this->id);
     }
 
     public function getRemainingSeatsCount(): ?int

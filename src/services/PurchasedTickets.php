@@ -4,6 +4,7 @@ namespace verbb\events\services;
 use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Ticket;
 use verbb\events\events\PurchasedTicketEvent;
+use verbb\events\helpers\TicketCapacity;
 use verbb\events\Events;
 use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
 
@@ -20,6 +21,7 @@ use yii\base\Component;
 use yii\db\Expression;
 
 use DateTime;
+use Throwable;
 
 class PurchasedTickets extends Component
 {
@@ -150,13 +152,40 @@ class PurchasedTickets extends Component
         }
 
         $purchasedTicket = $event->purchasedTicket;
-        $purchasedTicket->reservationStatus = PurchasedTicket::RESERVATION_STATUS_ACTIVE;
-        $purchasedTicket->cancelledAt = null;
-        $purchasedTicket->cancelledReason = null;
-        $purchasedTicket->cancelledById = null;
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        $previous = $purchasedTicket->getAttributes(['reservationStatus', 'cancelledAt', 'cancelledReason', 'cancelledById']);
 
-        if (!Craft::$app->getElements()->saveElement($purchasedTicket)) {
-            return false;
+        try {
+            TicketCapacity::lockEvents([$purchasedTicket->eventId]);
+            $status = Craft::$app->getDb()->createCommand('SELECT [[reservationStatus]] FROM {{%events_purchased_tickets}} WHERE [[id]] = :id FOR UPDATE', [':id' => $purchasedTicket->id])->queryScalar();
+
+            if ($status !== PurchasedTicket::RESERVATION_STATUS_CANCELLED || !TicketCapacity::canRestore($purchasedTicket, true)) {
+                $transaction->rollBack();
+
+                return false;
+            }
+
+            $purchasedTicket->reservationStatus = PurchasedTicket::RESERVATION_STATUS_ACTIVE;
+            $purchasedTicket->cancelledAt = null;
+            $purchasedTicket->cancelledReason = null;
+            $purchasedTicket->cancelledById = null;
+
+            if (!Craft::$app->getElements()->saveElement($purchasedTicket)) {
+                $transaction->rollBack();
+                $purchasedTicket->setAttributes($previous, false);
+
+                return false;
+            }
+
+            $transaction->commit();
+        } catch (Throwable $e) {
+            if ($transaction->getIsActive()) {
+                $transaction->rollBack();
+            }
+
+            $purchasedTicket->setAttributes($previous, false);
+
+            throw $e;
         }
 
         $this->trigger(self::EVENT_AFTER_RESTORE, new PurchasedTicketEvent([
@@ -173,7 +202,7 @@ class PurchasedTickets extends Component
         }
 
         if (Events::$plugin->getSettings()->allowRestoreWhenOrderCancelled) {
-            return true;
+            return TicketCapacity::canRestore($purchasedTicket);
         }
 
         $order = $purchasedTicket->getOrder();
@@ -184,7 +213,7 @@ class PurchasedTickets extends Component
             return false;
         }
 
-        return true;
+        return TicketCapacity::canRestore($purchasedTicket);
     }
 
     public function cancelForOrder(Order $order, ?string $reason = null): int
