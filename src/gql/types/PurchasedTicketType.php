@@ -3,6 +3,7 @@ namespace verbb\events\gql\types;
 
 use verbb\events\gql\interfaces\PurchasedTicketInterface;
 use verbb\events\helpers\Gql as GqlHelper;
+use verbb\events\helpers\GqlRelations;
 
 use craft\gql\types\elements\Element;
 
@@ -28,6 +29,10 @@ class PurchasedTicketType extends Element
 
     protected function resolve(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): mixed
     {
+        if (in_array($resolveInfo->fieldName, ['event', 'session', 'ticketType', 'ticket'], true)) {
+            return GqlRelations::visible($source->{$resolveInfo->fieldName});
+        }
+
         // Configurable titles can include or transform the check-in identifier.
         if (in_array($resolveInfo->fieldName, ['uid', 'title'], true)) {
             $eventTypeUid = $source->getEvent()?->getType()->uid;

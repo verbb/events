@@ -53,6 +53,7 @@
         "test:ticket-availability": "@php tests/regression/ticket-availability.php",
         "test:ticket-type-order": "@php tests/regression/ticket-type-order.php",
         "test:graphql-purchased-ticket-permissions": "@php tests/regression/graphql-purchased-ticket-permissions.php",
-        "test:ticket-capacity": "@php tests/regression/ticket-capacity.php"
+        "test:ticket-capacity": "@php tests/regression/ticket-capacity.php",
+        "test:graphql-purchased-ticket-relations": "@php tests/regression/graphql-purchased-ticket-relations.php"
     }
 }

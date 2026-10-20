@@ -180,6 +180,8 @@ Enable **View purchased ticket check-in identifiers and titles** for each event 
 
 Existing integrations that use these fields or UID criteria must opt in after upgrading. Numeric `id` values remain available for ordinary record references. Existing ticket links, QR codes, check-in settings and PHP/Twig access are unchanged.
 
+The `event`, `session`, `ticketType` and `ticket` GraphQL fields return `null` when the related content is outside the schema’s site, event-type or publication permissions. Purchase records and counts remain available when an event expires, so a purchase-history screen should handle a missing relation. Integrations that need inactive content require Craft’s inactive-element permission; drafts and revisions require their respective permissions. PHP and Twig relation getters remain available for trusted receipt, control-panel and background operations.
+
 
 ## Cancelling Tickets and Releasing Capacity
 
