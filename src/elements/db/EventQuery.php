@@ -19,6 +19,12 @@ use verbb\base\elements\db\CachedElementQuery;
 
 class EventQuery extends CachedElementQuery
 {
+    // Traits
+    // =========================================================================
+
+    use ElementIndexQueryTrait;
+
+
     // Properties
     // =========================================================================
 

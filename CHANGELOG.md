@@ -12,6 +12,7 @@
 - Fixed an SQL injection vulnerability.
 - Fixed a moderate-severity authorization bypass vulnerability.
 - Fixed a moderate-severity information disclosure vulnerability.
+- Fixed an information disclosure vulnerability.
 - Fixed an authorization bypass vulnerability.
 - Fixed a low-severity authorization bypass vulnerability.
 - Fixed a low-severity information disclosure vulnerability.

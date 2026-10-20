@@ -21,6 +21,12 @@ use verbb\events\elements\Event;
 
 class SessionQuery extends CachedElementQuery implements NestedElementQueryInterface
 {
+    // Traits
+    // =========================================================================
+
+    use ElementIndexQueryTrait;
+
+
     // Properties
     // =========================================================================
 

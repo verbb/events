@@ -20,6 +20,12 @@ use verbb\base\elements\db\CachedElementQuery;
 
 class TicketTypeQuery extends ElementQuery
 {
+    // Traits
+    // =========================================================================
+
+    use ElementIndexQueryTrait;
+
+
     // Properties
     // =========================================================================
 

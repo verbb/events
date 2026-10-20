@@ -23,6 +23,7 @@ class TicketQuery extends PurchasableQuery
     // =========================================================================
 
     use CachedElementQueryTrait;
+    use ElementIndexQueryTrait;
 
 
     // Properties

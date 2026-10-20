@@ -19,6 +19,7 @@ use verbb\events\gql\queries\SessionQuery;
 use verbb\events\gql\queries\TicketTypeQuery;
 use verbb\events\gql\queries\TicketQuery;
 use verbb\events\helpers\ProjectConfigData;
+use verbb\events\helpers\ElementIndexPermissions;
 use verbb\events\helpers\TicketTypePermissions;
 use verbb\events\helpers\TicketCapacity;
 use verbb\events\helpers\EventQuery as EventQueryHelper;
@@ -125,6 +126,7 @@ class Events extends Plugin
         $this->_registerGarbageCollection();
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
+            ElementIndexPermissions::registerRequestHandlers();
             $this->_registerCpRoutes();
             $this->_registerElementIndexPermissions();
         }
