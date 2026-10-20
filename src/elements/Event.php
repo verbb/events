@@ -442,9 +442,12 @@ class Event extends Element
     public function setAttributes($values, $safeOnly = true): void
     {
         // This is needed for Craft.NestedElementManager::markAsDirty()
-        if (isset($values['sessions']) && $values['sessions'] === '*') {
-            $this->setDirtyAttributes(['sessions']);
-            unset($values['sessions']);
+        foreach (['sessions', 'allSessions'] as $attribute) {
+            if (($values[$attribute] ?? null) === '*') {
+                // Keep the native field name and the nested manager's complete collection in sync.
+                $this->setDirtyAttributes(['sessions', 'allSessions']);
+                unset($values[$attribute]);
+            }
         }
 
         if (isset($values['tickets']) && $values['tickets'] === '*') {

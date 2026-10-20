@@ -427,6 +427,7 @@ class Session extends Element implements NestedElementInterface
             $occurrenceRange = new OccurrenceRange();
             $occurrenceRangeData = is_array($values['occurrenceRange']) ? $values['occurrenceRange'] : [];
             $values['occurrenceRange'] = new OccurrenceRange($this->_requestModelConfig($occurrenceRange, $occurrenceRangeData));
+            $values['occurrenceRange']->setRequestUser(Craft::$app->getUser()->getIdentity());
         }
 
         parent::setAttributesFromRequest($values);
@@ -842,6 +843,16 @@ class Session extends Element implements NestedElementInterface
 
     public function beforeSave(bool $isNew): bool
     {
+        if ($this->occurrenceRange && !$this->occurrenceRange->validateForSession($this)) {
+            foreach ($this->occurrenceRange->getErrors() as $attribute => $errors) {
+                foreach ($errors as $error) {
+                    $this->addError("occurrenceRange.$attribute", $error);
+                }
+            }
+
+            return false;
+        }
+
         // Set the field layout
         if ($event = $this->getOwner()) {
             $eventType = $event->getType();
@@ -879,7 +890,7 @@ class Session extends Element implements NestedElementInterface
             // The `OccurenceRange` class will take care of saving this session if it's within the range.
             $shouldSaveRecord = true;
 
-            if ($this->occurrenceRange && $this->occurrenceRange->type === OccurrenceRange::TYPE_CUSTOM) {
+            if ($this->occurrenceRange && $this->occurrenceRange->type === OccurrenceRange::TYPE_CUSTOM && $this->occurrenceRange->canUpdateSessions($this)) {
                 $shouldSaveRecord = false;
             }
 
@@ -949,19 +960,20 @@ class Session extends Element implements NestedElementInterface
                     $this->sortOrder = $max ? $max + 1 : 1;
                 }
 
-                if ($isNew) {
-                    Db::insert(Table::ELEMENTS_OWNERS, [
+                // Craft can move an existing session draft to a new owner before saving it.
+                Db::upsert(Table::ELEMENTS_OWNERS, [
+                    'elementId' => $this->id,
+                    'ownerId' => $ownerId,
+                    'sortOrder' => $this->sortOrder,
+                ], ['sortOrder' => $this->sortOrder]);
+
+                // Shared session drafts must also be loadable through their primary owner during propagation.
+                if ($this->getPrimaryOwnerId() !== $ownerId) {
+                    Db::upsert(Table::ELEMENTS_OWNERS, [
                         'elementId' => $this->id,
-                        'ownerId' => $ownerId,
+                        'ownerId' => $this->getPrimaryOwnerId(),
                         'sortOrder' => $this->sortOrder,
-                    ]);
-                } else {
-                    Db::update(Table::ELEMENTS_OWNERS, [
-                        'sortOrder' => $this->sortOrder,
-                    ], [
-                        'elementId' => $this->id,
-                        'ownerId' => $ownerId,
-                    ]);
+                    ], false);
                 }
             }
         }

@@ -7,6 +7,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\db\Table;
 use craft\elements\db\ElementQuery;
+use craft\elements\db\NestedElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 
@@ -18,7 +19,7 @@ use yii\db\Expression;
 use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\elements\Event;
 
-class SessionQuery extends CachedElementQuery
+class SessionQuery extends CachedElementQuery implements NestedElementQueryInterface
 {
     // Properties
     // =========================================================================
@@ -27,6 +28,9 @@ class SessionQuery extends CachedElementQuery
     public mixed $primaryOwnerId = null;
     public mixed $ownerId = null;
     public mixed $eventId = null;
+    public mixed $fieldId = null;
+    public ?bool $allowOwnerDrafts = null;
+    public ?bool $allowOwnerRevisions = null;
     public mixed $startDate = null;
     public mixed $endDate = null;
     public mixed $capacity = null;
@@ -44,6 +48,9 @@ class SessionQuery extends CachedElementQuery
     public function __set($name, $value)
     {
         switch ($name) {
+            case 'field':
+                $this->field($value);
+                break;
             case 'event':
                 $this->event($value);
                 break;
@@ -64,31 +71,32 @@ class SessionQuery extends CachedElementQuery
 
     public function event(mixed $value): static
     {
-        if ($value instanceof Event) {
-            $this->ownerId = [$value->id];
-        } else {
-            $this->ownerId = $value;
-        }
-        return $this;
+        return $this->ownerId($value instanceof Event ? [$value->id] : $value);
     }
 
     public function owner(mixed $value): static
     {
+        $this->_owner = null;
+
         if ($value instanceof ElementInterface) {
             $this->ownerId = [$value->id];
+            $this->_owner = $value;
+            $this->siteId = $value->siteId;
         } else {
             $this->ownerId = $value;
         }
-
-        $this->_owner = $owner;
 
         return $this;
     }
 
     public function primaryOwner(mixed $value): static
     {
+        $this->_owner = null;
+
         if ($value instanceof ElementInterface) {
             $this->primaryOwnerId = [$value->id];
+            $this->_owner = $value;
+            $this->siteId = $value->siteId;
         } else {
             $this->primaryOwnerId = $value;
         }
@@ -97,13 +105,13 @@ class SessionQuery extends CachedElementQuery
 
     public function eventId(mixed $value): static
     {
-        $this->ownerId = $value;
-        return $this;
+        return $this->ownerId($value);
     }
 
     public function primaryOwnerId(mixed $value): static
     {
         $this->primaryOwnerId = $value;
+        $this->_owner = null;
         return $this;
     }
 
@@ -111,6 +119,31 @@ class SessionQuery extends CachedElementQuery
     {
         $this->ownerId = $value;
         $this->_owner = null;
+        return $this;
+    }
+
+    public function field(mixed $value): static
+    {
+        // Sessions belong directly to events, never to a custom field.
+        $this->fieldId = $value === null ? null : false;
+        return $this;
+    }
+
+    public function fieldId(mixed $value): static
+    {
+        $this->fieldId = $value;
+        return $this;
+    }
+
+    public function allowOwnerDrafts(?bool $value = true): static
+    {
+        $this->allowOwnerDrafts = $value;
+        return $this;
+    }
+
+    public function allowOwnerRevisions(?bool $value = true): static
+    {
+        $this->allowOwnerRevisions = $value;
         return $this;
     }
 
@@ -159,6 +192,10 @@ class SessionQuery extends CachedElementQuery
     {
         if (isset($this->_owner)) {
             $row['owner'] = $this->_owner;
+
+            if (($row['primaryOwnerId'] ?? null) == $this->_owner->id) {
+                $row['primaryOwner'] = $this->_owner;
+            }
         }
 
         return parent::createElement($row);
@@ -171,6 +208,10 @@ class SessionQuery extends CachedElementQuery
     protected function beforePrepare(): bool
     {
         if (!parent::beforePrepare()) {
+            return false;
+        }
+
+        if ($this->fieldId !== null) {
             return false;
         }
 
@@ -226,6 +267,18 @@ class SessionQuery extends CachedElementQuery
             ->innerJoin(['elements_owners' => Table::ELEMENTS_OWNERS], $ownersCondition);
 
         $this->subQuery->innerJoin(['elements_owners' => Table::ELEMENTS_OWNERS], $ownersCondition);
+
+        if ($this->allowOwnerDrafts === false || $this->allowOwnerRevisions === false) {
+            $this->subQuery->innerJoin(['session_owners' => Table::ELEMENTS], '[[session_owners.id]] = [[elements_owners.ownerId]]');
+
+            if ($this->allowOwnerDrafts === false) {
+                $this->subQuery->andWhere(['session_owners.draftId' => null]);
+            }
+
+            if ($this->allowOwnerRevisions === false) {
+                $this->subQuery->andWhere(['session_owners.revisionId' => null]);
+            }
+        }
 
         if ($this->primaryOwnerId) {
             $this->subQuery->andWhere(['events_sessions.primaryOwnerId' => $this->primaryOwnerId]);
