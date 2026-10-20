@@ -47,7 +47,7 @@ class Gql extends GqlHelper
         return self::getAllowedPurchasedTicketEventTypeIds() !== [];
     }
 
-    public static function getAllowedPurchasedTicketEventTypeIds(): array
+    public static function getAllowedPurchasedTicketEventTypeIds(bool $requireCheckIn = false): array
     {
         $allowedEntities = self::extractAllowedEntitiesFromSchema();
         $eventTypeUids = $allowedEntities['eventsEventTypes'] ?? [];
@@ -58,6 +58,10 @@ class Gql extends GqlHelper
         }
 
         $allowedUids = array_intersect($eventTypeUids, $purchasedTicketEventTypeUids);
+
+        if ($requireCheckIn) {
+            $allowedUids = array_filter($allowedUids, static fn(string $uid): bool => self::canSchema('eventsPurchasedTickets.' . $uid, 'checkIn'));
+        }
 
         return array_values(Db::idsByUids('{{%events_event_types}}', $allowedUids));
     }

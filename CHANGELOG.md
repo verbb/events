@@ -2,12 +2,16 @@
 
 ## Unreleased
 
+### Changed
+- Purchased ticket GraphQL `uid` and `title` fields, UID filtering and UID ordering now require the event type’s “View purchased ticket check-in identifiers and titles” schema permission in addition to existing read permissions.
+
 ### Fixed
 - Fixed an SQL injection vulnerability.
 - Fixed a moderate-severity authorization bypass vulnerability.
 - Fixed a moderate-severity information disclosure vulnerability.
 - Fixed an authorization bypass vulnerability.
 - Fixed a low-severity authorization bypass vulnerability.
+- Fixed a low-severity information disclosure vulnerability.
 - Fixed saving and applying session changes in event drafts, including recurring sessions and localized content.
 
 ## 3.1.17 - 2026-10-17

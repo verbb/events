@@ -90,7 +90,7 @@ class Events extends Plugin
 
     public bool $hasCpSection = true;
     public bool $hasCpSettings = true;
-    public string $schemaVersion = '1.2.0';
+    public string $schemaVersion = '1.2.1';
     public string $minVersionRequired = '1.4.20';
 
 
@@ -566,6 +566,7 @@ class Events extends Plugin
 
                     $event->queries[$eventLabel][$eventSuffix . ':read'] = ['label' => Craft::t('events', 'View “{eventType}” events', ['eventType' => Craft::t('site', $eventType->name)])];
                     $event->queries[$purchasedTicketLabel][$purchasedTicketSuffix . ':read'] = ['label' => Craft::t('events', 'View “{eventType}” purchased tickets', ['eventType' => Craft::t('site', $eventType->name)])];
+                    $event->queries[$purchasedTicketLabel][$purchasedTicketSuffix . ':checkIn'] = ['label' => Craft::t('events', 'View “{eventType}” purchased ticket check-in identifiers and titles', ['eventType' => Craft::t('site', $eventType->name)])];
                 }
             }
         });

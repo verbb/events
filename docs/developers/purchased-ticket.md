@@ -172,6 +172,15 @@ Whether the purchased ticket has been cancelled.
 :::
 
 
+## GraphQL Permissions
+
+Purchased ticket GraphQL queries require both **View events** and **View purchased tickets** for the relevant event type, along with access to the required sites.
+
+Enable **View purchased ticket check-in identifiers and titles** for each event type when a trusted GraphQL integration needs the purchased ticket’s `uid` or `title`. Without that additional permission, both fields return `null`, and queries that filter or order by UID exclude purchased tickets of that event type. Other purchased ticket fields remain available under the existing read permissions.
+
+Existing integrations that use these fields or UID criteria must opt in after upgrading. Numeric `id` values remain available for ordinary record references. Existing ticket links, QR codes, check-in settings and PHP/Twig access are unchanged.
+
+
 ## Cancelling Tickets and Releasing Capacity
 
 Purchased tickets represent seat reservations. To return seats to available capacity, cancel the reservation rather than deleting the record.

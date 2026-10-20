@@ -51,6 +51,7 @@
         "test:graphql-session-owners": "@php tests/regression/graphql-session-owners.php",
         "test:graphql-ticket-type-owners": "@php tests/regression/graphql-ticket-type-owners.php",
         "test:ticket-availability": "@php tests/regression/ticket-availability.php",
-        "test:ticket-type-order": "@php tests/regression/ticket-type-order.php"
+        "test:ticket-type-order": "@php tests/regression/ticket-type-order.php",
+        "test:graphql-purchased-ticket-permissions": "@php tests/regression/graphql-purchased-ticket-permissions.php"
     }
 }
