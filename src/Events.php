@@ -20,6 +20,7 @@ use verbb\events\gql\queries\TicketTypeQuery;
 use verbb\events\gql\queries\TicketQuery;
 use verbb\events\helpers\ProjectConfigData;
 use verbb\events\helpers\TicketTypePermissions;
+use verbb\events\helpers\EventQuery as EventQueryHelper;
 use verbb\events\fields\Events as EventsField;
 use verbb\events\fieldlayoutelements as LayoutFields;
 use verbb\events\integrations\feedme\Event as FeedMeEvent;
@@ -108,6 +109,7 @@ class Events extends Plugin
 
         self::$plugin = $this;
 
+        EventQueryHelper::registerRequestHandlers();
         TicketTypePermissions::registerRequestHandlers();
 
         $this->_registerFieldTypes();
