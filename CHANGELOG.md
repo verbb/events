@@ -7,6 +7,7 @@
 - Orders whose event tickets cannot be allocated now retain an order notice for fulfillment review.
 - Purchased ticket GraphQL `uid` and `title` fields, UID filtering and UID ordering now require the event type’s “View purchased ticket check-in identifiers and titles” schema permission in addition to existing read permissions.
 - Purchased ticket GraphQL relations now return `null` when the related content is outside the schema’s permissions. Purchase history and counts remain available.
+- Updated the frontend build toolchain to Vite 8.3.4.
 
 ### Fixed
 - Fixed an SQL injection vulnerability.
