@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.18 - 2026-10-22
 
 ### Changed
 - Ticket `stock` now reports purchasable ticket quantities for multi-seat tickets. Use `remainingSeats` for seat counts.
