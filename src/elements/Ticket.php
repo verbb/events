@@ -24,6 +24,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 
@@ -73,6 +74,12 @@ class Ticket extends Purchasable
     public static function hasStatuses(): bool
     {
         return true;
+    }
+
+    public static function hasInventory(): bool
+    {
+        // Events allocates capacity through purchased tickets, not Commerce inventory locations.
+        return false;
     }
 
     public static function find(): TicketQuery
@@ -159,7 +166,7 @@ class Ticket extends Purchasable
 
     public function init(): void
     {
-        // Always enable tracking of stock (for now)
+        // Retain Commerce's line-item stock validation against our calculated capacity.
         $this->inventoryTracked = true;
 
         if ($eventType = $this->getEvent()?->getType()) {
@@ -524,6 +531,28 @@ class Ticket extends Purchasable
     public function afterOrderComplete(Order $order, LineItem $lineItem): void
     {
         TicketCapacity::allocateOrder($order);
+    }
+
+    public function populateLineItem(LineItem $lineItem): void
+    {
+        parent::populateLineItem($lineItem);
+
+        // Commerce skips quantity normalization for purchasables without warehouse inventory.
+        if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
+            $stock = $this->getStock();
+
+            if (!$this->getIsOutOfStockPurchasingAllowed() && $this->inventoryTracked && $stock > 0 && $lineItem->qty > $stock) {
+                $order->addNotice(new OrderNotice([
+                    'type' => 'lineItemMaxStockReached',
+                    'attribute' => "lineItems.$lineItem->id.qty",
+                    'message' => Craft::t('commerce', '{description} only has {stock} in stock.', [
+                        'description' => $lineItem->getDescription(),
+                        'stock' => $stock,
+                    ]),
+                ]));
+                $lineItem->qty = $stock;
+            }
+        }
     }
 
     public function getLineItemRules(LineItem $lineItem): array

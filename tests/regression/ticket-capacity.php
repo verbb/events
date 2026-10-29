@@ -4,6 +4,7 @@ use craft\commerce\Plugin as Commerce;
 use craft\commerce\elements\Order;
 use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use craft\commerce\services\Payments;
 use craft\db\Query;
 use craft\helpers\StringHelper;
@@ -133,6 +134,7 @@ try {
         $save($control);
         $check($control->markAsComplete(), "$name: trusted PHP order completion must work.");
         $check($count($control) === 8, "$name: all ticket lines must be allocated once.");
+        $check(!$control->hasAdminNotices(), "$name: a valid ticket order must not produce inventory admin notices.");
         $check(TicketCapacity::allocateOrder($control) && $count($control) === 8, "$name: repeated completion must be idempotent.");
         $check($tickets[0]->getStock() === 2, "$name: previously loaded ticket counts must refresh after completion.");
         $historical = Commerce::getInstance()->getOrders()->getOrderById($control->id);
@@ -156,6 +158,31 @@ try {
     $unlimited = $cart($tickets, 2);
     $unlimited->validateLineItems();
     $check(!$unlimited->hasErrors(), 'Unlimited advance sales must remain available.');
+    $save($unlimited);
+    $check($unlimited->markAsComplete() && $count($unlimited) === 2, 'Unlimited tickets must complete and allocate normally.');
+    $check(!$unlimited->hasAdminNotices(), 'Unlimited tickets must not produce inventory admin notices.');
+    $check(!Commerce::getInstance()->getOrders()->getOrderById($unlimited->id)->hasAdminNotices(), 'An unlimited ticket order must reload without persisted inventory admin notices.');
+
+    // Existing tickets can retain negative warehouse inventory from earlier purchases.
+    $inventoryItem = new InventoryItemRecord([
+        'purchasableId' => $tickets[0]->id,
+        'countryCodeOfOrigin' => '',
+        'administrativeAreaCodeOfOrigin' => '',
+        'harmonizedSystemCode' => '',
+    ]);
+    $check($inventoryItem->save(), 'The legacy inventory fixture must save.');
+    $inventory = Commerce::getInstance()->getInventory();
+    $location = Commerce::getInstance()->getInventoryLocations()->getAllInventoryLocations()->first();
+    $inventory->updateInventoryLevel($inventoryItem->id, -2, ['inventoryLocationId' => $location->id]);
+    $reset();
+    $legacyTicket = Ticket::find()->id($tickets[0]->id)->one();
+    $check((int)$legacyTicket->inventoryItemId === (int)$inventoryItem->id, 'The existing ticket must load its legacy inventory record.');
+    $legacy = $cart([$legacyTicket], 1);
+    $save($legacy);
+    $check($legacy->markAsComplete() && $count($legacy) === 1, 'Existing warehouse inventory must not prevent ticket allocation.');
+    $check(!$legacy->hasAdminNotices(), 'Legacy negative inventory must not create a new ticket order notice.');
+    $check($inventory->getInventoryLevel($inventoryItem->id, $location->id)->availableTotal === -2, 'Ticket completion must leave legacy warehouse inventory untouched.');
+
     [$zeroEvent, $zeroSessions, $zeroTickets] = $fixture(null, 0, null);
     $check($zeroTickets[0]->getStock() === 0 && !$zeroTickets[0]->getIsAvailable(), 'Zero capacity must remain unavailable.');
 
