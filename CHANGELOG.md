@@ -12,6 +12,7 @@
 - Fixed an error when logging a ticket PDF rendering error.
 - Fixed an error when using the `owner` param on ticket type queries.
 - Fixed an error when querying ticket types with the `eventId` criteria.
+- Fixed an error when uninstalling the plugin.
 
 ## 3.1.18 - 2026-10-22
 

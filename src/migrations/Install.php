@@ -261,6 +261,10 @@ class Install extends Migration
             $this->dropAllForeignKeysToTable('{{%events_purchased_tickets}}');
         }
 
+        if ($this->db->tableExists('{{%events_sessions}}')) {
+            $this->dropAllForeignKeysToTable('{{%events_sessions}}');
+        }
+
         if ($this->db->tableExists('{{%events_ticket_types}}')) {
             $this->dropAllForeignKeysToTable('{{%events_ticket_types}}');
         }
