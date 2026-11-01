@@ -236,6 +236,8 @@ class Install extends Migration
         $this->dropTableIfExists('{{%events_event_types}}');
         $this->dropTableIfExists('{{%events_event_types_sites}}');
         $this->dropTableIfExists('{{%events_events}}');
+        $this->dropTableIfExists('{{%events_legacy_ticket_types}}');
+        $this->dropTableIfExists('{{%events_legacy_tickets}}');
         $this->dropTableIfExists('{{%events_purchased_tickets}}');
         $this->dropTableIfExists('{{%events_sessions}}');
         $this->dropTableIfExists('{{%events_ticket_types}}');

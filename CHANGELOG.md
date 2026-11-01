@@ -13,6 +13,7 @@
 - Fixed an error when using the `owner` param on ticket type queries.
 - Fixed an error when querying ticket types with the `eventId` criteria.
 - Fixed an error when uninstalling the plugin.
+- Fixed uninstalling the plugin not removing legacy ticket tables on sites upgraded from Events 2.
 
 ## 3.1.18 - 2026-10-22
 
