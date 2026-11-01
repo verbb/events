@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.19 - 2026-11-01
 
 ### Fixed
 - Fixed ticket orders incorrectly reporting that Commerce inventory had gone below zero. ([#229](https://github.com/verbb/events/issues/229))
