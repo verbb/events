@@ -15,6 +15,7 @@
 - Fixed an error when uninstalling the plugin.
 - Fixed uninstalling the plugin not removing legacy ticket tables on sites upgraded from Events 2.
 - Fixed an error when a second Commerce email was sent in the same request or queue job after ticket PDFs were attached.
+- Fixed a database error when resolving events by `typeHandle/slug` reference tags.
 
 ## 3.1.18 - 2026-10-22
 

@@ -308,7 +308,7 @@ class EventQuery extends CachedElementQuery
         $this->subQuery->andWhere($condition);
 
         if ($joinSections) {
-            $this->subQuery->innerJoin('{{%events_event_types}} events_event_types', '[[events_event_types.id]] = [[events.typeId]]');
+            $this->subQuery->innerJoin('{{%events_event_types}} events_event_types', '[[events_event_types.id]] = [[events_events.typeId]]');
         }
     }
 }
