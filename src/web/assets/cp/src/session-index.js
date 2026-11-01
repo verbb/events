@@ -23,17 +23,41 @@ Craft.Events.DeleteSessionModal = Garnish.Modal.extend({
     init: function (sessionId, settings) {
         this.id = Math.floor(Math.random() * 1000000000);
         this.sessionId = sessionId;
-        settings = $.extend(Craft.Events.DeleteSessionModal.defaults, settings);
+        settings = $.extend({}, Craft.Events.DeleteSessionModal.defaults, settings);
 
         this.$form = $(
             '<form class="modal fitted delete-session-modal" method="post" accept-charset="UTF-8">' +
                 Craft.getCsrfInput() +
-                '<input type="hidden" name="action" value="events/sessions/delete-session"/>' +
-                (!Array.isArray(this.sessionId) ? '<input type="hidden" name="sessionId" value="' + this.sessionId + '"/>' : '') +
-                (settings.redirect ? '<input type="hidden" name="redirect" value="' + settings.redirect + '"/>' : '') +
+                '<input type="hidden" name="action" value="element-indexes/perform-action"/>' +
             '</form>'
         ).appendTo(Garnish.$bod);
-                                    
+
+        const params = {};
+
+        // A single session (from its edit page) is submitted natively through the same element action the session index uses.
+        if (!Array.isArray(this.sessionId)) {
+            $.extend(params, {
+                sessionId: this.sessionId,
+                elementType: 'verbb\\events\\elements\\Session',
+                elementAction: 'verbb\\events\\elements\\actions\\DeleteSessions',
+                source: '*',
+                context: 'index',
+                'elementIds[]': this.sessionId,
+                'criteria[id]': this.sessionId,
+                'criteria[status]': '',
+                'viewState[mode]': 'table',
+                'viewState[static]': 1,
+            });
+        }
+
+        if (settings.redirect) {
+            params.redirect = settings.redirect;
+        }
+
+        $.each(params, (name, value) => {
+            $('<input/>', { type: 'hidden', name: name, value: value }).appendTo(this.$form);
+        });
+
         const id1 = 'radio' + Math.floor(Math.random() * 1000000000);
         const id2 = 'radio' + Math.floor(Math.random() * 1000000000);
         const id3 = 'radio' + Math.floor(Math.random() * 1000000000);

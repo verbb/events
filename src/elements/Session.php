@@ -30,6 +30,7 @@ use craft\elements\User;
 use craft\helpers\Cp;
 use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Db;
+use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
@@ -1196,13 +1197,16 @@ class Session extends Element implements NestedElementInterface
 
         $view->registerAssetBundle(SessionIndexAsset::class);
 
-        $view->registerJsWithVars(fn($id, $sessionId) => <<<JS
+        $view->registerJsWithVars(fn($id, $sessionId, $redirect) => <<<JS
             $('#' + $id).on('activate', () => {
-                new Craft.Events.DeleteSessionModal($sessionId);
+                new Craft.Events.DeleteSessionModal($sessionId, {
+                    redirect: $redirect,
+                });
             });
         JS, [
             $view->namespaceInputId($deleteId),
             $this->id,
+            Craft::$app->getSecurity()->hashData(ElementHelper::postEditUrl($this)),
         ]);
 
         return $items;
