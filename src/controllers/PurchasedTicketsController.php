@@ -156,7 +156,7 @@ class PurchasedTicketsController extends Controller
 
         if (!Craft::$app->getElements()->deleteElement($purchasedTicket)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['success' => false]);
+                return $this->asJson(['success' => false]);
             }
 
             Craft::$app->getSession()->setError(Craft::t('events', 'Couldn’t delete purchased ticket.'));

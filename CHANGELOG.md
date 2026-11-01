@@ -7,6 +7,7 @@
 - Fixed Events user permissions not being available on Craft Team and Enterprise editions.
 - Fixed the “Delete session” action on a recurring session’s edit page not working.
 - Fixed cancelling a checked-in purchased ticket checking it out, even when a `beforeCancel` event handler prevented the cancellation.
+- Fixed deleting a purchased ticket via an Ajax request not returning a JSON response when the ticket couldn’t be deleted.
 
 ## 3.1.18 - 2026-10-22
 
