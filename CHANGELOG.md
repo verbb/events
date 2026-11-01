@@ -17,6 +17,7 @@
 - Fixed an error when a second Commerce email was sent in the same request or queue job after ticket PDFs were attached.
 - Fixed a database error when resolving events by `typeHandle/slug` reference tags.
 - Fixed a database error when using the `isRecurring` session query param.
+- Fixed a database error when filtering purchased tickets by the Ticket Type condition rule.
 
 ## 3.1.18 - 2026-10-22
 

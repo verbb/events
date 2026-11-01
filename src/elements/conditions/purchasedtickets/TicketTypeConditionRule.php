@@ -26,7 +26,7 @@ class TicketTypeConditionRule extends BaseElementSelectConditionRule implements 
 
     public function modifyQuery(ElementQueryInterface $query): void
     {
-        $query->ticketType($this->getElementId());
+        $query->ticketTypeId($this->getElementId());
     }
 
     public function matchElement(ElementInterface $element): bool
