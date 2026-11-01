@@ -95,7 +95,7 @@ class Pdf extends Component
         }
 
         try {
-            $html = $view->renderTemplate($templatePath, $variables);
+            $html = $view->renderTemplate($event->template, $variables);
         } catch (Exception $e) {
             // Set the pdf html to the render error.
             if ($order) {
