@@ -56,19 +56,24 @@ class SessionQuery extends CachedElementQuery implements NestedElementQueryInter
         switch ($name) {
             case 'field':
                 $this->field($value);
+
                 break;
             case 'event':
                 $this->event($value);
+
                 break;
             case 'eventId':
                 // Added due to the removal of the `$eventId` property
                 $this->ownerId($value);
+
                 break;
             case 'owner':
                 $this->owner($value);
+
                 break;
             case 'primaryOwner':
                 $this->primaryOwner($value);
+
                 break;
             default:
                 parent::__set($name, $value);
@@ -106,6 +111,7 @@ class SessionQuery extends CachedElementQuery implements NestedElementQueryInter
         } else {
             $this->primaryOwnerId = $value;
         }
+
         return $this;
     }
 
@@ -118,6 +124,7 @@ class SessionQuery extends CachedElementQuery implements NestedElementQueryInter
     {
         $this->primaryOwnerId = $value;
         $this->_owner = null;
+
         return $this;
     }
 
@@ -125,6 +132,7 @@ class SessionQuery extends CachedElementQuery implements NestedElementQueryInter
     {
         $this->ownerId = $value;
         $this->_owner = null;
+
         return $this;
     }
 
@@ -132,60 +140,70 @@ class SessionQuery extends CachedElementQuery implements NestedElementQueryInter
     {
         // Sessions belong directly to events, never to a custom field.
         $this->fieldId = $value === null ? null : false;
+
         return $this;
     }
 
     public function fieldId(mixed $value): static
     {
         $this->fieldId = $value;
+
         return $this;
     }
 
     public function allowOwnerDrafts(?bool $value = true): static
     {
         $this->allowOwnerDrafts = $value;
+
         return $this;
     }
 
     public function allowOwnerRevisions(?bool $value = true): static
     {
         $this->allowOwnerRevisions = $value;
+
         return $this;
     }
 
     public function hasEvent(mixed $value): static
     {
         $this->hasEvent = $value;
+
         return $this;
     }
 
     public function startDate(mixed $value): static
     {
         $this->startDate = $value;
+
         return $this;
     }
 
     public function endDate(mixed $value): static
     {
         $this->endDate = $value;
+
         return $this;
     }
 
     public function groupUid(mixed $value): static
     {
         $this->groupUid = $value;
+
         return $this;
     }
 
     public function capacity(mixed $value): static
     {
         $this->capacity = $value;
+
         return $this;
     }
 
     public function isRecurring(?bool $value): static
     {
         $this->isRecurring = $value;
+
         return $this;
     }
 

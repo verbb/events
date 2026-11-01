@@ -49,16 +49,20 @@ class TicketTypeQuery extends ElementQuery
         switch ($name) {
             case 'event':
                 $this->event($value);
+
                 break;
             case 'eventId':
                 // Added due to the removal of the `$eventId` property
                 $this->ownerId($value);
+
                 break;
             case 'owner':
                 $this->owner($value);
+
                 break;
             case 'primaryOwner':
                 $this->primaryOwner($value);
+
                 break;
             default:
                 parent::__set($name, $value);
@@ -72,6 +76,7 @@ class TicketTypeQuery extends ElementQuery
         } else {
             $this->ownerId = $value;
         }
+
         return $this;
     }
 
@@ -95,30 +100,35 @@ class TicketTypeQuery extends ElementQuery
         } else {
             $this->primaryOwnerId = $value;
         }
+
         return $this;
     }
 
     public function price(mixed $value): static
     {
         $this->price = $value;
+
         return $this;
     }
 
     public function capacity(mixed $value): static
     {
         $this->capacity = $value;
+
         return $this;
     }
 
     public function eventId(mixed $value): static
     {
         $this->ownerId = $value;
+
         return $this;
     }
 
     public function primaryOwnerId(mixed $value): static
     {
         $this->primaryOwnerId = $value;
+
         return $this;
     }
 
@@ -126,12 +136,14 @@ class TicketTypeQuery extends ElementQuery
     {
         $this->ownerId = $value;
         $this->_owner = null;
+
         return $this;
     }
 
     public function hasEvent(mixed $value): static
     {
         $this->hasEvent = $value;
+
         return $this;
     }
 

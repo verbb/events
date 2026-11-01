@@ -772,6 +772,7 @@ class Session extends Element implements NestedElementInterface
             if (!$combineTime) {
                 $parts[] = $endDateDate;
             }
+
             $parts[] = $endDateTime;
         }
 

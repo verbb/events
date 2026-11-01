@@ -80,30 +80,35 @@ class EventQuery extends CachedElementQuery
     public function editable(bool $value = true): static
     {
         $this->editable = $value;
+
         return $this;
     }
 
     public function typeId($value): static
     {
         $this->typeId = $value;
+
         return $this;
     }
 
     public function status(array|string|null $value): static
     {
         parent::status($value);
+
         return $this;
     }
 
     public function startDate($value): static
     {
         $this->startDate = $value;
+
         return $this;
     }
 
     public function endDate($value): static
     {
         $this->endDate = $value;
+
         return $this;
     }
 
