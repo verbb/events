@@ -114,5 +114,7 @@ class Tickets extends Component
         foreach ($this->_pdfPaths as $pdfPath) {
             unlink($pdfPath);
         }
+
+        $this->_pdfPaths = [];
     }
 }
