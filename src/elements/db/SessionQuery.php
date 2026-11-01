@@ -326,7 +326,7 @@ class SessionQuery extends CachedElementQuery implements NestedElementQueryInter
         }
 
         if (isset($this->isRecurring)) {
-            $this->subQuery->andWhere(Db::parseBooleanParam('isRecurring', $this->isRecurring, false));
+            $this->subQuery->andWhere($this->isRecurring ? ['not', ['events_sessions.groupUid' => null]] : ['events_sessions.groupUid' => null]);
         }
 
         $this->_applyHasEventParam();
