@@ -9,6 +9,7 @@
 - Fixed cancelling a checked-in purchased ticket checking it out, even when a `beforeCancel` event handler prevented the cancellation.
 - Fixed deleting a purchased ticket via an Ajax request not returning a JSON response when the ticket couldn’t be deleted.
 - Fixed ticket PDFs not using the template set by the `beforeRenderPdf` event.
+- Fixed an error when logging a ticket PDF rendering error.
 
 ## 3.1.18 - 2026-10-22
 

@@ -103,7 +103,7 @@ class Pdf extends Component
             }
 
             if ($tickets) {
-                Craft::error('Ticket PDF render error. Ticket key: ' . $tickets[0]->ticketSku . '. ' . $e->getMessage());
+                Craft::error('Ticket PDF render error. Ticket key: ' . $tickets[0]->uid . '. ' . $e->getMessage());
             }
 
             Craft::$app->getErrorHandler()->logException($e);
