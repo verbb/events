@@ -104,10 +104,6 @@ class PurchasedTickets extends Component
             return false;
         }
 
-        if ($purchasedTicket->checkedIn) {
-            $this->checkOutPurchasedTicket($purchasedTicket);
-        }
-
         $event = new PurchasedTicketEvent([
             'purchasedTicket' => $purchasedTicket,
             'reason' => $reason,
@@ -119,6 +115,11 @@ class PurchasedTickets extends Component
         }
 
         $purchasedTicket = $event->purchasedTicket;
+
+        if ($purchasedTicket->checkedIn) {
+            $this->checkOutPurchasedTicket($purchasedTicket);
+        }
+
         $purchasedTicket->reservationStatus = PurchasedTicket::RESERVATION_STATUS_CANCELLED;
         $purchasedTicket->cancelledAt = new DateTime();
         $purchasedTicket->cancelledReason = $reason ?: null;
