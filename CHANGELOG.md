@@ -18,6 +18,7 @@
 - Fixed a database error when resolving events by `typeHandle/slug` reference tags.
 - Fixed a database error when using the `isRecurring` session query param.
 - Fixed a database error when filtering purchased tickets by the Ticket Type condition rule.
+- Fixed ticket type quantity, promotable and seat settings being ignored on installs that use a database table prefix.
 
 ## 3.1.18 - 2026-10-22
 

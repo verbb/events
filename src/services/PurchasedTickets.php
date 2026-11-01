@@ -505,7 +505,7 @@ class PurchasedTickets extends Component
             $query->andWhere(["pt.$column" => $value]);
         }
 
-        if (Craft::$app->getDb()->columnExists('events_ticket_types', 'seatsPerTicket')) {
+        if (Craft::$app->getDb()->columnExists('{{%events_ticket_types}}', 'seatsPerTicket')) {
             $query
                 ->leftJoin(['tt' => '{{%events_ticket_types}}'], '[[pt.ticketTypeId]] = [[tt.id]]')
                 ->select([new Expression('SUM(CASE WHEN COALESCE([[tt.seatsPerTicket]], 0) < 1 THEN 1 ELSE [[tt.seatsPerTicket]] END) AS total')]);

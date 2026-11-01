@@ -187,25 +187,25 @@ class TicketTypeQuery extends ElementQuery
         // Use column checks, rather than PC `schemaVersion` checks for performance
         $db = Craft::$app->getDb();
 
-        if ($db->columnExists('events_ticket_types', 'minQty')) {
+        if ($db->columnExists('{{%events_ticket_types}}', 'minQty')) {
             $this->query->addSelect([
                 'events_ticket_types.minQty',
             ]);
         }
 
-        if ($db->columnExists('events_ticket_types', 'maxQty')) {
+        if ($db->columnExists('{{%events_ticket_types}}', 'maxQty')) {
             $this->query->addSelect([
                 'events_ticket_types.maxQty',
             ]);
         }
 
-        if ($db->columnExists('events_ticket_types', 'promotable')) {
+        if ($db->columnExists('{{%events_ticket_types}}', 'promotable')) {
             $this->query->addSelect([
                 'events_ticket_types.promotable',
             ]);
         }
 
-        if ($db->columnExists('events_ticket_types', 'seatsPerTicket')) {
+        if ($db->columnExists('{{%events_ticket_types}}', 'seatsPerTicket')) {
             $this->query->addSelect([
                 'events_ticket_types.seatsPerTicket',
             ]);
