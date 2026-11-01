@@ -243,7 +243,7 @@ class TicketTypeQuery extends ElementQuery
         }
 
         if (isset($this->eventId)) {
-            $this->subQuery->andWhere(['events_ticket_definitions.primaryOwnerId' => $this->eventId]);
+            $this->subQuery->andWhere(['events_ticket_types.primaryOwnerId' => $this->eventId]);
         }
 
         if (isset($this->price)) {
