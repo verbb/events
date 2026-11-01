@@ -135,7 +135,7 @@ class Events extends Plugin
             $this->_registerResaveCommand();
         }
 
-        if (Craft::$app->edition === CmsEdition::Pro) {
+        if (Craft::$app->edition !== CmsEdition::Solo) {
             $this->_registerPermissions();
         }
     }

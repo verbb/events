@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed ticket orders incorrectly reporting that Commerce inventory had gone below zero. ([#229](https://github.com/verbb/events/issues/229))
+- Fixed Events user permissions not being available on Craft Team and Enterprise editions.
 
 ## 3.1.18 - 2026-10-22
 
