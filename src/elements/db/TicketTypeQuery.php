@@ -79,11 +79,11 @@ class TicketTypeQuery extends ElementQuery
     {
         if ($value instanceof ElementInterface) {
             $this->ownerId = [$value->id];
+            $this->_owner = $value;
         } else {
             $this->ownerId = $value;
+            $this->_owner = null;
         }
-
-        $this->_owner = $owner;
 
         return $this;
     }

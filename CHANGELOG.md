@@ -10,6 +10,7 @@
 - Fixed deleting a purchased ticket via an Ajax request not returning a JSON response when the ticket couldn’t be deleted.
 - Fixed ticket PDFs not using the template set by the `beforeRenderPdf` event.
 - Fixed an error when logging a ticket PDF rendering error.
+- Fixed an error when using the `owner` param on ticket type queries.
 
 ## 3.1.18 - 2026-10-22
 
