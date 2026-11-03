@@ -219,6 +219,54 @@ try {
         $app->userPermissions->saveUserPermissions($user->id, ['accessCp', $siteGrant]);
         $check($run($class, $criteria) === [], 'Revoking permission cannot reuse an earlier unrestricted cached result.');
     }
+
+    // Expose one real fixture site without changing stored sites or project config.
+    $siteCaches = [];
+    foreach (['_allSitesById', '_enabledSitesById'] as $name) {
+        $property = new ReflectionProperty($app->sites, $name);
+        $siteCaches[$name] = $property->getValue($app->sites);
+        $property->setValue($app->sites, [$siteId => $app->sites->getSiteById($siteId)]);
+    }
+    try {
+        $check(!$app->getIsMultiSite(true), 'The fixture must use Craft\'s single-site behavior.');
+        foreach ([true, false] as $canView) {
+            $grants = ['accessCp'];
+            if ($canView) {
+                foreach (['events-viewEvents', 'events-viewSessions', 'events-viewTicketTypes'] as $permission) {
+                    $grants[] = $permission . ':' . $types[0]->uid;
+                }
+            }
+            $app->userPermissions->saveUserPermissions($user->id, $grants);
+            $check(!$user->can($siteGrant), 'Single-site users must have no explicit site permission.');
+            foreach ($classes as $class => $attribute) {
+                $fixtureIds = array_map(static fn($purchase) => $purchase->$attribute, $purchases);
+                $criteria = ['id' => $fixtureIds, 'siteId' => $siteId, 'status' => null];
+                $expected = $canView ? [$fixtureIds[0]] : [];
+                foreach (['get-elements', 'get-more-elements', 'export', 'count-elements'] as $action) {
+                    $data = $run($class, $criteria, $action);
+                    if ($action === 'count-elements') {
+                        $check((int)$data['total'] === count($expected) && (int)$data['unfilteredTotal'] === count($expected), 'Single-site counts enforce event type permissions without a site grant.');
+                        continue;
+                    }
+                    if ($action === 'export') {
+                        $returned = array_map('intval', array_column($data, 'id'));
+                    } else {
+                        $html = $data['html'] ?? '';
+                        $returned = array_values(array_filter($fixtureIds, static fn($id) => str_contains($html, 'data-id="' . $id . '"')));
+                    }
+                    $check($returned === $expected, "Single-site $class $action must return exactly the permitted fixtures without a site grant.");
+                }
+                $counts = $run($class, $criteria, 'count-elements', ['context' => 'modal']);
+                $check((int)$counts['total'] === count($expected), 'Single-site modal selectors enforce event type permissions without a site grant.');
+            }
+        }
+    } finally {
+        foreach ($siteCaches as $name => $value) {
+            (new ReflectionProperty($app->sites, $name))->setValue($app->sites, $value);
+        }
+        $app->getIsMultiSite(true);
+    }
+
     $app->userPermissions->saveUserPermissions($user->id, ['accessCp', 'editSite:'.$app->sites->getSiteById($siteId)->uid]);
     $app->controller = null;
     $app->request->setBodyParams(['elementType'=>PurchasedTicket::class, 'source'=>'*', 'context'=>'index', 'viewState'=>['mode'=>'table','static'=>true], $app->request->csrfParam=>$app->request->getCsrfToken()]);

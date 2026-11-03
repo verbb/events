@@ -84,7 +84,8 @@ class ElementIndexPermissions
         }
 
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
-            if ($user && $user->can("editSite:$site->uid")) {
+            // Craft only exposes site permissions on multi-site installs.
+            if ($user && (!Craft::$app->getIsMultiSite() || $user->can("editSite:$site->uid"))) {
                 $siteIds[] = $site->id;
             }
         }
