@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.20 - 2026-11-05
 
 ### Fixed
 - Fixed Events element indexes showing no results for non-admin users on single-site installs. ([#230](https://github.com/verbb/events/issues/230))
