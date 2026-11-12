@@ -1,5 +1,5 @@
 <!-- feature-intro -->
-Full-featured event management and ticketing for Craft Commerce. Model the event you actually run, sell the right tickets, manage capacity and keep the customer journey connected from listing to venue door.
+Full-featured event management and ticketing for Craft Commerce. Model the event you actually run, sell the right tickets, manage capacity and keep everything connected from listing to venue door.
 <!-- feature-intro-end -->
 
 <!-- feature-section media-size="large" -->
@@ -12,7 +12,7 @@ Let customers purchase event tickets directly on the site with the flexibility o
 
 <!-- feature-grid -->
 - :icon[calendar-event] **Event types** Group events with their own fields, templates and URLs.
-- :icon[forms] **Custom fields for days** Store the additional information each event and ticket needs.
+- :icon[forms] **Custom fields** Store the additional information each event and ticket needs.
 - :icon[calendar-share] **ICS sharing** Offer downloads or subscriptions for an event, session, event type or custom event query.
 - :icon[file-import] **Feed Me** Bring event content into Craft through established [Feed Me](https://plugins.craftcms.com/feed-me) workflows.
 <!-- feature-grid-end -->
