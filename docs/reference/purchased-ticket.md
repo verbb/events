@@ -18,7 +18,7 @@ The ID of the purchased ticket in the system.
 
 **Type:** `verbb\events\elements\Event|null`
 
-The [Event](docs:developers/event) the purchased ticket is generated for.
+The [Event](docs:reference/event) the purchased ticket is generated for.
 :::
 
 ::: reference
@@ -34,7 +34,7 @@ The ID of the event the purchased ticket is generated for.
 
 **Type:** `verbb\events\elements\Session|null`
 
-The [Session](docs:developers/session) the purchased ticket is generated for.
+The [Session](docs:reference/session) the purchased ticket is generated for.
 :::
 
 ::: reference
@@ -50,7 +50,7 @@ The ID of the session the purchased ticket is generated for.
 
 **Type:** `verbb\events\elements\Ticket|null`
 
-The [Ticket](docs:developers/ticket) the purchased ticket is generated for.
+The [Ticket](docs:reference/ticket) the purchased ticket is generated for.
 :::
 
 ::: reference
@@ -66,7 +66,7 @@ The ID of the ticket the purchased ticket is generated for.
 
 **Type:** `craft\commerce\elements\Order|null`
 
-The [Order](https://craftcommerce.com/docs/order-model) where the ticket was originally purchased from.
+The Commerce order where the ticket was originally purchased from.
 :::
 
 ::: reference
@@ -82,7 +82,7 @@ The ID of the order where the ticket was originally purchased from.
 
 **Type:** `craft\commerce\models\LineItem|null`
 
-The [Line Item](https://craftcommerce.com/docs/line-item-model) in the order where the ticket was originally purchased from.
+The Commerce line item in the order where the ticket was originally purchased from.
 :::
 
 ::: reference
@@ -120,7 +120,7 @@ A QR code with a URL to the controller, including the ticket SKU, to easily chec
 
 **Type:** `bool|null`
 
-`True` or `false` depending on whether the ticket has been checked in for the event.
+Whether the ticket holder has checked in for the event.
 :::
 
 ::: reference
@@ -144,7 +144,7 @@ The reservation status: `active` or `cancelled`.
 
 **Type:** `DateTime|null`
 
-When the reservation was cancelled.
+The date and time the reservation was cancelled. This is `null` for an active reservation.
 :::
 
 ::: reference
@@ -152,7 +152,7 @@ When the reservation was cancelled.
 
 **Type:** `string|null`
 
-Why the reservation was cancelled.
+The reason given when the reservation was cancelled. This is `null` for an active reservation, or when no reason was given.
 :::
 
 ::: reference

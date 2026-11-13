@@ -1,7 +1,8 @@
 # Session Queries
+
 You can fetch sessions in your templates or PHP code using **session queries**.
 
-:::code
+::: code
 ```twig Twig
 {# Create a new session query #}
 {% set myQuery = craft.events.sessions() %}
@@ -13,95 +14,88 @@ $myQuery = \verbb\events\elements\Session::find();
 ```
 :::
 
-Once you’ve created an session query, you can set parameters on it to narrow down the results, and then execute it by calling `.all()`. An array of [Session](docs:developers/session) objects will be returned.
+Once you’ve created a session query, you can set parameters on it to narrow down the results, and then execute it by calling `.all()`. An array of [Session](docs:reference/session) objects will be returned.
 
-:::tip
-See Introduction to [Element Queries](https://craftcms.com/docs/4.x/element-queries/) in the Craft docs to learn about how element queries work.
-:::
+See [Element Queries](https://craftcms.com/docs/5.x/development/element-queries.html) in the Craft docs to learn how element queries work.
 
 ## Example
-We can display sessions for a given type by doing the following:
+
+You can list the upcoming sessions for an event by doing the following.
 
 1. Create a session query with `craft.events.sessions()`.
-2. Set the [type](#type) and [limit](#limit) parameters on it.
-3. Fetch all sessions with `.all()` and output.
-4. Loop through the sessions using a [for](https://twig.symfony.com/doc/2.x/tags/for.html) tag to output the contents.
+2. Set the [event](#event) and [startDate](#startdate) parameters on it.
+3. Fetch the sessions with `.all()`.
+4. Loop through the sessions using a [for](https://twig.symfony.com/doc/3.x/tags/for.html) tag to output their contents.
+
+This example assumes an `event` variable, such as on an event’s template.
 
 ```twig
-{# Create a sessions query with the 'type' and 'limit' parameters #}
-{% set sessionsQuery = craft.events.sessions()
-    .type('generalEvents')
-    .limit(10) %}
+{% set today = date('today')|atom %}
 
-{# Fetch the sessions #}
-{% set sessions = sessionsQuery.all() %}
+{# Create a session query with the 'event' and 'startDate' parameters #}
+{% set sessions = craft.events.sessions()
+    .event(event)
+    .startDate(">= #{today}")
+    .all() %}
 
 {# Display their contents #}
 {% for session in sessions %}
-    <p>{{ session.title }}</p>
+    <p>{{ session.title }}, {{ session.startDate|date('short') }}</p>
 {% endfor %}
 ```
 
 ## Parameters
-Event queries support the following parameters:
 
-<!-- BEGIN PARAMS -->
+Session queries support the following parameters.
 
-### `after`
-Narrows the query results to only events that were posted on or after a certain date.
+::: reference
+### `allowOwnerDrafts`
 
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'2018-04-01'` | that were posted after 2018-04-01.
-| a [DateTime](http://php.net/class.datetime) object | that were posted after the date represented by the object.
+Narrows the query results based on whether the sessions’ events can be drafts. Pass `false` to exclude sessions that belong to event drafts.
 
 ::: code
 ```twig Twig
-{# Fetch sessions posted this month #}
-{% set firstDayOfMonth = date('first day of this month') %}
-
+{# Fetch sessions that don’t belong to event drafts #}
 {% set sessions = craft.events.sessions()
-    .after(firstDayOfMonth)
+    .allowOwnerDrafts(false)
     .all() %}
 ```
 
 ```php PHP
-// Fetch sessions posted this month
-$firstDayOfMonth = new \DateTime('first day of this month');
-
+// Fetch sessions that don’t belong to event drafts
 $sessions = \verbb\events\elements\Session::find()
-    ->after($firstDayOfMonth)
+    ->allowOwnerDrafts(false)
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `allowOwnerRevisions`
 
-
-### `anyStatus`
-Clears out the [status()](https://docs.craftcms.com/api/v4/craft-elements-db-elementquery.html#method-status) and [enabledForSite()](https://docs.craftcms.com/api/v4/craft-elements-db-elementquery.html#method-enabledforsite) parameters.
+Narrows the query results based on whether the sessions’ events can be revisions. Pass `false` to exclude sessions that belong to event revisions.
 
 ::: code
 ```twig Twig
-{# Fetch all events, regardless of status #}
+{# Fetch sessions that don’t belong to event revisions #}
 {% set sessions = craft.events.sessions()
-    .anyStatus()
+    .allowOwnerRevisions(false)
     .all() %}
 ```
 
 ```php PHP
-// Fetch all events, regardless of status
+// Fetch sessions that don’t belong to event revisions
 $sessions = \verbb\events\elements\Session::find()
-    ->anyStatus()
+    ->allowOwnerRevisions(false)
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `asArray`
-Causes the query to return matching events as arrays of data, rather than [Event](docs:developers/event) objects.
+
+Causes the query to return matching sessions as arrays of data, rather than [Session](docs:reference/session) objects.
 
 ::: code
 ```twig Twig
@@ -118,78 +112,52 @@ $sessions = \verbb\events\elements\Session::find()
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `capacity`
 
+Narrows the query results based on the sessions’ shared capacity.
 
-### `before`
-Narrows the query results to only events that were posted before a certain date.
-
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'2018-04-01'` | that were posted before 2018-04-01.
-| a [DateTime](http://php.net/class.datetime) object | that were posted before the date represented by the object.
+| Value | Fetches sessions… |
+| --- | --- |
+| `100` | with a capacity of 100. |
+| `'>= 100'` | with a capacity of 100 or more. |
+| `':empty:'` | with no capacity set. |
 
 ::: code
 ```twig Twig
-{# Fetch sessions posted before this month #}
-{% set firstDayOfMonth = date('first day of this month') %}
-
+{# Fetch sessions with a capacity of 100 or more #}
 {% set sessions = craft.events.sessions()
-    .before(firstDayOfMonth)
+    .capacity('>= 100')
     .all() %}
 ```
 
 ```php PHP
-// Fetch sessions posted before this month
-$firstDayOfMonth = new \DateTime('first day of this month');
-
+// Fetch sessions with a capacity of 100 or more
 $sessions = \verbb\events\elements\Session::find()
-    ->before($firstDayOfMonth)
+    ->capacity('>= 100')
     ->all();
 ```
 :::
-
-
-
-### `customer`
-Narrows the query results to only events that have been purchased by a customer.
-
-::: code
-```twig Twig
-{# Fetch sessions that have been purchased by a customer #}
-{% set sessions = craft.events.sessions()
-    .customer(craft.commerce.getCarts().getCart().customer)
-    .all() %}
-```
-
-```php PHP
-// Fetch sessions that have been purchased by a customer
-$sessions = \verbb\events\elements\Session::find()
-    ->customer($customer)
-    ->all();
-````
 :::
 
-
-
+::: reference
 ### `dateCreated`
+
 Narrows the query results based on the sessions’ creation dates.
 
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'>= 2018-04-01'` | that were created on or after 2018-04-01.
-| `'< 2018-05-01'` | that were created before 2018-05-01
-| `['and', '>= 2018-04-04', '< 2018-05-01']` | that were created between 2018-04-01 and 2018-05-01.
+| Value | Fetches sessions… |
+| --- | --- |
+| `'>= 2026-04-01'` | that were created on or after 2026-04-01. |
+| `'< 2026-05-01'` | that were created before 2026-05-01. |
+| `['and', '>= 2026-04-01', '< 2026-05-01']` | that were created between 2026-04-01 and 2026-05-01. |
 
 ::: code
 ```twig Twig
 {# Fetch sessions created last month #}
-{% set start = date('first day of last month') | atom %}
-{% set end = date('first day of this month') | atom %}
+{% set start = date('first day of last month')|atom %}
+{% set end = date('first day of this month')|atom %}
 
 {% set sessions = craft.events.sessions()
     .dateCreated(['and', ">= #{start}", "< #{end}"])
@@ -198,27 +166,26 @@ Possible values include:
 
 ```php PHP
 // Fetch sessions created last month
-$start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
-$end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
+$start = (new \DateTime('first day of last month'))->format(\DateTime::ATOM);
+$end = (new \DateTime('first day of this month'))->format(\DateTime::ATOM);
 
 $sessions = \verbb\events\elements\Session::find()
     ->dateCreated(['and', ">= {$start}", "< {$end}"])
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `dateUpdated`
+
 Narrows the query results based on the sessions’ last-updated dates.
 
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'>= 2018-04-01'` | that were updated on or after 2018-04-01.
-| `'< 2018-05-01'` | that were updated before 2018-05-01
-| `['and', '>= 2018-04-04', '< 2018-05-01']` | that were updated between 2018-04-01 and 2018-05-01.
+| Value | Fetches sessions… |
+| --- | --- |
+| `'>= 2026-04-01'` | that were updated on or after 2026-04-01. |
+| `'< 2026-05-01'` | that were updated before 2026-05-01. |
+| `['and', '>= 2026-04-01', '< 2026-05-01']` | that were updated between 2026-04-01 and 2026-05-01. |
 
 ::: code
 ```twig Twig
@@ -232,83 +199,106 @@ Possible values include:
 
 ```php PHP
 // Fetch sessions updated in the last week
-$lastWeek = new \DateTime('1 week ago')->format(\DateTime::ATOM);
+$lastWeek = (new \DateTime('1 week ago'))->format(\DateTime::ATOM);
 
 $sessions = \verbb\events\elements\Session::find()
     ->dateUpdated(">= {$lastWeek}")
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `endDate`
-Narrows the query results based on the sessions’ end date.
 
-Possible values include:
+Narrows the query results based on the sessions’ end dates.
 
-| Value | Fetches sessions…
-| - | -
-| `'>= 2018-04-01'` | that has an end date on or after 2018-04-01.
-| `'< 2018-05-01'` | that has an end date before 2018-05-01
-| `['and', '>= 2018-04-04', '< 2018-05-01']` | that has an end date between 2018-04-01 and 2018-05-01.
+| Value | Fetches sessions… |
+| --- | --- |
+| `'>= 2026-04-01'` | that finish on or after 2026-04-01. |
+| `'< 2026-05-01'` | that finish before 2026-05-01. |
+| `['and', '>= 2026-04-01', '< 2026-05-01']` | that finish between 2026-04-01 and 2026-05-01. |
 
 ::: code
 ```twig Twig
-{# Fetch sessions finishing after today #}
-{% set end = date('today') | atom %}
+{# Fetch sessions that finish today or later #}
+{% set today = date('today')|atom %}
 
 {% set sessions = craft.events.sessions()
-    .endDate(">= #{end}")
+    .endDate(">= #{today}")
     .all() %}
 ```
 
 ```php PHP
-// Fetch sessions created last month
-$end = new \DateTime('today')->format(\DateTime::ATOM);
+// Fetch sessions that finish today or later
+$today = (new \DateTime('today'))->format(\DateTime::ATOM);
 
 $sessions = \verbb\events\elements\Session::find()
-    ->endDate(">= {$end}"])
+    ->endDate(">= {$today}")
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `event`
 
+Narrows the query results to sessions that belong to an event.
 
-### `expiryDate`
-Narrows the query results based on the sessions’ expiry dates.
-
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'>= 2020-04-01'` | that will expire on or after 2020-04-01.
-| `'< 2020-05-01'` | that will expire before 2020-05-01
-| `['and', '>= 2020-04-04', '< 2020-05-01']` | that will expire between 2020-04-01 and 2020-05-01.
+| Value | Fetches sessions… |
+| --- | --- |
+| an `Event` object | that belong to the event. |
+| `1` | that belong to an event with an ID of 1. |
 
 ::: code
 ```twig Twig
-{# Fetch sessions expiring this month #}
-{% set nextMonth = date('first day of next month')|atom %}
-
+{# Fetch sessions for an event #}
 {% set sessions = craft.events.sessions()
-    .expiryDate("< #{nextMonth}")
+    .event(event)
     .all() %}
 ```
 
 ```php PHP
-// Fetch sessions expiring this month
-$nextMonth = new \DateTime('first day of next month')->format(\DateTime::ATOM);
-
+// Fetch sessions for an event
 $sessions = \verbb\events\elements\Session::find()
-    ->expiryDate("< {$nextMonth}")
+    ->event($event)
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `eventId`
 
+Narrows the query results based on the sessions’ events, per the events’ IDs.
 
+| Value | Fetches sessions… |
+| --- | --- |
+| `1` | that belong to an event with an ID of 1. |
+| `'not 1'` | not that belong to an event with an ID of 1. |
+| `[1, 2]` | that belong to an event with an ID of 1 or 2. |
+| `['not', 1, 2]` | not that belong to an event with an ID of 1 or 2. |
+
+::: code
+```twig Twig
+{# Fetch sessions for the event with an ID of 1 #}
+{% set sessions = craft.events.sessions()
+    .eventId(1)
+    .all() %}
+```
+
+```php PHP
+// Fetch sessions for the event with an ID of 1
+$sessions = \verbb\events\elements\Session::find()
+    ->eventId(1)
+    ->all();
+```
+:::
+:::
+
+::: reference
 ### `fixedOrder`
+
 Causes the query results to be returned in the order specified by [id](#id).
 
 ::: code
@@ -328,43 +318,80 @@ $sessions = \verbb\events\elements\Session::find()
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `groupUid`
 
-
-### `hasTicket`
-Narrows the query results to only events that have certain tickets.
-
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| a TicketQuery object | with tickets that match the query.
-
-
-
-### `id`
-Narrows the query results based on the sessions’ IDs.
-
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `1` | with an ID of 1.
-| `'not 1'` | not with an ID of 1.
-| `[1, 2]` | with an ID of 1 or 2.
-| `['not', 1, 2]` | not with an ID of 1 or 2.
+Narrows the query results to sessions in a recurring group, per the group’s UID. Sessions generated from the same frequency share a group UID.
 
 ::: code
 ```twig Twig
-{# Fetch the event by its ID #}
-{% set event = craft.events.sessions()
+{# Fetch the other sessions in the same recurring group #}
+{% set sessions = craft.events.sessions()
+    .groupUid(session.groupUid)
+    .all() %}
+```
+
+```php PHP
+// Fetch the other sessions in the same recurring group
+$sessions = \verbb\events\elements\Session::find()
+    ->groupUid($session->groupUid)
+    ->all();
+```
+:::
+:::
+
+::: reference
+### `hasEvent`
+
+Narrows the query results to sessions whose event matches an event query, or an array of event query criteria.
+
+| Value | Fetches sessions… |
+| --- | --- |
+| an `EventQuery` object | whose event matches the query. |
+| an array of criteria | whose event matches the criteria. |
+
+::: code
+```twig Twig
+{# Fetch sessions for live conference events #}
+{% set sessions = craft.events.sessions()
+    .hasEvent({ type: 'conference', status: 'live' })
+    .all() %}
+```
+
+```php PHP
+// Fetch sessions for live conference events
+$sessions = \verbb\events\elements\Session::find()
+    ->hasEvent(['type' => 'conference', 'status' => 'live'])
+    ->all();
+```
+:::
+:::
+
+::: reference
+### `id`
+
+Narrows the query results based on the sessions’ IDs.
+
+| Value | Fetches sessions… |
+| --- | --- |
+| `1` | with an ID of 1. |
+| `'not 1'` | not with an ID of 1. |
+| `[1, 2]` | with an ID of 1 or 2. |
+| `['not', 1, 2]` | not with an ID of 1 or 2. |
+
+::: code
+```twig Twig
+{# Fetch the session by its ID #}
+{% set session = craft.events.sessions()
     .id(1)
     .one() %}
 ```
 
 ```php PHP
-// Fetch the event by its ID
-$event = \verbb\events\elements\Session::find()
+// Fetch the session by its ID
+$session = \verbb\events\elements\Session::find()
     ->id(1)
     ->one();
 ```
@@ -373,10 +400,11 @@ $event = \verbb\events\elements\Session::find()
 ::: tip
 This can be combined with [fixedOrder](#fixedorder) if you want the results to be returned in a specific order.
 :::
+:::
 
-
-
+::: reference
 ### `inReverse`
+
 Causes the query results to be returned in reverse order.
 
 ::: code
@@ -394,170 +422,257 @@ $sessions = \verbb\events\elements\Session::find()
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `isRecurring`
 
-
-### `limit`
-Determines the number of events that should be returned.
+Narrows the query results based on whether the sessions were generated from a recurring frequency.
 
 ::: code
 ```twig Twig
-{# Fetch up to 10 events  #}
+{# Fetch recurring sessions #}
+{% set sessions = craft.events.sessions()
+    .isRecurring(true)
+    .all() %}
+```
+
+```php PHP
+// Fetch recurring sessions
+$sessions = \verbb\events\elements\Session::find()
+    ->isRecurring(true)
+    ->all();
+```
+:::
+:::
+
+::: reference
+### `limit`
+
+Determines the number of sessions that should be returned.
+
+::: code
+```twig Twig
+{# Fetch up to 10 sessions #}
 {% set sessions = craft.events.sessions()
     .limit(10)
     .all() %}
 ```
 
 ```php PHP
-// Fetch up to 10 events
+// Fetch up to 10 sessions
 $sessions = \verbb\events\elements\Session::find()
     ->limit(10)
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `offset`
-Determines how many events should be skipped in the results.
+
+Determines how many sessions should be skipped in the results.
 
 ::: code
 ```twig Twig
-{# Fetch all events except for the first 3 #}
+{# Fetch all sessions except for the first 3 #}
 {% set sessions = craft.events.sessions()
     .offset(3)
     .all() %}
 ```
 
 ```php PHP
-// Fetch all events except for the first 3
+// Fetch all sessions except for the first 3
 $sessions = \verbb\events\elements\Session::find()
     ->offset(3)
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `orderBy`
-Determines the order that the events should be returned in.
+
+Determines the order that the sessions should be returned in. Sessions are ordered by the order they appear in on their event by default.
 
 ::: code
 ```twig Twig
-{# Fetch all events in order of date created #}
+{# Fetch all sessions in order of date created #}
 {% set sessions = craft.events.sessions()
     .orderBy('elements.dateCreated asc')
     .all() %}
 ```
 
 ```php PHP
-// Fetch all events in order of date created
+// Fetch all sessions in order of date created
 $sessions = \verbb\events\elements\Session::find()
     ->orderBy('elements.dateCreated asc')
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `owner`
 
-
-### `postDate`
-Narrows the query results based on the sessions’ post dates.
-
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'>= 2018-04-01'` | that were posted on or after 2018-04-01.
-| `'< 2018-05-01'` | that were posted before 2018-05-01
-| `['and', '>= 2018-04-04', '< 2018-05-01']` | that were posted between 2018-04-01 and 2018-05-01.
+Narrows the query results to sessions owned by an event, and sets the site to the event’s site. Use [event](#event) when you only need to match the event ID.
 
 ::: code
 ```twig Twig
-{# Fetch sessions posted last month #}
-{% set start = date('first day of last month')|atom %}
-{% set end = date('first day of this month')|atom %}
-
+{# Fetch sessions owned by an event #}
 {% set sessions = craft.events.sessions()
-    .postDate(['and', ">= #{start}", "< #{end}"])
+    .owner(event)
     .all() %}
 ```
 
 ```php PHP
-// Fetch sessions posted last month
-$start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
-$end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
-
+// Fetch sessions owned by an event
 $sessions = \verbb\events\elements\Session::find()
-    ->postDate(['and', ">= {$start}", "< {$end}"])
+    ->owner($event)
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `ownerId`
 
+Narrows the query results based on the IDs of the events that own the sessions.
 
-### `relatedTo`
-Narrows the query results to only events that are related to certain other elements.
-
-See [Relations](https://craftcms.com/docs/4.x/relations.html) for a full explanation of how to work with this parameter.
+| Value | Fetches sessions… |
+| --- | --- |
+| `1` | owned by an event with an ID of 1. |
+| `'not 1'` | not owned by an event with an ID of 1. |
+| `[1, 2]` | owned by an event with an ID of 1 or 2. |
+| `['not', 1, 2]` | not owned by an event with an ID of 1 or 2. |
 
 ::: code
 ```twig Twig
-{# Fetch all events that are related to myCategory #}
+{# Fetch sessions owned by the event with an ID of 1 #}
+{% set sessions = craft.events.sessions()
+    .ownerId(1)
+    .all() %}
+```
+
+```php PHP
+// Fetch sessions owned by the event with an ID of 1
+$sessions = \verbb\events\elements\Session::find()
+    ->ownerId(1)
+    ->all();
+```
+:::
+:::
+
+::: reference
+### `primaryOwner`
+
+Narrows the query results to sessions whose primary owner is an event, and sets the site to the event’s site. A session is only ever created on one event, which is its primary owner, though drafts and revisions of that event also own it.
+
+::: code
+```twig Twig
+{# Fetch sessions created on an event #}
+{% set sessions = craft.events.sessions()
+    .primaryOwner(event)
+    .all() %}
+```
+
+```php PHP
+// Fetch sessions created on an event
+$sessions = \verbb\events\elements\Session::find()
+    ->primaryOwner($event)
+    ->all();
+```
+:::
+:::
+
+::: reference
+### `primaryOwnerId`
+
+Narrows the query results based on the IDs of the sessions’ primary owners.
+
+| Value | Fetches sessions… |
+| --- | --- |
+| `1` | whose primary owner has an ID of 1. |
+| `'not 1'` | not whose primary owner has an ID of 1. |
+| `[1, 2]` | whose primary owner has an ID of 1 or 2. |
+| `['not', 1, 2]` | not whose primary owner has an ID of 1 or 2. |
+
+::: code
+```twig Twig
+{# Fetch sessions created on the event with an ID of 1 #}
+{% set sessions = craft.events.sessions()
+    .primaryOwnerId(1)
+    .all() %}
+```
+
+```php PHP
+// Fetch sessions created on the event with an ID of 1
+$sessions = \verbb\events\elements\Session::find()
+    ->primaryOwnerId(1)
+    ->all();
+```
+:::
+:::
+
+::: reference
+### `relatedTo`
+
+Narrows the query results to only sessions that are related to certain other elements. See [Relations](https://craftcms.com/docs/5.x/system/relations.html) in the Craft docs for a full explanation of how to work with this parameter.
+
+::: code
+```twig Twig
+{# Fetch all sessions that are related to myCategory #}
 {% set sessions = craft.events.sessions()
     .relatedTo(myCategory)
     .all() %}
 ```
 
 ```php PHP
-// Fetch all events that are related to $myCategory
+// Fetch all sessions that are related to myCategory
 $sessions = \verbb\events\elements\Session::find()
     ->relatedTo($myCategory)
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `search`
-Narrows the query results to only events that match a search query.
 
-See [Searching](https://craftcms.com/docs/4.x/searching.html) for a full explanation of how to work with this parameter.
+Narrows the query results to only sessions that match a search query. See [Searching](https://craftcms.com/docs/5.x/system/searching.html) in the Craft docs for a full explanation of how to work with this parameter.
 
 ::: code
 ```twig Twig
-{# Get the search query from the 'q' query string param #}
+{# Fetch all sessions that match the search query #}
 {% set searchQuery = craft.app.request.getQueryParam('q') %}
 
-{# Fetch all events that match the search query #}
 {% set sessions = craft.events.sessions()
     .search(searchQuery)
     .all() %}
 ```
 
 ```php PHP
-// Get the search query from the 'q' query string param
+// Fetch all sessions that match the search query
 $searchQuery = \Craft::$app->getRequest()->getQueryParam('q');
 
-// Fetch all events that match the search query
 $sessions = \verbb\events\elements\Session::find()
     ->search($searchQuery)
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `site`
-Determines which site the events should be queried in.
 
-The current site will be used by default.
+Determines which site the sessions should be queried in. The current site is used by default.
 
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'foo'` | from the site with a handle of `foo`.
-| a `\craft\commerce\elements\db\Site` object | from the site represented by the object.
+| Value | Fetches sessions… |
+| --- | --- |
+| `'foo'` | from the site with a handle of `foo`. |
+| `['foo', 'bar']` | from a site with a handle of `foo` or `bar`. |
+| `'*'` | from any site. |
+| a `craft\models\Site` object | from the site represented by the object. |
 
 ::: code
 ```twig Twig
@@ -574,13 +689,12 @@ $sessions = \verbb\events\elements\Session::find()
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `siteId`
-Determines which site the events should be queried in, per the site’s ID.
 
-The current site will be used by default.
+Determines which site the sessions should be queried in, per the site’s ID. The current site is used by default.
 
 ::: code
 ```twig Twig
@@ -597,126 +711,83 @@ $sessions = \verbb\events\elements\Session::find()
     ->all();
 ```
 :::
-
-
-
-### `slug`
-Narrows the query results based on the sessions’ slugs.
-
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'foo'` | with a slug of `foo`.
-| `'foo*'` | with a slug that begins with `foo`.
-| `'*foo'` | with a slug that ends with `foo`.
-| `'*foo*'` | with a slug that contains `foo`.
-| `'not *foo*'` | with a slug that doesn’t contain `foo`.
-| `['*foo*', '*bar*'` | with a slug that contains `foo` or `bar`.
-| `['not', '*foo*', '*bar*']` | with a slug that doesn’t contain `foo` or `bar`.
-
-::: code
-```twig Twig
-{# Get the requested event slug from the URL #}
-{% set requestedSlug = craft.app.request.getSegment(3) %}
-
-{# Fetch the event with that slug #}
-{% set event = craft.events.sessions()
-    .slug(requestedSlug|literal)
-    .one() %}
-```
-
-```php PHP
-// Get the requested event slug from the URL
-$requestedSlug = \Craft::$app->getRequest()->getSegment(3);
-
-// Fetch the event with that slug
-$event = \verbb\events\elements\Session::find()
-    ->slug(\craft\helpers\Db::escapeParam($requestedSlug))
-    ->one();
-```
 :::
 
-
-
+::: reference
 ### `startDate`
-Narrows the query results based on the sessions’ start date.
 
-Possible values include:
+Narrows the query results based on the sessions’ start dates.
 
-| Value | Fetches sessions…
-| - | -
-| `'>= 2018-04-01'` | that has a start date on or after 2018-04-01.
-| `'< 2018-05-01'` | that has a start date before 2018-05-01
-| `['and', '>= 2018-04-04', '< 2018-05-01']` | that has a start date between 2018-04-01 and 2018-05-01.
+| Value | Fetches sessions… |
+| --- | --- |
+| `'>= 2026-04-01'` | that start on or after 2026-04-01. |
+| `'< 2026-05-01'` | that start before 2026-05-01. |
+| `['and', '>= 2026-04-01', '< 2026-05-01']` | that start between 2026-04-01 and 2026-05-01. |
 
 ::: code
 ```twig Twig
-{# Fetch sessions from today onwards #}
-{% set start = date('today') | atom %}
+{# Fetch sessions that start today or later #}
+{% set today = date('today')|atom %}
 
 {% set sessions = craft.events.sessions()
-    .startDate(">= #{start}")
+    .startDate(">= #{today}")
     .all() %}
 ```
 
 ```php PHP
-// Fetch sessions created last month
-$start = new \DateTime('today')->format(\DateTime::ATOM);
+// Fetch sessions that start today or later
+$today = (new \DateTime('today'))->format(\DateTime::ATOM);
 
 $sessions = \verbb\events\elements\Session::find()
-    ->startDate(">= {$start}"])
+    ->startDate(">= {$today}")
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `status`
-Narrows the query results based on the sessions’ statuses.
 
-Possible values include:
+Narrows the query results based on the sessions’ statuses. Pass `null` to fetch sessions regardless of their status.
 
-| Value | Fetches sessions…
-| - | -
-| `'live'` _(default)_ | that are live.
-| `'pending'` | that are pending (enabled with a Post Date in the future).
-| `'expired'` | that are expired (enabled with an Expiry Date in the past).
-| `'disabled'` | that are disabled.
-| `['live', 'pending']` | that are live or pending.
+| Value | Fetches sessions… |
+| --- | --- |
+| `'enabled'` _(default)_ | that are enabled. |
+| `'disabled'` | that are disabled. |
+| `['enabled', 'disabled']` | that are enabled or disabled. |
+| `null` | regardless of status. |
 
 ::: code
 ```twig Twig
-{# Fetch disabled events #}
+{# Fetch disabled sessions #}
 {% set sessions = craft.events.sessions()
     .status('disabled')
     .all() %}
 ```
 
 ```php PHP
-// Fetch disabled events
+// Fetch disabled sessions
 $sessions = \verbb\events\elements\Session::find()
     ->status('disabled')
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `title`
+
 Narrows the query results based on the sessions’ titles.
 
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'Foo'` | with a title of `Foo`.
-| `'Foo*'` | with a title that begins with `Foo`.
-| `'*Foo'` | with a title that ends with `Foo`.
-| `'*Foo*'` | with a title that contains `Foo`.
-| `'not *Foo*'` | with a title that doesn’t contain `Foo`.
-| `['*Foo*', '*Bar*'` | with a title that contains `Foo` or `Bar`.
-| `['not', '*Foo*', '*Bar*']` | with a title that doesn’t contain `Foo` or `Bar`.
+| Value | Fetches sessions… |
+| --- | --- |
+| `'foo'` | with a title of `foo`. |
+| `'foo*'` | with a title that begins with `foo`. |
+| `'*foo'` | with a title that ends with `foo`. |
+| `'*foo*'` | with a title that contains `foo`. |
+| `'not *foo*'` | with a title that doesn’t contain `foo`. |
+| `['*foo*', '*bar*']` | with a title that contains `foo` or `bar`. |
+| `['not', '*foo*', '*bar*']` | with a title that doesn’t contain `foo` or `bar`. |
 
 ::: code
 ```twig Twig
@@ -733,150 +804,48 @@ $sessions = \verbb\events\elements\Session::find()
     ->all();
 ```
 :::
-
-
-
-### `type`
-Narrows the query results based on the sessions’ types.
-
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'foo'` | of a type with a handle of `foo`.
-| `'not foo'` | not of a type with a handle of `foo`.
-| `['foo', 'bar']` | of a type with a handle of `foo` or `bar`.
-| `['not', 'foo', 'bar']` | not of a type with a handle of `foo` or `bar`.
-| an Event Type object | of a type represented by the object.
-
-::: code
-```twig Twig
-{# Fetch sessions with a Foo event type #}
-{% set sessions = craft.events.sessions()
-    .type('foo')
-    .all() %}
-```
-
-```php PHP
-// Fetch sessions with a Foo event type
-$sessions = \verbb\events\elements\Session::find()
-    ->type('foo')
-    ->all();
-```
 :::
 
-
-
-### `typeId`
-Narrows the query results based on the sessions’ types, per the types’ IDs.
-
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `1` | of a type with an ID of 1.
-| `'not 1'` | not of a type with an ID of 1.
-| `[1, 2]` | of a type with an ID of 1 or 2.
-| `['not', 1, 2]` | not of a type with an ID of 1 or 2.
-
-::: code
-```twig Twig
-{# Fetch sessions of the event type with an ID of 1 #}
-{% set sessions = craft.events.sessions()
-    .typeId(1)
-    .all() %}
-```
-
-```php PHP
-// Fetch sessions of the event type with an ID of 1
-$sessions = \verbb\events\elements\Session::find()
-    ->typeId(1)
-    ->all();
-```
-:::
-
-
-
+::: reference
 ### `uid`
+
 Narrows the query results based on the sessions’ UIDs.
 
 ::: code
 ```twig Twig
-{# Fetch the event by its UID #}
-{% set event = craft.events.sessions()
+{# Fetch the session by its UID #}
+{% set session = craft.events.sessions()
     .uid('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
     .one() %}
 ```
 
 ```php PHP
-// Fetch the event by its UID
-$event = \verbb\events\elements\Session::find()
+// Fetch the session by its UID
+$session = \verbb\events\elements\Session::find()
     ->uid('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
     ->one();
 ```
 :::
-
-
-
-### `uri`
-Narrows the query results based on the sessions’ URIs.
-
-Possible values include:
-
-| Value | Fetches sessions…
-| - | -
-| `'foo'` | with a URI of `foo`.
-| `'foo*'` | with a URI that begins with `foo`.
-| `'*foo'` | with a URI that ends with `foo`.
-| `'*foo*'` | with a URI that contains `foo`.
-| `'not *foo*'` | with a URI that doesn’t contain `foo`.
-| `['*foo*', '*bar*'` | with a URI that contains `foo` or `bar`.
-| `['not', '*foo*', '*bar*']` | with a URI that doesn’t contain `foo` or `bar`.
-
-::: code
-```twig Twig
-{# Get the requested URI #}
-{% set requestedUri = craft.app.request.getPathInfo() %}
-
-{# Fetch the event with that URI #}
-{% set event = craft.events.sessions()
-    .uri(requestedUri|literal)
-    .one() %}
-```
-
-```php PHP
-// Get the requested URI
-$requestedUri = \Craft::$app->getRequest()->getPathInfo();
-
-// Fetch the event with that URI
-$event = \verbb\events\elements\Session::find()
-    ->uri(\craft\helpers\Db::escapeParam($requestedUri))
-    ->one();
-```
 :::
 
-
-
+::: reference
 ### `with`
-Causes the query to return matching events eager-loaded with related elements.
 
-See [Eager-Loading Elements](https://craftcms.com/docs/4.x/eager-loading-elements.html) for a full explanation of how to work with this parameter.
+Causes the query to return matching sessions eager-loaded with related elements. See [Eager-Loading Elements](https://craftcms.com/docs/5.x/development/eager-loading.html) in the Craft docs for a full explanation of how to work with this parameter.
 
 ::: code
 ```twig Twig
-{# Fetch sessions eager-loaded with the "Related" field’s relations #}
+{# Fetch sessions eager-loaded with the “Related” field’s relations #}
 {% set sessions = craft.events.sessions()
     .with(['related'])
     .all() %}
 ```
 
 ```php PHP
-// Fetch sessions eager-loaded with the "Related" field’s relations
+// Fetch sessions eager-loaded with the “Related” field’s relations
 $sessions = \verbb\events\elements\Session::find()
     ->with(['related'])
     ->all();
 ```
 :::
-
-
-<!-- END PARAMS -->
+:::

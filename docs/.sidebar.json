@@ -43,8 +43,9 @@
         "title": "Getting Elements",
         "collapsable": false,
         "children": [
-            "getting-elements/session-queries",
             "getting-elements/event-queries",
+            "getting-elements/session-queries",
+            "getting-elements/ticket-type-queries",
             "getting-elements/ticket-queries",
             "getting-elements/purchased-ticket-queries"
         ]
@@ -53,18 +54,28 @@
         "title": "Developers",
         "collapsable": false,
         "children": [
-            "developers/events"
+            "developers/events",
+            "developers/custom-frequency-types",
+            "developers/console-commands"
+        ]
+    },
+    {
+        "title": "GraphQL",
+        "collapsable": false,
+        "children": [
+            "graphql/queries",
+            "graphql/interfaces-types"
         ]
     },
     {
         "title": "Reference",
         "collapsable": false,
         "children": [
-            "developers/event",
-            "developers/session",
-            "developers/ticket-type",
-            "developers/ticket",
-            "developers/purchased-ticket"
+            "reference/event",
+            "reference/session",
+            "reference/ticket-type",
+            "reference/ticket",
+            "reference/purchased-ticket"
         ]
     }
 ]

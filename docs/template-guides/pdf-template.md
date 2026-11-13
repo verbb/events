@@ -46,7 +46,7 @@ In the template itself, you'll have access to the following Twig variables:
 The parent order that this ticket was purchased from
 
 #### Tickets
-A collection of [Purchased Tickets](docs:developers/purchased-ticket). Depending on if you are using the functionality to show all purchased tickets for the order, or just per line item will dictate the amount of models in this collection.
+A collection of [Purchased Tickets](docs:reference/purchased-ticket). Depending on if you are using the functionality to show all purchased tickets for the order, or just per line item will dictate the amount of models in this collection.
 
 ### QR Code
 Rather than a standard URL, you can produce a QR code:

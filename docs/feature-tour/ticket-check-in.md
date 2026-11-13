@@ -6,7 +6,7 @@ When `checkinLogin` is enabled, the person checking tickets needs the [Check in 
 
 ## Open a Ticket
 
-In a template where `purchasedTicket` is the [Purchased Ticket](docs:developers/purchased-ticket) being checked, use its URL helper:
+In a template where `purchasedTicket` is the [Purchased Ticket](docs:reference/purchased-ticket) being checked, use its URL helper:
 
 ```twig
 <a href="{{ purchasedTicket.getCheckInUrl() }}">Check In This Ticket</a>

@@ -20,7 +20,7 @@ Save the event and inspect its **Ticket Status** panel. Apply pending ticket upd
 
 Use the [Single Event template](docs:template-guides/single-event) to connect the workshop page to its tickets, and the [Cart and Order template](docs:template-guides/cart-order) to display the purchase. Adapt the sample handles and template paths to the project; the event type's template settings must point to the template you create.
 
-Visit the workshop page and check its title, session date, price and availability. Add one ticket and complete checkout through your test gateway. Inspect the completed order and its [Purchased Ticket](docs:developers/purchased-ticket). A Purchased Ticket represents the booked admission, whereas the generated Ticket remains the item other customers can buy.
+Visit the workshop page and check its title, session date, price and availability. Add one ticket and complete checkout through your test gateway. Inspect the completed order and its [Purchased Ticket](docs:reference/purchased-ticket). A Purchased Ticket represents the booked admission, whereas the generated Ticket remains the item other customers can buy.
 
 ## Check the Attendee's Ticket
 

@@ -18,7 +18,7 @@ The ID of the session.
 
 **Type:** `verbb\events\elements\Event|null`
 
-The associated [Event](docs:developers/event).
+The associated [Event](docs:reference/event).
 :::
 
 <span id="eventid"></span>
@@ -79,7 +79,7 @@ Returns the URL to edit this session in the control panel.
 
 **Returns:** `verbb\events\elements\TicketCollection`
 
-Returns a collection of [Ticket](docs:developers/ticket) objects for this session.
+Returns a collection of [Ticket](docs:reference/ticket) objects for this session.
 :::
 
 ::: reference

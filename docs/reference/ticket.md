@@ -26,7 +26,7 @@ The ticket title.
 
 **Type:** `Event|null`
 
-The ticket’s associated [Event](docs:developers/event).
+The ticket’s associated [Event](docs:reference/event).
 :::
 
 ::: reference
@@ -56,6 +56,8 @@ The ID of the ticket’s type.
 ::: reference
 ### `sku`
 
+**Type:** `string|null`
+
 The SKU (Stock Keeping Unit) of the ticket.
 :::
 
@@ -79,6 +81,8 @@ The listing price of the ticket.
 ::: reference
 ### `getCpEditUrl()`
 
+**Returns:** `string|null`
+
 Returns the URL to edit this ticket in the control panel.
 :::
 
@@ -89,7 +93,7 @@ Returns the URL to edit this ticket in the control panel.
 
 **Returns:** `bool`
 
-Whether this ticket is available for purchase. This will be `true` unless the 'Available From/To' dates do not match the current time, or if the ticket has been fully purchased.
+Returns whether this ticket is available for purchase. This is `false` when its event isn’t live, the ticket is disabled, the current time is outside its ticket type’s **Available From** and **Available To** dates, or it has sold out.
 :::
 
 ## Read Session and Type Details

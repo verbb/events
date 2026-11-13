@@ -92,7 +92,7 @@ You can also set additional data through [line item options](https://docs.craftc
 </form>
 ```
 
-If you have any custom field setup on your ticket types, you can also set content on those fields through your line item options, and they'll be automatically 'pushed' to the resulting [purchased ticket](docs:developers/purchased-ticket).
+If you have any custom field setup on your ticket types, you can also set content on those fields through your line item options, and they'll be automatically 'pushed' to the resulting [purchased ticket](docs:reference/purchased-ticket).
 
 For example, let's say you have a 'Child' ticket type setup, with a custom field with the handle `age`. In this instance, you want to include additional information such as the child's age when buying tickets. You include this field in your add-to-cart form:
 
@@ -109,5 +109,5 @@ For example, let's say you have a 'Child' ticket type setup, with a custom field
 </form>
 ```
 
-After checkout has been completed, any line item option that matches a custom field on your ticket type will be copied across to the resulting [purchased ticket](docs:developers/purchased-ticket). You'll be able to easily see the values as provided in the control panel, when viewing your purchased tickets.
+After checkout has been completed, any line item option that matches a custom field on your ticket type will be copied across to the resulting [purchased ticket](docs:reference/purchased-ticket). You'll be able to easily see the values as provided in the control panel, when viewing your purchased tickets.
 

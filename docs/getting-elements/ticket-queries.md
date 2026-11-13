@@ -1,77 +1,56 @@
 # Ticket Queries
+
 You can fetch tickets in your templates or PHP code using **ticket queries**.
 
 ::: code
 ```twig Twig
 {# Create a new ticket query #}
-{% set myTicketQuery = craft.events.tickets() %}
-```
-```php
-// Create a new ticket query
-$myTicketQuery = \verbb\events\elements\Ticket::find();
-```
-:::
-
-Once you’ve created a ticket query, you can set [parameters](#parameters) on it to narrow down the results, and then [execute it](https://craftcms.com/docs/4.x/element-queries/#executing-element-queries) by calling `.all()`. An array of [Ticket](docs:developers/ticket) objects will be returned.
-
-::: tip
-See [Introduction to Element Queries](https://craftcms.com/docs/4.x/element-queries/) in the Craft docs to learn about how element queries work.
-:::
-
-## Example
-We can display a specific ticket by its ID by doing the following:
-
-1. Create a ticket query with `craft.events.tickets()`.
-2. Set the [id](#id) parameter on it.
-3. Fetch the ticket with `.one()`.
-4. Output information about the ticket as HTML.
-
-```twig
-{# Get the requested ticket ID from the query string #}
-{% set ticketId = craft.app.request.getQueryParam('id') %}
-
-{# Create a ticket query with the 'id' parameter #}
-{% set myTicketQuery = craft.events.tickets()
-    .id(ticketId) %}
-
-{# Fetch the ticket #}
-{% set ticket = myTicketQuery.one() %}
-
-{# Make sure it exists #}
-{% if not ticket %}
-    {% exit 404 %}
-{% endif %}
-
-{# Display the ticket #}
-<h1>{{ ticket.title }}</h1>
-<!-- ... -->
-```
-
-<!-- BEGIN PARAMS -->
-
-### `anyStatus`
-Clears out the [status()](https://docs.craftcms.com/api/v4/craft-elements-db-elementquery.html#method-status) and [enabledForSite()](https://docs.craftcms.com/api/v4/craft-elements-db-elementquery.html#method-enabledforsite) parameters.
-
-::: code
-```twig Twig
-{# Fetch all tickets, regardless of status #}
-{% set tickets = craft.events.tickets()
-    .anyStatus()
-    .all() %}
+{% set myQuery = craft.events.tickets() %}
 ```
 
 ```php PHP
-// Fetch all tickets, regardless of status
-$tickets = \verbb\events\elements\Ticket::find()
-    ->anyStatus()
-    ->all();
+// Create a new ticket query
+$myQuery = \verbb\events\elements\Ticket::find();
 ```
 :::
 
+Once you’ve created a ticket query, you can set parameters on it to narrow down the results, and then execute it by calling `.all()`. An array of [Ticket](docs:reference/ticket) objects will be returned.
 
+See [Element Queries](https://craftcms.com/docs/5.x/development/element-queries.html) in the Craft docs to learn how element queries work.
 
+## Example
+
+A ticket is the purchasable for one ticket type in one session, so you can list what a customer can buy for an event by doing the following.
+
+1. Create a ticket query with `craft.events.tickets()`.
+2. Set the [event](#event) parameter on it.
+3. Fetch the tickets with `.all()`.
+4. Loop through the tickets using a [for](https://twig.symfony.com/doc/3.x/tags/for.html) tag to output their contents.
+
+This example assumes an `event` variable, such as on an event’s template.
+
+```twig
+{# Create a ticket query with the 'event' parameter #}
+{% set tickets = craft.events.tickets()
+    .event(event)
+    .all() %}
+
+{# Display their contents #}
+{% for ticket in tickets %}
+    <p>{{ ticket.title }}, {{ ticket.price|commerceCurrency(cart.currency) }}</p>
+{% endfor %}
+```
+
+The `cart` variable is Craft Commerce’s current cart, available as `craft.commerce.carts.cart`.
+
+## Parameters
+
+Ticket queries support the following parameters.
+
+::: reference
 ### `asArray`
-Causes the query to return matching tickets as arrays of data, rather than [Ticket](docs:developers/ticket) objects.
+
+Causes the query to return matching tickets as arrays of data, rather than [Ticket](docs:reference/ticket) objects.
 
 ::: code
 ```twig Twig
@@ -88,40 +67,18 @@ $tickets = \verbb\events\elements\Ticket::find()
     ->all();
 ```
 :::
-
-
-
-### `customer`
-Narrows the query results to only tickets that have been purchased by a customer.
-
-::: code
-```twig Twig
-{# Fetch tickets that have been purchased by a customer #}
-{% set tickets = craft.events.tickets()
-    .customer(craft.commerce.getCarts().getCart().customer)
-    .all() %}
-```
-
-```php PHP
-// Fetch tickets that have been purchased by a customer
-$tickets = \verbb\events\elements\Event::find()
-    ->customer($customer)
-    ->all();
-````
 :::
 
-
-
+::: reference
 ### `dateCreated`
+
 Narrows the query results based on the tickets’ creation dates.
 
-Possible values include:
-
-| Value | Fetches tickets…
-| - | -
-| `'>= 2018-04-01'` | that were created on or after 2018-04-01.
-| `'< 2018-05-01'` | that were created before 2018-05-01
-| `['and', '>= 2018-04-04', '< 2018-05-01']` | that were created between 2018-04-01 and 2018-05-01.
+| Value | Fetches tickets… |
+| --- | --- |
+| `'>= 2026-04-01'` | that were created on or after 2026-04-01. |
+| `'< 2026-05-01'` | that were created before 2026-05-01. |
+| `['and', '>= 2026-04-01', '< 2026-05-01']` | that were created between 2026-04-01 and 2026-05-01. |
 
 ::: code
 ```twig Twig
@@ -136,27 +93,26 @@ Possible values include:
 
 ```php PHP
 // Fetch tickets created last month
-$start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
-$end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
+$start = (new \DateTime('first day of last month'))->format(\DateTime::ATOM);
+$end = (new \DateTime('first day of this month'))->format(\DateTime::ATOM);
 
 $tickets = \verbb\events\elements\Ticket::find()
     ->dateCreated(['and', ">= {$start}", "< {$end}"])
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `dateUpdated`
+
 Narrows the query results based on the tickets’ last-updated dates.
 
-Possible values include:
-
-| Value | Fetches tickets…
-| - | -
-| `'>= 2018-04-01'` | that were updated on or after 2018-04-01.
-| `'< 2018-05-01'` | that were updated before 2018-05-01
-| `['and', '>= 2018-04-04', '< 2018-05-01']` | that were updated between 2018-04-01 and 2018-05-01.
+| Value | Fetches tickets… |
+| --- | --- |
+| `'>= 2026-04-01'` | that were updated on or after 2026-04-01. |
+| `'< 2026-05-01'` | that were updated before 2026-05-01. |
+| `['and', '>= 2026-04-01', '< 2026-05-01']` | that were updated between 2026-04-01 and 2026-05-01. |
 
 ::: code
 ```twig Twig
@@ -170,17 +126,74 @@ Possible values include:
 
 ```php PHP
 // Fetch tickets updated in the last week
-$lastWeek = new \DateTime('1 week ago')->format(\DateTime::ATOM);
+$lastWeek = (new \DateTime('1 week ago'))->format(\DateTime::ATOM);
 
 $tickets = \verbb\events\elements\Ticket::find()
     ->dateUpdated(">= {$lastWeek}")
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `event`
 
+Narrows the query results to tickets for an event.
 
+| Value | Fetches tickets… |
+| --- | --- |
+| an `Event` object | for the event. |
+| `1` | for an event with an ID of 1. |
+
+::: code
+```twig Twig
+{# Fetch tickets for an event #}
+{% set tickets = craft.events.tickets()
+    .event(event)
+    .all() %}
+```
+
+```php PHP
+// Fetch tickets for an event
+$tickets = \verbb\events\elements\Ticket::find()
+    ->event($event)
+    ->all();
+```
+:::
+:::
+
+::: reference
+### `eventId`
+
+Narrows the query results based on the tickets’ events, per the events’ IDs.
+
+| Value | Fetches tickets… |
+| --- | --- |
+| `1` | for an event with an ID of 1. |
+| `'not 1'` | not for an event with an ID of 1. |
+| `[1, 2]` | for an event with an ID of 1 or 2. |
+| `['not', 1, 2]` | not for an event with an ID of 1 or 2. |
+
+::: code
+```twig Twig
+{# Fetch tickets for the event with an ID of 1 #}
+{% set tickets = craft.events.tickets()
+    .eventId(1)
+    .all() %}
+```
+
+```php PHP
+// Fetch tickets for the event with an ID of 1
+$tickets = \verbb\events\elements\Ticket::find()
+    ->eventId(1)
+    ->all();
+```
+:::
+:::
+
+::: reference
 ### `fixedOrder`
+
 Causes the query results to be returned in the order specified by [id](#id).
 
 ::: code
@@ -200,31 +213,46 @@ $tickets = \verbb\events\elements\Ticket::find()
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `hasEvent`
-Narrows the query results to only tickets for certain events.
 
-Possible values include:
+Narrows the query results to tickets whose event matches an event query, or an array of event query criteria.
 
-| Value | Fetches tickets…
-| - | -
-| a EventQuery object | for events that match the query.
+| Value | Fetches tickets… |
+| --- | --- |
+| an `EventQuery` object | whose event matches the query. |
+| an array of criteria | whose event matches the criteria. |
 
+::: code
+```twig Twig
+{# Fetch tickets for live conference events #}
+{% set tickets = craft.events.tickets()
+    .hasEvent({ type: 'conference', status: 'live' })
+    .all() %}
+```
 
+```php PHP
+// Fetch tickets for live conference events
+$tickets = \verbb\events\elements\Ticket::find()
+    ->hasEvent(['type' => 'conference', 'status' => 'live'])
+    ->all();
+```
+:::
+:::
 
+::: reference
 ### `id`
+
 Narrows the query results based on the tickets’ IDs.
 
-Possible values include:
-
-| Value | Fetches tickets…
-| - | -
-| `1` | with an ID of 1.
-| `'not 1'` | not with an ID of 1.
-| `[1, 2]` | with an ID of 1 or 2.
-| `['not', 1, 2]` | not with an ID of 1 or 2.
+| Value | Fetches tickets… |
+| --- | --- |
+| `1` | with an ID of 1. |
+| `'not 1'` | not with an ID of 1. |
+| `[1, 2]` | with an ID of 1 or 2. |
+| `['not', 1, 2]` | not with an ID of 1 or 2. |
 
 ::: code
 ```twig Twig
@@ -245,10 +273,11 @@ $ticket = \verbb\events\elements\Ticket::find()
 ::: tip
 This can be combined with [fixedOrder](#fixedorder) if you want the results to be returned in a specific order.
 :::
+:::
 
-
-
+::: reference
 ### `inReverse`
+
 Causes the query results to be returned in reverse order.
 
 ::: code
@@ -266,15 +295,16 @@ $tickets = \verbb\events\elements\Ticket::find()
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `limit`
+
 Determines the number of tickets that should be returned.
 
 ::: code
 ```twig Twig
-{# Fetch up to 10 tickets  #}
+{# Fetch up to 10 tickets #}
 {% set tickets = craft.events.tickets()
     .limit(10)
     .all() %}
@@ -287,10 +317,11 @@ $tickets = \verbb\events\elements\Ticket::find()
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `offset`
+
 Determines how many tickets should be skipped in the results.
 
 ::: code
@@ -308,11 +339,12 @@ $tickets = \verbb\events\elements\Ticket::find()
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `orderBy`
-Determines the order that the tickets should be returned in.
+
+Determines the order that the tickets should be returned in. Tickets are ordered by their session, then their ticket type, following the order on their event by default.
 
 ::: code
 ```twig Twig
@@ -329,50 +361,40 @@ $tickets = \verbb\events\elements\Ticket::find()
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `price`
-Narrows the query results based on the tickets’ price.
 
-Possible values include:
+Narrows the query results based on the tickets’ prices. Tickets are Craft Commerce purchasables, so Commerce’s other purchasable parameters, such as `availableForPurchase`, also work on ticket queries.
 
-| Value | Fetches tickets…
-| - | -
-| `100` | with a price of 100.
-| `'>= 100'` | with a price of at least 100.
-| `'< 100'` | with a price of less than 100.
+| Value | Fetches tickets… |
+| --- | --- |
+| `20` | with a price of 20. |
+| `'< 20'` | with a price less than 20. |
+| `['and', '>= 10', '<= 50']` | with a price between 10 and 50. |
 
+::: code
+```twig Twig
+{# Fetch tickets that cost less than 20 #}
+{% set tickets = craft.events.tickets()
+    .price('< 20')
+    .all() %}
+```
 
+```php PHP
+// Fetch tickets that cost less than 20
+$tickets = \verbb\events\elements\Ticket::find()
+    ->price('< 20')
+    ->all();
+```
+:::
+:::
 
-### `event`
-Narrows the query results based on the tickets’ event.
-
-Possible values include:
-
-| Value | Fetches tickets…
-| - | -
-| a [Event](docs:developers/event) object | for an event represented by the object.
-
-
-
-### `eventId`
-Narrows the query results based on the tickets’ events’ IDs.
-
-Possible values include:
-
-| Value | Fetches tickets…
-| - | -
-| `1` | for a event with an ID of 1.
-| `[1, 2]` | for event with an ID of 1 or 2.
-| `['not', 1, 2]` | for event not with an ID of 1 or 2.
-
-
-
+::: reference
 ### `relatedTo`
-Narrows the query results to only tickets that are related to certain other elements.
 
-See [Relations](https://craftcms.com/docs/4.x/relations.html) for a full explanation of how to work with this parameter.
+Narrows the query results to only tickets that are related to certain other elements. See [Relations](https://craftcms.com/docs/5.x/system/relations.html) in the Craft docs for a full explanation of how to work with this parameter.
 
 ::: code
 ```twig Twig
@@ -383,163 +405,216 @@ See [Relations](https://craftcms.com/docs/4.x/relations.html) for a full explana
 ```
 
 ```php PHP
-// Fetch all tickets that are related to $myCategory
+// Fetch all tickets that are related to myCategory
 $tickets = \verbb\events\elements\Ticket::find()
     ->relatedTo($myCategory)
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `search`
-Narrows the query results to only tickets that match a search query.
 
-See [Searching](https://craftcms.com/docs/4.x/searching.html) for a full explanation of how to work with this parameter.
+Narrows the query results to only tickets that match a search query. See [Searching](https://craftcms.com/docs/5.x/system/searching.html) in the Craft docs for a full explanation of how to work with this parameter.
 
 ::: code
 ```twig Twig
-{# Get the search query from the 'q' query string param #}
+{# Fetch all tickets that match the search query #}
 {% set searchQuery = craft.app.request.getQueryParam('q') %}
 
-{# Fetch all tickets that match the search query #}
 {% set tickets = craft.events.tickets()
     .search(searchQuery)
     .all() %}
 ```
 
 ```php PHP
-// Get the search query from the 'q' query string param
+// Fetch all tickets that match the search query
 $searchQuery = \Craft::$app->getRequest()->getQueryParam('q');
 
-// Fetch all tickets that match the search query
 $tickets = \verbb\events\elements\Ticket::find()
     ->search($searchQuery)
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `session`
 
+Narrows the query results to tickets for a session.
 
-### `site`
-Determines which site the tickets should be queried in.
-
-The current site will be used by default.
-
-Possible values include:
-
-| Value | Fetches tickets…
-| - | -
-| `'foo'` | from the site with a handle of `foo`.
-| a `\craft\commerce\elements\db\Site` object | from the site represented by the object.
+| Value | Fetches tickets… |
+| --- | --- |
+| a `Session` object | for the session. |
+| `1` | for a session with an ID of 1. |
 
 ::: code
 ```twig Twig
-{# Fetch tickets from the Foo site #}
+{# Fetch tickets for a session #}
 {% set tickets = craft.events.tickets()
-    .site('foo')
+    .session(session)
     .all() %}
 ```
 
 ```php PHP
-// Fetch tickets from the Foo site
+// Fetch tickets for a session
 $tickets = \verbb\events\elements\Ticket::find()
-    ->site('foo')
+    ->session($session)
     ->all();
 ```
 :::
+:::
 
+::: reference
+### `sessionId`
 
+Narrows the query results based on the tickets’ sessions, per the sessions’ IDs.
 
-### `siteId`
-Determines which site the tickets should be queried in, per the site’s ID.
-
-The current site will be used by default.
+| Value | Fetches tickets… |
+| --- | --- |
+| `1` | for a session with an ID of 1. |
+| `'not 1'` | not for a session with an ID of 1. |
+| `[1, 2]` | for a session with an ID of 1 or 2. |
+| `['not', 1, 2]` | not for a session with an ID of 1 or 2. |
 
 ::: code
 ```twig Twig
-{# Fetch tickets from the site with an ID of 1 #}
+{# Fetch tickets for the session with an ID of 1 #}
 {% set tickets = craft.events.tickets()
-    .siteId(1)
+    .sessionId(1)
     .all() %}
 ```
 
 ```php PHP
-// Fetch tickets from the site with an ID of 1
+// Fetch tickets for the session with an ID of 1
 $tickets = \verbb\events\elements\Ticket::find()
-    ->siteId(1)
+    ->sessionId(1)
     ->all();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `sku`
+
 Narrows the query results based on the tickets’ SKUs.
 
-Possible values include:
-
-| Value | Fetches tickets…
-| - | -
-| `'foo'` | with a SKU of `foo`.
-| `'foo*'` | with a SKU that begins with `foo`.
-| `'*foo'` | with a SKU that ends with `foo`.
-| `'*foo*'` | with a SKU that contains `foo`.
-| `'not *foo*'` | with a SKU that doesn’t contain `foo`.
-| `['*foo*', '*bar*'` | with a SKU that contains `foo` or `bar`.
-| `['not', '*foo*', '*bar*']` | with a SKU that doesn’t contain `foo` or `bar`.
+| Value | Fetches tickets… |
+| --- | --- |
+| `'foo'` | with a SKU of `foo`. |
+| `'foo*'` | with a SKU that begins with `foo`. |
+| `'*foo'` | with a SKU that ends with `foo`. |
+| `'*foo*'` | with a SKU that contains `foo`. |
+| `'not *foo*'` | with a SKU that doesn’t contain `foo`. |
+| `['*foo*', '*bar*']` | with a SKU that contains `foo` or `bar`. |
+| `['not', '*foo*', '*bar*']` | with a SKU that doesn’t contain `foo` or `bar`. |
 
 ::: code
 ```twig Twig
-{# Get the requested ticket SKU from the URL #}
-{% set requestedSlug = craft.app.request.getSegment(3) %}
-
-{# Fetch the ticket with that slug #}
+{# Fetch the ticket with a SKU of CONF-ADULT #}
 {% set ticket = craft.events.tickets()
-    .sku(requestedSlug|literal)
+    .sku('CONF-ADULT')
     .one() %}
 ```
 
 ```php PHP
-// Get the requested ticket SKU from the URL
-$requestedSlug = \Craft::$app->getRequest()->getSegment(3);
-
-// Fetch the ticket with that slug
+// Fetch the ticket with a SKU of CONF-ADULT
 $ticket = \verbb\events\elements\Ticket::find()
-    ->sku(\craft\helpers\Db::escapeParam($requestedSlug))
+    ->sku('CONF-ADULT')
     ->one();
 ```
 :::
+:::
 
+::: reference
+### `status`
 
+Narrows the query results based on the tickets’ statuses. Pass `null` to fetch tickets regardless of their status.
 
-### `quantity`
-Narrows the query results based on the tickets’ quantity.
+| Value | Fetches tickets… |
+| --- | --- |
+| `'enabled'` _(default)_ | that are enabled. |
+| `'disabled'` | that are disabled. |
+| `['enabled', 'disabled']` | that are enabled or disabled. |
+| `null` | regardless of status. |
 
-Possible values include:
+::: code
+```twig Twig
+{# Fetch disabled tickets #}
+{% set tickets = craft.events.tickets()
+    .status('disabled')
+    .all() %}
+```
 
-| Value | Fetches tickets…
-| - | -
-| `0` | with no quantity.
-| `'>= 5'` | with a quantity of at least 5.
-| `'< 10'` | with a quantity of less than 10.
+```php PHP
+// Fetch disabled tickets
+$tickets = \verbb\events\elements\Ticket::find()
+    ->status('disabled')
+    ->all();
+```
+:::
+:::
 
+::: reference
+### `type`
 
+Narrows the query results to tickets of a ticket type.
 
+| Value | Fetches tickets… |
+| --- | --- |
+| a `TicketType` object | of the ticket type. |
+| `1` | of a ticket type with an ID of 1. |
+
+::: code
+```twig Twig
+{# Fetch tickets of a ticket type #}
+{% set tickets = craft.events.tickets()
+    .type(ticketType)
+    .all() %}
+```
+
+```php PHP
+// Fetch tickets of a ticket type
+$tickets = \verbb\events\elements\Ticket::find()
+    ->type($ticketType)
+    ->all();
+```
+:::
+:::
+
+::: reference
 ### `typeId`
-Narrows the query results based on the tickets’ types, per their IDs.
 
-Possible values include:
+Narrows the query results based on the tickets’ ticket types, per the ticket types’ IDs.
 
-| Value | Fetches tickets…
-| - | -
-| `1` | for a type with an ID of 1.
-| `[1, 2]` | for a type with an ID of 1 or 2.
-| `['not', 1, 2]` | for a type not with an ID of 1 or 2.
+| Value | Fetches tickets… |
+| --- | --- |
+| `1` | of a ticket type with an ID of 1. |
+| `'not 1'` | not of a ticket type with an ID of 1. |
+| `[1, 2]` | of a ticket type with an ID of 1 or 2. |
+| `['not', 1, 2]` | not of a ticket type with an ID of 1 or 2. |
 
+::: code
+```twig Twig
+{# Fetch tickets of the ticket type with an ID of 1 #}
+{% set tickets = craft.events.tickets()
+    .typeId(1)
+    .all() %}
+```
 
+```php PHP
+// Fetch tickets of the ticket type with an ID of 1
+$tickets = \verbb\events\elements\Ticket::find()
+    ->typeId(1)
+    ->all();
+```
+:::
+:::
 
+::: reference
 ### `uid`
+
 Narrows the query results based on the tickets’ UIDs.
 
 ::: code
@@ -557,28 +632,26 @@ $ticket = \verbb\events\elements\Ticket::find()
     ->one();
 ```
 :::
+:::
 
-
-
+::: reference
 ### `with`
-Causes the query to return matching tickets eager-loaded with related elements.
 
-See [Eager-Loading Elements](https://craftcms.com/docs/4.x/eager-loading-elements.html) for a full explanation of how to work with this parameter.
+Causes the query to return matching tickets eager-loaded with related elements. See [Eager-Loading Elements](https://craftcms.com/docs/5.x/development/eager-loading.html) in the Craft docs for a full explanation of how to work with this parameter.
 
 ::: code
 ```twig Twig
-{# Fetch tickets eager-loaded with the "Related" field’s relations #}
+{# Fetch tickets eager-loaded with the “Related” field’s relations #}
 {% set tickets = craft.events.tickets()
     .with(['related'])
     .all() %}
 ```
 
 ```php PHP
-// Fetch tickets eager-loaded with the "Related" field’s relations
+// Fetch tickets eager-loaded with the “Related” field’s relations
 $tickets = \verbb\events\elements\Ticket::find()
     ->with(['related'])
     ->all();
 ```
 :::
-
-<!-- END PARAMS -->
+:::

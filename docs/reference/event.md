@@ -50,7 +50,7 @@ The ID of the event’s type.
 
 **Type:** `string|null`
 
-The current status of the event: `live`, `pending`, or `expired`, determined based on `startDate`, `endDate`, `postDate`, and `expiryDate`.
+The current status of the event, which is `live`, `pending`, `expired` or `disabled`. An enabled event is pending before its post date, expired after its expiry date and live in between.
 :::
 
 ::: reference
@@ -117,7 +117,7 @@ Returns the URL to edit this event in the control panel.
 
 **Returns:** `verbb\events\elements\SessionCollection`
 
-Returns a collection of [Session](docs:developers/session) objects associated with this event.
+Returns a collection of [Session](docs:reference/session) objects associated with this event.
 :::
 
 ::: reference
@@ -125,7 +125,7 @@ Returns a collection of [Session](docs:developers/session) objects associated wi
 
 **Returns:** `verbb\events\elements\TicketTypeCollection`
 
-Returns a collection of [TicketType](docs:developers/ticket-type) objects associated with this event.
+Returns a collection of [TicketType](docs:reference/ticket-type) objects associated with this event.
 :::
 
 ::: reference
@@ -133,7 +133,7 @@ Returns a collection of [TicketType](docs:developers/ticket-type) objects associ
 
 **Returns:** `verbb\events\elements\TicketCollection`
 
-Returns a collection of [Ticket](docs:developers/ticket) objects generated for this event.
+Returns a collection of [Ticket](docs:reference/ticket) objects generated for this event.
 :::
 
 ::: reference
@@ -141,7 +141,7 @@ Returns a collection of [Ticket](docs:developers/ticket) objects generated for t
 
 **Returns:** `verbb\events\elements\TicketCollection`
 
-Returns a collection of available [Ticket](docs:developers/ticket) objects for sale. This respects the 'Available From/To' dates, along with ticket capacity and sales status.
+Returns a collection of available [Ticket](docs:reference/ticket) objects for sale. This respects the 'Available From/To' dates, along with ticket capacity and sales status.
 :::
 
 ::: reference
@@ -149,7 +149,7 @@ Returns a collection of available [Ticket](docs:developers/ticket) objects for s
 
 **Returns:** `string`
 
-Returns a URL to download the ICS (iCalendar) file for this single event. For multi-session events this spans all sessions; use [Session::getIcsUrl()](docs:developers/session) for a specific session.
+Returns a URL to download the ICS (iCalendar) file for this single event. For multi-session events this spans all sessions; use [Session::getIcsUrl()](docs:reference/session) for a specific session.
 :::
 
 ::: reference
@@ -157,5 +157,5 @@ Returns a URL to download the ICS (iCalendar) file for this single event. For mu
 
 **Returns:** `bool`
 
-Indicates if the event is available for purchase. This will be `false` if there are no tickets available for sale, meaning the event is completely sold out.
+Returns whether the event has any tickets available for purchase. This is `false` when none of its tickets are available, such as when the event is sold out or not on sale.
 :::
