@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed an error when calling `craft.events.getTicketTypes()` or `craft.events.getEditableTicketTypes()`.
+- Fixed an error when calling `craft.events.availableTickets()`.
+- Fixed an error when calling `craft.events.getEditableEventTypes()` without a signed-in user.
+
+### Deprecated
+- Deprecated `craft.events.availableTickets()`. Use `event.availableTickets()` instead.
+
 ## 3.1.20 - 2026-11-05
 
 ### Fixed

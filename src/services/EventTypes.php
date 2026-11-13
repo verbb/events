@@ -80,6 +80,10 @@ class EventTypes extends Component
     {
         $user = Craft::$app->getUser()->getIdentity();
 
+        if (!$user) {
+            return [];
+        }
+
         return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
             return $user->can("events-editEvents:{$eventType->uid}");
         }, true, true, false);
@@ -94,6 +98,10 @@ class EventTypes extends Component
     {
         $user = Craft::$app->getUser()->getIdentity();
 
+        if (!$user) {
+            return [];
+        }
+
         return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
             return $user->can("events-viewEvents:{$eventType->uid}");
         }, true, true, false);
@@ -107,6 +115,10 @@ class EventTypes extends Component
     public function getCreatableEventTypes(): array
     {
         $user = Craft::$app->getUser()->getIdentity();
+
+        if (!$user) {
+            return [];
+        }
 
         return ArrayHelper::where($this->getAllEventTypes(), function(EventType $eventType) use ($user) {
             return $user->can("events-createEvents:{$eventType->uid}");
@@ -421,6 +433,7 @@ class EventTypes extends Component
 
         } catch (Throwable $e) {
             $transaction->rollBack();
+
             throw $e;
         }
 
@@ -439,6 +452,7 @@ class EventTypes extends Component
     {
         $eventType = $this->getEventTypeById($id);
         Craft::$app->getProjectConfig()->remove(self::CONFIG_EVENTTYPES_KEY . '.' . $eventType->uid);
+
         return true;
     }
 

@@ -6,6 +6,7 @@ use verbb\events\elements\Event;
 use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Session;
 use verbb\events\elements\Ticket;
+use verbb\events\elements\TicketCollection;
 use verbb\events\elements\TicketType;
 use verbb\events\elements\db\EventQuery;
 use verbb\events\elements\db\SessionQuery;
@@ -124,10 +125,16 @@ class EventsVariable
         return $query;
     }
 
-    public function availableTickets(int $eventId)
+    /**
+     * @deprecated Use `event.availableTickets()` on an event instead.
+     */
+    public function availableTickets(int $eventId): TicketCollection
     {
-        // Backwards compatibility
-        return Event::find()->eventId($eventId)->one()->availableTickets();
+        Craft::$app->getDeprecator()->log('craft.events.availableTickets()', '`craft.events.availableTickets(eventId)` has been deprecated. Use `event.availableTickets()` instead.');
+
+        $event = Event::find()->id($eventId)->one();
+
+        return $event ? $event->getAvailableTickets() : TicketCollection::make();
     }
 
     public function isTicket(LineItem $lineItem): bool
