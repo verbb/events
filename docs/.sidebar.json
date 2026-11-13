@@ -21,7 +21,8 @@
             "feature-tour/capacity",
             "feature-tour/tickets",
             "feature-tour/pdf-ticket",
-            "feature-tour/ticket-check-in"
+            "feature-tour/ticket-check-in",
+            "feature-tour/permissions"
         ]
     },
     {

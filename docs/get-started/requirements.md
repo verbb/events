@@ -4,7 +4,7 @@
 Events requires Craft CMS 5.10 or greater.
 
 ## Craft Commerce
-Events requires Craft Commerce 5.0 or greater (Lite or Pro edition).
+Events requires Craft Commerce 5.0 or greater.
 
 ## PHP
 Events requires PHP 8.2 or greater.

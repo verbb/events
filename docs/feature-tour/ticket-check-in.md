@@ -2,7 +2,7 @@
 
 Check-in records that a Purchased Ticket has been used at the event. Use the ticket's check-in URL, including the QR code in a PDF ticket, to open its confirmation screen. Confirming the action with a CSRF-protected POST request marks the ticket as checked in; opening the URL alone does not do so.
 
-When `checkinLogin` is enabled, the person checking tickets needs the **Check in tickets** permission. Test with the staff account that will operate the scanner or check-in page. A cancelled ticket or a ticket already checked in produces an error.
+When `checkinLogin` is enabled, the person checking tickets needs the [Check in purchased tickets](permissions.md#purchased-ticket-permissions) permission. Test with the staff account that will operate the scanner or check-in page. A cancelled ticket or a ticket already checked in produces an error.
 
 ## Open a Ticket
 

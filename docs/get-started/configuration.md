@@ -1,6 +1,6 @@
 # Configuration
 
-You can customise Events’s settings using a PHP configuration file. This is optional: each setting has a default, so you only need to include the values you want to change.
+You can customise Events’ settings using a PHP configuration file. This is optional: each setting has a default, so you only need to include the values you want to change.
 
 To override a setting, create `events.php` in your Craft project’s `/config` directory and return an array of setting names and values. For example, the following will change the name displayed in the control panel:
 
@@ -12,7 +12,7 @@ return [
 ];
 ```
 
-All other settings keep their defaults. Add any further settings you want to change to the same array. The options below explain the available settings and their defaults.
+All other settings keep their defaults. Add any further settings you want to change to the same array. The options below explain the available settings and their defaults. You can also manage many of these settings in the control panel under **Events → Settings**.
 
 ## Configuration Options
 
@@ -140,7 +140,3 @@ Sets the paper size for the PDF.
 
 Sets the paper orientation for the PDF.
 :::
-
-
-## Control Panel
-You can also manage configuration settings through the Control Panel by visiting Settings → Events.
