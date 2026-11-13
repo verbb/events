@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.1.21 - 2026-11-14
 
 ### Fixed
 - Fixed an error when calling `craft.events.getTicketTypes()` or `craft.events.getEditableTicketTypes()`.
