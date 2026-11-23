@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Removed
-- Removed install tracking from the welcome page.
+- Removed the unused welcome page template, along with its install tracking.
 
 ## 2.0.15 - 2026-10-17
 
