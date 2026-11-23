@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Removed
+- Removed install tracking from the welcome page.
+
 ## 2.0.15 - 2026-10-17
 
 ### Fixed
