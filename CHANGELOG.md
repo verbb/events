@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.16 - 2026-11-24
 
 ### Removed
 - Removed the unused welcome page template, along with its install tracking.
