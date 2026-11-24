@@ -3,8 +3,6 @@ namespace verbb\events\services;
 
 use verbb\events\Events as EventsPlugin;
 use verbb\events\elements\Event;
-use verbb\events\elements\PurchasedTicket;
-use verbb\events\elements\Ticket;
 
 use Craft;
 use craft\events\SiteEvent;
@@ -13,8 +11,18 @@ use craft\queue\jobs\PropagateElements;
 
 use yii\base\Component;
 
+use DateTime;
+use DateTimeZone;
+
 class Events extends Component
 {
+    // Constants
+    // =========================================================================
+
+    // Installs made before this date are existing sites, which never see the setup checklist.
+    public const SETUP_CHECKLIST_SINCE = '2026-11-23';
+
+
     // Public Methods
     // =========================================================================
 
@@ -24,23 +32,25 @@ class Events extends Component
     }
 
     /**
-     * The first-run checklist on the plugin's landing page, ticked from real data. It shows until the first ticket is
-     * purchased, counting trashed purchased tickets so deleting a test purchase doesn't bring it back.
+     * The first-run checklist on the plugin's landing page, ticked from real data. It shows only on installs made since
+     * the checklist was added, so updated sites never see it, and leaves at the first event, counting trashed ones so
+     * deleting a test event doesn't bring it back.
      */
     public function getSetupSteps(): ?array
     {
-        if (PurchasedTicket::find()->site('*')->status(null)->trashed(null)->exists()) {
+        $installDate = Craft::$app->getPlugins()->getStoredPluginInfo('events')['installDate'] ?? null;
+
+        // Craft stores the install date in UTC. A missing date is treated as an existing install.
+        if (!$installDate instanceof DateTime || $installDate < new DateTime(self::SETUP_CHECKLIST_SINCE, new DateTimeZone('UTC'))) {
             return null;
         }
 
-        $firstEvent = Event::find()->site('*')->unique()->status(null)->orderBy(['elements.dateCreated' => SORT_ASC])->one();
+        if (Event::find()->site('*')->status(null)->trashed(null)->exists()) {
+            return null;
+        }
 
         return [
             'eventType' => (bool)EventsPlugin::$plugin->getEventTypes()->getAllEventTypes(),
-            'event' => $firstEvent !== null,
-            // Events makes a ticket for each session and ticket type once the event saves, so a ticket means one can be sold.
-            'tickets' => Ticket::find()->site('*')->status(null)->exists(),
-            'firstEvent' => $firstEvent,
         ];
     }
 

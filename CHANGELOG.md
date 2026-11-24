@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Added
-- Added a setup checklist to the Events landing page, which shows until the first ticket is purchased. It ticks off creating an event type, an event, its sessions and ticket types, and selling the first ticket.
+- Added a setup checklist to the Events landing page on new installs, which shows until the first event is saved. It covers creating an event type and an event, then selling the first ticket. Sites updating Events don’t see it.
 
 ### Changed
 - Settings › Emails now explains how to attach PDF tickets when Commerce has no emails yet.

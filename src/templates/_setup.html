@@ -1,4 +1,4 @@
-{# Events' landing page until the first ticket is purchased, in place of the redirect to the Events index. #}
+{# Events' landing page on a new install until the first event is saved, in place of the redirect to the Events index. #}
 {% extends 'events/_layouts/index' %}
 
 {% set title = craft.events.getPluginName() %}
@@ -12,13 +12,10 @@
 {% block blockContent %}
 {% set allowAdminChanges = craft.app.config.general.allowAdminChanges %}
 {% set canCreateTypes = currentUser.admin and allowAdminChanges %}
-{% set firstEvent = setup.firstEvent %}
-{% set canEditFirstEvent = firstEvent and craft.app.elements.canSave(firstEvent, currentUser) %}
 
 {# Someone who can't take an unfinished step sees who can, rather than a step with nothing to press. #}
 {% set blocked = (not setup.eventType and allowAdminChanges and not canCreateTypes)
-    or (setup.eventType and not setup.event and not newEventType)
-    or (setup.event and not setup.tickets and not canEditFirstEvent) %}
+    or (setup.eventType and not newEventType) %}
 
 <pk-setup-checklist
     heading="{{ 'Start Selling Tickets'|t('events') }}"
@@ -26,7 +23,7 @@
     done-label="{{ '(done)'|t('events') }}"
 >
     <span slot="intro">
-        {{ 'Once the first ticket sells, this page becomes your list of events. Each step ticks itself off once it’s done.'|t('events') }}
+        {{ 'Once your first event is saved, this page becomes your list of events. Each step ticks itself off once it’s done.'|t('events') }}
         {% if blocked %}
             {{ 'An admin can finish these steps.'|t('events') }}
         {% endif %}
@@ -44,18 +41,10 @@
         {% endif %}
     </pk-setup-step>
 
-    <pk-setup-step heading="{{ 'Create an event'|t('events') }}"{{ setup.event ? ' done' }}>
-        {{ 'An event holds what people read before booking, such as where it is and what to bring.'|t('events') }}
+    <pk-setup-step heading="{{ 'Create an event'|t('events') }}">
+        {{ 'Add its details, a session for when it happens and a ticket type that sets the price.'|t('events') }}
         {% if newEventType %}
             <a slot="action" class="btn" href="{{ cpUrl('events/events/' ~ newEventType.handle ~ '/new') }}">{{ 'Create event'|t('events') }}</a>
-        {% endif %}
-        <a slot="change" href="{{ cpUrl('events/events') }}">{{ 'View events'|t('events') }}</a>
-    </pk-setup-step>
-
-    <pk-setup-step heading="{{ 'Add a session and ticket type'|t('events') }}"{{ setup.tickets ? ' done' }}>
-        {{ 'Sessions say when the event happens and ticket types set the price. Events makes a ticket for each pair.'|t('events') }}
-        {% if canEditFirstEvent %}
-            <a slot="action" class="btn" href="{{ firstEvent.cpEditUrl }}">{{ 'Edit event'|t('events') }}</a>
         {% endif %}
     </pk-setup-step>
 
