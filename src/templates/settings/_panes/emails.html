@@ -42,5 +42,9 @@
         </p>
     {% endif %}
 {% else %}
-    <div class="zilch">{{ 'No Commerce emails yet.' | t('events') }}</div>
+    {% do view.registerAssetBundle('verbb\\events\\web\\assets\\cp\\PluginKitAsset') %}
+
+    <pk-state-panel heading="{{ 'No Commerce emails yet' | t('events') }}">
+        {{ 'Add an email in Commerce’s settings, such as an order confirmation, and you can attach PDF tickets to it here.' | t('events') }}
+    </pk-state-panel>
 {% endif %}

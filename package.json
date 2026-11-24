@@ -2,15 +2,19 @@
     "name": "events",
     "private": true,
     "scripts": {
-        "build": "npm run build:css && npm run build:event-edit && npm run build:event-index && npm run build:session-edit && npm run build:session-index",
+        "build": "npm run build:css && npm run build:event-edit && npm run build:event-index && npm run build:session-edit && npm run build:session-index && npm run build:plugin-kit",
         "build:css": "vite build --mode css",
         "build:event-edit": "vite build --mode event-edit",
         "build:event-index": "vite build --mode event-index",
         "build:session-edit": "vite build --mode session-edit",
-        "build:session-index": "vite build --mode session-index"
+        "build:session-index": "vite build --mode session-index",
+        "build:plugin-kit": "vite build --mode plugin-kit"
     },
     "devDependencies": {
         "esbuild": "^0.28.2",
         "vite": "^8.3.5"
+    },
+    "dependencies": {
+        "@verbb/plugin-kit-web": "file:../../../plugin-kit/plugin-kit/plugin-kit-web"
     }
 }

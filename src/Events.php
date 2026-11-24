@@ -199,6 +199,7 @@ class Events extends Plugin
     private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            $event->rules['events'] = 'events/events/landing';
             $event->rules['events/events'] = 'events/events/index';
             $event->rules['events/events/<eventTypeHandle:{handle}>'] = 'events/events/index';
             $event->rules['events/events/<eventType:{handle}>/new'] = 'events/events/create';

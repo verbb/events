@@ -11,6 +11,8 @@
 
     {% endblock %}
 
+    {# A page made of its own card, such as the setup checklist, leaves Verbb's footer off. #}
+    {% if not (hidePluginFooter ?? false) %}
     <hr>
     
     <div id="plugin-footer">
@@ -34,4 +36,5 @@
             </a>
         </div>
     </div>
+    {% endif %}
 {% endblock %}

@@ -3,6 +3,7 @@ namespace verbb\events\controllers;
 
 use verbb\events\Events;
 use verbb\events\web\assets\cp\EventIndexAsset;
+use verbb\events\web\assets\cp\PluginKitAsset;
 use verbb\events\elements\Event;
 
 use Craft;
@@ -21,6 +22,27 @@ class EventsController extends Controller
 {
     // Public Methods
     // =========================================================================
+
+    /**
+     * The plugin's landing page. Until the first ticket is purchased it's the setup checklist, then the Events index.
+     */
+    public function actionLanding(): Response
+    {
+        $this->requireCpRequest();
+
+        $setup = Events::$plugin->getEvents()->getSetupSteps();
+
+        if ($setup === null) {
+            return $this->redirect('events/events');
+        }
+
+        $this->getView()->registerAssetBundle(PluginKitAsset::class);
+
+        return $this->renderTemplate('events/_setup', [
+            'setup' => $setup,
+            'newEventType' => Events::$plugin->getEventTypes()->getCreatableEventTypes()[0] ?? null,
+        ]);
+    }
 
     public function actionIndex(?string $eventTypeHandle = null): Response
     {

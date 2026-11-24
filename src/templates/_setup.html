@@ -1,0 +1,67 @@
+{# Events' landing page until the first ticket is purchased, in place of the redirect to the Events index. #}
+{% extends 'events/_layouts/index' %}
+
+{% set title = craft.events.getPluginName() %}
+{% set selectedSubnavItem = 'events' %}
+{% set crumbs = [
+    { label: craft.events.getPluginName() | t('events'), url: url('events') },
+] %}
+{% set bodyClass = (bodyClass is defined ? bodyClass ~ ' ' : '') ~ 'events-bare-content' %}
+{% set hidePluginFooter = true %}
+
+{% block blockContent %}
+{% set allowAdminChanges = craft.app.config.general.allowAdminChanges %}
+{% set canCreateTypes = currentUser.admin and allowAdminChanges %}
+{% set firstEvent = setup.firstEvent %}
+{% set canEditFirstEvent = firstEvent and craft.app.elements.canSave(firstEvent, currentUser) %}
+
+{# Someone who can't take an unfinished step sees who can, rather than a step with nothing to press. #}
+{% set blocked = (not setup.eventType and allowAdminChanges and not canCreateTypes)
+    or (setup.eventType and not setup.event and not newEventType)
+    or (setup.event and not setup.tickets and not canEditFirstEvent) %}
+
+<pk-setup-checklist
+    heading="{{ 'Start Selling Tickets'|t('events') }}"
+    count-label="{{ '{done} of {total} done'|t('events') }}"
+    done-label="{{ '(done)'|t('events') }}"
+>
+    <span slot="intro">
+        {{ 'Once the first ticket sells, this page becomes your list of events. Each step ticks itself off once it’s done.'|t('events') }}
+        {% if blocked %}
+            {{ 'An admin can finish these steps.'|t('events') }}
+        {% endif %}
+    </span>
+
+    <pk-setup-step heading="{{ 'Create an event type'|t('events') }}"{{ setup.eventType ? ' done' }}>
+        {% if not setup.eventType and not allowAdminChanges %}
+            {{ 'Event types are created where admin changes are allowed, then deployed.'|t('events') }}
+        {% else %}
+            {{ 'An event type sets the fields and templates for a kind of event, such as workshops.'|t('events') }}
+        {% endif %}
+        {% if canCreateTypes %}
+            <a slot="action" class="btn" href="{{ cpUrl('events/event-types/new') }}">{{ 'Create event type'|t('events') }}</a>
+            <a slot="change" href="{{ cpUrl('events/event-types') }}">{{ 'Change'|t('events') }}</a>
+        {% endif %}
+    </pk-setup-step>
+
+    <pk-setup-step heading="{{ 'Create an event'|t('events') }}"{{ setup.event ? ' done' }}>
+        {{ 'An event holds what people read before booking, such as where it is and what to bring.'|t('events') }}
+        {% if newEventType %}
+            <a slot="action" class="btn" href="{{ cpUrl('events/events/' ~ newEventType.handle ~ '/new') }}">{{ 'Create event'|t('events') }}</a>
+        {% endif %}
+        <a slot="change" href="{{ cpUrl('events/events') }}">{{ 'View events'|t('events') }}</a>
+    </pk-setup-step>
+
+    <pk-setup-step heading="{{ 'Add a session and ticket type'|t('events') }}"{{ setup.tickets ? ' done' }}>
+        {{ 'Sessions say when the event happens and ticket types set the price. Events makes a ticket for each pair.'|t('events') }}
+        {% if canEditFirstEvent %}
+            <a slot="action" class="btn" href="{{ firstEvent.cpEditUrl }}">{{ 'Edit event'|t('events') }}</a>
+        {% endif %}
+    </pk-setup-step>
+
+    <pk-setup-step heading="{{ 'Sell your first ticket'|t('events') }}">
+        {{ 'Add tickets to your event template, then complete a checkout on your site.'|t('events') }}
+        <a slot="action" class="btn" href="https://verbb.io/craft-plugins/events/docs/template-guides/single-event" target="_blank" rel="noopener">{{ 'View template guide'|t('events') }}</a>
+    </pk-setup-step>
+</pk-setup-checklist>
+{% endblock %}

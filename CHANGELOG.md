@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added a setup checklist to the Events landing page, which shows until the first ticket is purchased. It ticks off creating an event type, an event, its sessions and ticket types, and selling the first ticket.
+
+### Changed
+- Settings › Emails now explains how to attach PDF tickets when Commerce has no emails yet.
+
 ## 3.1.21 - 2026-11-14
 
 ### Fixed

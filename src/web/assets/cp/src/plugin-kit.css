@@ -1,0 +1,8 @@
+@import '@verbb/plugin-kit-web/plugin-kit.css';
+
+/* The setup checklist is a card of its own, so its page drops Craft's content pane around it. */
+.events-bare-content #content.content-pane {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
