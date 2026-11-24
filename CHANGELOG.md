@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.2.0 - 2026-11-24
 
 ### Added
 - Added a setup checklist to the Events landing page on new installs, which shows until the first event is saved. It covers creating an event type and an event, then selling the first ticket. Sites updating Events don’t see it.
