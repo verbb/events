@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Event, session, ticket type, ticket and purchased ticket queries no longer keep results for the rest of the request. Their `count()` now returns the same value type as Craft’s own element queries.
+
+### Fixed
+- Fixed event, session, ticket type, ticket and purchased ticket queries returning results from an earlier query with a different limit, offset, order, condition or `asArray()` setting. ([#231](https://github.com/verbb/events/issues/231))
+- Fixed Events queries returning stale results after a save, direct database update or rolled-back transaction in the same request, console command or queue worker. ([#231](https://github.com/verbb/events/issues/231))
+- Fixed ticket syncing missing new sessions and ticket types when tickets were updated more than once in the same request or queue worker.
+
 ## 3.2.0 - 2026-11-24
 
 ### Added

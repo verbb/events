@@ -15,14 +15,11 @@ use yii\db\Expression;
 
 use craft\commerce\elements\db\PurchasableQuery;
 
-use verbb\base\elements\db\CachedElementQueryTrait;
-
 class TicketQuery extends PurchasableQuery
 {
     // Traits
     // =========================================================================
 
-    use CachedElementQueryTrait;
     use ElementIndexQueryTrait;
 
 
@@ -53,6 +50,7 @@ class TicketQuery extends PurchasableQuery
     public function eventId(mixed $value): static
     {
         $this->eventId = $value;
+
         return $this;
     }
 
@@ -70,6 +68,7 @@ class TicketQuery extends PurchasableQuery
     public function sessionId(mixed $value): static
     {
         $this->sessionId = $value;
+
         return $this;
     }
 
@@ -87,12 +86,14 @@ class TicketQuery extends PurchasableQuery
     public function typeId(mixed $value): static
     {
         $this->typeId = $value;
+
         return $this;
     }
 
     public function hasEvent(mixed $value): static
     {
         $this->hasEvent = $value;
+
         return $this;
     }
 

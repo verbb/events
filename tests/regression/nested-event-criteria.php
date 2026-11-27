@@ -3,12 +3,10 @@
 use craft\controllers\ElementIndexesController;
 use craft\controllers\ElementSearchController;
 use craft\elements\User;
-use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\elements\Event;
 use verbb\events\elements\Session;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
-use verbb\events\elements\db\TicketQuery;
 use yii\base\ActionEvent;
 use yii\base\Event as YiiEvent;
 use yii\web\BadRequestHttpException;
@@ -48,15 +46,8 @@ $check($app->request->getIsCpRequest(), 'The regression must run as a CP request
 $token = $app->request->getCsrfToken();
 $siteId = $app->sites->getPrimarySite()->id;
 
-$resetQueryCache = static function(): void {
-    // Each simulated HTTP request needs fresh request-local element query caches.
-    foreach ([CachedElementQuery::class, TicketQuery::class] as $class) {
-        (new ReflectionProperty($class, '_cache'))->setValue(null, []);
-    }
-};
 
-$request = static function(string $type, string $input, array $nested, array $queryParams = [], ?string $bodyType = null) use ($app, $token, $siteId, $resetQueryCache): int {
-    $resetQueryCache();
+$request = static function(string $type, string $input, array $nested, array $queryParams = [], ?string $bodyType = null) use ($app, $token, $siteId): int {
     $isSearch = $input === 'search';
     $app->request->setQueryParams($queryParams);
     $app->request->setBodyParams([
@@ -113,7 +104,6 @@ foreach ([Ticket::class => 'tickets', TicketType::class => 'ticketTypes', Sessio
     $app->request->setQueryParams([]);
 
     $app->controller = null;
-    $resetQueryCache();
     $trustedTotal = (int)$type::find()->status(null)->siteId($siteId)->hasEvent($baseline)->count();
     $check($trustedTotal > 0, "$type needs a positive trusted-query control.");
     $check((int)$type::find()->status(null)->siteId($siteId)->hasEvent($baseline + ['where' => '1=1'])->count() === $trustedTotal, "$type must preserve trusted PHP SQL criteria.");
@@ -128,12 +118,9 @@ foreach ([Ticket::class => 'tickets', TicketType::class => 'ticketTypes', Sessio
         $app->controller = new $controllerClass('events-regression', $app);
 
         foreach (['1=1' => $trustedTotal, '1=0' => 0] as $where => $expected) {
-            $resetQueryCache();
             $check((int)$type::find()->status(null)->siteId($siteId)->hasEvent($baseline + ['where' => $where])->count() === $expected, "$type must preserve trusted PHP arrays in $controllerClass.");
-            $resetQueryCache();
             $rendered = $app->view->renderString('{{ craft.events.' . $method . '({status: null, siteId: siteId, hasEvent: {status: null, siteId: siteId, where: sql}}).count() }}', ['siteId' => $siteId, 'sql' => $where]);
             $check((int)$rendered === $expected, "$type must preserve trusted Twig arrays in $controllerClass.");
-            $resetQueryCache();
             $eventQuery = Event::find()->status(null)->siteId($siteId)->where($where);
             $check((int)$type::find()->status(null)->siteId($siteId)->hasEvent($eventQuery)->count() === $expected, "$type must preserve trusted EventQuery objects in $controllerClass.");
         }

@@ -2,7 +2,6 @@
 
 use craft\helpers\StringHelper;
 use craft\models\GqlSchema;
-use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\Events;
 use verbb\events\controllers\TicketsController;
 use verbb\events\elements\Event;
@@ -13,7 +12,6 @@ use verbb\events\elements\TicketType;
 use verbb\events\gql\resolvers\PurchasedTicketResolver;
 use verbb\events\helpers\Gql;
 use verbb\events\helpers\GqlRelations;
-use verbb\events\elements\db\TicketQuery;
 use verbb\events\migrations\m261020_000001_purchased_ticket_graphql_relations;
 use verbb\events\migrations\m261020_000000_purchased_ticket_graphql_permissions;
 
@@ -46,10 +44,6 @@ $siteId = (int)array_key_first($types[0]->getSiteSettings());
 $app->sites->setCurrentSite($siteId);
 $app->user->setIdentity(null);
 $app->request->setIsCpRequest(false);
-$reset = static function(): void {
-    (new ReflectionProperty(CachedElementQuery::class, '_cache'))->setValue(null, []);
-    (new ReflectionProperty(TicketQuery::class, '_cache'))->setValue(null, []);
-};
 $save = static function($element) use ($app): void {
     if (!$app->elements->saveElement($element)) {
         throw new RuntimeException('Fixture save failed: ' . json_encode($element->getErrors()));
@@ -60,15 +54,13 @@ foreach ($types as $type) {
     $scope[] = 'eventsEventTypes.' . $type->uid . ':read';
     $scope[] = 'eventsPurchasedTickets.' . $type->uid . ':read';
 }
-$activate = static function(array $permissions) use ($app, $reset): GqlSchema {
+$activate = static function(array $permissions) use ($app): GqlSchema {
     $schema = new GqlSchema(['name' => 'Purchased ticket permissions', 'uid' => StringHelper::UUID(), 'isPublic' => true, 'scope' => $permissions]);
     $app->gql->flushCaches();
     $app->gql->setActiveSchema($schema);
-    $reset();
     return $schema;
 };
-$execute = static function(string $query, array $variables = []) use ($app, $reset, $check): array {
-    $reset();
+$execute = static function(string $query, array $variables = []) use ($app, $check): array {
     $result = $app->gql->executeQuery($app->gql->getActiveSchema(), $query, $variables, null, true);
     $check(empty($result['errors']), 'GraphQL execution failed: ' . json_encode($result['errors'] ?? []));
     return $result['data'];
@@ -89,9 +81,7 @@ try {
         $save($session);
         $ticketType = new TicketType(['primaryOwner' => $event, 'owner' => $event, 'siteId' => $siteId, 'title' => 'Standard', 'price' => 25, 'capacity' => 20]);
         $save($ticketType);
-        $reset();
         $event->updateTickets();
-        $reset();
         $ticket = Ticket::find()->eventId($event->id)->siteId($siteId)->one();
         $check($ticket !== null, 'Ticket generation must succeed.');
         $purchase = new PurchasedTicket(['eventId' => $event->id, 'sessionId' => $session->id, 'ticketTypeId' => $ticketType->id, 'ticketId' => $ticket->id, 'checkedIn' => false]);
@@ -175,7 +165,6 @@ try {
     $otherSiteScope = array_values(array_filter($scope, static fn($permission)=>!str_starts_with($permission, 'sites.')));
     $otherSiteScope[] = 'sites.'.$app->sites->getSiteById($otherSiteId)->uid.':read';
     $app->sites->setCurrentSite($otherSiteId);
-    $reset();
     $translated = Event::find()->id($owner->id)->siteId($otherSiteId)->one();
     $check($translated !== null, 'The event must propagate to the other site.');
     $translated->title = 'Localized purchase event';
@@ -213,7 +202,6 @@ try {
         $draft->title = 'Draft purchase event';
         $save($draft);
         $drafts[] = $draft;
-        $reset();
         $draftSession = Session::find()->ownerId($draft->id)->siteId($siteId)->one();
         $draftType = TicketType::find()->ownerId($draft->id)->siteId($siteId)->one();
         $check($draftSession !== null && $draftType !== null, 'Draft must retain nested elements.');
@@ -225,7 +213,6 @@ try {
         }
     }
     $revisionId = $app->revisions->createRevision($owner, $userId, null, [], true);
-    $reset();
     $revision = Event::find()->id($revisionId)->siteId($siteId)->revisions(true)->one();
     $check($revision !== null, 'A real revision is required.');
     $activate($scope);

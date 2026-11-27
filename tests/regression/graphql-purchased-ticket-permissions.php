@@ -2,7 +2,6 @@
 
 use craft\helpers\StringHelper;
 use craft\models\GqlSchema;
-use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\Events;
 use verbb\events\controllers\TicketsController;
 use verbb\events\elements\Event;
@@ -43,9 +42,6 @@ $siteId = (int)array_key_first($types[0]->getSiteSettings());
 $app->sites->setCurrentSite($siteId);
 $app->user->setIdentity(null);
 $app->request->setIsCpRequest(false);
-$reset = static function(): void {
-    (new ReflectionProperty(CachedElementQuery::class, '_cache'))->setValue(null, []);
-};
 $save = static function($element) use ($app): void {
     if (!$app->elements->saveElement($element)) {
         throw new RuntimeException('Fixture save failed: ' . json_encode($element->getErrors()));
@@ -56,15 +52,13 @@ foreach ($types as $type) {
     $scope[] = 'eventsEventTypes.' . $type->uid . ':read';
     $scope[] = 'eventsPurchasedTickets.' . $type->uid . ':read';
 }
-$activate = static function(array $permissions) use ($app, $reset): GqlSchema {
+$activate = static function(array $permissions) use ($app): GqlSchema {
     $schema = new GqlSchema(['name' => 'Purchased ticket permissions', 'uid' => StringHelper::UUID(), 'isPublic' => true, 'scope' => $permissions]);
     $app->gql->flushCaches();
     $app->gql->setActiveSchema($schema);
-    $reset();
     return $schema;
 };
-$execute = static function(string $query, array $variables = []) use ($app, $reset, $check): array {
-    $reset();
+$execute = static function(string $query, array $variables = []) use ($app, $check): array {
     $result = $app->gql->executeQuery($app->gql->getActiveSchema(), $query, $variables, null, true);
     $check(empty($result['errors']), 'GraphQL execution failed: ' . json_encode($result['errors'] ?? []));
     return $result['data'];
@@ -85,9 +79,7 @@ try {
         $save($session);
         $ticketType = new TicketType(['primaryOwner' => $event, 'owner' => $event, 'siteId' => $siteId, 'title' => 'Standard', 'price' => 25, 'capacity' => 20]);
         $save($ticketType);
-        $reset();
         $event->updateTickets();
-        $reset();
         $ticket = Ticket::find()->eventId($event->id)->siteId($siteId)->one();
         $check($ticket !== null, 'Ticket generation must succeed.');
         $purchase = new PurchasedTicket(['eventId' => $event->id, 'sessionId' => $session->id, 'ticketTypeId' => $ticketType->id, 'ticketId' => $ticket->id, 'checkedIn' => false]);
@@ -172,8 +164,7 @@ try {
     $url = $trusted->getCheckInUrl();
     $check(str_contains($url, $trusted->uid) && $trusted->getQrCode() !== '', 'Existing check-in URLs and QR generation must remain available.');
     $check($app->view->renderString('{{ ticket.uid }}', ['ticket' => $trusted]) === $trusted->uid, 'Trusted Twig must retain identifier access.');
-    $checkIn = static function() use ($app, $trusted, $reset): array {
-        $reset();
+    $checkIn = static function() use ($app, $trusted): array {
         $app->controller = null;
         $app->request->setQueryParams([]);
         $app->request->setBodyParams(['uid' => $trusted->uid, 'confirm' => true, $app->request->csrfParam => $app->request->getCsrfToken()]);
@@ -183,7 +174,6 @@ try {
     $check(isset($checkIn()['error']), 'Login-required check-in must still reject guests.');
     $settings->checkinLogin = false;
     $check($checkIn()['success'] ?? false, 'Existing anonymous check-in links must remain usable when configured.');
-    $reset();
     $check(PurchasedTicket::find()->id($ids[0])->one()->checkedIn, 'The existing link must update stored check-in state.');
 } finally {
     $settings->checkinLogin = $previousLogin;

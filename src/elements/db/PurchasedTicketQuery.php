@@ -18,9 +18,7 @@ use yii\db\Connection;
 
 use craft\commerce\db\Table as CommerceTable;
 
-use verbb\base\elements\db\CachedElementQuery;
-
-class PurchasedTicketQuery extends CachedElementQuery
+class PurchasedTicketQuery extends ElementQuery
 {
     // Properties
     // =========================================================================
@@ -49,6 +47,7 @@ class PurchasedTicketQuery extends CachedElementQuery
         switch ($name) {
             case 'customer':
                 $this->customer($value);
+
                 break;
             default:
                 parent::__set($name, $value);
@@ -58,12 +57,14 @@ class PurchasedTicketQuery extends CachedElementQuery
     public function eventId($value): static
     {
         $this->eventId = $value;
+
         return $this;
     }
 
     public function eventTypeId($value): static
     {
         $this->eventTypeId = $value;
+
         return $this;
     }
 
@@ -74,12 +75,14 @@ class PurchasedTicketQuery extends CachedElementQuery
         } else {
             $this->eventId = $value;
         }
+
         return $this;
     }
 
     public function sessionId($value): static
     {
         $this->sessionId = $value;
+
         return $this;
     }
 
@@ -90,12 +93,14 @@ class PurchasedTicketQuery extends CachedElementQuery
         } else {
             $this->sessionId = $value;
         }
+
         return $this;
     }
 
     public function ticketId($value): static
     {
         $this->ticketId = $value;
+
         return $this;
     }
 
@@ -106,36 +111,42 @@ class PurchasedTicketQuery extends CachedElementQuery
         } else {
             $this->ticketId = $value;
         }
+
         return $this;
     }
 
     public function orderId($value): static
     {
         $this->orderId = $value;
+
         return $this;
     }
 
     public function lineItemId($value): static
     {
         $this->lineItemId = $value;
+
         return $this;
     }
 
     public function checkedIn($value): static
     {
         $this->checkedIn = $value;
+
         return $this;
     }
 
     public function checkedInDate($value): static
     {
         $this->checkedInDate = $value;
+
         return $this;
     }
 
     public function reservationStatus($value): static
     {
         $this->reservationStatus = $value;
+
         return $this;
     }
 
@@ -149,6 +160,7 @@ class PurchasedTicketQuery extends CachedElementQuery
     public function customerId($value): static
     {
         $this->customerId = $value;
+
         return $this;
     }
 
@@ -172,6 +184,7 @@ class PurchasedTicketQuery extends CachedElementQuery
     public function ticketTypeId($value): static
     {
         $this->ticketTypeId = $value;
+
         return $this;
     }
 

@@ -20,18 +20,6 @@ trait ElementIndexQueryTrait
         $this->clearCachedResult();
     }
 
-    public function getCriteria(): array
-    {
-        $criteria = parent::getCriteria();
-
-        // Keep trusted results and CP permission scopes in separate query cache entries.
-        if ($this->_elementIndexScope !== null) {
-            $criteria['elementIndexScope'] = $this->_elementIndexScope;
-        }
-
-        return $criteria;
-    }
-
     public function applyElementIndexScope(): void
     {
         if ($this->_elementIndexScope !== null) {

@@ -8,7 +8,6 @@ use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use craft\commerce\services\Payments;
 use craft\db\Query;
 use craft\helpers\StringHelper;
-use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\Events;
 use verbb\events\elements\Event;
 use verbb\events\elements\PurchasedTicket;
@@ -45,10 +44,6 @@ $check = static function(bool $condition, string $message) use (&$checks): void 
     }
     $checks++;
 };
-$reset = static function(): void {
-    (new ReflectionProperty(CachedElementQuery::class, '_cache'))->setValue(null, []);
-    (new ReflectionProperty(Ticket::find(), '_cache'))->setValue(null, []);
-};
 $save = static function($element) use ($app): void {
     if (!$app->elements->saveElement($element)) {
         throw new RuntimeException('Fixture save failed: ' . json_encode($element->getErrors()));
@@ -57,7 +52,7 @@ $save = static function($element) use ($app): void {
 $type = Events::$plugin->getEventTypes()->getAllEventTypes()[0];
 $siteId = (int)array_key_first($type->getSiteSettings());
 $app->sites->setCurrentSite($siteId);
-$fixture = static function(?int $eventCapacity, ?int $sessionCapacity, ?int $ticketCapacity, int $seats = 1, int $sessionCount = 1, int $typeCount = 1) use ($save, $reset, $type, $siteId): array {
+$fixture = static function(?int $eventCapacity, ?int $sessionCapacity, ?int $ticketCapacity, int $seats = 1, int $sessionCount = 1, int $typeCount = 1) use ($save, $type, $siteId): array {
     $event = new Event(['typeId' => $type->id, 'siteId' => $siteId, 'title' => 'Capacity regression', 'capacity' => $eventCapacity, 'postDate' => new DateTime('-1 day')]);
     $save($event);
     $sessions = [];
@@ -70,9 +65,7 @@ $fixture = static function(?int $eventCapacity, ?int $sessionCapacity, ?int $tic
         $ticketType = new TicketType(['primaryOwner' => $event, 'owner' => $event, 'siteId' => $siteId, 'title' => 'Standard ' . $i, 'price' => 0, 'capacity' => $ticketCapacity, 'seatsPerTicket' => $seats]);
         $save($ticketType);
     }
-    $reset();
     $event->updateTickets();
-    $reset();
     return [$event, $sessions, Ticket::find()->eventId($event->id)->siteId($siteId)->orderBy(['id' => SORT_ASC])->all()];
 };
 $cart = static function(array $tickets, int $qty, array $options = []) use ($siteId, $save): Order {
@@ -174,7 +167,6 @@ try {
     $inventory = Commerce::getInstance()->getInventory();
     $location = Commerce::getInstance()->getInventoryLocations()->getAllInventoryLocations()->first();
     $inventory->updateInventoryLevel($inventoryItem->id, -2, ['inventoryLocationId' => $location->id]);
-    $reset();
     $legacyTicket = Ticket::find()->id($tickets[0]->id)->one();
     $check((int)$legacyTicket->inventoryItemId === (int)$inventoryItem->id, 'The existing ticket must load its legacy inventory record.');
     $legacy = $cart([$legacyTicket], 1);
@@ -218,7 +210,6 @@ try {
     $first = $cart($tickets, 1);
     $save($first);
     $check($first->markAsComplete(), 'The cancellation fixture must complete.');
-    $reset();
     $purchase = PurchasedTicket::find()->orderId($first->id)->one();
     $service = Events::$plugin->getPurchasedTickets();
     $check($service->cancelPurchasedTicket($purchase), 'Cancellation must still release capacity.');
@@ -228,7 +219,6 @@ try {
     $save($second);
     $check($second->markAsComplete(), 'Released capacity must be available for a new order.');
     $check(!$service->canRestorePurchasedTicket($purchase) && !$service->restorePurchasedTicket($purchase), 'Restoration must not overbook capacity consumed by another order.');
-    $reset();
     $other = PurchasedTicket::find()->orderId($second->id)->one();
     $check($service->cancelPurchasedTicket($other) && $service->restorePurchasedTicket($purchase), 'Restoration must work when capacity is available.');
     $check($sessions[0]->getRemainingSeatsCount() === 0, 'Restoration must update loaded seat counts.');
@@ -284,7 +274,6 @@ try {
         }
     }
     if ($concurrentEvent) {
-        $reset();
         foreach (PurchasedTicket::find()->eventId($concurrentEvent->id)->status(null)->all() as $purchase) {
             $app->elements->deleteElement($purchase, true);
         }

@@ -11,7 +11,6 @@ use craft\db\Table;
 use craft\models\FieldLayout;
 use craft\models\FieldLayoutTab;
 use craft\services\Elements;
-use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\Events;
 use verbb\events\elements\Event;
 use verbb\events\elements\Session;
@@ -54,11 +53,7 @@ $sites = array_keys($type->getSiteSettings());
 $check(count($sites) >= 2, 'The fixture event type must support at least two sites.');
 $siteId = (int)$sites[0];
 $otherSiteId = (int)$sites[1];
-$resetCache = static function(): void {
-    (new ReflectionProperty(CachedElementQuery::class, '_cache'))->setValue(null, []);
-};
-$load = static function(int $id, ?int $site = null) use ($siteId, $resetCache): Session {
-    $resetCache();
+$load = static function(int $id, ?int $site = null) use ($siteId): Session {
     return Session::find()->id($id)->siteId($site ?? $siteId)->status(null)->drafts(null)->provisionalDrafts(null)->one() ?? throw new RuntimeException("Missing session $id.");
 };
 $timestamp = static fn(int $id): int => (new DateTime((new Query())->select('startDate')->from('{{%events_sessions}}')->where(['id' => $id])->scalar(), new DateTimeZone('UTC')))->getTimestamp();
@@ -87,8 +82,7 @@ $series = static function() use ($owner, $session): array {
     $group = StringHelper::UUID();
     return [$event, $session($event, $group), $session($event, $group, 2), $session($event, $group, 3)];
 };
-$request = static function(Event|Session $source, string $action, array $params) use ($app, $resetCache): array {
-    $resetCache();
+$request = static function(Event|Session $source, string $action, array $params) use ($app): array {
     $app->controller = null;
     $app->request->setQueryParams([]);
     $app->request->setBodyParams($params + [
@@ -214,7 +208,6 @@ try {
         $draftSource = $provisional ? $first : $app->drafts->createDraft($first, $user->id);
         $result = $request($draftSource, 'save-draft', $rangeParams('all') + ['provisional' => $provisional, 'draftId' => $draftSource->draftId]);
         $check(!isset($result['errors']), 'Session draft must save: ' . json_encode($result['errors'] ?? []));
-        $resetCache();
         $draft = Session::find()->draftOf($first->id)->drafts(null)->provisionalDrafts(null)->siteId($siteId)->status(null)->one();
         $check($draft !== null && $draft->getIsDraft(), 'Session draft must exist.');
         $check($timestamp($second->id) === $before, 'Saving a session draft must leave published siblings unchanged.');
@@ -233,7 +226,6 @@ try {
     $sessionDraft->setAttributesFromRequest($rangeParams('all'));
     $save($sessionDraft);
     $check($timestamp($second->id) === $before, 'Event draft edits must leave canonical siblings unchanged.');
-    $resetCache();
     $draftSiblings = Session::find()->ownerId($eventDraft->id)->groupUid($first->groupUid)->siteId($siteId)->drafts(null)->provisionalDrafts(null)->status(null)->all();
     $check(count($draftSiblings) === 3, 'Event draft must retain its full recurring series.');
     foreach ($draftSiblings as $sibling) {
@@ -242,7 +234,6 @@ try {
             $check($timestamp($sibling->id) === $before + 3600, 'Event draft sibling must receive the range update.');
         }
     }
-    $resetCache();
     $eventDraft = Event::find()->id($eventDraft->id)->drafts(null)->siteId($siteId)->status(null)->one();
     $eventDraft->setDirtyAttributes(['allSessions']);
     $save($eventDraft);
@@ -299,12 +290,13 @@ try {
                         $save($localized);
                     }
                 }
+                // Craft times draft and canonical changes to the second. Keep the canonical fixture write and the
+                // draft edit in different seconds so applying the draft doesn't treat the fixture as a newer change.
+                sleep(1);
                 $before = $timestamp($second->id);
-                $resetCache();
                 $event = Event::find()->id($event->id)->siteId($editingSite)->one();
                 $result = $request($event, 'save-draft', ['provisional' => $provisional]);
                 $check(!isset($result['errors']), 'CP event draft must save.');
-                $resetCache();
                 $eventDraft = Event::find()->draftOf($event->id)->drafts(null)->provisionalDrafts(null)->siteId($editingSite)->one();
                 $check($eventDraft !== null, 'CP event draft must exist.');
                 $check(count(Session::find()->owner($eventDraft)->all()) === 3, 'Trusted owner-model queries must preserve draft context and site.');
@@ -314,7 +306,6 @@ try {
                 $check($shared !== null, 'Draft must initially share the canonical session.');
                 $result = $request($shared, 'save-draft', ['provisional' => true]);
                 $check(!isset($result['errors']), 'CP nested session provisional draft must save.');
-                $resetCache();
                 $childDraft = Session::find()->draftOf($first->id)->ownerId($eventDraft->id)->drafts(null)->provisionalDrafts(null)->siteId($editingSite)->one();
                 $check($childDraft !== null, 'Nested session draft must retain its event-draft owner context.');
                 $params = $rangeParams($rangeType);
@@ -326,13 +317,11 @@ try {
                 $check(!isset($result['errors']), 'CP must save the session into its event draft.');
                 $check($timestamp($second->id) === $before, 'CP draft save must not publish recurring sibling dates.');
                 $check($load($second->id, $editingSite)->getFieldValue($field->handle) === "Original $editingSite", 'CP draft save must not publish sibling content.');
-                $resetCache();
                 $updatedSibling = Session::find()->ownerId($eventDraft->id)->andWhere(['elements.canonicalId' => $second->id])->siteId($editingSite)->one();
                 $check($updatedSibling !== null && $timestamp($updatedSibling->id) === $before + 3600, 'CP nested save must update the isolated recurring sibling; actual offset ' . ($updatedSibling ? $timestamp($updatedSibling->id) - $before : 'missing'));
                 $inputAttribute = $provisional ? 'allSessions' : 'sessions';
                 $result = $request($eventDraft, 'save-draft', ['draftId' => $eventDraft->draftId, 'provisional' => $provisional, $inputAttribute => '*']);
                 $check(!isset($result['errors']), 'CP event autosave must record nested session changes.');
-                $resetCache();
                 $eventDraft = Event::find()->id($eventDraft->id)->drafts(null)->provisionalDrafts(null)->siteId($editingSite)->one();
                 $check($eventDraft->isAttributeModified('allSessions'), 'CP autosave must persist the nested manager modification marker.');
                 $result = $request($eventDraft, 'apply-draft', ['draftId' => $eventDraft->draftId, 'provisional' => $provisional, $inputAttribute => '*']);
@@ -341,13 +330,11 @@ try {
                 $check($load($second->id, $editingSite)->getFieldValue($field->handle) === 'Draft translation', 'CP apply must publish translated sibling content.');
                 $untouchedSite = $editingSite === $siteId ? $otherSiteId : $siteId;
                 $check($load($second->id, $untouchedSite)->getFieldValue($field->handle) === "Original $untouchedSite", 'CP apply must retain translations in other sites.');
-                $resetCache();
-                $check(Session::find()->ownerId($event->id)->siteId($editingSite)->count() === 3, 'CP apply must retain exactly three canonical occurrences.');
+                $check((int)Session::find()->ownerId($event->id)->siteId($editingSite)->count() === 3, 'CP apply must retain exactly three canonical occurrences.');
             }
         }
     }
 
-    $resetCache();
     $check(count(Session::find()->owner($event->id)->siteId($editingSite)->all()) === 3, 'Trusted numeric owner queries must remain supported.');
     $check(count(Session::find()->primaryOwner([$event->id])->siteId($editingSite)->all()) === 3, 'Trusted primary-owner ID arrays must remain supported.');
     $check(Session::find()->owner($event)->fieldId(null)->one() !== null, 'Craft nested queries must accept the absence of a containing field.');

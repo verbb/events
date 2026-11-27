@@ -3,9 +3,7 @@ namespace verbb\events\elements\db;
 
 use craft\elements\db\ElementQuery;
 
-use verbb\base\elements\db\CachedElementQuery;
-
-class LegacyTicketTypeQuery extends CachedElementQuery
+class LegacyTicketTypeQuery extends ElementQuery
 {
     // Protected Methods
     // =========================================================================

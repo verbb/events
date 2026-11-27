@@ -3,7 +3,6 @@
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\elements\Order;
 use craft\helpers\StringHelper;
-use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\Events;
 use verbb\events\elements\Event;
 use verbb\events\elements\Session;
@@ -42,10 +41,6 @@ $save = static function($element) use ($app): void {
     if (!$app->elements->saveElement($element)) {
         throw new RuntimeException(json_encode($element->getErrors()));
     }
-};
-$resetCache = static function(): void {
-    (new ReflectionProperty(CachedElementQuery::class, '_cache'))->setValue(null, []);
-    (new ReflectionProperty(Ticket::find(), '_cache'))->setValue(null, []);
 };
 $app->user->setIdentity(null);
 $type = Events::$plugin->getEventTypes()->getAllEventTypes()[0];
@@ -90,10 +85,8 @@ try {
             $ticketType->availableTo = new DateTime('-1 day');
         }
         $save($ticketType);
-        $resetCache();
         $app->sites->setCurrentSite($siteId);
         $event->updateTickets();
-        $resetCache();
         $ticket = Ticket::find()->eventId($event->id)->siteId($siteId)->status(null)->one();
         $check($ticket !== null, "$case: the normal ticket generation path must remain usable.");
         $expected = $case === 'advance';
@@ -123,15 +116,21 @@ try {
             $check($draftTicket->getPrice() === 25.0, 'Draft previews must retain ticket pricing.');
         }
         $revisionId = $app->revisions->createRevision($event, (int)$userId, null, [], true);
-        $resetCache();
         $revision = Event::find()->id($revisionId)->siteId($siteId)->revisions(true)->one();
         $check($revision !== null, 'The revision control must exist.');
         $revisionTicket = clone $ticket;
         $revisionTicket->setEvent($revision);
         $check(!$revisionTicket->getIsAvailable(), 'Historical event revisions must not be purchasable.');
 
-        // Existing carts must recheck availability when the event expires.
-        $ticket->getEvent()->expiryDate = new DateTime('-1 minute');
+        // Existing carts must recheck availability when the event expires. A later request loads the cart's ticket afresh.
+        $expiredEvent = $ticket->getEvent();
+        $expiredEvent->expiryDate = new DateTime('-1 minute');
+        $save($expiredEvent);
+
+        foreach ($order->getLineItems() as $cartLineItem) {
+            $cartLineItem->setPurchasable(Ticket::find()->id($cartLineItem->purchasableId)->siteId($siteId)->status(null)->one());
+        }
+
         $order->validateLineItems();
         $check($order->getLineItems() === [], 'An existing cart must remove a ticket when its event expires.');
 

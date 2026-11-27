@@ -16,8 +16,6 @@ use yii\base\InvalidConfigException;
 use yii\db\Connection;
 use yii\db\Expression;
 
-use verbb\base\elements\db\CachedElementQuery;
-
 class TicketTypeQuery extends ElementQuery
 {
     // Traits

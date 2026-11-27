@@ -2,7 +2,6 @@
 
 use craft\helpers\StringHelper;
 use craft\models\GqlSchema;
-use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\Events;
 use verbb\events\elements\Event;
 use verbb\events\elements\TicketType;
@@ -42,9 +41,6 @@ $type = $types[0];
 $sites = array_keys($type->getSiteSettings());
 $check(count($sites) >= 2, 'The event type must support two sites.');
 [$siteId, $otherSiteId] = array_map('intval', array_slice($sites, 0, 2));
-$resetCache = static function(): void {
-    (new ReflectionProperty(CachedElementQuery::class, '_cache'))->setValue(null, []);
-};
 $save = static function($element) use ($app): void {
     if (!$app->elements->saveElement($element)) {
         throw new RuntimeException(json_encode($element->getErrors()));
@@ -57,13 +53,11 @@ $schemaFor = static function(array $permissions = [], ?array $siteIds = null, ?s
     }
     return new GqlSchema(['name' => 'TicketType regression', 'uid' => StringHelper::UUID(), 'isPublic' => true, 'scope' => $scope]);
 };
-$activate = static function(GqlSchema $schema) use ($app, $resetCache): void {
+$activate = static function(GqlSchema $schema) use ($app): void {
     $app->gql->flushCaches();
     $app->gql->setActiveSchema($schema);
-    $resetCache();
 };
-$execute = static function(string $query, array $variables = []) use ($app, $resetCache, $check): array {
-    $resetCache();
+$execute = static function(string $query, array $variables = []) use ($app, $check): array {
     $result = $app->gql->executeQuery($app->gql->getActiveSchema(), $query, $variables);
     $check(empty($result['errors']), 'GraphQL execution failed: ' . json_encode($result['errors'] ?? []));
     return $result['data'];
@@ -82,7 +76,6 @@ try {
         'title' => 'Standard ticket', 'price' => 25, 'capacity' => 50,
     ]);
     $save($ticketType);
-    $resetCache();
     $translated = Event::find()->id($event->id)->siteId($otherSiteId)->one();
     $check($translated !== null, 'The event must propagate to the second site.');
     $translated->title = 'Translated published event';
@@ -95,7 +88,6 @@ try {
         $drafts[] = $draft;
     }
     $revisionId = $app->revisions->createRevision($event, (int)$userId, null, [], true);
-    $resetCache();
     $revision = Event::find()->id($revisionId)->revisions(true)->siteId($siteId)->one();
     $check($revision !== null, 'A real event revision is required.');
 
@@ -113,7 +105,6 @@ try {
                 $data = $execute('query($ids:[QueryArgument]) { mixed: eventsTicketTypes(eventId:$ids,siteId:[' . $site . ']) { event { id title } } count: eventsTicketTypeCount(eventId:$ids,siteId:[' . $site . ']) }', ['ids' => $ids]);
                 $check(count($data['mixed']) === 1 && (int)$data['mixed'][0]['event']['id'] === $event->id && $data['count'] === 1, 'Mixed owner IDs must not reintroduce a draft during result hydration.');
             }
-            $resetCache();
             $trusted = TicketType::find()->eventId($draft->id)->siteId($site)->one();
             $check($trusted !== null && $trusted->getEvent()->id === $draft->id, 'Trusted PHP queries must still resolve draft owners without an identity.');
             $check(TicketTypeResolver::resolveEvent($trusted) === null, 'Already-loaded ticketType relationships must also reject hidden draft owners.');
@@ -148,7 +139,6 @@ try {
 
     $activate($restricted);
     $check($queryOwner($revisionId, $siteId) === [], 'Revision owners must be hidden without revision permission.');
-    $resetCache();
     $revisionTicketType = TicketType::find()->eventId($revisionId)->siteId($siteId)->status(null)->revisions(null)->one();
     $check($revisionTicketType !== null, 'The revision must own a ticketType.');
     $check(TicketTypeResolver::resolveEvent($revisionTicketType) === null, 'Nested revision owners must be hidden.');

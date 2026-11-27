@@ -4,7 +4,6 @@ use craft\db\Query;
 use craft\elements\User;
 use craft\events\AuthorizationCheckEvent;
 use craft\services\Elements;
-use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\Events;
 use verbb\events\elements\Event;
 use verbb\events\elements\Session;
@@ -57,22 +56,18 @@ $permissions = static function(bool $eventEdit = true, bool $ticketEdit = true, 
     }
     $app->userPermissions->saveUserPermissions($user->id, $values);
 };
-$reset = static function(): void {
-    (new ReflectionProperty(CachedElementQuery::class, '_cache'))->setValue(null, []);
-};
 $save = static function($element) use ($app): void {
     if (!$app->elements->saveElement($element)) {
         throw new RuntimeException(json_encode($element->getErrors()));
     }
 };
-$fixture = static function(int $site) use ($type, $save, $app, $reset): Event {
+$fixture = static function(int $site) use ($type, $save, $app): Event {
     $app->sites->setCurrentSite($site);
     $owner = new Event(['typeId' => $type->id, 'siteId' => $site, 'title' => 'Ticket ordering regression', 'postDate' => new DateTime('-1 day')]);
     $save($owner);
     foreach (['First', 'Second', 'Disabled'] as $name) {
         $save(new TicketType(['primaryOwner' => $owner, 'owner' => $owner, 'siteId' => $site, 'title' => $name, 'price' => 25, 'capacity' => 20, 'enabled' => $name !== 'Disabled']));
     }
-    $reset();
     return Event::find()->id($owner->id)->siteId($site)->one();
 };
 $order = static fn(Event $owner): array => (new Query())->select('elementId')->from('{{%elements_owners}}')->where(['ownerId' => $owner->id])->andWhere(['elementId' => $owner->getTicketTypes(true)->map(static fn($ticket) => $ticket->id)->all()])->orderBy(['sortOrder' => SORT_ASC])->column();
@@ -80,8 +75,7 @@ $auth = static fn(Event $owner, string $attribute = 'allTicketTypes'): string =>
 $render = static function(Event $owner, bool $static = false): void {
     (new ReflectionMethod(TicketTypesField::class, 'inputHtml'))->invoke(new TicketTypesField(), $owner, $static);
 };
-$reorder = static function(Event $owner, array $ids, string $attribute = 'allTicketTypes') use ($app, $reset): void {
-    $reset();
+$reorder = static function(Event $owner, array $ids, string $attribute = 'allTicketTypes') use ($app): void {
     $app->controller = null;
     $app->request->setQueryParams([]);
     $app->request->setBodyParams(['ownerElementType' => Event::class, 'ownerId' => $owner->id, 'ownerSiteId' => $owner->siteId, 'attribute' => $attribute, 'elementIds' => $ids, 'offset' => 0, $app->request->csrfParam => $app->request->getCsrfToken()]);
@@ -99,8 +93,7 @@ $denied = static function(Event $owner, array $ids, string $attribute = 'allTick
     $check($rejected, 'Current authorization must reject the reorder despite an existing session grant.');
     $check($order($owner) === $before, 'Rejected reorders must not change stored positions.');
 };
-$elementAction = static function(Event $owner, string $action, array $params) use ($app, $reset): array {
-    $reset();
+$elementAction = static function(Event $owner, string $action, array $params) use ($app): array {
     $app->controller = null;
     $app->request->setQueryParams([]);
     $app->request->setBodyParams($params + ['elementId' => $owner->id, 'elementType' => Event::class, 'siteId' => $owner->siteId, $app->request->csrfParam => $app->request->getCsrfToken()]);
@@ -189,7 +182,6 @@ try {
             $original = $order($canonical);
             $result = $elementAction($canonical, 'save-draft', ['provisional' => $provisional]);
             $check(!isset($result['errors']), 'The event draft must save.');
-            $reset();
             $draft = Event::find()->draftOf($canonical->id)->drafts(null)->provisionalDrafts(null)->siteId($site)->one();
             $check($draft !== null, 'The draft must exist.');
             $render($draft);
@@ -200,7 +192,6 @@ try {
             $input = $provisional ? 'allTicketTypes' : 'ticketTypes';
             $result = $elementAction($draft, 'save-draft', ['draftId' => $draft->draftId, 'provisional' => $provisional, $input => '*']);
             $check(!isset($result['errors']), 'Draft autosave must succeed.');
-            $reset();
             $draft = Event::find()->id($draft->id)->drafts(null)->provisionalDrafts(null)->siteId($site)->one();
             $result = $elementAction($draft, 'apply-draft', ['draftId' => $draft->draftId, 'provisional' => $provisional, $input => '*']);
             $check(!isset($result['errors']), 'Applying the event draft must succeed.');

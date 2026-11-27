@@ -1,6 +1,5 @@
 <?php
 
-use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\Events;
 use verbb\events\elements\Event;
 use verbb\events\elements\PurchasedTicket;
@@ -37,9 +36,6 @@ $siteId = (int)array_key_first($types[0]->getSiteSettings());
 $app->sites->setCurrentSite($siteId);
 $app->user->setIdentity(null);
 $app->request->setIsCpRequest(false);
-$reset = static function(): void {
-    (new ReflectionProperty(CachedElementQuery::class, '_cache'))->setValue(null, []);
-};
 $save = static function($element) use ($app): void {
     if (!$app->elements->saveElement($element)) {
         throw new RuntimeException('Fixture save failed: ' . json_encode($element->getErrors()));
@@ -77,9 +73,7 @@ try {
         $save($session);
         $ticketType = new TicketType(['primaryOwner' => $event, 'owner' => $event, 'siteId' => $siteId, 'title' => 'Standard', 'price' => 25, 'capacity' => 20]);
         $save($ticketType);
-        $reset();
         $event->updateTickets();
-        $reset();
         $ticket = Ticket::find()->eventId($event->id)->siteId($siteId)->one();
         $check($ticket !== null, 'Ticket generation must succeed.');
         $purchase = new PurchasedTicket(['eventId' => $event->id, 'sessionId' => $session->id, 'ticketTypeId' => $ticketType->id, 'ticketId' => $ticket->id, 'checkedIn' => false]);

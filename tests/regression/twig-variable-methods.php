@@ -1,7 +1,6 @@
 <?php
 
 use craft\elements\User;
-use verbb\base\elements\db\CachedElementQuery;
 use verbb\events\Events;
 use verbb\events\elements\Event;
 use verbb\events\elements\Session;
@@ -43,10 +42,6 @@ $save = static function($element) use ($app): void {
     if (!$app->elements->saveElement($element)) {
         throw new RuntimeException(json_encode($element->getErrors()));
     }
-};
-$resetCache = static function(): void {
-    (new ReflectionProperty(CachedElementQuery::class, '_cache'))->setValue(null, []);
-    (new ReflectionProperty(Ticket::find(), '_cache'))->setValue(null, []);
 };
 $ids = static fn(array $elements): array => array_map(static fn($element) => $element->id, $elements);
 $variable = new EventsVariable();
@@ -91,10 +86,8 @@ try {
     $save($otherEvent);
     $otherTicketType = new TicketType(['primaryOwner' => $otherEvent, 'owner' => $otherEvent, 'siteId' => $siteId, 'title' => 'Other', 'price' => 25, 'capacity' => 20]);
     $save($otherTicketType);
-    $resetCache();
     $event = Event::find()->id($event->id)->siteId($siteId)->one();
     $event->updateTickets();
-    $resetCache();
 
     // `getTicketTypes()` lists enabled ticket types across every event.
     $all = $variable->getTicketTypes();
