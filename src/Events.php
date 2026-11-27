@@ -42,6 +42,7 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
+use craft\events\ElementEvent;
 use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -75,6 +76,7 @@ use craft\commerce\services\Purchasables;
 
 use yii\base\ActionEvent;
 use yii\base\Event;
+use yii\queue\Queue;
 
 use fostercommerce\klaviyoconnect\services\Track;
 use fostercommerce\klaviyoconnect\models\EventProperties;
@@ -361,6 +363,20 @@ class Events extends Plugin
     {
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEventTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getEvents(), 'afterSaveSiteHandler']);
+
+        // Purchase counts are memoised for availability checks. Drop them whenever the data behind them may have
+        // changed: an Events element write, or a new queue job in a long-running worker.
+        $clearCounts = fn() => $this->getPurchasedTickets()->clearCountCaches();
+
+        foreach ([Elements::EVENT_AFTER_SAVE_ELEMENT, Elements::EVENT_AFTER_DELETE_ELEMENT, Elements::EVENT_AFTER_RESTORE_ELEMENT] as $eventName) {
+            Event::on(Elements::class, $eventName, static function(ElementEvent $event) use ($clearCounts): void {
+                if ($event->element instanceof PurchasedTicket || $event->element instanceof Ticket || $event->element instanceof TicketType || $event->element instanceof Session || $event->element instanceof EventElement) {
+                    $clearCounts();
+                }
+            });
+        }
+
+        Event::on(Queue::class, Queue::EVENT_BEFORE_EXEC, $clearCounts);
 
         // Exclude legacy ticket elements from the order editor purchasable picker, and tickets whose
         // event/session/type is missing, trashed, disabled, or not enabled for the order site.

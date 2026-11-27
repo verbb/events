@@ -8,6 +8,7 @@ use verbb\events\events\CustomizeEventSnapshotFieldsEvent;
 use verbb\events\events\CustomizeTicketSnapshotDataEvent;
 use verbb\events\events\CustomizeTicketSnapshotFieldsEvent;
 use verbb\events\helpers\TicketHelper;
+use verbb\events\helpers\ParentElements;
 use verbb\events\helpers\TicketCapacity;
 use verbb\events\helpers\TicketPurchasableStoreSync;
 use verbb\events\records\Ticket as TicketRecord;
@@ -251,7 +252,9 @@ class Ticket extends Purchasable
         }
 
         if ($this->eventId) {
-            return $this->_event = Events::$plugin->getEvents()->getEventById($this->eventId);
+            $parent = ParentElements::get(Event::class, $this->eventId);
+
+            return $this->_event = $parent !== false ? $parent : Events::$plugin->getEvents()->getEventById($this->eventId);
         }
 
         return null;
@@ -270,7 +273,9 @@ class Ticket extends Purchasable
         }
 
         if ($this->sessionId) {
-            return $this->_session = Events::$plugin->getSessions()->getSessionById($this->sessionId);
+            $parent = ParentElements::get(Session::class, $this->sessionId);
+
+            return $this->_session = $parent !== false ? $parent : Events::$plugin->getSessions()->getSessionById($this->sessionId);
         }
 
         return null;
@@ -289,7 +294,9 @@ class Ticket extends Purchasable
         }
 
         if ($this->typeId) {
-            return $this->_type = Events::$plugin->getTicketTypes()->getTicketTypeById($this->typeId);
+            $parent = ParentElements::get(TicketType::class, $this->typeId);
+
+            return $this->_type = $parent !== false ? $parent : Events::$plugin->getTicketTypes()->getTicketTypeById($this->typeId);
         }
 
         return null;
@@ -442,7 +449,8 @@ class Ticket extends Purchasable
 
     public function getPurchasedTicketsCount(): int
     {
-        $count = $this->id ? Events::$plugin->getPurchasedTickets()->getPurchasedTicketElementCountForTicket($this->id) : 0;
+        // Counts are memoised and loaded for the whole query result, as availability is often checked per ticket.
+        $count = Events::$plugin->getPurchasedTickets()->getMemoisedCount('ticketId', $this);
 
         return $count * max(1, $this->getType()?->seatsPerTicket ?? 1);
     }

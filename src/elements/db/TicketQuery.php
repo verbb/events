@@ -5,8 +5,10 @@ use verbb\events\elements\Event;
 use verbb\events\elements\Session;
 use verbb\events\elements\TicketType;
 use verbb\events\elements\TicketCollection;
+use verbb\events\helpers\ParentElements;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\db\Table;
 use craft\helpers\Db;
 
@@ -31,6 +33,9 @@ class TicketQuery extends PurchasableQuery
     public mixed $eventId = null;
     public mixed $sessionId = null;
     public mixed $typeId = null;
+
+    private ?array $_arrayRows = null;
+    private ?array $_arrayParents = null;
 
 
     // Public Methods
@@ -102,6 +107,48 @@ class TicketQuery extends PurchasableQuery
         return TicketCollection::make(parent::collect($db));
     }
 
+    public function populate($rows): array
+    {
+        $this->_arrayRows = $this->_arrayParents = null;
+
+        if (!$rows) {
+            return parent::populate($rows);
+        }
+
+        // Craft's eager loading fetches rows as arrays and then creates each ticket with `createElement()`, so keep the
+        // rows for those calls to share one parent batch. Plain array queries never load parents.
+        if ($this->asArray) {
+            $this->_arrayRows = $rows;
+
+            return parent::populate($rows);
+        }
+
+        // Each ticket resolves its event, session and type in `init()`, so load them once for all rows.
+        return ParentElements::populate($this->_loadParents($rows), fn() => parent::populate($rows));
+    }
+
+    public function createElement(array $row): ElementInterface
+    {
+        if ($this->_arrayRows === null) {
+            return parent::createElement($row);
+        }
+
+        $this->_arrayParents ??= $this->_loadParents($this->_arrayRows);
+
+        return ParentElements::populate($this->_arrayParents, fn() => parent::createElement($row));
+    }
+
+    public function afterPopulate(array $elements): array
+    {
+        // `populate()` also calls this for array rows. Eager loading switches `asArray` off before its own final call, so
+        // the parent batch ends with the elements it created.
+        if (!$this->asArray) {
+            $this->_arrayRows = $this->_arrayParents = null;
+        }
+
+        return parent::afterPopulate($elements);
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -163,6 +210,15 @@ class TicketQuery extends PurchasableQuery
 
     // Private Methods
     // =========================================================================
+
+    private function _loadParents(array $rows): array
+    {
+        return ParentElements::load([
+            Event::class => array_column($rows, 'eventId'),
+            Session::class => array_column($rows, 'sessionId'),
+            TicketType::class => array_column($rows, 'typeId'),
+        ]);
+    }
 
     private function _applyHasEventParam(): void
     {

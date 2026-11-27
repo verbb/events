@@ -2,10 +2,12 @@
 namespace verbb\events\elements\db;
 
 use verbb\events\elements\Event;
+use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Session;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
 use verbb\events\elements\PurchasedTicketCollection;
+use verbb\events\helpers\ParentElements;
 
 use Craft;
 use craft\db\Query;
@@ -191,6 +193,68 @@ class PurchasedTicketQuery extends ElementQuery
     public function collect(?Connection $db = null): PurchasedTicketCollection
     {
         return PurchasedTicketCollection::make(parent::collect($db));
+    }
+
+    public function populate($rows): array
+    {
+        if ($this->asArray || !$rows) {
+            return parent::populate($rows);
+        }
+
+        // Each purchased ticket resolves its event, ticket and ticket type in `init()` for its title and field layout,
+        // so load them once for all rows. Tickets go first, because the parents they load cover most of the rest.
+        $tickets = ParentElements::load([Ticket::class => array_column($rows, 'ticketId')])[Ticket::class];
+        $known = [];
+
+        foreach ($tickets as $ticket) {
+            if ($ticket?->eventId && ($event = $ticket->getEvent())) {
+                $known[Event::class][$event->id] = $event;
+            }
+
+            if ($ticket?->sessionId && ($session = $ticket->getSession())) {
+                $known[Session::class][$session->id] = $session;
+            }
+
+            if ($ticket?->typeId && ($type = $ticket->getType())) {
+                $known[TicketType::class][$type->id] = $type;
+            }
+        }
+
+        $parents = ParentElements::load([
+            Event::class => array_column($rows, 'eventId'),
+            Session::class => array_column($rows, 'sessionId'),
+            TicketType::class => array_column($rows, 'ticketTypeId'),
+        ], $known);
+
+        $parents[Ticket::class] = $tickets;
+
+        $elements = ParentElements::populate($parents, fn() => parent::populate($rows));
+
+        // `init()` doesn't always need every parent (the session in particular), so hand the loaded ones over for later
+        // getter calls, as eager loading would.
+        foreach ($elements as $element) {
+            if (!$element instanceof PurchasedTicket) {
+                continue;
+            }
+
+            if ($event = $parents[Event::class][$element->eventId] ?? null) {
+                $element->setEvent($event);
+            }
+
+            if ($session = $parents[Session::class][$element->sessionId] ?? null) {
+                $element->setSession($session);
+            }
+
+            if ($ticket = $parents[Ticket::class][$element->ticketId] ?? null) {
+                $element->setTicket($ticket);
+            }
+
+            if ($ticketType = $parents[TicketType::class][$element->ticketTypeId] ?? null) {
+                $element->setTicketType($ticketType);
+            }
+        }
+
+        return $elements;
     }
 
 

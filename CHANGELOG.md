@@ -2,8 +2,14 @@
 
 ## Unreleased
 
+### Added
+- Added `verbb\events\services\PurchasedTickets::clearCountCaches()`, for code that changes purchased tickets directly in the database.
+
 ### Changed
 - Event, session, ticket type, ticket and purchased ticket queries no longer keep results for the rest of the request. Their `count()` now returns the same value type as Craft’s own element queries.
+- Improved the performance of event pages, ticket listings, purchased ticket lists and the Events index’s capacity columns. Ticket and purchased ticket queries now load their events, sessions, ticket types and tickets once for all results, rather than once per ticket.
+- Improved the performance of ticket availability and capacity checks. Purchase counts are now loaded once for all tickets, sessions or events fetched together, and are refreshed whenever Events elements are saved, deleted or restored.
+- Event queries no longer aggregate every session in the database unless they filter or sort by session dates.
 
 ### Fixed
 - Fixed event, session, ticket type, ticket and purchased ticket queries returning results from an earlier query with a different limit, offset, order, condition or `asArray()` setting. ([#231](https://github.com/verbb/events/issues/231))

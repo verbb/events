@@ -9,6 +9,7 @@ use verbb\events\Events;
 use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\events\RefundTransactionEvent;
@@ -36,6 +37,12 @@ class PurchasedTickets extends Component
     public const EVENT_AFTER_CANCEL = 'afterCancel';
     public const EVENT_BEFORE_RESTORE = 'beforeRestore';
     public const EVENT_AFTER_RESTORE = 'afterRestore';
+
+
+    // Properties
+    // =========================================================================
+
+    private array $_counts = [];
 
 
     // Public Methods
@@ -96,6 +103,44 @@ class PurchasedTickets extends Component
         return (int)$this->_activePurchasedTicketElementsQuery()
             ->andWhere(['pt.ticketId' => $ticketId])
             ->count('*');
+    }
+
+    /**
+     * Returns the active purchase count for a ticket (`ticketId`), or the purchased seats for a session (`sessionId`)
+     * or event (`eventId`). Unknown counts are loaded together with the rest of the element's query result, as lazy
+     * eager loading would, and kept outside database transactions until `clearCountCaches()`. The single-ID methods
+     * above always query.
+     *
+     * @internal
+     */
+    public function getMemoisedCount(string $column, ElementInterface $element): int
+    {
+        if (!$element->id) {
+            return 0;
+        }
+
+        if (isset($this->_counts[$column][$element->id])) {
+            return $this->_counts[$column][$element->id];
+        }
+
+        $ids = [$element->id];
+
+        foreach ($element->elementQueryResult ?? [] as $sibling) {
+            if ($sibling instanceof $element) {
+                $ids[] = $sibling->id;
+            }
+        }
+
+        return $this->_memoisedCounts($column, $ids)[$element->id] ?? 0;
+    }
+
+    /**
+     * Forgets memoised purchase counts. Events calls this whenever its elements are saved, deleted or restored, and
+     * before each queue job. Call it after changing purchased tickets directly in the database.
+     */
+    public function clearCountCaches(): void
+    {
+        $this->_counts = [];
     }
 
     public function cancelPurchasedTicket(PurchasedTicket $purchasedTicket, ?string $reason = null): bool
@@ -497,6 +542,50 @@ class PurchasedTickets extends Component
         }
 
         return $this->_seatsCountQuery($query, $conditions);
+    }
+
+    private function _memoisedCounts(string $column, array $ids): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+        $counts = array_intersect_key($this->_counts[$column] ?? [], array_flip($ids));
+        $missing = array_values(array_diff($ids, array_keys($counts)));
+
+        // Counts read inside a transaction aren't kept, because it may still roll back (savepoint rollbacks trigger no
+        // event). Writes made through elements inside it clear the memo, so earlier counts are never served stale.
+        $keep = Craft::$app->getDb()->getTransaction() === null;
+
+        // Chunk large sibling sets (such as a CP export) to keep each `IN` list reasonable.
+        foreach (array_chunk($missing, 500) as $chunk) {
+            $totals = $this->_fetchCounts($column, $chunk);
+
+            foreach ($chunk as $id) {
+                $counts[$id] = (int)($totals[$id] ?? 0);
+
+                if ($keep) {
+                    $this->_counts[$column][$id] = $counts[$id];
+                }
+            }
+        }
+
+        return $counts;
+    }
+
+    private function _fetchCounts(string $column, array $ids): array
+    {
+        // Tickets count purchased ticket elements; sessions and events count the seats those tickets hold.
+        if ($column === 'ticketId') {
+            $query = $this->_activePurchasedTicketElementsQuery()
+                ->andWhere(['pt.ticketId' => $ids])
+                ->select(['total' => new Expression('COUNT(*)')]);
+        } else {
+            $query = $this->_purchasedSeatsCountQuery([$column => $ids]);
+        }
+
+        // `pairs()` keys by the first selected column.
+        return $query
+            ->select(array_merge(["pt.$column"], $query->select))
+            ->groupBy(["pt.$column"])
+            ->pairs();
     }
 
     private function _seatsCountQuery(Query $query, array $conditions): Query

@@ -663,11 +663,8 @@ class Session extends Element implements NestedElementInterface
 
     public function getPurchasedSeatsCount(): int
     {
-        if (!$this->id) {
-            return 0;
-        }
-
-        return Events::$plugin->getPurchasedTickets()->getPurchasedSeatsCountForSession($this->id);
+        // Memoised and loaded for the whole query result, as availability checks ask for it per ticket.
+        return Events::$plugin->getPurchasedTickets()->getMemoisedCount('sessionId', $this);
     }
 
     public function getRemainingSeatsCount(): ?int

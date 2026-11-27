@@ -6,6 +6,7 @@ use verbb\events\elements\actions\CancelPurchasedTickets;
 use verbb\events\elements\actions\RestorePurchasedTickets;
 use verbb\events\elements\conditions\purchasedtickets\PurchasedTicketCondition;
 use verbb\events\elements\db\PurchasedTicketQuery;
+use verbb\events\helpers\ParentElements;
 use verbb\events\records\PurchasedTicket as PurchasedTicketRecord;
 
 use Craft;
@@ -407,7 +408,9 @@ class PurchasedTicket extends Element
         }
 
         if ($this->eventId) {
-            return $this->_event = Events::$plugin->getEvents()->getEventById($this->eventId);
+            $parent = ParentElements::get(Event::class, $this->eventId);
+
+            return $this->_event = $parent !== false ? $parent : Events::$plugin->getEvents()->getEventById($this->eventId);
         }
 
         return null;
@@ -425,7 +428,9 @@ class PurchasedTicket extends Element
         }
 
         if ($this->sessionId) {
-            return $this->_session = Events::$plugin->getSessions()->getSessionById($this->sessionId);
+            $parent = ParentElements::get(Session::class, $this->sessionId);
+
+            return $this->_session = $parent !== false ? $parent : Events::$plugin->getSessions()->getSessionById($this->sessionId);
         }
 
         return null;
@@ -443,7 +448,9 @@ class PurchasedTicket extends Element
         }
 
         if ($this->ticketId) {
-            return $this->_ticket = Events::$plugin->getTickets()->getTicketById($this->ticketId);
+            $parent = ParentElements::get(Ticket::class, $this->ticketId);
+
+            return $this->_ticket = $parent !== false ? $parent : Events::$plugin->getTickets()->getTicketById($this->ticketId);
         }
 
         return null;
@@ -461,7 +468,9 @@ class PurchasedTicket extends Element
         }
 
         if ($this->ticketTypeId) {
-            return $this->_ticketType = Events::$plugin->getTicketTypes()->getTicketTypeById($this->ticketTypeId);
+            $parent = ParentElements::get(TicketType::class, $this->ticketTypeId);
+
+            return $this->_ticketType = $parent !== false ? $parent : Events::$plugin->getTicketTypes()->getTicketTypeById($this->ticketTypeId);
         }
 
         return null;

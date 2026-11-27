@@ -652,6 +652,7 @@ class Event extends Element
 
         if ($fieldLayout->id) {
             $this->fieldLayoutId = $fieldLayout->id;
+
             return $fieldLayout;
         }
 
@@ -714,11 +715,8 @@ class Event extends Element
      */
     public function getPurchasedSeatsCount(): int
     {
-        if (!$this->id) {
-            return 0;
-        }
-
-        return Events::$plugin->getPurchasedTickets()->getPurchasedSeatsCountForEvent($this->id);
+        // Memoised and loaded for the whole query result, as availability checks ask for it per ticket.
+        return Events::$plugin->getPurchasedTickets()->getMemoisedCount('eventId', $this);
     }
 
     public function getIsAvailable(): bool
@@ -797,6 +795,7 @@ class Event extends Element
     {
         if ($sessions instanceof SessionQuery) {
             $this->_sessions = null;
+
             return;
         }
 
@@ -855,6 +854,7 @@ class Event extends Element
     {
         if ($ticketTypes instanceof TicketTypeQuery) {
             $this->_ticketTypes = null;
+
             return;
         }
 
@@ -891,6 +891,7 @@ class Event extends Element
     {
         if ($tickets instanceof TicketQuery) {
             $this->_tickets = null;
+
             return;
         }
 
@@ -1472,6 +1473,7 @@ class Event extends Element
 
                 if ($sessionCapacity !== null) {
                     $sum += $sessionCapacity;
+
                     continue;
                 }
 
@@ -1533,6 +1535,7 @@ class Event extends Element
 
             if ($sessionRemaining !== null) {
                 $sum += $sessionRemaining;
+
                 continue;
             }
 

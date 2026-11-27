@@ -7,6 +7,9 @@ use verbb\events\elements\PurchasedTicket;
 use verbb\events\elements\Session;
 use verbb\events\elements\Ticket;
 use verbb\events\elements\TicketType;
+use verbb\events\helpers\ParentElements;
+use yii\queue\ExecEvent;
+use yii\queue\Queue;
 
 $appPath = getenv('VERBB_TEST_APP');
 $database = getenv('VERBB_TEST_DISPOSABLE_DATABASE');
@@ -107,6 +110,75 @@ try {
     $check(!PurchasedTicket::find()->id($purchase->id)->one()->checkedIn, 'An update inside a nested transaction is visible.');
     $savepoint->rollBack();
     $check((bool)PurchasedTicket::find()->id($purchase->id)->one()->checkedIn, 'A rolled-back update is not served afterward.');
+
+    // Rows from one query share the parents loaded for them; nothing is kept for later queries.
+    $batch = Ticket::find()->eventId($event->id)->status(null)->all();
+    $check($batch[0]->getEvent() === $batch[1]->getEvent(), 'Tickets from one query share their batched event.');
+    $check(Ticket::find()->id($batch[0]->id)->status(null)->one()->getEvent() !== $batch[0]->getEvent(), 'A later ticket query loads its own event.');
+    $check(ParentElements::get(Event::class, $event->id) === false, 'Batched parents are only available while a query populates.');
+    $purchases = PurchasedTicket::find()->eventId($event->id)->status(null)->all();
+    $check($purchases[0]->getSession()?->id === $purchases[0]->sessionId && $purchases[0]->getTicket()?->id === $purchases[0]->ticketId && $purchases[0]->getTicketType()?->id === $purchases[0]->ticketTypeId, 'Purchased tickets receive their own batched parents.');
+
+    // Parents are loaded once per query, not once per row.
+    $app->db->enableProfiling = true;
+    $logger = Yii::getLogger();
+    $logger->flushInterval = PHP_INT_MAX;
+    $queryCount = static function(callable $run) use ($logger): int {
+        $logger->messages = [];
+        $run();
+
+        return $logger->getDbProfiling()[0];
+    };
+    $ticketQueries = $queryCount(static function() use ($event): void {
+        foreach (Ticket::find()->eventId($event->id)->status(null)->all() as $ticket) {
+            $ticket->getEvent();
+            $ticket->getSession();
+            $ticket->getType();
+        }
+    });
+    $check($ticketQueries <= 5, "Six tickets and their parents load in five queries or fewer ($ticketQueries).");
+    $purchaseQueries = $queryCount(static function() use ($event): void {
+        foreach (PurchasedTicket::find()->eventId($event->id)->status(null)->all() as $purchase) {
+            $purchase->getEvent();
+            $purchase->getSession();
+            $purchase->getTicket();
+            $purchase->getTicketType();
+        }
+    });
+    $check($purchaseQueries <= 6, "Six purchased tickets and their parents load in six queries or fewer ($purchaseQueries).");
+    $eagerQueries = $queryCount(static function() use ($event): void {
+        foreach (Event::find()->id($event->id)->with(['tickets'])->one()->getTickets(true) as $ticket) {
+            $ticket->getEvent();
+            $ticket->getSession();
+            $ticket->getType();
+        }
+    });
+    $check($eagerQueries <= 7, "Eager-loaded tickets load their parents in one batch ($eagerQueries queries).");
+
+    // Purchase counts are only kept outside transactions, and are dropped on writes and at queue job boundaries.
+    $service = Events::$plugin->getPurchasedTickets();
+    $kept = new ReflectionProperty($service, '_counts');
+    $ticket = $batch[0];
+    $check($ticket->getPurchasedTicketsCount() === 1 && $kept->getValue($service) === [], 'Counts read inside a transaction are correct and not kept.');
+    $kept->setValue($service, ['ticketId' => [$ticket->id => 5]]);
+    $check($ticket->getPurchasedTicketsCount() === 5, 'Kept counts are reused.');
+    $save(new PurchasedTicket(['eventId' => $event->id, 'sessionId' => $ticket->sessionId, 'ticketTypeId' => $ticket->typeId, 'ticketId' => $ticket->id, 'checkedIn' => false]));
+    $check($kept->getValue($service) === [] && $ticket->getPurchasedTicketsCount() === 2, 'Saving a purchased ticket drops kept counts.');
+    $kept->setValue($service, ['sessionId' => [$ticket->sessionId => 5]]);
+    $app->getQueue()->trigger(Queue::EVENT_BEFORE_EXEC, new ExecEvent());
+    $check($kept->getValue($service) === [], 'Each queue job starts without kept counts.');
+
+    // Session dates come from live sessions, and anything that names them still sorts and filters on them.
+    $firstStart = Session::find()->eventId($event->id)->orderBy(['startDate' => SORT_ASC])->one()->startDate;
+    $lastEnd = Session::find()->eventId($event->id)->orderBy(['endDate' => SORT_DESC])->one()->endDate;
+    $loaded = Event::find()->id($event->id)->one();
+    $check($loaded->startDate?->getTimestamp() === $firstStart->getTimestamp() && $loaded->endDate?->getTimestamp() === $lastEnd->getTimestamp(), 'Events load their first session start and last session end.');
+    $check(Event::find()->id($event->id)->asArray()->one()['startDate'] !== null, 'Array results include session dates.');
+    $check(Event::find()->id($event->id)->orderBy('startDate asc')->ids() === [$event->id], 'IDs can be ordered by session dates.');
+    $check(Event::find()->id($event->id)->orderBy('sessions.endDate desc')->one()?->id === $event->id, 'Orders can name the sessions alias.');
+    $check(Event::find()->id($event->id)->andWhere(['<', 'startDate', Db::prepareDateForDb(new DateTime('+2 weeks'))])->count() == 0, 'Custom conditions can name session dates.');
+    $check(Event::find()->id($event->id)->startDate('>= ' . (new DateTime('+2 weeks'))->format('Y-m-d'))->exists(), 'Start date criteria match the first session.');
+    $check(!Event::find()->id($event->id)->endDate('< ' . (new DateTime('+2 months'))->format('Y-m-d'))->exists(), 'End date criteria match the last session.');
 
     // A second sync in the same process sees nested elements added after the first one.
     $save(new Session(['primaryOwner' => $event, 'owner' => $event, 'siteId' => $siteId, 'startDate' => new DateTime('+4 month'), 'endDate' => new DateTime('+4 month +2 hours')]));

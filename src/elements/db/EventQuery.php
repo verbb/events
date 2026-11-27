@@ -8,10 +8,13 @@ use verbb\events\models\EventType;
 use Craft;
 use craft\db\Query;
 use craft\db\QueryAbortedException;
+use craft\db\Table;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
+
+use yii\db\Expression;
 
 use DateTime;
 
@@ -138,31 +141,10 @@ class EventQuery extends ElementQuery
             'events_events.expiryDate',
             'events_events.ticketsCache',
 
-            // Get the earliest startDate and latest endDate from the sessions table
-            'sessions.startDate',
-            'sessions.endDate',
+            // The earliest start and latest end of the event's live sessions, looked up for just the returned events.
+            'startDate' => $this->_sessionDateQuery('MIN', 'startDate'),
+            'endDate' => $this->_sessionDateQuery('MAX', 'endDate'),
         ]);
-
-        // Subquery for sessions aggregation, to get around GROUPBY issues
-        $sessionsQuery = (new Query())
-            ->select([
-                'primaryOwnerId AS eventId',
-                'MIN([[startDate]]) AS startDate',
-                'MAX([[endDate]]) AS endDate',
-            ])
-            ->from('{{%events_sessions}} events_sessions')
-            ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[events_sessions.id]]')
-            ->where([
-                // Only count live and non-deleted session elements
-                'elements.enabled' => true,
-                'elements.dateDeleted' => null,
-            ])
-            ->groupBy('primaryOwnerId');
-
-        // Join both the `subQuery` and `query` to ensure pagination/limit/etc works correctly (`subQuery`), and
-        // that the `startDate` and `endDate` are available on the Event model (`query`).
-        $this->subQuery->leftJoin(['sessions' => $sessionsQuery], '[[sessions.eventId]] = [[events_events.id]]');
-        $this->query->leftJoin(['sessions' => $sessionsQuery], '[[sessions.eventId]] = [[events_events.id]]');
 
         if (isset($this->typeId)) {
             $this->subQuery->andWhere(['events_events.typeId' => $this->typeId]);
@@ -184,6 +166,24 @@ class EventQuery extends ElementQuery
 
     protected function afterPrepare(): bool
     {
+        // The whole-table session aggregate is only joined where something filters or sorts on session dates, or refers
+        // to the `sessions` alias directly. Other event queries, the default `postDate` order included, skip it.
+        if (isset($this->startDate) || isset($this->endDate) || $this->_referencesSessionDates($this->subQuery)) {
+            $this->subQuery->leftJoin(['sessions' => $this->_sessionsAggregateQuery()], '[[sessions.eventId]] = [[events_events.id]]');
+        }
+
+        // The main query selects session dates through correlated lookups for just the returned events. Anything that
+        // sorts or filters on them (or replaces the select, as `ids()` does) gets the joined columns, as before.
+        if ($this->_referencesSessionDates($this->query)) {
+            $this->query->leftJoin(['sessions' => $this->_sessionsAggregateQuery()], '[[sessions.eventId]] = [[events_events.id]]');
+
+            foreach (['startDate', 'endDate'] as $column) {
+                if (($this->query->select[$column] ?? null) instanceof Query) {
+                    $this->query->select[$column] = "sessions.$column";
+                }
+            }
+        }
+
         // Ensure startDate/endDate sort is applied in the subQuery so pagination returns the
         // correct slice of all events (e.g. 100 earliest vs 100 latest), not just re-sorting
         // the current page. Qualify column names for the joined sessions table.
@@ -260,6 +260,73 @@ class EventQuery extends ElementQuery
                 ->where(Db::parseParam('id', $this->typeId))
                 ->column();
         }
+    }
+
+    private function _sessionsAggregateQuery(): Query
+    {
+        // Subquery for sessions aggregation, to get around GROUP BY issues
+        return (new Query())
+            ->select([
+                'primaryOwnerId AS eventId',
+                'MIN([[startDate]]) AS startDate',
+                'MAX([[endDate]]) AS endDate',
+            ])
+            ->from('{{%events_sessions}} events_sessions')
+            ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[events_sessions.id]]')
+            ->where([
+                // Only count live and non-deleted session elements
+                'elements.enabled' => true,
+                'elements.dateDeleted' => null,
+            ])
+            ->groupBy('primaryOwnerId');
+    }
+
+    private function _sessionDateQuery(string $aggregate, string $column): Query
+    {
+        // Matches `_sessionsAggregateQuery()` for one event, using the `primaryOwnerId` index.
+        return (new Query())
+            ->select(new Expression("$aggregate([[sessionDates.$column]])"))
+            ->from(['sessionDates' => '{{%events_sessions}}'])
+            ->innerJoin(['sessionElements' => Table::ELEMENTS], '[[sessionElements.id]] = [[sessionDates.id]]')
+            ->where('[[sessionDates.primaryOwnerId]] = [[events_events.id]]')
+            ->andWhere([
+                'sessionElements.enabled' => true,
+                'sessionElements.dateDeleted' => null,
+            ]);
+    }
+
+    private function _referencesSessionDates(Query $query): bool
+    {
+        // Session dates were always joined as `sessions`, and were the only `startDate`/`endDate` columns in scope, so
+        // custom conditions and orders may name either. Select keys are skipped, as they're our own aliases.
+        $parts = [array_values($query->select ?? []), $query->where, $query->having, $query->groupBy, $query->orderBy];
+
+        foreach ($query->join ?? [] as $join) {
+            $parts[] = $join[2] ?? null;
+        }
+
+        return $this->_containsPattern($parts, '/\bsessions\.|\b(startDate|endDate)\b/i');
+    }
+
+    private function _containsPattern(mixed $value, string $pattern): bool
+    {
+        if (is_string($value)) {
+            return (bool)preg_match($pattern, $value);
+        }
+
+        if ($value instanceof Expression) {
+            return (bool)preg_match($pattern, $value->expression);
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                if ((is_string($key) && preg_match($pattern, $key)) || $this->_containsPattern($item, $pattern)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private function _applyEditableParam(): void
