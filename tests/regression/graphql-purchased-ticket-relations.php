@@ -37,7 +37,7 @@ $check = static function(bool $condition, string $message) use (&$checks): void 
     }
     $checks++;
 };
-$check($app->db->createCommand('SELECT DATABASE()')->queryScalar() === $database, 'An explicitly named disposable database is required.');
+$check($app->db->createCommand($app->db->getIsPgsql() ? 'SELECT current_database()' : 'SELECT DATABASE()')->queryScalar() === $database, 'An explicitly named disposable database is required.');
 $types = array_slice(Events::$plugin->getEventTypes()->getAllEventTypes(), 0, 2);
 $check(count($types) === 2, 'Two event types are required.');
 $siteId = (int)array_key_first($types[0]->getSiteSettings());

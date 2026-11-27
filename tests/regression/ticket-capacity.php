@@ -32,7 +32,7 @@ $_SERVER['REQUEST_URI'] = '/';
 $_SERVER['HTTP_ACCEPT'] = 'application/json';
 require $appPath . '/bootstrap.php';
 $app = require CRAFT_VENDOR_PATH . '/craftcms/cms/bootstrap/web.php';
-if ($app->db->createCommand('SELECT DATABASE()')->queryScalar() !== $database) {
+if ($app->db->createCommand($app->db->getIsPgsql() ? 'SELECT current_database()' : 'SELECT DATABASE()')->queryScalar() !== $database) {
     throw new RuntimeException('An explicitly named disposable database is required.');
 }
 $app->user->setIdentity(null);

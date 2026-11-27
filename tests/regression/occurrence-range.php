@@ -45,7 +45,7 @@ $check = static function(bool $condition, string $message) use (&$checks): void 
     }
     $checks++;
 };
-$check($app->db->createCommand('SELECT DATABASE()')->queryScalar() === $database, 'The connected database must match the explicitly named disposable database.');
+$check($app->db->createCommand($app->db->getIsPgsql() ? 'SELECT current_database()' : 'SELECT DATABASE()')->queryScalar() === $database, 'The connected database must match the explicitly named disposable database.');
 $user = User::find()->id($userId)->one();
 $check($user !== null && !$user->admin && $user->can('accessCp'), 'Use a non-admin CP user.');
 $type = Events::$plugin->getEventTypes()->getAllEventTypes()[0];

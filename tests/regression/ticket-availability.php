@@ -36,7 +36,7 @@ $check = static function(bool $condition, string $message) use (&$checks): void 
     }
     $checks++;
 };
-$check($app->db->createCommand('SELECT DATABASE()')->queryScalar() === $database, 'An explicitly named disposable database is required.');
+$check($app->db->createCommand($app->db->getIsPgsql() ? 'SELECT current_database()' : 'SELECT DATABASE()')->queryScalar() === $database, 'An explicitly named disposable database is required.');
 $save = static function($element) use ($app): void {
     if (!$app->elements->saveElement($element)) {
         throw new RuntimeException(json_encode($element->getErrors()));
