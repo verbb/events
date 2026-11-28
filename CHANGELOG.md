@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 3.3.0 - 2026-11-29
 
 ### Added
 - Added `verbb\events\services\PurchasedTickets::clearCountCaches()`, for code that changes purchased tickets directly in the database.
